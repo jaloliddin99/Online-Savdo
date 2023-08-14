@@ -40,8 +40,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -74,10 +77,16 @@ class MainActivity : ComponentActivity() {
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(
+    ExperimentalMaterial3Api::class,
+    ExperimentalLayoutApi::class,
+    ExperimentalComposeUiApi::class
+)
 @Composable
 fun MainScreenView() {
+
     val rememberNavController = rememberNavController()
+
     val currentBackStackEntry by rememberNavController.currentBackStackEntryAsState()
     val currentRoute by remember {
         derivedStateOf {
@@ -89,53 +98,58 @@ fun MainScreenView() {
         mutableStateOf(false)
     }
 
-    AppBackground {
-        AppGradientBackground(
-            gradientColors = if (currentRoute == NavItems.Home.screenRoute) {
-                LocalGradientColors.current
-            } else {
-                GradientColors()
-            },
+    Scaffold(
+        modifier = Modifier.semantics {
+            testTagsAsResourceId = true
+        },
+        bottomBar = { BottomNavigation(rememberNavController) },
+        containerColor = Color.Transparent,
+        contentColor = MaterialTheme.colorScheme.background,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .consumeWindowInsets(padding)
+                .windowInsetsPadding(
+                    WindowInsets.safeDrawing.only(
+                        WindowInsetsSides.Horizontal
+                    )
+                )
         ) {
-            Scaffold(
-                bottomBar = { BottomNavigation(rememberNavController) },
-                containerColor = Color.Transparent,
-                contentColor = MaterialTheme.colorScheme.background,
-                contentWindowInsets = WindowInsets(0,0,0,0)
-            ) { padding ->
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding)
-                        .consumeWindowInsets(padding)
-                        .windowInsetsPadding(
-                            WindowInsets.safeDrawing.only(
-                                WindowInsetsSides.Horizontal
-                            )
-                        )
-                ) {
-                    val destination = currentDestination(currentRoute)
-                    if (destination != null) {
-                        TopAppBar(
-                            titleRes = destination.titleRes,
-                            navigationIcon = Icons.Filled.Search,
-                            navigationIconContentDescription = null,
-                            actionIcon = Icons.Filled.Settings,
-                            actionIconContentDescription = null,
-                            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                                containerColor = Color.Transparent
-                            ),
-                            onActionClick = { showSettingsDialog = true },
-                            onNavigationClick = {
+            val destination = currentDestination(currentRoute)
+            if (destination != null) {
+                TopAppBar(
+                    titleRes = destination.titleRes,
+                    navigationIcon = Icons.Filled.Search,
+                    navigationIconContentDescription = null,
+                    actionIcon = Icons.Filled.Settings,
+                    actionIconContentDescription = null,
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = Color.Transparent
+                    ),
+                    onActionClick = { showSettingsDialog = true },
+                    onNavigationClick = {
 
-                            }
-                        )
                     }
-                    NavigationGraph(rememberNavController)
-                }
+                )
             }
+            NavigationGraph(rememberNavController)
         }
     }
+
+//    AppBackground {
+//        AppGradientBackground(
+//            gradientColors = if (currentRoute == NavItems.Home.screenRoute) {
+//                LocalGradientColors.current
+//            } else {
+//                GradientColors()
+//            }
+//        ) {
+//
+//        }
+//    }
 }
 
 
