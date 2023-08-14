@@ -1,5 +1,6 @@
 package org.don.bottomappbar
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,6 +28,7 @@ object BottomNavContentScreens {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .background(Color.Transparent)
                 .padding(16.dp, 0.dp),
             horizontalAlignment = Alignment.Start
         ) {

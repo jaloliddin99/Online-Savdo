@@ -77,56 +77,49 @@ class MainActivity : ComponentActivity() {
 fun MainScreenView() {
     val rememberNavController = rememberNavController()
     val currentBackStackEntry by rememberNavController.currentBackStackEntryAsState()
-    val currentRoute by remember { derivedStateOf { currentBackStackEntry?.destination?.route ?: "home" } }
+    val currentRoute by remember {
+        derivedStateOf {
+            currentBackStackEntry?.destination?.route ?: "home"
+        }
+    }
 
     var showSettingsDialog by rememberSaveable {
         mutableStateOf(false)
     }
 
-    AppBackground {
-        AppGradientBackground(
-            gradientColors = if (currentRoute == NavItems.Home.screenRoute) {
-                LocalGradientColors.current
-            } else {
-                GradientColors()
-            },
+    Scaffold(
+        bottomBar = { BottomNavigation(rememberNavController) }
+    ) { padding ->
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .consumeWindowInsets(padding)
+                .windowInsetsPadding(
+                    WindowInsets.safeDrawing.only(
+                        WindowInsetsSides.Horizontal
+                    )
+                )
         ) {
-            Scaffold(
-                bottomBar = { BottomNavigation(rememberNavController) }
-            ) { padding ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding)
-                        .consumeWindowInsets(padding)
-                        .windowInsetsPadding(
-                            WindowInsets.safeDrawing.only(
-                                WindowInsetsSides.Horizontal
-                            )
-                        )
-                ) {
-                    Column(Modifier.fillMaxSize()) {
-                        val destination = currentDestination(currentRoute)
-                        if (destination != null){
-                            TopAppBar(
-                                titleRes = destination.titleRes,
-                                navigationIcon = Icons.Filled.Search,
-                                navigationIconContentDescription = null,
-                                actionIcon = Icons.Filled.Settings,
-                                actionIconContentDescription = null,
-                                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                                    containerColor = Color.Transparent
-                                ),
-                                onActionClick = { showSettingsDialog = true },
-                                onNavigationClick = {
-                                    Log.d("TAG", "MainScreenViewdawdawdawd")
-                                }
-                            )
-                        }
-                        NavigationGraph(rememberNavController)
+            val destination = currentDestination(currentRoute)
+            if (destination != null) {
+                TopAppBar(
+                    titleRes = destination.titleRes,
+                    navigationIcon = Icons.Filled.Search,
+                    navigationIconContentDescription = null,
+                    actionIcon = Icons.Filled.Settings,
+                    actionIconContentDescription = null,
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = Color.Transparent
+                    ),
+                    onActionClick = { showSettingsDialog = true },
+                    onNavigationClick = {
+
                     }
-                }
+                )
             }
+            NavigationGraph(rememberNavController)
         }
     }
 }
