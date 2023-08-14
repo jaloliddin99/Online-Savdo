@@ -21,14 +21,25 @@ import org.don.bottomappbar.ui.theme.GradientColors
 import org.don.bottomappbar.ui.theme.LocalGradientColors
 import kotlin.math.tan
 
-/**
- * A gradient background for select screens. Uses [LocalBackgroundTheme] to set the gradient colors
- * of a [Box] within a [Surface].
- *
- * @param modifier Modifier to be applied to the background.
- * @param gradientColors The gradient colors to be rendered.
- * @param content The background content.
- */
+
+@Composable
+fun AppBackground(
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
+    val color = LocalBackgroundTheme.current.color
+    val tonalElevation = LocalBackgroundTheme.current.tonalElevation
+    Surface(
+        color = if (color == Color.Unspecified) Color.Transparent else color,
+        tonalElevation = if (tonalElevation == Dp.Unspecified) 0.dp else tonalElevation,
+        modifier = modifier.fillMaxSize(),
+    ) {
+        CompositionLocalProvider(LocalAbsoluteTonalElevation provides 0.dp) {
+            content()
+        }
+    }
+}
+
 @Composable
 fun AppGradientBackground(
     modifier: Modifier = Modifier,
@@ -95,42 +106,10 @@ fun AppGradientBackground(
     }
 }
 
-/**
- * The main background for the app.
- * Uses [LocalBackgroundTheme] to set the color and tonal elevation of a [Surface].
- *
- * @param modifier Modifier to be applied to the background.
- * @param content The background content.
- */
-@Composable
-fun AppBackground(
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
-) {
-    val color = LocalBackgroundTheme.current.color
-    val tonalElevation = LocalBackgroundTheme.current.tonalElevation
-    Surface(
-        color = if (color == Color.Unspecified) Color.Transparent else color,
-        tonalElevation = if (tonalElevation == Dp.Unspecified) 0.dp else tonalElevation,
-        modifier = modifier.fillMaxSize(),
-    ) {
-        CompositionLocalProvider(LocalAbsoluteTonalElevation provides 0.dp) {
-            content()
-        }
-    }
-}
-
-
-/**
- * A class to model background color and tonal elevation values for Now in Android.
- */
 @Immutable
 data class BackgroundTheme(
     val color: Color = Color.Unspecified,
     val tonalElevation: Dp = Dp.Unspecified,
 )
 
-/**
- * A composition local for [BackgroundTheme].
- */
 val LocalBackgroundTheme = staticCompositionLocalOf { BackgroundTheme() }

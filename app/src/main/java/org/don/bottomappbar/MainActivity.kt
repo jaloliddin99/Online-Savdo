@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
@@ -87,39 +89,51 @@ fun MainScreenView() {
         mutableStateOf(false)
     }
 
-    Scaffold(
-        bottomBar = { BottomNavigation(rememberNavController) }
-    ) { padding ->
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .consumeWindowInsets(padding)
-                .windowInsetsPadding(
-                    WindowInsets.safeDrawing.only(
-                        WindowInsetsSides.Horizontal
-                    )
-                )
+    AppBackground {
+        AppGradientBackground(
+            gradientColors = if (currentRoute == NavItems.Home.screenRoute) {
+                LocalGradientColors.current
+            } else {
+                GradientColors()
+            },
         ) {
-            val destination = currentDestination(currentRoute)
-            if (destination != null) {
-                TopAppBar(
-                    titleRes = destination.titleRes,
-                    navigationIcon = Icons.Filled.Search,
-                    navigationIconContentDescription = null,
-                    actionIcon = Icons.Filled.Settings,
-                    actionIconContentDescription = null,
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        containerColor = Color.Transparent
-                    ),
-                    onActionClick = { showSettingsDialog = true },
-                    onNavigationClick = {
+            Scaffold(
+                bottomBar = { BottomNavigation(rememberNavController) },
+                containerColor = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.background,
+                contentWindowInsets = WindowInsets(0,0,0,0)
+            ) { padding ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                        .consumeWindowInsets(padding)
+                        .windowInsetsPadding(
+                            WindowInsets.safeDrawing.only(
+                                WindowInsetsSides.Horizontal
+                            )
+                        )
+                ) {
+                    val destination = currentDestination(currentRoute)
+                    if (destination != null) {
+                        TopAppBar(
+                            titleRes = destination.titleRes,
+                            navigationIcon = Icons.Filled.Search,
+                            navigationIconContentDescription = null,
+                            actionIcon = Icons.Filled.Settings,
+                            actionIconContentDescription = null,
+                            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                                containerColor = Color.Transparent
+                            ),
+                            onActionClick = { showSettingsDialog = true },
+                            onNavigationClick = {
 
+                            }
+                        )
                     }
-                )
+                    NavigationGraph(rememberNavController)
+                }
             }
-            NavigationGraph(rememberNavController)
         }
     }
 }
