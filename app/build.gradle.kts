@@ -70,4 +70,5 @@ dependencies {
     val nav_version = "2.7.0"
 
     implementation("androidx.navigation:navigation-compose:$nav_version")
+    implementation("androidx.compose.runtime:runtime-tracing:1.0.0-alpha03")
 }

@@ -36,9 +36,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -72,11 +74,10 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun MainScreenView(
-    appState: ApplicationState = rememberNiaAppState(),
-) {
+fun MainScreenView() {
     val rememberNavController = rememberNavController()
-    Log.d("TAG", "MainScreenViewdawdwadaw ++++")
+    val currentBackStackEntry by rememberNavController.currentBackStackEntryAsState()
+    val currentRoute by remember { derivedStateOf { currentBackStackEntry?.destination?.route ?: "Home" } }
 
     var showSettingsDialog by rememberSaveable {
         mutableStateOf(false)
@@ -99,27 +100,21 @@ fun MainScreenView(
                         )
                     )
             ) {
-
                 Column(Modifier.fillMaxSize()) {
-                    val destination = appState.currentTopLevelDestination
-                    Log.d("TAG", "MainScreenViewdawdwadaw $destination")
+                    TopAppBar(
+                        titleRes = R.string.settings_page,
+                        navigationIcon = Icons.Filled.Search,
+                        navigationIconContentDescription = null,
+                        actionIcon = Icons.Filled.Settings,
+                        actionIconContentDescription = null,
+                        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                            containerColor = Color.Transparent
+                        ),
+                        onActionClick = { showSettingsDialog = true },
+                        onNavigationClick = {
 
-                    if (destination != null) {
-                        TopAppBar(
-                            titleRes = destination.titleRes,
-                            navigationIcon = Icons.Filled.Search,
-                            navigationIconContentDescription = null,
-                            actionIcon = Icons.Filled.Settings,
-                            actionIconContentDescription = null,
-                            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                                containerColor = Color.Transparent
-                            ),
-                            onActionClick = { showSettingsDialog = true },
-                            onNavigationClick = {
-
-                            }
-                        )
-                    }
+                        }
+                    )
                     NavigationGraph(rememberNavController)
                 }
             }
@@ -199,4 +194,10 @@ fun NavigationGraph(navController: NavHostController) {
         }
     }
 }
+
+
+private fun NavDestination?.isTopLevelDestinationInHierarchy(destination: NavItems) =
+    this?.hierarchy?.any {
+        it.route?.contains(destination.screenRoute, true) ?: false
+    } ?: false
 
