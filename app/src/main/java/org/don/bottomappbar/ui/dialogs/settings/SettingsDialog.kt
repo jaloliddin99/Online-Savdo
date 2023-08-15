@@ -1,7 +1,5 @@
 package org.don.bottomappbar.ui.dialogs.settings
 
-import android.app.Dialog
-import android.content.Intent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -35,7 +33,6 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import org.don.bottomappbar.R
-import org.don.bottomappbar.domain.model.ThemeBrand
 
 
 @Composable
@@ -55,12 +52,11 @@ fun SettingsDialog(
             )
         },
         text = {
-            Divider()
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 SettingsPanel()
+                Divider(Modifier.padding(top = 8.dp))
+                LinksPanel()
             }
-            Divider(Modifier.padding(top = 8.dp))
-            LinksPanel()
         },
         onDismissRequest = {
             onDismiss()
