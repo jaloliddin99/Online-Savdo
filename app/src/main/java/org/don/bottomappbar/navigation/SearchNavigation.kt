@@ -31,13 +31,11 @@ fun NavController.navigateToSearch(navOptions: NavOptions? = null) {
 fun NavGraphBuilder.searchScreen(
     onBackClick: () -> Unit,
     onSettingsClick: () -> Unit,
-    onTopicClick: (String) -> Unit,
 ) {
     composable(route = searchRoute) {
         SearchRoute(
             onBackClick = onBackClick,
             onSettingsClick = onSettingsClick,
-            onTopicClick = onTopicClick,
         )
     }
 }

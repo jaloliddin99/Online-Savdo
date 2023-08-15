@@ -1,4 +1,4 @@
-package org.don.bottomappbar
+package org.don.bottomappbar.ui
 
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
@@ -9,6 +9,7 @@ import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
+import org.don.bottomappbar.R
 
 sealed class NavItems(
     val title: String,

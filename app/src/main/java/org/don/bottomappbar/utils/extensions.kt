@@ -1,4 +1,4 @@
-package org.don.bottomappbar
+package org.don.bottomappbar.utils
 
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -9,7 +9,6 @@ import java.lang.Math.PI
 import java.lang.Math.cos
 import java.lang.Math.min
 import java.lang.Math.sin
-import java.lang.Math.sqrt
 import kotlin.math.pow
 import kotlin.math.sqrt
 

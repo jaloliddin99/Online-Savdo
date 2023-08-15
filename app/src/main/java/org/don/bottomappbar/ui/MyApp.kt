@@ -1,5 +1,6 @@
-package org.don.bottomappbar
+package org.don.bottomappbar.ui
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
@@ -35,13 +36,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
-import currentDestination
+import org.don.bottomappbar.utils.gradientBackground
+import org.don.bottomappbar.navigation.chatScreen
+import org.don.bottomappbar.navigation.homeScreen
 import org.don.bottomappbar.navigation.searchScreen
+import org.don.bottomappbar.navigation.settingsScreen
+import org.don.bottomappbar.ui.dialogs.settings.SettingsDialog
 import org.don.bottomappbar.ui.theme.Purple90
 import org.don.bottomappbar.ui.theme.PurpleGray90
 
@@ -51,8 +53,10 @@ import org.don.bottomappbar.ui.theme.PurpleGray90
     ExperimentalLayoutApi::class
 )
 @Composable
-fun MainScreenView() {
-    val rememberNavController = rememberNavController()
+fun MainScreenView(
+    appState: ApplicationState = rememberNiaAppState()
+) {
+    val rememberNavController = appState.navController
     val currentBackStackEntry by rememberNavController.currentBackStackEntryAsState()
     val currentRoute by remember {
         derivedStateOf {
@@ -62,6 +66,12 @@ fun MainScreenView() {
 
     var showSettingsDialog by rememberSaveable {
         mutableStateOf(false)
+    }
+
+    if (showSettingsDialog) {
+        SettingsDialog(
+            onDismiss = { showSettingsDialog = false },
+        )
     }
 
     Surface(
@@ -79,7 +89,7 @@ fun MainScreenView() {
         color = Color.Transparent
     ) {
         Scaffold(
-            bottomBar = { BottomNavigation(rememberNavController) },
+            bottomBar = { BottomNavigation(rememberNavController, appState) },
             containerColor = Color.Transparent,
             contentColor = MaterialTheme.colorScheme.background,
             contentWindowInsets = WindowInsets(0, 0, 0, 0)
@@ -96,6 +106,7 @@ fun MainScreenView() {
                     )
             ) {
                 val destination = currentDestination(currentRoute)
+                Log.d("TAG", "MainScreenViewdwadawdawd ${currentRoute}")
                 if (destination != null) {
                     TopAppBar(
                         titleRes = destination.titleRes,
@@ -108,11 +119,11 @@ fun MainScreenView() {
                         ),
                         onActionClick = { showSettingsDialog = true },
                         onNavigationClick = {
-
+                            appState.navigateToSearch()
                         }
                     )
                 }
-                NavigationGraph(rememberNavController)
+                NavigationGraph(appState)
             }
         }
     }
@@ -121,7 +132,10 @@ fun MainScreenView() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BottomNavigation(navController: NavController) {
+fun BottomNavigation(
+    navController: NavController,
+    appState: ApplicationState
+) {
     NavigationBar {
         val items = listOf(
             NavItems.Home,
@@ -139,16 +153,7 @@ fun BottomNavigation(navController: NavController) {
                 selected = currentRoute == item.screenRoute,
                 alwaysShowLabel = true,
                 onClick = {
-                    navController.navigate(item.screenRoute) {
-                        navController.graph.startDestinationRoute?.let { screenRoute ->
-                            popUpTo(screenRoute) {
-                                saveState = true
-                            }
-                        }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                    selectedItemIndex = index
+                    appState.navigateToTopLevelDestination(item)
                 },
 
                 label = { Text(text = item.title) },
@@ -177,22 +182,20 @@ fun BottomNavigation(navController: NavController) {
 }
 
 @Composable
-fun NavigationGraph(navController: NavHostController) {
-    NavHost(navController = navController, startDestination = NavItems.Home.screenRoute) {
-        composable(NavItems.Home.screenRoute) {
-            BottomNavContentScreens.HomeScreen()
-        }
-        composable(NavItems.Chat.screenRoute) {
-            BottomNavContentScreens.ChatScreen()
-        }
-        composable(NavItems.Settings.screenRoute) {
-            BottomNavContentScreens.SettingsScreen()
-        }
+fun NavigationGraph(appState: ApplicationState) {
+    val navController = appState.navController
+    NavHost(
+        navController = navController,
+        startDestination = NavItems.Home.screenRoute
+    ) {
+
+        homeScreen()
+        chatScreen()
+        settingsScreen()
 
         searchScreen(
             onBackClick = navController::popBackStack,
-            onSettingsClick = { appState.navigateToTopLevelDestination(INTERESTS) },
-            onTopicClick = navController::navigateToTopic,
+            onSettingsClick = { appState.navigateToTopLevelDestination(NavItems.Settings) },
         )
     }
 }

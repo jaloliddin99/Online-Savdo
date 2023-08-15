@@ -46,13 +46,11 @@ fun SearchRoute(
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit,
     onSettingsClick: () -> Unit,
-    onTopicClick: (String) -> Unit,
 ) {
 
     SearchScreen(
         modifier = modifier,
         onBackClick = onBackClick,
-        onTopicClick = onTopicClick,
         onSettingsClick = onSettingsClick
     )
 }
@@ -63,7 +61,6 @@ fun SearchScreen(
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit,
     onSettingsClick: () -> Unit = {},
-    onTopicClick: (String) -> Unit,
     onSearchQueryChanged: (String) -> Unit = {},
     onSearchTriggered: (String) -> Unit = {},
     searchQuery: String = "",
@@ -98,7 +95,9 @@ fun SearchToolbar(
         IconButton(onClick = {
             onBackClick()
         }) {
-            Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = null)
+            Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = null,
+                tint = Color.Black
+            )
         }
 
         SearchTextField(

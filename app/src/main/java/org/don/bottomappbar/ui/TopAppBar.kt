@@ -1,4 +1,4 @@
-package org.don.bottomappbar
+package org.don.bottomappbar.ui
 
 import androidx.annotation.StringRes
 import androidx.compose.material3.CenterAlignedTopAppBar
