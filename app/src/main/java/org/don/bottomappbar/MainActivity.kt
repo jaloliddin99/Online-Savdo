@@ -1,15 +1,11 @@
 package org.don.bottomappbar
 
-import ApplicationState
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -40,11 +36,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -57,18 +50,18 @@ import currentDestination
 import org.don.bottomappbar.BottomNavContentScreens.ChatScreen
 import org.don.bottomappbar.BottomNavContentScreens.HomeScreen
 import org.don.bottomappbar.BottomNavContentScreens.SettingsScreen
-import org.don.bottomappbar.core.AppBackground
-import org.don.bottomappbar.core.AppGradientBackground
 import org.don.bottomappbar.ui.theme.BottomAppbarTheme
-import org.don.bottomappbar.ui.theme.GradientColors
-import org.don.bottomappbar.ui.theme.LocalGradientColors
-import rememberNiaAppState
+import org.don.bottomappbar.ui.theme.Purple80
+import org.don.bottomappbar.ui.theme.Purple90
+import org.don.bottomappbar.ui.theme.PurpleGray90
 
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         setContent {
+
             BottomAppbarTheme {
                 MainScreenView()
             }
@@ -79,14 +72,11 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(
     ExperimentalMaterial3Api::class,
-    ExperimentalLayoutApi::class,
-    ExperimentalComposeUiApi::class
+    ExperimentalLayoutApi::class
 )
 @Composable
 fun MainScreenView() {
-
     val rememberNavController = rememberNavController()
-
     val currentBackStackEntry by rememberNavController.currentBackStackEntryAsState()
     val currentRoute by remember {
         derivedStateOf {
@@ -98,44 +88,56 @@ fun MainScreenView() {
         mutableStateOf(false)
     }
 
-    Scaffold(
-        modifier = Modifier.semantics {
-            testTagsAsResourceId = true
-        },
-        bottomBar = { BottomNavigation(rememberNavController) },
-        containerColor = Color.Transparent,
-        contentColor = MaterialTheme.colorScheme.background,
-        contentWindowInsets = WindowInsets(0, 0, 0, 0)
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .consumeWindowInsets(padding)
-                .windowInsetsPadding(
-                    WindowInsets.safeDrawing.only(
-                        WindowInsetsSides.Horizontal
+    Surface(
+        modifier = Modifier
+            .fillMaxSize()
+            .gradientBackground(
+                colors =
+                if (currentRoute == NavItems.Home.screenRoute)
+                    listOf(PurpleGray90, Purple90)
+                else
+                    listOf(Color.White, Color.White),
+                angle = -90f
+            ),
+        contentColor = Color.Transparent,
+        color = Color.Transparent
+    ) {
+        Scaffold(
+            bottomBar = { BottomNavigation(rememberNavController) },
+            containerColor = Color.Transparent,
+            contentColor = MaterialTheme.colorScheme.background,
+            contentWindowInsets = WindowInsets(0, 0, 0, 0)
+        ) { padding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .consumeWindowInsets(padding)
+                    .windowInsetsPadding(
+                        WindowInsets.safeDrawing.only(
+                            WindowInsetsSides.Horizontal
+                        )
                     )
-                )
-        ) {
-            val destination = currentDestination(currentRoute)
-            if (destination != null) {
-                TopAppBar(
-                    titleRes = destination.titleRes,
-                    navigationIcon = Icons.Filled.Search,
-                    navigationIconContentDescription = null,
-                    actionIcon = Icons.Filled.Settings,
-                    actionIconContentDescription = null,
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        containerColor = Color.Transparent
-                    ),
-                    onActionClick = { showSettingsDialog = true },
-                    onNavigationClick = {
+            ) {
+                val destination = currentDestination(currentRoute)
+                if (destination != null) {
+                    TopAppBar(
+                        titleRes = destination.titleRes,
+                        navigationIcon = Icons.Filled.Search,
+                        navigationIconContentDescription = null,
+                        actionIcon = Icons.Filled.Settings,
+                        actionIconContentDescription = null,
+                        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                            containerColor = Color.Transparent
+                        ),
+                        onActionClick = { showSettingsDialog = true },
+                        onNavigationClick = {
 
-                    }
-                )
+                        }
+                    )
+                }
+                NavigationGraph(rememberNavController)
             }
-            NavigationGraph(rememberNavController)
         }
     }
 
