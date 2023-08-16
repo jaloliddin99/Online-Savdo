@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.CompositionLocalProvider
 import org.don.bottomappbar.ui.MainScreenView
 import org.don.bottomappbar.ui.theme.BottomAppbarTheme
 
@@ -14,8 +15,10 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
 
-            BottomAppbarTheme {
-                MainScreenView()
+            CompositionLocalProvider {
+                BottomAppbarTheme {
+                    MainScreenView()
+                }
             }
         }
     }

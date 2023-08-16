@@ -33,8 +33,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -54,7 +57,7 @@ import org.don.bottomappbar.ui.theme.PurpleGray90
 
 @OptIn(
     ExperimentalMaterial3Api::class,
-    ExperimentalLayoutApi::class
+    ExperimentalLayoutApi::class, ExperimentalComposeUiApi::class
 )
 @Composable
 fun MainScreenView(
@@ -90,10 +93,13 @@ fun MainScreenView(
             },
         ) {
             Scaffold(
-                bottomBar = { BottomNavigation(rememberNavController, appState) },
+                modifier = Modifier.semantics {
+                    testTagsAsResourceId = true
+                },
                 containerColor = Color.Transparent,
                 contentColor = MaterialTheme.colorScheme.background,
-                contentWindowInsets = WindowInsets(0, 0, 0, 0)
+                contentWindowInsets = WindowInsets(0, 0, 0, 0),
+                bottomBar = { BottomNavigation(rememberNavController, appState) }
             ) { padding ->
                 Column(
                     modifier = Modifier
@@ -107,7 +113,6 @@ fun MainScreenView(
                         )
                 ) {
                     val destination = currentDestination(currentRoute)
-                    Log.d("TAG", "MainScreenViewdwadawdawd ${currentRoute}")
                     if (destination != null) {
                         TopAppBar(
                             titleRes = destination.titleRes,

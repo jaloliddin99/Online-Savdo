@@ -33,7 +33,6 @@ fun ChatScreen(
         Text(
             text = "Chat Screen",
             fontWeight = FontWeight.Bold,
-            color = Color.Black,
             modifier = Modifier.align(Alignment.CenterHorizontally),
             textAlign = TextAlign.Center,
             fontSize = 20.sp
