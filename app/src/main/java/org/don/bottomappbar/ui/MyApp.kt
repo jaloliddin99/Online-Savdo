@@ -44,6 +44,10 @@ import org.don.bottomappbar.navigation.homeScreen
 import org.don.bottomappbar.navigation.searchScreen
 import org.don.bottomappbar.navigation.settingsScreen
 import org.don.bottomappbar.ui.dialogs.settings.SettingsDialog
+import org.don.bottomappbar.ui.theme.AppBackground
+import org.don.bottomappbar.ui.theme.AppGradientBackground
+import org.don.bottomappbar.ui.theme.GradientColors
+import org.don.bottomappbar.ui.theme.LocalGradientColors
 import org.don.bottomappbar.ui.theme.Purple90
 import org.don.bottomappbar.ui.theme.PurpleGray90
 
@@ -74,59 +78,58 @@ fun MainScreenView(
         )
     }
 
-    Surface(
-        modifier = Modifier
-            .fillMaxSize()
-            .gradientBackground(
-                colors =
-                if (currentRoute == NavItems.Home.screenRoute)
-                    listOf(PurpleGray90, Purple90)
-                else
-                    listOf(Color.White, Color.White),
-                angle = -90f
-            ),
-        contentColor = Color.Transparent,
-        color = Color.Transparent
-    ) {
-        Scaffold(
-            bottomBar = { BottomNavigation(rememberNavController, appState) },
-            containerColor = Color.Transparent,
-            contentColor = MaterialTheme.colorScheme.background,
-            contentWindowInsets = WindowInsets(0, 0, 0, 0)
-        ) { padding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .consumeWindowInsets(padding)
-                    .windowInsetsPadding(
-                        WindowInsets.safeDrawing.only(
-                            WindowInsetsSides.Horizontal
+    val shouldShowGradientBackground =
+        currentRoute == NavItems.Home.screenRoute
+
+    AppBackground {
+        AppGradientBackground(
+            gradientColors = if (shouldShowGradientBackground) {
+                LocalGradientColors.current
+            } else {
+                GradientColors()
+            },
+        ) {
+            Scaffold(
+                bottomBar = { BottomNavigation(rememberNavController, appState) },
+                containerColor = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.background,
+                contentWindowInsets = WindowInsets(0, 0, 0, 0)
+            ) { padding ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                        .consumeWindowInsets(padding)
+                        .windowInsetsPadding(
+                            WindowInsets.safeDrawing.only(
+                                WindowInsetsSides.Horizontal
+                            )
                         )
-                    )
-            ) {
-                val destination = currentDestination(currentRoute)
-                Log.d("TAG", "MainScreenViewdwadawdawd ${currentRoute}")
-                if (destination != null) {
-                    TopAppBar(
-                        titleRes = destination.titleRes,
-                        navigationIcon = Icons.Filled.Search,
-                        navigationIconContentDescription = null,
-                        actionIcon = Icons.Filled.Settings,
-                        actionIconContentDescription = null,
-                        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                            containerColor = Color.Transparent
-                        ),
-                        onActionClick = { showSettingsDialog = true },
-                        onNavigationClick = {
-                            appState.navigateToSearch()
-                        }
-                    )
+                ) {
+                    val destination = currentDestination(currentRoute)
+                    Log.d("TAG", "MainScreenViewdwadawdawd ${currentRoute}")
+                    if (destination != null) {
+                        TopAppBar(
+                            titleRes = destination.titleRes,
+                            navigationIcon = Icons.Filled.Search,
+                            navigationIconContentDescription = null,
+                            actionIcon = Icons.Filled.Settings,
+                            actionIconContentDescription = null,
+                            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                                containerColor = Color.Transparent
+                            ),
+                            onActionClick = { showSettingsDialog = true },
+                            onNavigationClick = {
+                                appState.navigateToSearch()
+                            }
+                        )
+                    }
+                    NavigationGraph(appState)
                 }
-                NavigationGraph(appState)
             }
         }
     }
+
 }
 
 
