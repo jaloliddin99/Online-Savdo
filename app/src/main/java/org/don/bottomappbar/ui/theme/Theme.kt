@@ -172,8 +172,8 @@ val DarkAndroidBackgroundTheme = BackgroundTheme(color = Color.Black)
 @Composable
 fun BottomAppbarTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    androidTheme:Boolean = true,
-    disableDynamicTheming: Boolean = false,
+    androidTheme:Boolean = false,
+    disableDynamicTheming: Boolean = true,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
@@ -21,6 +22,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemColors
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -38,9 +41,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
+import org.don.bottomappbar.navigation.NavigationDefaults
 import org.don.bottomappbar.utils.gradientBackground
 import org.don.bottomappbar.navigation.chatScreen
 import org.don.bottomappbar.navigation.homeScreen
@@ -97,7 +102,7 @@ fun MainScreenView(
                     testTagsAsResourceId = true
                 },
                 containerColor = Color.Transparent,
-                contentColor = MaterialTheme.colorScheme.background,
+                contentColor = MaterialTheme.colorScheme.onBackground,
                 contentWindowInsets = WindowInsets(0, 0, 0, 0),
                 bottomBar = { BottomNavigation(rememberNavController, appState) }
             ) { padding ->
@@ -144,7 +149,11 @@ fun BottomNavigation(
     navController: NavController,
     appState: ApplicationState
 ) {
-    NavigationBar {
+    NavigationBar(
+        modifier = Modifier.fillMaxWidth(),
+        contentColor = NavigationDefaults.navigationContentColor(),
+        tonalElevation = 0.dp
+    ) {
         val items = listOf(
             NavItems.Home,
             NavItems.Chat,
@@ -183,7 +192,14 @@ fun BottomNavigation(
                             contentDescription = item.title
                         )
                     }
-                }
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = NavigationDefaults.navigationSelectedItemColor(),
+                    unselectedIconColor = NavigationDefaults.navigationContentColor(),
+                    selectedTextColor = NavigationDefaults.navigationSelectedItemColor(),
+                    unselectedTextColor = NavigationDefaults.navigationContentColor(),
+                    indicatorColor = NavigationDefaults.navigationIndicatorColor(),
+                )
             )
         }
     }
