@@ -1,7 +1,7 @@
 <resources>
 
 
-    <string name="app_name">Bottom Appbar</string>
+    <string name="app_name">IELTS AI Examiner</string>
     <string name="top_home">Main Page</string>
     <string name="chat_page">Chat Page</string>
     <string name="settings_page">Settings Page</string>

@@ -13,6 +13,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Bottom Appbar"
+rootProject.name = "IELTS AI Examiner"
 include(":app")
  

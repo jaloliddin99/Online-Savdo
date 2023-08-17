@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "org.don.bottomappbar"
+    namespace = "org.don.iaExaminer"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "org.don.bottomappbar"
+        applicationId = "org.don.iaExaminer"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
