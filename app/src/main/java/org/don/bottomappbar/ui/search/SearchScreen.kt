@@ -60,7 +60,9 @@ fun SearchRoute(
         modifier = modifier,
         onBackClick = onBackClick,
         onSettingsClick = onSettingsClick,
-        searchQuery = searchQuery
+        searchQuery = searchQuery,
+        onSearchQueryChanged = searchViewModel::onSearchQueryChanged,
+        onSearchTriggered = searchViewModel::onSearchTriggered
     )
 }
 
@@ -133,7 +135,7 @@ fun SearchTextField(
 
     val onSearchExplicitlyTriggered = {
         keyboardController?.hide()
-        Log.d("TAG", "onSearchTriggered ")
+        onSearchTriggered(searchQuery)
     }
 
     Log.d("TAG", "SearchTextFielddawdawdawdawd $searchQuery")
