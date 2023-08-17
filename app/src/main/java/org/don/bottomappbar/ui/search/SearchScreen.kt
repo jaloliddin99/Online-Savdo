@@ -25,6 +25,8 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -40,6 +42,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 
 @Composable
@@ -47,12 +51,16 @@ fun SearchRoute(
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit,
     onSettingsClick: () -> Unit,
+    searchViewModel: SearchViewModel = hiltViewModel()
 ) {
+
+    val searchQuery by searchViewModel.searchQuery.collectAsStateWithLifecycle()
 
     SearchScreen(
         modifier = modifier,
         onBackClick = onBackClick,
-        onSettingsClick = onSettingsClick
+        onSettingsClick = onSettingsClick,
+        searchQuery = searchQuery
     )
 }
 
@@ -64,7 +72,7 @@ fun SearchScreen(
     onSettingsClick: () -> Unit = {},
     onSearchQueryChanged: (String) -> Unit = {},
     onSearchTriggered: (String) -> Unit = {},
-    searchQuery: String = "",
+    searchQuery: String,
     onClearRecentSearches: () -> Unit = {},
 ) {
 
@@ -77,7 +85,6 @@ fun SearchScreen(
             searchQuery = searchQuery,
         )
     }
-
 }
 
 @Composable
@@ -85,7 +92,7 @@ fun SearchToolbar(
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit,
     onSearchQueryChanged: (String) -> Unit,
-    searchQuery: String = "",
+    searchQuery: String,
     onSearchTriggered: (String) -> Unit,
 ) {
 
@@ -129,6 +136,7 @@ fun SearchTextField(
         Log.d("TAG", "onSearchTriggered ")
     }
 
+    Log.d("TAG", "SearchTextFielddawdawdawdawd $searchQuery")
 
     TextField(
         colors = TextFieldDefaults.textFieldColors(
