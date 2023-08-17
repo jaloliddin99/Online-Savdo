@@ -136,22 +136,24 @@ private fun ColumnScope.SettingsPanel(
     }
 
     AnimatedVisibility(visible = settings.brand == ThemeBrand.DEFAULT && supportDynamicColor) {
-        SettingsDialogSectionTitle(text = stringResource(id = R.string.use_dynamic_color))
-        Column(Modifier.selectableGroup()) {
-            SettingsDialogThemeChooserRow(
-                text = stringResource(R.string.yes),
-                selected = settings.useDynamicColor,
-                onClick = {
-                    onChangeDynamicColorPreference(true)
-                },
-            )
-            SettingsDialogThemeChooserRow(
-                text = stringResource(R.string.no),
-                selected = !settings.useDynamicColor,
-                onClick = {
-                    onChangeDynamicColorPreference(false)
-                },
-            )
+        Column {
+            SettingsDialogSectionTitle(text = stringResource(id = R.string.use_dynamic_color))
+            Column(Modifier.selectableGroup()) {
+                SettingsDialogThemeChooserRow(
+                    text = stringResource(R.string.yes),
+                    selected = settings.useDynamicColor,
+                    onClick = {
+                        onChangeDynamicColorPreference(true)
+                    },
+                )
+                SettingsDialogThemeChooserRow(
+                    text = stringResource(R.string.no),
+                    selected = !settings.useDynamicColor,
+                    onClick = {
+                        onChangeDynamicColorPreference(false)
+                    },
+                )
+            }
         }
     }
 

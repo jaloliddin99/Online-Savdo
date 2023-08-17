@@ -62,10 +62,7 @@ class MainActivity : ComponentActivity() {
 
         enableEdgeToEdge()
         setContent {
-
-
             val darkTheme = shouldUseDarkTheme(state.darkThemeConfig)
-
             BottomAppbarTheme(
                 darkTheme = darkTheme,
                 androidTheme = shouldUseAndroidTheme(state.brand),
