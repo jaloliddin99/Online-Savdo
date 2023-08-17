@@ -86,6 +86,8 @@ dependencies {
 
     // core
     implementation("com.chibatching.kotpref:kotpref:2.13.1")
+    implementation("com.google.code.gson:gson:2.9.0")
+
 
 
 }

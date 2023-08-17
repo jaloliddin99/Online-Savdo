@@ -53,6 +53,7 @@ import org.don.bottomappbar.navigation.searchScreen
 import org.don.bottomappbar.navigation.settingsScreen
 import org.don.bottomappbar.ui.dialogs.settings.SettingsDialog
 import org.don.bottomappbar.ui.dialogs.settings.SettingsDialogViewModel
+import org.don.bottomappbar.ui.dialogs.settings.UserEditableSettings
 import org.don.bottomappbar.ui.theme.AppBackground
 import org.don.bottomappbar.ui.theme.AppGradientBackground
 import org.don.bottomappbar.ui.theme.GradientColors
@@ -67,6 +68,7 @@ import org.don.bottomappbar.ui.theme.PurpleGray90
 )
 @Composable
 fun MainScreenView(
+    state: UserEditableSettings,
     appState: ApplicationState = rememberNiaAppState()
 ) {
     val rememberNavController = appState.navController
@@ -83,6 +85,7 @@ fun MainScreenView(
 
     if (showSettingsDialog) {
         SettingsDialog(
+            state = state,
             onDismiss = { showSettingsDialog = false },
         )
     }

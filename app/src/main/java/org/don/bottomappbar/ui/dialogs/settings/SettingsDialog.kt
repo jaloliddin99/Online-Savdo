@@ -38,25 +38,31 @@ import org.don.bottomappbar.R
 import org.don.bottomappbar.domain.model.DarkThemeConfig
 import org.don.bottomappbar.domain.model.ThemeBrand
 import org.don.bottomappbar.ui.theme.supportsDynamicTheming
+import org.don.bottomappbar.utils.ModelPref
 
+const val SETTINGS_UI_STATE = "settings_ui_state"
 
 @Composable
 fun SettingsDialog(
+    state: UserEditableSettings,
     onDismiss: () -> Unit,
     viewModel: SettingsDialogViewModel = hiltViewModel()
 ) {
 
     SettingsDialog(
         onDismiss = onDismiss,
+        settingsUiState = state,
         onChangeThemeBrand = viewModel::updateThemeBrand,
         onChangeDynamicColorPreference = viewModel::updateDynamicColorPreference,
         onChangeDarkThemeConfig = viewModel::updateDarkThemeConfig,
     )
 
 }
+
 @Composable
 fun SettingsDialog(
     onDismiss: () -> Unit,
+    settingsUiState: UserEditableSettings,
     supportDynamicColor: Boolean = supportsDynamicTheming(),
     onChangeThemeBrand: (themeBrand: ThemeBrand) -> Unit,
     onChangeDynamicColorPreference: (useDynamicColor: Boolean) -> Unit,
@@ -77,7 +83,7 @@ fun SettingsDialog(
         text = {
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 SettingsPanel(
-                    settings = settingsUiState.settings,
+                    settings = settingsUiState,
                     supportDynamicColor = supportDynamicColor,
                     onChangeThemeBrand = onChangeThemeBrand,
                     onChangeDynamicColorPreference = onChangeDynamicColorPreference,
