@@ -1,5 +1,6 @@
 package org.don.bottomappbar.ui.dialogs.settings
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -32,12 +33,34 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import androidx.hilt.navigation.compose.hiltViewModel
 import org.don.bottomappbar.R
+import org.don.bottomappbar.domain.model.DarkThemeConfig
+import org.don.bottomappbar.domain.model.ThemeBrand
+import org.don.bottomappbar.ui.theme.supportsDynamicTheming
 
 
 @Composable
 fun SettingsDialog(
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    viewModel: SettingsDialogViewModel = hiltViewModel()
+) {
+
+    SettingsDialog(
+        onDismiss = onDismiss,
+        onChangeThemeBrand = viewModel::updateThemeBrand,
+        onChangeDynamicColorPreference = viewModel::updateDynamicColorPreference,
+        onChangeDarkThemeConfig = viewModel::updateDarkThemeConfig,
+    )
+
+}
+@Composable
+fun SettingsDialog(
+    onDismiss: () -> Unit,
+    supportDynamicColor: Boolean = supportsDynamicTheming(),
+    onChangeThemeBrand: (themeBrand: ThemeBrand) -> Unit,
+    onChangeDynamicColorPreference: (useDynamicColor: Boolean) -> Unit,
+    onChangeDarkThemeConfig: (darkThemeConfig: DarkThemeConfig) -> Unit,
 ) {
 
     val configuration = LocalConfiguration.current
@@ -53,7 +76,13 @@ fun SettingsDialog(
         },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState())) {
-                SettingsPanel()
+                SettingsPanel(
+                    settings = settingsUiState.settings,
+                    supportDynamicColor = supportDynamicColor,
+                    onChangeThemeBrand = onChangeThemeBrand,
+                    onChangeDynamicColorPreference = onChangeDynamicColorPreference,
+                    onChangeDarkThemeConfig = onChangeDarkThemeConfig,
+                )
                 Divider(Modifier.padding(top = 8.dp))
                 LinksPanel()
             }
@@ -75,72 +104,67 @@ fun SettingsDialog(
 
 
 @Composable
-private fun ColumnScope.SettingsPanel() {
+private fun ColumnScope.SettingsPanel(
+    settings: UserEditableSettings,
+    supportDynamicColor: Boolean,
+    onChangeThemeBrand: (themeBrand: ThemeBrand) -> Unit,
+    onChangeDynamicColorPreference: (useDynamicColor: Boolean) -> Unit,
+    onChangeDarkThemeConfig: (darkThemeConfig: DarkThemeConfig) -> Unit,
+) {
     SettingsDialogSectionTitle(text = stringResource(id = R.string.theme))
     Column(Modifier.selectableGroup()) {
         SettingsDialogThemeChooserRow(
             text = stringResource(R.string.brand_default),
-           // selected = settings.brand == ThemeBrand.DEFAULT,
-            selected = true,
+            selected = settings.brand == ThemeBrand.DEFAULT,
             onClick = {
-                //onChangeThemeBrand(DEFAULT)
+                onChangeThemeBrand(ThemeBrand.DEFAULT)
             },
         )
         SettingsDialogThemeChooserRow(
             text = stringResource(R.string.brand_android),
-           // selected = settings.brand == ThemeBrand.ANDROID,
-            selected = false,
+            selected = settings.brand == ThemeBrand.ANDROID,
             onClick = {
-                //onChangeThemeBrand(ANDROID)
+                onChangeThemeBrand(ThemeBrand.ANDROID)
             },
         )
     }
 
-    SettingsDialogSectionTitle(text = stringResource(id = R.string.use_dynamic_color))
-    Column(Modifier.selectableGroup()) {
-        SettingsDialogThemeChooserRow(
-            text = stringResource(R.string.yes),
-            // selected = settings.brand == ThemeBrand.DEFAULT,
-            selected = true,
-            onClick = {
-                //onChangeThemeBrand(DEFAULT)
-            },
-        )
-        SettingsDialogThemeChooserRow(
-            text = stringResource(R.string.no),
-            // selected = settings.brand == ThemeBrand.ANDROID,
-            selected = false,
-            onClick = {
-                //onChangeThemeBrand(ANDROID)
-            },
-        )
+    AnimatedVisibility(visible = settings.brand == ThemeBrand.DEFAULT && supportDynamicColor) {
+        SettingsDialogSectionTitle(text = stringResource(id = R.string.use_dynamic_color))
+        Column(Modifier.selectableGroup()) {
+            SettingsDialogThemeChooserRow(
+                text = stringResource(R.string.yes),
+                selected = settings.useDynamicColor,
+                onClick = {
+                    onChangeDynamicColorPreference(true)
+                },
+            )
+            SettingsDialogThemeChooserRow(
+                text = stringResource(R.string.no),
+                selected = !settings.useDynamicColor,
+                onClick = {
+                    onChangeDynamicColorPreference(false)
+                },
+            )
+        }
     }
 
     SettingsDialogSectionTitle(text = stringResource(id = R.string.dark_mode_preference))
     Column(Modifier.selectableGroup()) {
         SettingsDialogThemeChooserRow(
             text = stringResource(R.string.system_default),
-            // selected = settings.brand == ThemeBrand.DEFAULT,
-            selected = true,
-            onClick = {
-                //onChangeThemeBrand(DEFAULT)
-            },
+            selected = settings.darkThemeConfig == DarkThemeConfig.FOLLOW_SYSTEM,
+            onClick = { onChangeDarkThemeConfig(DarkThemeConfig.FOLLOW_SYSTEM) },
         )
         SettingsDialogThemeChooserRow(
             text = stringResource(R.string.light),
-            // selected = settings.brand == ThemeBrand.ANDROID,
-            selected = false,
-            onClick = {
-                //onChangeThemeBrand(ANDROID)
-            },
+            selected = settings.darkThemeConfig == DarkThemeConfig.LIGHT,
+            onClick = { onChangeDarkThemeConfig(DarkThemeConfig.LIGHT) },
         )
         SettingsDialogThemeChooserRow(
             text = stringResource(R.string.Dark),
-            // selected = settings.brand == ThemeBrand.ANDROID,
-            selected = false,
-            onClick = {
-                //onChangeThemeBrand(ANDROID)
-            },
+            selected = settings.darkThemeConfig == DarkThemeConfig.DARK,
+            onClick = { onChangeDarkThemeConfig(DarkThemeConfig.DARK) },
         )
     }
 }

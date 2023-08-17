@@ -52,6 +52,7 @@ import org.don.bottomappbar.navigation.homeScreen
 import org.don.bottomappbar.navigation.searchScreen
 import org.don.bottomappbar.navigation.settingsScreen
 import org.don.bottomappbar.ui.dialogs.settings.SettingsDialog
+import org.don.bottomappbar.ui.dialogs.settings.SettingsDialogViewModel
 import org.don.bottomappbar.ui.theme.AppBackground
 import org.don.bottomappbar.ui.theme.AppGradientBackground
 import org.don.bottomappbar.ui.theme.GradientColors

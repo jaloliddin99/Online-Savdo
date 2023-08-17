@@ -84,4 +84,8 @@ dependencies {
     kapt("androidx.hilt:hilt-compiler:1.0.0")
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
 
+    // core
+    implementation("com.chibatching.kotpref:kotpref:2.13.1")
+
+
 }
