@@ -47,6 +47,7 @@ import org.don.iaExaminer.navigation.chatScreen
 import org.don.iaExaminer.navigation.homeScreen
 import org.don.iaExaminer.navigation.searchScreen
 import org.don.iaExaminer.navigation.settingsScreen
+import org.don.iaExaminer.navigation.welcomeScreen
 import org.don.iaExaminer.ui.dialogs.settings.SettingsDialog
 import org.don.iaExaminer.ui.dialogs.settings.UserEditableSettings
 import org.don.iaExaminer.ui.theme.AppBackground
@@ -207,7 +208,7 @@ fun NavigationGraph(appState: ApplicationState) {
     val navController = appState.navController
     NavHost(
         navController = navController,
-        startDestination = NavItems.Home.screenRoute
+        startDestination = welcomeScreen
     ) {
 
         homeScreen()
@@ -218,5 +219,19 @@ fun NavigationGraph(appState: ApplicationState) {
             onBackClick = navController::popBackStack,
             onSettingsClick = { appState.navigateToTopLevelDestination(NavItems.Settings) },
         )
+
+        welcomeScreen(
+            navigateToSignIn = {
+                navController.navigate(NavItems.Home.screenRoute)
+            },
+            navigateToSignUp = {
+                navController.navigate(NavItems.Home.screenRoute)
+            },
+            navigateToSurvey = {
+                navController.navigate(NavItems.Home.screenRoute)
+            }
+        )
+
+
     }
 }
