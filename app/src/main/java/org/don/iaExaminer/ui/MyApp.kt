@@ -1,5 +1,6 @@
 package org.don.iaExaminer.ui
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
@@ -95,6 +96,8 @@ fun MainScreenView(
                 GradientColors()
             },
         ) {
+            val destination = appState.currentTopLevelDestination
+
             Scaffold(
                 modifier = Modifier.semantics {
                     testTagsAsResourceId = true
@@ -102,7 +105,11 @@ fun MainScreenView(
                 containerColor = Color.Transparent,
                 contentColor = MaterialTheme.colorScheme.onBackground,
                 contentWindowInsets = WindowInsets(0, 0, 0, 0),
-                bottomBar = { BottomNavigation(rememberNavController, appState) }
+                bottomBar = {
+                    if (destination != null) {
+                        BottomNavigation(rememberNavController, appState)
+                    }
+                }
             ) { padding ->
                 Column(
                     modifier = Modifier
@@ -115,7 +122,6 @@ fun MainScreenView(
                             )
                         )
                 ) {
-                    val destination = currentDestination(currentRoute)
                     if (destination != null) {
                         TopAppBar(
                             titleRes = destination.titleRes,
