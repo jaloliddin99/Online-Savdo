@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "org.don.iaExaminer"
+    namespace = "org.don.onlineShop"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "org.don.iaExaminer"
+        applicationId = "org.don.onlineShop"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
