@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "org.don.onlineShop"
+    namespace = "org.don.onlineTrade"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "org.don.onlineShop"
+        applicationId = "org.don.onlineTrade"
         minSdk = 24
         targetSdk = 34
         versionCode = 1

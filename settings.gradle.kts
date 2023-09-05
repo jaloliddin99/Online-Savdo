@@ -13,6 +13,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Online Shopping"
+rootProject.name = "Online Trade"
 include(":app")
  
