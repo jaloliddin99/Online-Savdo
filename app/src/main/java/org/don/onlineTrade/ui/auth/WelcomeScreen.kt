@@ -155,14 +155,13 @@ fun SignInCreateAccount(
 ) {
 
     val focusRequester = remember { FocusRequester() }
+    val confirmationPasswordFocusRequest = remember { FocusRequester() }
 
     val emailState by rememberSaveable(stateSaver = EmailStateSaver) {
         mutableStateOf(EmailState())
     }
-    val confirmationPasswordFocusRequest = remember { FocusRequester() }
 
-
-    val passwordState by rememberSaveable {
+    val passwordState by remember {
         mutableStateOf(PasswordState())
     }
 
@@ -191,15 +190,17 @@ fun SignInCreateAccount(
 
         Email(
             emailState = emailState,
-            imeAction = ImeAction.Done,
+            imeAction = ImeAction.Next,
             onImeAction = {
                 focusRequester.requestFocus()
             }
         )
+        Spacer(modifier = Modifier.height(24.dp))
 
         Password(
             label = stringResource(id = R.string.password),
             passwordState = passwordState,
+            imeAction = ImeAction.Next,
             modifier = Modifier.focusRequester(focusRequester),
             onImeAction = { confirmationPasswordFocusRequest.requestFocus() }
         )
@@ -211,9 +212,8 @@ fun SignInCreateAccount(
         Password(
             label = stringResource(id = R.string.confirm_password),
             passwordState = confirmPasswordState,
-            onImeAction = {
-                onSubmit
-            },
+
+            onImeAction = onSubmit,
             modifier = Modifier.focusRequester(confirmationPasswordFocusRequest)
         )
 

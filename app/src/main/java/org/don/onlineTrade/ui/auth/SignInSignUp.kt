@@ -125,7 +125,7 @@ fun Password(
     label: String,
     passwordState: TextFieldState,
     modifier: Modifier = Modifier,
-    imeAction: ImeAction = ImeAction.Done,
+    imeAction: ImeAction = ImeAction.Next,
     onImeAction: () -> Unit = {}
 ) {
     val showPassword = rememberSaveable { mutableStateOf(false) }
