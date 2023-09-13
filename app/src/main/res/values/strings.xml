@@ -22,8 +22,8 @@
     <string name="feedback">Feedback</string>
     <string name="brand_guidelines">Brand Guildines</string>
     <string name="title_activity_login">LoginActivity</string>
-    <string name="please_register_or_login">Please login or register</string>
-    <string name="sign_in_or_create_account">Sign in or create account</string>
+    <string name="please_register_or_login">Please register</string>
+    <string name="sign_in_or_create_account">Create account</string>
     <string name="email">Email</string>
     <string name="continuee">Continue</string>
     <string name="or">or</string>

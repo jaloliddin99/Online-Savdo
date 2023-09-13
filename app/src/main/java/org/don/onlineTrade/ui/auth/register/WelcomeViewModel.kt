@@ -17,12 +17,6 @@ class WelcomeViewModel @Inject constructor(
 ) : ViewModel() {
 
 
-    fun handleContinue(
-        onNavigateToSignIn: () -> Unit,
-        onNavigateToSignUp: () -> Unit,
-    ) {
-        onNavigateToSignIn()
-    }
 
     fun signInAsGuest(
         onSignInComplete: () -> Unit,

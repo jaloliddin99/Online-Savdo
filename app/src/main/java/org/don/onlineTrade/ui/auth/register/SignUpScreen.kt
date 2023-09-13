@@ -96,7 +96,7 @@ fun SignUpScreen(
                         .weight(1f, fill = showBranding)
                         .animateContentSize()
                 )
-                SignInCreateAccount(
+                SignUpCreateAccount(
                     onSignInSignUp = onSignInSignUp,
                     onSignInAsGuest = onSignInAsGuest,
                     onFocusChange = { hasFocus -> showBranding = !hasFocus },
@@ -168,7 +168,7 @@ private fun Logo(
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun SignInCreateAccount(
+fun SignUpCreateAccount(
     onSignInSignUp: (email: String, password: String, phoneNumber: String) -> Unit,
     onSignInAsGuest: () -> Unit,
     onFocusChange: (Boolean) -> Unit,
@@ -209,7 +209,7 @@ fun SignInCreateAccount(
                 emailState.enableShowErrors()
             }
             if (emailState.isValid && passwordState.isValid) {
-                onSignInSignUp(emailState.text, passwordState.text, "998996666666")
+                onSignInSignUp(emailState.text, passwordState.text, "998996666606")
             }
         }
         onFocusChange(emailState.isFocused || passwordState.isFocused || confirmPasswordState.isFocused)
@@ -253,7 +253,6 @@ fun SignInCreateAccount(
         Button(
             onClick = onSubmit,
             enabled = isEnabled,
-
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 28.dp, bottom = 3.dp)

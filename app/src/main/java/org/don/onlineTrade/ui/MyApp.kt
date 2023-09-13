@@ -48,6 +48,7 @@ import org.don.onlineTrade.navigation.homeScreen
 import org.don.onlineTrade.navigation.searchScreen
 import org.don.onlineTrade.navigation.settingsScreen
 import org.don.onlineTrade.navigation.welcomeScreen
+import org.don.onlineTrade.navigation.registrationScreen
 import org.don.onlineTrade.ui.dialogs.settings.SettingsDialog
 import org.don.onlineTrade.ui.dialogs.settings.UserEditableSettings
 import org.don.onlineTrade.ui.theme.AppBackground
@@ -225,17 +226,13 @@ fun NavigationGraph(appState: ApplicationState) {
             onSettingsClick = { appState.navigateToTopLevelDestination(NavItems.Settings) },
         )
 
-        welcomeScreen(
-            navigateToSignIn = {
-                navController.navigate(NavItems.Home.screenRoute)
-            },
-            navigateToSignUp = {
-                navController.navigate(NavItems.Home.screenRoute)
-            },
-            navigateToSurvey = {
+        registrationScreen(
+            navigateToMainScreen = {
                 navController.navigate(NavItems.Home.screenRoute)
             }
         )
+
+
 
 
     }
