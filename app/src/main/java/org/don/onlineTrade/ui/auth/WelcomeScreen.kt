@@ -89,7 +89,7 @@ fun WelcomeScreen(
             SignInCreateAccount(
                 onSignInSignUp = onSignInSignUp,
                 onSignInAsGuest = onSignInAsGuest,
-                onKeyboardDismissed = { dismiss -> showBranding = !dismiss },
+                onKeyboardDismissed = { dismiss -> showBranding = dismiss },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp)
@@ -153,6 +153,7 @@ fun SignInCreateAccount(
     onKeyboardDismissed: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     val focusRequester = remember { FocusRequester() }
     val confirmationPasswordFocusRequest = remember { FocusRequester() }
@@ -202,7 +203,9 @@ fun SignInCreateAccount(
             passwordState = passwordState,
             imeAction = ImeAction.Next,
             modifier = Modifier.focusRequester(focusRequester),
-            onImeAction = { confirmationPasswordFocusRequest.requestFocus() }
+            onImeAction = {
+                confirmationPasswordFocusRequest.requestFocus()
+            }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -212,13 +215,23 @@ fun SignInCreateAccount(
         Password(
             label = stringResource(id = R.string.confirm_password),
             passwordState = confirmPasswordState,
-
-            onImeAction = onSubmit,
-            modifier = Modifier.focusRequester(confirmationPasswordFocusRequest)
+            modifier = Modifier.focusRequester(confirmationPasswordFocusRequest),
+            onImeAction = {
+                onKeyboardDismissed(true)
+                keyboardController?.hide()
+            }
         )
+
+        val isEnabled = emailState.isValid &&
+                passwordState.isValid &&
+                confirmPasswordState.isValid
+
+
 
         Button(
             onClick = onSubmit,
+            enabled = isEnabled,
+
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 28.dp, bottom = 3.dp)
@@ -227,7 +240,6 @@ fun SignInCreateAccount(
                 text = stringResource(id = R.string.continuee),
                 style = MaterialTheme.typography.titleSmall
             )
-
         }
         OrSignInAsGuest(
             onSignInAsGuest = onSignInAsGuest,

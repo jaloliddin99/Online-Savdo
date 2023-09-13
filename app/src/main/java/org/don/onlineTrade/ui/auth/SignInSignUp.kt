@@ -24,8 +24,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -119,13 +121,13 @@ fun OrSignInAsGuest(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class) // OutlinedTextField is experimental in m3
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class) // OutlinedTextField is experimental in m3
 @Composable
 fun Password(
     label: String,
     passwordState: TextFieldState,
     modifier: Modifier = Modifier,
-    imeAction: ImeAction = ImeAction.Next,
+    imeAction: ImeAction = ImeAction.Done,
     onImeAction: () -> Unit = {}
 ) {
     val showPassword = rememberSaveable { mutableStateOf(false) }
