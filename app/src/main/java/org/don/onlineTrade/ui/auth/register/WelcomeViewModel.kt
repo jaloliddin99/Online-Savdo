@@ -18,7 +18,6 @@ class WelcomeViewModel @Inject constructor(
 
 
     fun handleContinue(
-        email: String,
         onNavigateToSignIn: () -> Unit,
         onNavigateToSignUp: () -> Unit,
     ) {

@@ -24,15 +24,20 @@ import androidx.compose.runtime.setValue
 import org.don.onlineTrade.domain.model.ThemeBrand
 import org.don.onlineTrade.ui.dialogs.settings.SETTINGS_UI_STATE
 import org.don.onlineTrade.utils.ModelPref
+import org.don.onlineTrade.utils.runTimePermission.OnRunTimePermissionListener
+import org.don.onlineTrade.utils.runTimePermission.RunTimePermission
 
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity(),
+
+OnRunTimePermissionListener{
 
     private val viewModel: SettingsDialogViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        RunTimePermission().permissionList(this, this)
         val userSetting = ModelPref.get<UserEditableSettings>(SETTINGS_UI_STATE)
         val settingsUiState = if (userSetting != null) userSetting
         else {
@@ -66,6 +71,14 @@ class MainActivity : ComponentActivity() {
                 MainScreenView(state)
             }
         }
+    }
+
+    override fun onPermissionGranted() {
+
+    }
+
+    override fun onPermissionDenied() {
+
     }
 }
 

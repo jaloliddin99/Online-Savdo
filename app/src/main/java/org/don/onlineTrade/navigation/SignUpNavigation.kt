@@ -12,17 +12,17 @@ fun NavController.navigateToWelcome(navOptions: NavOptions? = null) {
 }
 
 fun NavGraphBuilder.welcomeScreen(
-    navigateToSignUp: (String) -> Unit,
-    navigateToSignIn: (String) -> Unit,
+    navigateToSignUp: () -> Unit,
+    navigateToSignIn: () -> Unit,
     navigateToSurvey: () -> Unit,
 ) {
     composable(route = welcomeScreen) {
         SignUpRoute(
             onNavigateToSignIn = {
-                navigateToSignIn(it)
+                navigateToSignIn()
             },
             onNavigateToSignUp = {
-                navigateToSignUp(it)
+                navigateToSignUp()
             },
             onSignInAsGuest = {
                 navigateToSurvey()

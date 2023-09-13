@@ -209,7 +209,7 @@ fun SignInCreateAccount(
                 emailState.enableShowErrors()
             }
             if (emailState.isValid && passwordState.isValid) {
-                onSignInSignUp(emailState.text, passwordState.text, "+998996666666")
+                onSignInSignUp(emailState.text, passwordState.text, "998996666666")
             }
         }
         onFocusChange(emailState.isFocused || passwordState.isFocused || confirmPasswordState.isFocused)

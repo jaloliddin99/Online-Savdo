@@ -30,7 +30,6 @@ fun SignUpRoute(
         },
         registrationSuccess = {
             welcomeViewModel.handleContinue(
-                email = email,
                 onNavigateToSignIn = onNavigateToSignIn,
                 onNavigateToSignUp = onNavigateToSignUp,
             )
