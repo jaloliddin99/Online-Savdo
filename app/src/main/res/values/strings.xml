@@ -31,6 +31,7 @@
     <string name="hide_password">Hide Password</string>
     <string name="show_password">Show Password</string>
     <string name="password">Password</string>
+    <string name="confirm_password">Confirm Password</string>
 
 
 </resources>

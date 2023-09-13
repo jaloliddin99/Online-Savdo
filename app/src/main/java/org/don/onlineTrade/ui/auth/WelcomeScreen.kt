@@ -1,5 +1,6 @@
 package org.don.onlineTrade.ui.auth
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
@@ -24,11 +26,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -80,7 +89,7 @@ fun WelcomeScreen(
             SignInCreateAccount(
                 onSignInSignUp = onSignInSignUp,
                 onSignInAsGuest = onSignInAsGuest,
-                onFocusChange = { focused -> showBranding = !focused },
+                onKeyboardDismissed = { dismiss -> showBranding = !dismiss },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp)
@@ -94,8 +103,10 @@ fun WelcomeScreen(
 
 @Composable
 private fun Branding(modifier: Modifier = Modifier) {
-    Column(modifier = modifier
-        .wrapContentWidth(align = Alignment.CenterHorizontally)) {
+    Column(
+        modifier = modifier
+            .wrapContentWidth(align = Alignment.CenterHorizontally)
+    ) {
 
 
         Logo(
@@ -134,11 +145,12 @@ private fun Logo(
     )
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SignInCreateAccount(
     onSignInSignUp: (email: String) -> Unit,
     onSignInAsGuest: () -> Unit,
-    onFocusChange: (Boolean) -> Unit,
+    onKeyboardDismissed: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -147,14 +159,18 @@ fun SignInCreateAccount(
     val emailState by rememberSaveable(stateSaver = EmailStateSaver) {
         mutableStateOf(EmailState())
     }
+    val confirmationPasswordFocusRequest = remember { FocusRequester() }
 
 
-    val passwordState = remember {
-        PasswordState()
+    val passwordState by rememberSaveable {
+        mutableStateOf(PasswordState())
     }
 
     Column(
-        modifier = modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally
+        modifier = modifier
+            .fillMaxWidth(),
+
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = stringResource(id = R.string.sign_in_or_create_account),
@@ -165,30 +181,52 @@ fun SignInCreateAccount(
         )
 
         val onSubmit = {
-            if (!emailState.isValid){
+            if (!emailState.isValid) {
                 emailState.enableShowErrors()
             }
-            if (emailState.isValid && passwordState.isValid){
+            if (emailState.isValid && passwordState.isValid) {
                 onSignInSignUp(emailState.text)
             }
         }
-        onFocusChange(emailState.isFocused)
-        Email(emailState = emailState, imeAction = ImeAction.Done, onImeAction = {
-            focusRequester.requestFocus()
-        })
+
+        Email(
+            emailState = emailState,
+            imeAction = ImeAction.Done,
+            onImeAction = {
+                focusRequester.requestFocus()
+            }
+        )
 
         Password(
             label = stringResource(id = R.string.password),
             passwordState = passwordState,
             modifier = Modifier.focusRequester(focusRequester),
-            onImeAction = { onSubmit() }
+            onImeAction = { confirmationPasswordFocusRequest.requestFocus() }
         )
-        Button(onClick = onSubmit,
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        val confirmPasswordState = remember { ConfirmPasswordState(passwordState = passwordState) }
+
+        Password(
+            label = stringResource(id = R.string.confirm_password),
+            passwordState = confirmPasswordState,
+            onImeAction = {
+                onSubmit
+            },
+            modifier = Modifier.focusRequester(confirmationPasswordFocusRequest)
+        )
+
+        Button(
+            onClick = onSubmit,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 28.dp, bottom = 3.dp)) {
-            Text(text = stringResource(id = R.string.continuee),
-                style = MaterialTheme.typography.titleSmall)
+                .padding(top = 28.dp, bottom = 3.dp)
+        ) {
+            Text(
+                text = stringResource(id = R.string.continuee),
+                style = MaterialTheme.typography.titleSmall
+            )
 
         }
         OrSignInAsGuest(
@@ -203,7 +241,7 @@ fun SignInCreateAccount(
 
 @Preview
 @Composable
-private fun WelcomeScreenPreview(){
+private fun WelcomeScreenPreview() {
     WelcomeScreen(onSignInSignUp = {}) {
 
     }
