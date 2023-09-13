@@ -1,6 +1,5 @@
 package org.don.onlineTrade.ui.auth
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
@@ -32,11 +31,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.input.key.type
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -48,7 +43,7 @@ import org.don.onlineTrade.R
 
 
 @Composable
-fun WelcomeScreen(
+fun SignUpScreen(
     onSignInSignUp: (email: String) -> Unit,
     onSignInAsGuest: () -> Unit,
 ) {
@@ -89,7 +84,7 @@ fun WelcomeScreen(
             SignInCreateAccount(
                 onSignInSignUp = onSignInSignUp,
                 onSignInAsGuest = onSignInAsGuest,
-                onKeyboardDismissed = { dismiss -> showBranding = dismiss },
+                onFocusChange = { hasFocus -> showBranding = !hasFocus },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp)
@@ -150,10 +145,11 @@ private fun Logo(
 fun SignInCreateAccount(
     onSignInSignUp: (email: String) -> Unit,
     onSignInAsGuest: () -> Unit,
-    onKeyboardDismissed: (Boolean) -> Unit,
+    onFocusChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
 
     val focusRequester = remember { FocusRequester() }
     val confirmationPasswordFocusRequest = remember { FocusRequester() }
@@ -161,9 +157,11 @@ fun SignInCreateAccount(
     val emailState by rememberSaveable(stateSaver = EmailStateSaver) {
         mutableStateOf(EmailState())
     }
-
-    val passwordState by remember {
-        mutableStateOf(PasswordState())
+    val passwordState = remember {
+        PasswordState()
+    }
+    val confirmPasswordState = remember {
+        ConfirmPasswordState(passwordState = passwordState)
     }
 
     Column(
@@ -188,7 +186,7 @@ fun SignInCreateAccount(
                 onSignInSignUp(emailState.text)
             }
         }
-
+        onFocusChange(emailState.isFocused || passwordState.isFocused || confirmPasswordState.isFocused)
         Email(
             emailState = emailState,
             imeAction = ImeAction.Next,
@@ -210,14 +208,12 @@ fun SignInCreateAccount(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        val confirmPasswordState = remember { ConfirmPasswordState(passwordState = passwordState) }
-
         Password(
             label = stringResource(id = R.string.confirm_password),
             passwordState = confirmPasswordState,
             modifier = Modifier.focusRequester(confirmationPasswordFocusRequest),
             onImeAction = {
-                onKeyboardDismissed(true)
+                focusManager.clearFocus()
                 keyboardController?.hide()
             }
         )
@@ -254,7 +250,7 @@ fun SignInCreateAccount(
 @Preview
 @Composable
 private fun WelcomeScreenPreview() {
-    WelcomeScreen(onSignInSignUp = {}) {
+    SignUpScreen(onSignInSignUp = {}) {
 
     }
 }

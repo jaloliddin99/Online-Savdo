@@ -121,7 +121,7 @@ fun OrSignInAsGuest(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class) // OutlinedTextField is experimental in m3
+@OptIn(ExperimentalMaterial3Api::class) // OutlinedTextField is experimental in m3
 @Composable
 fun Password(
     label: String,
@@ -184,6 +184,7 @@ fun Password(
         ),
         keyboardActions = KeyboardActions(
             onDone = {
+
                 onImeAction()
             }
         ),

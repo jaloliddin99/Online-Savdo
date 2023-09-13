@@ -17,7 +17,7 @@ fun NavGraphBuilder.welcomeScreen(
     navigateToSurvey: () -> Unit,
 ) {
     composable(route = welcomeScreen) {
-        WelcomeRoute(
+        SignUpRoute(
             onNavigateToSignIn = {
                 navigateToSignIn(it)
             },
