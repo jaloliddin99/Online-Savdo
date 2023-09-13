@@ -94,6 +94,11 @@ dependencies {
     implementation("com.chibatching.kotpref:kotpref:2.13.1")
     implementation("com.google.code.gson:gson:2.9.0")
 
+    //Retrofit with Gson
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+
 
 
 }
