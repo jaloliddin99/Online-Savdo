@@ -25,6 +25,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.res.painterResource
@@ -140,8 +142,15 @@ fun SignInCreateAccount(
     modifier: Modifier = Modifier
 ) {
 
+    val focusRequester = remember { FocusRequester() }
+
     val emailState by rememberSaveable(stateSaver = EmailStateSaver) {
         mutableStateOf(EmailState())
+    }
+
+
+    val passwordState = remember {
+        PasswordState()
     }
 
     Column(
@@ -156,15 +165,24 @@ fun SignInCreateAccount(
         )
 
         val onSubmit = {
-            if (emailState.isValid) {
-                onSignInSignUp(emailState.text)
-            } else {
+            if (!emailState.isValid){
                 emailState.enableShowErrors()
+            }
+            if (emailState.isValid && passwordState.isValid){
+                onSignInSignUp(emailState.text)
             }
         }
         onFocusChange(emailState.isFocused)
-        Email(emailState = emailState, imeAction = ImeAction.Done, onImeAction = onSubmit)
+        Email(emailState = emailState, imeAction = ImeAction.Done, onImeAction = {
+            focusRequester.requestFocus()
+        })
 
+        Password(
+            label = stringResource(id = R.string.password),
+            passwordState = passwordState,
+            modifier = Modifier.focusRequester(focusRequester),
+            onImeAction = { onSubmit() }
+        )
         Button(onClick = onSubmit,
             modifier = Modifier
                 .fillMaxWidth()
