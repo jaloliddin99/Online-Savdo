@@ -1,9 +1,11 @@
-package org.don.onlineTrade.ui.auth
+package org.don.onlineTrade.ui.auth.register
 
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,11 +16,13 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,6 +35,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -40,12 +45,20 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.don.onlineTrade.R
+import org.don.onlineTrade.ui.auth.ConfirmPasswordState
+import org.don.onlineTrade.ui.auth.Email
+import org.don.onlineTrade.ui.auth.EmailState
+import org.don.onlineTrade.ui.auth.EmailStateSaver
+import org.don.onlineTrade.ui.auth.OrSignInAsGuest
+import org.don.onlineTrade.ui.auth.Password
+import org.don.onlineTrade.ui.auth.PasswordState
 
 
 @Composable
 fun SignUpScreen(
     onSignInSignUp: (email: String) -> Unit,
     onSignInAsGuest: () -> Unit,
+    state: RegistrationState
 ) {
 
     var showBranding by remember {
@@ -58,41 +71,51 @@ fun SignUpScreen(
             .fillMaxSize()
             .background(color = Color.Transparent)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-        ) {
-            Spacer(
+        Box(modifier = Modifier.fillMaxSize()){
+            Column(
                 modifier = Modifier
-                    .weight(1f, fill = showBranding)
-                    .animateContentSize()
-            )
-
-            AnimatedVisibility(
-                visible = showBranding,
-                modifier = Modifier.fillMaxWidth()
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
             ) {
-                Branding()
+
+                Spacer(
+                    modifier = Modifier
+                        .weight(1f, fill = showBranding)
+                        .animateContentSize()
+                )
+
+                AnimatedVisibility(
+                    visible = showBranding,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Branding()
+                }
+
+                Spacer(
+                    modifier = Modifier
+                        .weight(1f, fill = showBranding)
+                        .animateContentSize()
+                )
+                SignInCreateAccount(
+                    onSignInSignUp = onSignInSignUp,
+                    onSignInAsGuest = onSignInAsGuest,
+                    onFocusChange = { hasFocus -> showBranding = !hasFocus },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp)
+                        .padding(bottom = 100.dp)
+                )
+
             }
 
-            Spacer(
-                modifier = Modifier
-                    .weight(1f, fill = showBranding)
-                    .animateContentSize()
-            )
-            SignInCreateAccount(
-                onSignInSignUp = onSignInSignUp,
-                onSignInAsGuest = onSignInAsGuest,
-                onFocusChange = { hasFocus -> showBranding = !hasFocus },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp)
-                    .padding(bottom = 100.dp)
-            )
+            if (state.error.isNotBlank()){
+                Toast.makeText(LocalContext.current, state.error, Toast.LENGTH_SHORT).show()
+            }
 
+            if (state.isLoading){
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            }
         }
-
     }
 }
 
@@ -250,7 +273,7 @@ fun SignInCreateAccount(
 @Preview
 @Composable
 private fun WelcomeScreenPreview() {
-    SignUpScreen(onSignInSignUp = {}) {
-
-    }
+    SignUpScreen(onSignInSignUp = {}, onSignInAsGuest = {}, state =
+    RegistrationState()
+    )
 }
