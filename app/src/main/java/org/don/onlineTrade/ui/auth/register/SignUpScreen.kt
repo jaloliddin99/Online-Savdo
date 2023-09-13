@@ -22,7 +22,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,9 +55,10 @@ import org.don.onlineTrade.ui.auth.PasswordState
 
 @Composable
 fun SignUpScreen(
-    onSignInSignUp: (email: String) -> Unit,
+    onSignInSignUp: (email: String, password: String, phoneNumber: String) -> Unit,
     onSignInAsGuest: () -> Unit,
-    state: RegistrationState
+    state: RegistrationState,
+    registrationSuccess: () -> Unit
 ) {
 
     var showBranding by remember {
@@ -108,6 +108,9 @@ fun SignUpScreen(
 
             }
 
+            if (state.registerMain!= null){
+                registrationSuccess.invoke()
+            }
             if (state.error.isNotBlank()){
                 Toast.makeText(LocalContext.current, state.error, Toast.LENGTH_SHORT).show()
             }
@@ -166,7 +169,7 @@ private fun Logo(
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SignInCreateAccount(
-    onSignInSignUp: (email: String) -> Unit,
+    onSignInSignUp: (email: String, password: String, phoneNumber: String) -> Unit,
     onSignInAsGuest: () -> Unit,
     onFocusChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
@@ -206,7 +209,7 @@ fun SignInCreateAccount(
                 emailState.enableShowErrors()
             }
             if (emailState.isValid && passwordState.isValid) {
-                onSignInSignUp(emailState.text)
+                onSignInSignUp(emailState.text, passwordState.text, "+998996666666")
             }
         }
         onFocusChange(emailState.isFocused || passwordState.isFocused || confirmPasswordState.isFocused)
@@ -273,7 +276,9 @@ fun SignInCreateAccount(
 @Preview
 @Composable
 private fun WelcomeScreenPreview() {
-    SignUpScreen(onSignInSignUp = {}, onSignInAsGuest = {}, state =
-    RegistrationState()
+    SignUpScreen(onSignInSignUp = { s: String, s1: String, s2: String -> },
+        onSignInAsGuest = {},
+        state = RegistrationState(),
+        registrationSuccess = {}
     )
 }

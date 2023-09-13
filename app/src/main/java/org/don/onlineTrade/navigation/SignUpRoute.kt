@@ -8,23 +8,32 @@ import org.don.onlineTrade.ui.auth.register.WelcomeViewModel
 
 @Composable
 fun SignUpRoute(
-    onNavigateToSignIn: (email: String) -> Unit,
-    onNavigateToSignUp: (email: String) -> Unit,
+    onNavigateToSignIn: () -> Unit,
+    onNavigateToSignUp: () -> Unit,
     onSignInAsGuest: () -> Unit,
 ) {
     val welcomeViewModel = hiltViewModel<WelcomeViewModel>()
     val state = welcomeViewModel.state
     SignUpScreen(
-        onSignInSignUp = { email ->
-            welcomeViewModel.handleContinue(
-                email = email,
-                onNavigateToSignIn = onNavigateToSignIn,
-                onNavigateToSignUp = onNavigateToSignUp,
+        onSignInSignUp = { email, password, phoneNumber ->
+            welcomeViewModel.registerUser(
+                "Jalol",
+                email,
+                password,
+                password,
+                phoneNumber
             )
         },
         state = state.value,
         onSignInAsGuest = {
             welcomeViewModel.signInAsGuest(onSignInAsGuest)
         },
+        registrationSuccess = {
+            welcomeViewModel.handleContinue(
+                email = email,
+                onNavigateToSignIn = onNavigateToSignIn,
+                onNavigateToSignUp = onNavigateToSignUp,
+            )
+        }
     )
 }
