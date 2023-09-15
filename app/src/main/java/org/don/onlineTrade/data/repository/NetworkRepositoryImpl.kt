@@ -1,8 +1,17 @@
 package org.don.onlineTrade.data.repository
 
+import androidx.lifecycle.LiveData
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.liveData
 import org.don.onlineTrade.data.remote.ApiInterface
 import org.don.onlineTrade.data.remote.models.RegisterMain
+import org.don.onlineTrade.data.remote.models.category.CategoryModel
+import org.don.onlineTrade.data.remote.models.getPublicProducts.Data
 import org.don.onlineTrade.domain.repository.NetworkRepository
+import org.don.onlineTrade.utils.DEFAULT_PAGE_SIZE
+import org.don.onlineTrade.utils.PublicProductsPagingSource
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -34,6 +43,35 @@ class NetworkRepositoryImpl @Inject constructor(
             email,
             password
         )
+    }
+
+    override suspend fun getPublicProducts(
+        token: String,
+        query: String?,
+        categoryId: Int?,
+        language: String,
+        minPrice: Int?,
+        maxPrice: Int?,
+        pagingConfig: PagingConfig
+    ): LiveData<PagingData<Data>> {
+        return Pager(
+            config = pagingConfig,
+            pagingSourceFactory = {
+                PublicProductsPagingSource(
+                    token = token,
+                    query = query,
+                    categoryId = categoryId,
+                    language = language,
+                    minPrice = minPrice,
+                    maxPrice = maxPrice,
+                    doggoApiService = apiInterface
+                )
+            }
+        ).liveData
+    }
+
+    override suspend fun getAllCategories(token: String, language: String): CategoryModel {
+        return apiInterface.getAllCategories(token, language)
     }
 
 

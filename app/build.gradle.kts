@@ -104,5 +104,9 @@ dependencies {
 
     implementation("com.karumi:dexter:6.2.3")
 
+    //paging3
+    implementation("androidx.paging:paging-runtime-ktx:3.2.1")
+    implementation("io.coil-kt:coil-compose:2.4.0")
+
 
 }

@@ -43,14 +43,14 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import org.don.onlineTrade.navigation.NavigationDefaults
-import org.don.onlineTrade.navigation.chatScreen
-import org.don.onlineTrade.navigation.homeScreen
-import org.don.onlineTrade.navigation.loginScreen
-import org.don.onlineTrade.navigation.searchScreen
-import org.don.onlineTrade.navigation.settingsScreen
-import org.don.onlineTrade.navigation.welcomeScreen
-import org.don.onlineTrade.navigation.registrationScreen
+import org.don.onlineTrade.ui.navigation.NavigationDefaults
+import org.don.onlineTrade.ui.navigation.chatScreen
+import org.don.onlineTrade.ui.navigation.homeScreen
+import org.don.onlineTrade.ui.navigation.loginScreen
+import org.don.onlineTrade.ui.navigation.searchScreen
+import org.don.onlineTrade.ui.navigation.settingsScreen
+import org.don.onlineTrade.ui.navigation.welcomeScreen
+import org.don.onlineTrade.ui.navigation.registrationScreen
 import org.don.onlineTrade.ui.auth.login.SignInScreen
 import org.don.onlineTrade.ui.dialogs.settings.SettingsDialog
 import org.don.onlineTrade.ui.dialogs.settings.UserEditableSettings
@@ -58,6 +58,8 @@ import org.don.onlineTrade.ui.theme.AppBackground
 import org.don.onlineTrade.ui.theme.AppGradientBackground
 import org.don.onlineTrade.ui.theme.GradientColors
 import org.don.onlineTrade.ui.theme.LocalGradientColors
+import org.don.onlineTrade.utils.SharedPref
+import java.util.Date
 
 
 @OptIn(
@@ -217,7 +219,7 @@ fun NavigationGraph(appState: ApplicationState) {
     val navController = appState.navController
     NavHost(
         navController = navController,
-        startDestination = welcomeScreen
+        startDestination = if (isUserHasRightToAccessToMainPart()) NavItems.Home.screenRoute else welcomeScreen
     ) {
 
         homeScreen()
@@ -243,9 +245,17 @@ fun NavigationGraph(appState: ApplicationState) {
                 navController.navigate(NavItems.Home.screenRoute)
             }
         )
-
-
-
-
     }
+}
+
+
+fun isUserHasRightToAccessToMainPart(
+    tokenExpTime: Int = SharedPref.expirationTime,
+    isLoggedIn: Boolean = SharedPref.deviceLoggedIn,
+    loginTime: Long = SharedPref.loginTime
+): Boolean {
+    return if (isLoggedIn) {
+        val userSpentTime = Date().time - loginTime
+        userSpentTime - tokenExpTime < 0
+    } else false
 }

@@ -9,10 +9,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
-import org.don.onlineTrade.navigation.navigateToChat
-import org.don.onlineTrade.navigation.navigateToHome
-import org.don.onlineTrade.navigation.navigateToSearch
-import org.don.onlineTrade.navigation.navigateToSettingsGraph
+import org.don.onlineTrade.ui.navigation.navigateToChat
+import org.don.onlineTrade.ui.navigation.navigateToHome
+import org.don.onlineTrade.ui.navigation.navigateToSearch
+import org.don.onlineTrade.ui.navigation.navigateToSettingsGraph
 
 
 @Composable

@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import org.don.onlineTrade.domain.state.Resource
 import org.don.onlineTrade.domain.useCase.registrationUseCase.RegistrationUseCase
+import org.don.onlineTrade.ui.auth.login.assignDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -46,6 +47,7 @@ class WelcomeViewModel @Inject constructor(
         ).onEach { result ->
             when (result) {
                 is Resource.Success -> {
+                    result.data?.let { assignDate(it) }
                     _state.value = RegistrationState(registerMain = result.data)
                 }
 

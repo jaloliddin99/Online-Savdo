@@ -1,4 +1,4 @@
-package org.don.onlineTrade.navigation
+package org.don.onlineTrade.ui.navigation
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable

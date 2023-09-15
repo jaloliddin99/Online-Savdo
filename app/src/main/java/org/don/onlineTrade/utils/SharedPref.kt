@@ -5,8 +5,12 @@ import com.chibatching.kotpref.KotprefModel
 object SharedPref: KotprefModel() {
 
 
-    val darkTheme by booleanPref( )
-    val androidTheme by booleanPref(true)
-    val disableDynamicTheming by booleanPref(true)
+    var deviceLoggedIn by booleanPref( )
+    var deviceToken by stringPref()
+    var expirationTime by intPref()
+
+    var loginTime by longPref()
+
+
 
 }

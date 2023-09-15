@@ -19,6 +19,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,6 +48,8 @@ import org.don.onlineTrade.ui.auth.PasswordState
 import org.don.onlineTrade.ui.auth.register.Branding
 import org.don.onlineTrade.ui.auth.register.RegistrationState
 import org.don.onlineTrade.ui.auth.register.SignUpScreen
+import org.don.onlineTrade.utils.SharedPref
+import java.util.Date
 
 @Composable
 fun SignInScreen(
@@ -98,16 +102,23 @@ fun SignInScreen(
                         .padding(horizontal = 20.dp)
                         .padding(bottom = 100.dp)
                 )
-
             }
-
             if (state.registerMain!= null){
                 loginSuccess.invoke()
             }
-            if (state.error.isNotBlank()){
-                Toast.makeText(LocalContext.current, state.error, Toast.LENGTH_SHORT).show()
-            }
 
+            val context = LocalContext.current
+            val rememberedContext = remember { { context } }
+            SideEffect {
+                if (state.error.isNotBlank()){
+                    Toast.makeText(rememberedContext(), state.error, Toast.LENGTH_SHORT).show()
+                }
+            }
+//            LaunchedEffect(Unit){
+//                if (state.error.isNotBlank()){
+//                    Toast.makeText(rememberedContext(), state.error, Toast.LENGTH_SHORT).show()
+//                }
+//            }
             if (state.isLoading){
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }

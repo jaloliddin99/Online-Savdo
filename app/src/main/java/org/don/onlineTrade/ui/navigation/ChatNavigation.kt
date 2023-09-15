@@ -1,4 +1,4 @@
-package org.don.onlineTrade.navigation
+package org.don.onlineTrade.ui.navigation
 
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder

@@ -1,11 +1,15 @@
 package org.don.onlineTrade.data.remote
 
 import org.don.onlineTrade.data.remote.models.RegisterMain
+import org.don.onlineTrade.data.remote.models.category.CategoryModel
+import org.don.onlineTrade.data.remote.models.getPublicProducts.PublicProductsModel
 import retrofit2.Response
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
+import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.Query
 
 interface ApiInterface {
 
@@ -27,5 +31,28 @@ interface ApiInterface {
         @Field("email") email: String,
         @Field("password") password: String,
     ): RegisterMain
+
+
+    @GET("api/products")
+    suspend fun getPublicProducts(
+        @Query("token") token: String,
+        @Query("q") query: String?,
+        @Query("category_id") category_id: Int?,
+        @Query("lang") language: String,
+        @Query("page") page: Int,
+        @Query("count") count: Int,
+        @Query("min_price") minPrice: Int?,
+        @Query("max_price") maxPrice: Int?
+    ): PublicProductsModel
+
+    @GET("api/categories")
+    suspend fun getAllCategories(
+        @Query("token") token: String,
+        @Query("lang") language: String,
+    ): CategoryModel
+
+
+
+
 
 }
