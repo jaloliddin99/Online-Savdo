@@ -41,14 +41,17 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import org.don.onlineTrade.navigation.NavigationDefaults
 import org.don.onlineTrade.navigation.chatScreen
 import org.don.onlineTrade.navigation.homeScreen
+import org.don.onlineTrade.navigation.loginScreen
 import org.don.onlineTrade.navigation.searchScreen
 import org.don.onlineTrade.navigation.settingsScreen
 import org.don.onlineTrade.navigation.welcomeScreen
 import org.don.onlineTrade.navigation.registrationScreen
+import org.don.onlineTrade.ui.auth.login.SignInScreen
 import org.don.onlineTrade.ui.dialogs.settings.SettingsDialog
 import org.don.onlineTrade.ui.dialogs.settings.UserEditableSettings
 import org.don.onlineTrade.ui.theme.AppBackground
@@ -227,6 +230,15 @@ fun NavigationGraph(appState: ApplicationState) {
         )
 
         registrationScreen(
+            navigateToMainScreen = {
+                navController.navigate(NavItems.Home.screenRoute)
+            },
+            onLoginPage = {
+                navController.navigate(loginScreen)
+            }
+        )
+
+        loginScreen(
             navigateToMainScreen = {
                 navController.navigate(NavItems.Home.screenRoute)
             }

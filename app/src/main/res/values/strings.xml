@@ -32,6 +32,9 @@
     <string name="show_password">Show Password</string>
     <string name="password">Password</string>
     <string name="confirm_password">Confirm Password</string>
+    <string name="login_account">Login Account</string>
+    <string name="please_login">Please login to your account</string>
+    <string name="do_you_already_have_account">Do you have an account?</string>
 
 
 </resources>

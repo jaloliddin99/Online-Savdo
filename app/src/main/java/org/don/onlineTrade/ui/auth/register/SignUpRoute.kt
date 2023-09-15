@@ -1,14 +1,13 @@
-package org.don.onlineTrade.navigation
+package org.don.onlineTrade.ui.auth.register
 
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
-import org.don.onlineTrade.ui.auth.register.SignUpScreen
-import org.don.onlineTrade.ui.auth.register.WelcomeViewModel
 
 
 @Composable
 fun SignUpRoute(
     navigateToMainScreen: () -> Unit,
+    onLoginPage: () -> Unit
 ) {
     val welcomeViewModel = hiltViewModel<WelcomeViewModel>()
     val state = welcomeViewModel.state
@@ -26,6 +25,7 @@ fun SignUpRoute(
         onSignInAsGuest = {
             welcomeViewModel.signInAsGuest(navigateToMainScreen)
         },
-        registrationSuccess = navigateToMainScreen
+        registrationSuccess = navigateToMainScreen,
+        onLoginPage = onLoginPage
     )
 }

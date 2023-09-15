@@ -1,6 +1,7 @@
 package org.don.onlineTrade.data.remote
 
 import org.don.onlineTrade.data.remote.models.RegisterMain
+import retrofit2.Response
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.Header
@@ -19,5 +20,12 @@ interface ApiInterface {
         @Field("phone_number") phoneNumber: String
     ): RegisterMain
 
+    @FormUrlEncoded
+    @POST("api/login")
+    suspend fun login(
+        @Header("Accept") accept: String,
+        @Field("email") email: String,
+        @Field("password") password: String,
+    ): RegisterMain
 
 }

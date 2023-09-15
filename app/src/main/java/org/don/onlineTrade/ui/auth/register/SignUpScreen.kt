@@ -5,6 +5,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -12,8 +13,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -39,10 +42,16 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import org.don.onlineTrade.R
 import org.don.onlineTrade.ui.auth.ConfirmPasswordState
 import org.don.onlineTrade.ui.auth.Email
@@ -58,7 +67,8 @@ fun SignUpScreen(
     onSignInSignUp: (email: String, password: String, phoneNumber: String) -> Unit,
     onSignInAsGuest: () -> Unit,
     state: RegistrationState,
-    registrationSuccess: () -> Unit
+    registrationSuccess: () -> Unit,
+    onLoginPage: () -> Unit
 ) {
 
     var showBranding by remember {
@@ -71,7 +81,7 @@ fun SignUpScreen(
             .fillMaxSize()
             .background(color = Color.Transparent)
     ) {
-        Box(modifier = Modifier.fillMaxSize()){
+        Box(modifier = Modifier.fillMaxSize()) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -103,19 +113,20 @@ fun SignUpScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 20.dp)
-                        .padding(bottom = 100.dp)
+                        .padding(bottom = 100.dp),
+                    onLoginPage = onLoginPage
                 )
 
             }
 
-            if (state.registerMain!= null){
+            if (state.registerMain != null) {
                 registrationSuccess.invoke()
             }
-            if (state.error.isNotBlank()){
+            if (state.error.isNotBlank()) {
                 Toast.makeText(LocalContext.current, state.error, Toast.LENGTH_SHORT).show()
             }
 
-            if (state.isLoading){
+            if (state.isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
         }
@@ -123,7 +134,7 @@ fun SignUpScreen(
 }
 
 @Composable
-private fun Branding(modifier: Modifier = Modifier) {
+fun Branding(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .wrapContentWidth(align = Alignment.CenterHorizontally)
@@ -137,7 +148,7 @@ private fun Branding(modifier: Modifier = Modifier) {
         )
 
         Text(
-            text = stringResource(id = R.string.please_register_or_login),
+            text = stringResource(id = R.string.please_login),
             style = MaterialTheme.typography.titleMedium,
             textAlign = TextAlign.Center,
             modifier = Modifier
@@ -150,7 +161,7 @@ private fun Branding(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun Logo(
+fun Logo(
     modifier: Modifier = Modifier,
     lightTheme: Boolean = LocalContentColor.current.luminance() < 0.5f,
 ) {
@@ -172,7 +183,8 @@ fun SignUpCreateAccount(
     onSignInSignUp: (email: String, password: String, phoneNumber: String) -> Unit,
     onSignInAsGuest: () -> Unit,
     onFocusChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onLoginPage: () -> Unit
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
@@ -209,7 +221,7 @@ fun SignUpCreateAccount(
                 emailState.enableShowErrors()
             }
             if (emailState.isValid && passwordState.isValid) {
-                onSignInSignUp(emailState.text, passwordState.text, "998996666606")
+                onSignInSignUp(emailState.text, passwordState.text, "998996666608")
             }
         }
         onFocusChange(emailState.isFocused || passwordState.isFocused || confirmPasswordState.isFocused)
@@ -243,6 +255,10 @@ fun SignUpCreateAccount(
                 keyboardController?.hide()
             }
         )
+        Spacer(modifier = Modifier.height(12.dp))
+        DoYouHaveAccount {
+            onLoginPage()
+        }
 
         val isEnabled = emailState.isValid &&
                 passwordState.isValid &&
@@ -272,12 +288,54 @@ fun SignUpCreateAccount(
 
 }
 
+@Composable
+fun DoYouHaveAccount(
+    onTextClicked: () -> Unit
+) {
+    val getString = stringResource(id = R.string.do_you_already_have_account)
+    val getStringYes = stringResource(id = R.string.yes)
+
+    val annotatedString = buildAnnotatedString {
+        withStyle(
+            style = SpanStyle(
+                fontWeight = FontWeight.Normal
+            )
+        ) {
+            append(getString)
+        }
+        append(" ")
+
+        withStyle(
+            style = SpanStyle(
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
+                textDecoration = TextDecoration.Underline
+            )
+        ) {
+            append(getStringYes)
+        }
+    }
+    Box(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = annotatedString,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            fontSize = 12.sp,
+            modifier = Modifier.clickable {
+                onTextClicked()
+            }
+        )
+
+    }
+}
+
 @Preview
 @Composable
 private fun WelcomeScreenPreview() {
     SignUpScreen(onSignInSignUp = { s: String, s1: String, s2: String -> },
         onSignInAsGuest = {},
         state = RegistrationState(),
-        registrationSuccess = {}
+        registrationSuccess = {},
+        onLoginPage = {}
     )
 }

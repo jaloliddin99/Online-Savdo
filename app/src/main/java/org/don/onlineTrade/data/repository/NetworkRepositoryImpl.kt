@@ -28,5 +28,13 @@ class NetworkRepositoryImpl @Inject constructor(
         )
     }
 
+    override suspend fun login(email: String, password: String): RegisterMain {
+        return apiInterface.login(
+            "application/json",
+            email,
+            password
+        )
+    }
+
 
 }

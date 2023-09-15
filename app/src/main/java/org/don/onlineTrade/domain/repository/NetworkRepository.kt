@@ -14,4 +14,8 @@ interface NetworkRepository {
         phoneNumber: String
     ): RegisterMain
 
+    suspend fun login(
+        email: String,
+        password: String,
+    ): RegisterMain
 }
