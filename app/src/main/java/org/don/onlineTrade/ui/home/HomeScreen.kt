@@ -1,5 +1,6 @@
 package org.don.onlineTrade.ui.home
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -18,7 +19,9 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -49,6 +52,7 @@ fun HomeRoute(
     HomeScreen(modifier = modifier, state = state)
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     modifier: Modifier,
@@ -56,7 +60,7 @@ fun HomeScreen(
 ) {
     val context = LocalContext.current
 
-    Box {
+    Box(modifier = modifier.fillMaxSize()) {
         if (state.isLoading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         }
@@ -68,7 +72,6 @@ fun HomeScreen(
     LazyColumn(
         modifier = modifier.fillMaxSize()
     ) {
-
         item {
             if (state.registerMain != null) {
                 Categories(state.registerMain)
@@ -76,6 +79,7 @@ fun HomeScreen(
         }
         mainPagingProducts()
     }
+
 }
 
 fun LazyListScope.mainPagingProducts() {
