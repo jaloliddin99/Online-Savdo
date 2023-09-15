@@ -1,6 +1,7 @@
 package org.don.onlineTrade.ui.home
 
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,9 +23,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -61,8 +66,7 @@ fun HomeScreen(
     }
 
     LazyColumn(
-        modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp)
+        modifier = modifier.fillMaxSize()
     ) {
 
         item {
@@ -70,37 +74,55 @@ fun HomeScreen(
                 Categories(state.registerMain)
             }
         }
-
-    }
-}
-
-@Composable
-fun Categories(homeScreenState: List<CompactedCategoryItem>) {
-    LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        items(homeScreenState) {
-            CategoryItem(
-                item = it, modifier = Modifier
-                    .width(100.dp)
-                    .height(120.dp)
-            )
-        }
-
         mainPagingProducts()
     }
 }
 
 fun LazyListScope.mainPagingProducts() {
-    items(20) {
+
+    items(
+        50,
+    ) {
+        ProductsExample()
+    }
+}
+
+@Composable
+fun ProductsExample() {
+    Spacer(modifier = Modifier.height(12.dp))
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 16.dp, end = 16.dp)
+    ) {
         Text(
             text = "THis is demo text",
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth(),
             fontSize = 16.sp,
             fontFamily = FontFamily.Monospace,
             fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onSurface
-        )
+            color = MaterialTheme.colorScheme.onSurface,
+
+            )
     }
 }
+
+
+@Composable
+fun Categories(homeScreenState: List<CompactedCategoryItem>) {
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        items(homeScreenState) {
+            CategoryItem(
+                item = it, modifier = Modifier
+                    .width(100.dp)
+                    .height(120.dp)
+                    .padding(start = 16.dp, end = 16.dp)
+            )
+        }
+    }
+}
+
 
 @Composable
 fun CategoryItem(
@@ -108,7 +130,12 @@ fun CategoryItem(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier,
+        modifier = modifier
+            .background(
+                color = MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.3f)
+            )
+            .padding(start = 12.dp, end = 12.dp)
+        ,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
@@ -119,7 +146,14 @@ fun CategoryItem(
             model = item.image, contentDescription = null
         )
 
-        Text(text = item.title)
+        Text(
+            text = item.title,
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.Medium,
+            fontSize = 12.sp,
+            maxLines = 1,
+
+            )
     }
 }
 

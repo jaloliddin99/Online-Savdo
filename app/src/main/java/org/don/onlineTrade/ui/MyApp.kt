@@ -1,5 +1,6 @@
 package org.don.onlineTrade.ui
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
@@ -256,6 +257,6 @@ fun isUserHasRightToAccessToMainPart(
 ): Boolean {
     return if (isLoggedIn) {
         val userSpentTime = Date().time - loginTime
-        userSpentTime - tokenExpTime < 0
+        userSpentTime - tokenExpTime > 0
     } else false
 }

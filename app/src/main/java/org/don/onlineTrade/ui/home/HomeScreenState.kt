@@ -1,6 +1,5 @@
 package org.don.onlineTrade.ui.home
 
-import org.don.onlineTrade.data.remote.models.category.CategoryModel
 import org.don.onlineTrade.data.remote.models.category.CompactedCategoryItem
 
 data class HomeScreenState(

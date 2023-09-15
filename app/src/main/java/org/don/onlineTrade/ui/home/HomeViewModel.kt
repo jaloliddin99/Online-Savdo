@@ -29,7 +29,7 @@ class HomeViewModel @Inject constructor(
         )
     }
 
-    fun getAllCategories(
+    private fun getAllCategories(
         token: String,
         language: String,
     ) {

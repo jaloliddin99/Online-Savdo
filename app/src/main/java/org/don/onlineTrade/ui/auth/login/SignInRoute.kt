@@ -15,7 +15,6 @@ fun SignInRoute(
     val state = welcomeViewModel.state
     SignInScreen(
         onSignInSignUp = { email, password ->
-            Log.d("TAG", "SignInScreendwadawdawdawd")
             welcomeViewModel.registerUser(
                 email,
                 password,
