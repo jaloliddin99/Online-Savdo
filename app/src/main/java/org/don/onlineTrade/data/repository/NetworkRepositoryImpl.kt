@@ -5,6 +5,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.liveData
+import kotlinx.coroutines.flow.Flow
 import org.don.onlineTrade.data.remote.ApiInterface
 import org.don.onlineTrade.data.remote.models.RegisterMain
 import org.don.onlineTrade.data.remote.models.category.CategoryModel
@@ -45,7 +46,7 @@ class NetworkRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun getPublicProducts(
+    override fun getPublicProducts(
         token: String,
         query: String?,
         categoryId: Int?,
@@ -53,7 +54,7 @@ class NetworkRepositoryImpl @Inject constructor(
         minPrice: Int?,
         maxPrice: Int?,
         pagingConfig: PagingConfig
-    ): LiveData<PagingData<Data>> {
+    ): Flow<PagingData<Data>> {
         return Pager(
             config = pagingConfig,
             pagingSourceFactory = {
@@ -67,7 +68,7 @@ class NetworkRepositoryImpl @Inject constructor(
                     doggoApiService = apiInterface
                 )
             }
-        ).liveData
+        ).flow
     }
 
     override suspend fun getAllCategories(token: String, language: String): CategoryModel {

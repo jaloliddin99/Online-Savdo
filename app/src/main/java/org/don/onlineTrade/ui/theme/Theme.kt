@@ -114,7 +114,7 @@ val LightAndroidColorScheme = lightColorScheme(
     onSurfaceVariant = GreenGray30,
     inverseSurface = DarkGreenGray20,
     inverseOnSurface = DarkGreenGray95,
-    outline = GreenGray50,
+    outline = GreenGray50
 )
 
 /**
@@ -227,6 +227,8 @@ fun IELTSAIExaminerTheme(
         LocalGradientColors provides gradientColors,
         LocalBackgroundTheme provides backgroundTheme,
         LocalTintTheme provides tintTheme,
+        LocalSpacing provides Spacing()
+
     ) {
         MaterialTheme(
             colorScheme = colorScheme,

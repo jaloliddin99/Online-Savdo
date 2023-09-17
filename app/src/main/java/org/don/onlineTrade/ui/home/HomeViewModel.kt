@@ -4,9 +4,13 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import org.don.onlineTrade.data.remote.models.getPublicProducts.Data
 import org.don.onlineTrade.domain.repository.NetworkRepository
 import org.don.onlineTrade.domain.state.Resource
 import org.don.onlineTrade.domain.useCase.allCategoriesUseCase.AllCategoriesUseCase
@@ -18,6 +22,17 @@ class HomeViewModel @Inject constructor(
     private val networkRepository: NetworkRepository
 ) :
     ViewModel() {
+
+
+    fun collectProducts(): Flow<PagingData<Data>> = networkRepository.getPublicProducts(
+        token = TOKEN,
+        query = null,
+        categoryId = null,
+        language = "uz",
+        minPrice = null,
+        maxPrice = null
+    ).cachedIn(viewModelScope)
+
 
     private val _state = mutableStateOf(HomeScreenState())
     val state: State<HomeScreenState> = _state
@@ -54,6 +69,8 @@ class HomeViewModel @Inject constructor(
             }
         }.launchIn(viewModelScope)
     }
+
+
 
 
 }

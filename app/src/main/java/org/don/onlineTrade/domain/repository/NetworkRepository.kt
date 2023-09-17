@@ -26,7 +26,7 @@ interface NetworkRepository {
         password: String,
     ): RegisterMain
 
-    suspend fun getPublicProducts(
+    fun getPublicProducts(
         token: String,
         query: String?,
         categoryId: Int?,
@@ -34,7 +34,7 @@ interface NetworkRepository {
         minPrice: Int?,
         maxPrice: Int?,
         pagingConfig: PagingConfig = getDefaultPageConfig()
-    ): LiveData<PagingData<Data>>
+    ): Flow<PagingData<Data>>
 
     /**
      * let's define page size, page size is the only required param, rest is optional

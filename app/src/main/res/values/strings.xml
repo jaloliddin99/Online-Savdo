@@ -35,6 +35,7 @@
     <string name="login_account">Login Account</string>
     <string name="please_login">Please login to your account</string>
     <string name="do_you_already_have_account">Do you have an account?</string>
+    <string name="for_you_loading">Loading Items...</string>
 
 
 </resources>
