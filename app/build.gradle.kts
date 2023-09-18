@@ -109,5 +109,8 @@ dependencies {
     implementation("androidx.paging:paging-compose:3.2.1")
     implementation("io.coil-kt:coil-compose:2.4.0")
 
+    implementation("com.google.accompanist:accompanist-flowlayout:0.20.0")
+
+
 
 }
