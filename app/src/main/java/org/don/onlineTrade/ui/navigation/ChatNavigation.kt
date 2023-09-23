@@ -4,7 +4,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
-import org.don.onlineTrade.ui.chat.ChatRoute
+import org.don.onlineTrade.ui.add.ChatRoute
 
 const val chatNavigationRoute = "chat"
 fun NavController.navigateToChat(navOptions: NavOptions? = null) {

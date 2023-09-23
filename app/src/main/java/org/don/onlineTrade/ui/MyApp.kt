@@ -1,6 +1,5 @@
 package org.don.onlineTrade.ui
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
@@ -42,7 +41,6 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import org.don.onlineTrade.ui.navigation.NavigationDefaults
 import org.don.onlineTrade.ui.navigation.chatScreen
@@ -52,9 +50,9 @@ import org.don.onlineTrade.ui.navigation.searchScreen
 import org.don.onlineTrade.ui.navigation.settingsScreen
 import org.don.onlineTrade.ui.navigation.welcomeScreen
 import org.don.onlineTrade.ui.navigation.registrationScreen
-import org.don.onlineTrade.ui.auth.login.SignInScreen
 import org.don.onlineTrade.ui.dialogs.settings.SettingsDialog
 import org.don.onlineTrade.ui.dialogs.settings.UserEditableSettings
+import org.don.onlineTrade.ui.navigation.profileScreen
 import org.don.onlineTrade.ui.theme.AppBackground
 import org.don.onlineTrade.ui.theme.AppGradientBackground
 import org.don.onlineTrade.ui.theme.GradientColors
@@ -167,7 +165,8 @@ fun BottomNavigation(
         val items = listOf(
             NavItems.Home,
             NavItems.Chat,
-            NavItems.Settings
+            NavItems.Saved,
+            NavItems.Profile
         )
         var selectedItemIndex by rememberSaveable {
             mutableIntStateOf(0)
@@ -192,7 +191,7 @@ fun BottomNavigation(
                                 Text(text = item.badgeCount.toString())
                             }
                         } else if (item.hasNews) {
-                            Badge()
+                            //Badge()
                         }
                     }) {
                         Icon(
@@ -226,10 +225,11 @@ fun NavigationGraph(appState: ApplicationState) {
         homeScreen()
         chatScreen()
         settingsScreen()
+        profileScreen()
 
         searchScreen(
             onBackClick = navController::popBackStack,
-            onSettingsClick = { appState.navigateToTopLevelDestination(NavItems.Settings) },
+            onSettingsClick = { appState.navigateToTopLevelDestination(NavItems.Saved) },
         )
 
         registrationScreen(

@@ -1,4 +1,4 @@
-package org.don.onlineTrade.ui.settings
+package org.don.onlineTrade.ui.profile
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,22 +11,24 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 
-
 @Composable
-fun SettingsRoute(
-    modifier: Modifier = Modifier
+fun ProfileRoute(
+    modifier: Modifier = Modifier,
 ) {
-    SettingsScreen(modifier = modifier)
+    ProfileScreen(modifier)
 }
 @Composable
-fun SettingsScreen(modifier: Modifier) {
+fun ProfileScreen(
+    modifier: Modifier = Modifier
+) {
+
     Column(
         modifier = modifier
             .fillMaxSize()
             .wrapContentSize(Alignment.Center)
     ) {
         Text(
-            text = "Settings Screen",
+            text = "Profile Screen",
             fontWeight = FontWeight.Bold,
             modifier = Modifier.align(Alignment.CenterHorizontally),
             textAlign = TextAlign.Center,
@@ -34,4 +36,3 @@ fun SettingsScreen(modifier: Modifier) {
         )
     }
 }
-

@@ -4,9 +4,13 @@ import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 import org.don.onlineTrade.R
@@ -39,13 +43,23 @@ sealed class NavItems(
         "chat",
         titleRes = R.string.chat_page
     )
-    object Settings: NavItems(
-        title = "Settings",
-        selectedIcon = Icons.Filled.Settings,
-        unselectedIcon = Icons.Outlined.Settings,
+    object Saved: NavItems(
+        title = "Saved",
+        selectedIcon = Icons.Filled.Save,
+        unselectedIcon = Icons.Outlined.Save,
         hasNews = true,
         badgeCount = null,
-        "settings",
-        titleRes = R.string.settings_page
+        "saved",
+        titleRes = R.string.saved_page
+    )
+
+    object Profile: NavItems(
+        title = "Profile",
+        selectedIcon = Icons.Filled.Person,
+        unselectedIcon = Icons.Outlined.Person,
+        hasNews = true,
+        badgeCount = null,
+        "profile",
+        titleRes = R.string.profile
     )
 }

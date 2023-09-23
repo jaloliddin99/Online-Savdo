@@ -9,10 +9,15 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
+import org.don.onlineTrade.ui.navigation.chatNavigationRoute
+import org.don.onlineTrade.ui.navigation.homeNavigationRoute
 import org.don.onlineTrade.ui.navigation.navigateToChat
 import org.don.onlineTrade.ui.navigation.navigateToHome
+import org.don.onlineTrade.ui.navigation.navigateToProfile
 import org.don.onlineTrade.ui.navigation.navigateToSearch
 import org.don.onlineTrade.ui.navigation.navigateToSettingsGraph
+import org.don.onlineTrade.ui.navigation.profileNavigationRoute
+import org.don.onlineTrade.ui.navigation.savedNavigationRoute
 
 
 @Composable
@@ -39,9 +44,10 @@ class ApplicationState(
 
     val currentTopLevelDestination: NavItems?
         @Composable get() = when (currentDestination?.route) {
-            "home" -> NavItems.Home
-            "chat" -> NavItems.Chat
-            "settings" -> NavItems.Settings
+            homeNavigationRoute -> NavItems.Home
+            chatNavigationRoute -> NavItems.Chat
+            savedNavigationRoute -> NavItems.Saved
+            profileNavigationRoute -> NavItems.Profile
             else -> null
         }
 
@@ -72,7 +78,8 @@ class ApplicationState(
         when (topLevelDestination) {
             NavItems.Home -> navController.navigateToHome(topLevelNavOptions)
             NavItems.Chat -> navController.navigateToChat(topLevelNavOptions)
-            NavItems.Settings -> navController.navigateToSettingsGraph(topLevelNavOptions)
+            NavItems.Saved -> navController.navigateToSettingsGraph(topLevelNavOptions)
+            NavItems.Profile -> navController.navigateToProfile(topLevelNavOptions)
         }
     }
 
@@ -81,13 +88,4 @@ class ApplicationState(
     }
 
 
-}
-
-val currentDestination: (String) -> NavItems? = { destination: String ->
-    when (destination) {
-        "home" -> NavItems.Home
-        "chat" -> NavItems.Chat
-        "settings" -> NavItems.Settings
-        else -> null
-    }
 }

@@ -36,6 +36,12 @@
     <string name="please_login">Please login to your account</string>
     <string name="do_you_already_have_account">Do you have an account?</string>
     <string name="for_you_loading">Loading Items...</string>
+    <string name="profile">Profile</string>
+    <string name="saved_page">Saved Page</string>
+    <string name="enter_title">Enter title*</string>
+    <string name="for_instance_redme">For ex. Iphone 15 Pro Max</string>
+    <string name="select_category">Select Category*</string>
+    <string name="add_description">Add description*</string>
 
 
 </resources>

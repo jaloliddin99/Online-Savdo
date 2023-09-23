@@ -52,8 +52,9 @@ fun CategoryItem(
     modifier: Modifier = Modifier
 ) {
     Card(
-        shape = RoundedCornerShape(MaterialTheme.spacing.dimen12Dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        modifier = modifier.clickable {  },
+        shape = RoundedCornerShape(MaterialTheme.spacing.dimen12Dp),
         ) {
         Column(
             modifier = modifier

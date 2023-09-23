@@ -1,4 +1,4 @@
-package org.don.onlineTrade.ui.chat
+package org.don.onlineTrade.ui.saved
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,23 +13,20 @@ import androidx.compose.ui.unit.sp
 
 
 @Composable
-fun ChatRoute(
+fun SavedRoute(
     modifier: Modifier = Modifier
 ) {
-    ChatScreen(modifier = modifier)
+    SavedScreen(modifier = modifier)
 }
-
 @Composable
-fun ChatScreen(
-    modifier: Modifier
-) {
+fun SavedScreen(modifier: Modifier) {
     Column(
         modifier = modifier
             .fillMaxSize()
             .wrapContentSize(Alignment.Center)
     ) {
         Text(
-            text = "Chat Screen",
+            text = "Saved Screen",
             fontWeight = FontWeight.Bold,
             modifier = Modifier.align(Alignment.CenterHorizontally),
             textAlign = TextAlign.Center,
@@ -37,3 +34,4 @@ fun ChatScreen(
         )
     }
 }
+
