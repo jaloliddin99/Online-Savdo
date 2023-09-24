@@ -7,15 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,19 +18,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import org.don.onlineTrade.R
-import org.don.onlineTrade.ui.auth.EmailState
-import org.don.onlineTrade.ui.auth.EmailStateSaver
 import org.don.onlineTrade.ui.theme.spacing
 
 
@@ -48,7 +33,6 @@ fun ChatRoute(
     ChatScreen(modifier = modifier)
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(
     modifier: Modifier
@@ -65,6 +49,9 @@ fun ChatScreen(
         mutableStateOf(ProductTitleState())
     }
 
+    val categoryState by rememberSaveable(stateSaver = CategoryStateSaver) {
+        mutableStateOf(ProductTitleState())
+    }
 
     Column(
         modifier = modifier
@@ -84,7 +71,8 @@ fun ChatScreen(
             onImeAction = {
                 focusRequester.requestFocus()
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
         )
 
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
@@ -108,12 +96,13 @@ fun ChatScreen(
         ProductTitle(title = R.string.select_category)
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen2Dp))
 
-
-
+        TextFieldForProduct(
+            productState = categoryState,
+            modifier = Modifier.fillMaxWidth()
+        )
 
     }
 }
-
 
 
 @Composable
@@ -124,3 +113,4 @@ fun ProductTitle(@StringRes title: Int) {
         style = MaterialTheme.typography.titleSmall
     )
 }
+
