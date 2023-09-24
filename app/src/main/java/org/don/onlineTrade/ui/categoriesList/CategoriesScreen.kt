@@ -1,4 +1,4 @@
-package org.don.onlineTrade.ui.home
+package org.don.onlineTrade.ui.categoriesList
 
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
@@ -6,72 +6,64 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.collectAsLazyPagingItems
 import org.don.onlineTrade.R
-import org.don.onlineTrade.data.remote.models.getPublicProducts.Data
+import org.don.onlineTrade.ui.home.CategoryItemInVertical
+import org.don.onlineTrade.ui.home.HomeScreenState
+import org.don.onlineTrade.ui.home.HomeViewModel
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.OnlineMarketLoadingWheel
 
-
 @Composable
-fun HomeRoute(
+fun CategoriesRoute(
     modifier: Modifier = Modifier
 ) {
     val homeViewModel = hiltViewModel<HomeViewModel>()
     val state = homeViewModel.state.value
-    val products = homeViewModel.collectProducts().collectAsLazyPagingItems()
 
-    HomeScreen(modifier = modifier, state = state, pagingItems = products)
+    CategoriesScreen(modifier = modifier, state = state)
 }
 
+
 @Composable
-fun HomeScreen(
+fun CategoriesScreen(
     modifier: Modifier,
-    state: HomeScreenState,
-    pagingItems: LazyPagingItems<Data>
+    state: HomeScreenState
 ) {
+
+
     val isFeedLoading = state.isLoading
 
     val context = LocalContext.current
 
-    Box(modifier = modifier.fillMaxSize()){
-        LazyColumn(
-            modifier = modifier.fillMaxSize()
-        ) {
-            item {
-                if (state.registerMain != null) {
-                    Categories(state.registerMain)
-                }
-            }
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(MaterialTheme.spacing.dimen16Dp)
+    ) {
+        LazyColumn {
+            if (state.registerMain != null) {
+                itemsIndexed(state.registerMain) { index, item ->
 
-            item {
+                    CategoryItemInVertical(
+                        item = item
+                    )
 
-                if (pagingItems.itemSnapshotList.items.isNotEmpty()){
-                    ProductsItemsList(pagingItems)
                 }
             }
 
@@ -106,13 +98,5 @@ fun HomeScreen(
 
     }
 
+
 }
-
-
-
-
-
-
-const val alphaValue = 0.3f
-const val alphaValue06 = 0.6f
-

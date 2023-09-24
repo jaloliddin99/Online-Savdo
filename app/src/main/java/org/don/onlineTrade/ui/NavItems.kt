@@ -2,11 +2,13 @@ package org.don.onlineTrade.ui
 
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
@@ -14,6 +16,7 @@ import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 import org.don.onlineTrade.R
+import org.don.onlineTrade.ui.navigation.categoriesNavigationRoute
 
 sealed class NavItems(
     val title: String,
@@ -60,6 +63,16 @@ sealed class NavItems(
         hasNews = true,
         badgeCount = null,
         "profile",
+        titleRes = R.string.profile
+    )
+
+    object Categories: NavItems(
+        title = "Categories",
+        selectedIcon = Icons.Filled.Category,
+        unselectedIcon = Icons.Outlined.Category,
+        hasNews = true,
+        badgeCount = null,
+        categoriesNavigationRoute,
         titleRes = R.string.profile
     )
 }

@@ -28,14 +28,22 @@ import org.don.onlineTrade.ui.theme.spacing
 
 @Composable
 fun ChatRoute(
+    navigateToCategories: () -> Unit,
+    navigateToSelectRegions: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    ChatScreen(modifier = modifier)
+    ChatScreen(
+        modifier = modifier,
+        navigateToCategories,
+        navigateToSelectRegions
+    )
 }
 
 @Composable
 fun ChatScreen(
-    modifier: Modifier
+    modifier: Modifier,
+    navigateToCategories: () -> Unit,
+    navigateToSelectRegions: () -> Unit
 ) {
 
     val focusManager = LocalFocusManager.current
@@ -63,7 +71,6 @@ fun ChatScreen(
     ) {
 
         ProductTitle(title = R.string.enter_title)
-
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen2Dp))
 
         TextFieldForProduct(
@@ -76,7 +83,6 @@ fun ChatScreen(
         )
 
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
-
         ProductTitle(title = R.string.add_description)
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen2Dp))
 
@@ -88,18 +94,33 @@ fun ChatScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .focusRequester(focusRequester)
-                .height(200.dp)
+                .height(200.dp),
+            title = R.string.please_enter_description
         )
 
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
-
         ProductTitle(title = R.string.select_category)
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen2Dp))
 
-        TextFieldForProduct(
+        TextFieldUnEditable(
             productState = categoryState,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            title = R.string.please_select_category,
+            isFocusedOrClicked = navigateToCategories
+
         )
+
+        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
+        ProductTitle(title = R.string.select_region)
+        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen2Dp))
+
+        TextFieldUnEditable(
+            productState = categoryState,
+            modifier = Modifier.fillMaxWidth(),
+            title = R.string.please_select_region,
+            isFocusedOrClicked = navigateToSelectRegions
+        )
+
 
     }
 }

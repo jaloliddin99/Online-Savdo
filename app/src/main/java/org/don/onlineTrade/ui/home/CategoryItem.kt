@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -73,6 +74,41 @@ fun CategoryItem(
                 model = item.image, contentDescription = null
             )
 
+            Text(
+                text = item.title,
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Medium,
+                fontSize = 12.sp,
+                maxLines = 1
+            )
+        }
+    }
+}
+
+@Composable
+fun CategoryItemInVertical(
+    item: CompactedCategoryItem
+) {
+    Card(
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(48.dp)
+            .clickable { },
+        shape = RoundedCornerShape(MaterialTheme.spacing.dimen12Dp),
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            AsyncImage(
+                modifier = Modifier
+                    .width(MaterialTheme.spacing.dimen20Dp)
+                    .height(MaterialTheme.spacing.dimen20Dp),
+                model = item.image, contentDescription = null
+            )
+            Spacer(modifier = Modifier.width(12.dp))
             Text(
                 text = item.title,
                 textAlign = TextAlign.Center,

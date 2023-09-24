@@ -42,6 +42,10 @@
     <string name="for_instance_redme">For ex. Iphone 15 Pro Max</string>
     <string name="select_category">Select Category*</string>
     <string name="add_description">Add description*</string>
+    <string name="please_select_category">Please select category</string>
+    <string name="please_enter_description">Please enter description</string>
+    <string name="select_region">Select region*</string>
+    <string name="please_select_region">Please select region</string>
 
 
 </resources>

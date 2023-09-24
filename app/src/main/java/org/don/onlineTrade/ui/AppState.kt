@@ -9,6 +9,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
+import org.don.onlineTrade.ui.navigation.categoriesNavigationRoute
 import org.don.onlineTrade.ui.navigation.chatNavigationRoute
 import org.don.onlineTrade.ui.navigation.homeNavigationRoute
 import org.don.onlineTrade.ui.navigation.navigateToChat
@@ -48,8 +49,11 @@ class ApplicationState(
             chatNavigationRoute -> NavItems.Chat
             savedNavigationRoute -> NavItems.Saved
             profileNavigationRoute -> NavItems.Profile
+            categoriesNavigationRoute -> NavItems.Categories
             else -> null
         }
+
+
 
 
 
@@ -80,6 +84,7 @@ class ApplicationState(
             NavItems.Chat -> navController.navigateToChat(topLevelNavOptions)
             NavItems.Saved -> navController.navigateToSettingsGraph(topLevelNavOptions)
             NavItems.Profile -> navController.navigateToProfile(topLevelNavOptions)
+            else -> null
         }
     }
 

@@ -52,6 +52,8 @@ import org.don.onlineTrade.ui.navigation.welcomeScreen
 import org.don.onlineTrade.ui.navigation.registrationScreen
 import org.don.onlineTrade.ui.dialogs.settings.SettingsDialog
 import org.don.onlineTrade.ui.dialogs.settings.UserEditableSettings
+import org.don.onlineTrade.ui.navigation.categoriesNavigationRoute
+import org.don.onlineTrade.ui.navigation.categoriesScreen
 import org.don.onlineTrade.ui.navigation.profileScreen
 import org.don.onlineTrade.ui.theme.AppBackground
 import org.don.onlineTrade.ui.theme.AppGradientBackground
@@ -110,7 +112,7 @@ fun MainScreenView(
                 contentColor = MaterialTheme.colorScheme.onBackground,
                 contentWindowInsets = WindowInsets(0, 0, 0, 0),
                 bottomBar = {
-                    if (destination != null) {
+                    if (destination != null && destination.screenRoute != categoriesNavigationRoute) {
                         BottomNavigation(rememberNavController, appState)
                     }
                 }
@@ -223,7 +225,14 @@ fun NavigationGraph(appState: ApplicationState) {
     ) {
 
         homeScreen()
-        chatScreen()
+        chatScreen(
+            navigateToCategories = {
+                navController.navigate(categoriesNavigationRoute)
+            },
+            navigateToSelectRegions = {
+
+            }
+        )
         settingsScreen()
         profileScreen()
 
@@ -246,6 +255,8 @@ fun NavigationGraph(appState: ApplicationState) {
                 navController.navigate(NavItems.Home.screenRoute)
             }
         )
+
+        categoriesScreen()
     }
 }
 

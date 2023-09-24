@@ -11,10 +11,16 @@ fun NavController.navigateToChat(navOptions: NavOptions? = null) {
     this.navigate(chatNavigationRoute, navOptions)
 }
 
-fun NavGraphBuilder.chatScreen() {
+fun NavGraphBuilder.chatScreen(
+    navigateToCategories: () -> Unit,
+    navigateToSelectRegions: () -> Unit
+) {
     composable(
         route = chatNavigationRoute,
     ) {
-        ChatRoute()
+        ChatRoute(
+            navigateToCategories = navigateToCategories,
+            navigateToSelectRegions = navigateToSelectRegions
+        )
     }
 }
