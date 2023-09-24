@@ -256,7 +256,14 @@ fun NavigationGraph(appState: ApplicationState) {
             }
         )
 
-        categoriesScreen()
+        categoriesScreen(
+            onBackPressed = {
+                navController.previousBackStackEntry
+                    ?.savedStateHandle
+                    ?.set("category_item", it)
+                navController.popBackStack()
+            }
+        )
     }
 }
 

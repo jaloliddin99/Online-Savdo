@@ -1,5 +1,6 @@
 package org.don.onlineTrade.ui.add
 
+import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -22,7 +23,12 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.collectLatest
 import org.don.onlineTrade.R
+import org.don.onlineTrade.data.remote.models.category.CompactedCategoryItem
 import org.don.onlineTrade.ui.theme.spacing
 
 
@@ -30,12 +36,14 @@ import org.don.onlineTrade.ui.theme.spacing
 fun ChatRoute(
     navigateToCategories: () -> Unit,
     navigateToSelectRegions: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    item: CompactedCategoryItem ?= null
 ) {
     ChatScreen(
         modifier = modifier,
         navigateToCategories,
-        navigateToSelectRegions
+        navigateToSelectRegions,
+        item
     )
 }
 
@@ -43,7 +51,8 @@ fun ChatRoute(
 fun ChatScreen(
     modifier: Modifier,
     navigateToCategories: () -> Unit,
-    navigateToSelectRegions: () -> Unit
+    navigateToSelectRegions: () -> Unit,
+    item: CompactedCategoryItem ?= null
 ) {
 
     val focusManager = LocalFocusManager.current
@@ -58,6 +67,10 @@ fun ChatScreen(
     }
 
     val categoryState by rememberSaveable(stateSaver = CategoryStateSaver) {
+        mutableStateOf(ProductTitleState())
+    }
+
+    val regionState by rememberSaveable(stateSaver = RegionStateSaver) {
         mutableStateOf(ProductTitleState())
     }
 
@@ -102,20 +115,23 @@ fun ChatScreen(
         ProductTitle(title = R.string.select_category)
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen2Dp))
 
+        if (item!=null){
+            categoryState.text = item.title
+        }
         TextFieldUnEditable(
             productState = categoryState,
             modifier = Modifier.fillMaxWidth(),
             title = R.string.please_select_category,
             isFocusedOrClicked = navigateToCategories
-
         )
 
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
         ProductTitle(title = R.string.select_region)
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen2Dp))
 
+
         TextFieldUnEditable(
-            productState = categoryState,
+            productState = regionState,
             modifier = Modifier.fillMaxWidth(),
             title = R.string.please_select_region,
             isFocusedOrClicked = navigateToSelectRegions

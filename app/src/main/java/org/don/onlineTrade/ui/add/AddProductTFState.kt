@@ -18,3 +18,4 @@ class ProductTitleState(val title: String? = null) :
 val ProductTitleStateSaver = textFieldStateSaver(ProductTitleState())
 val ProductDescriptionStateSaver = textFieldStateSaver(ProductTitleState())
 val CategoryStateSaver = textFieldStateSaver(ProductTitleState())
+val RegionStateSaver = textFieldStateSaver(ProductTitleState())
