@@ -10,6 +10,7 @@ import org.don.onlineTrade.data.remote.ApiInterface
 import org.don.onlineTrade.data.remote.models.RegisterMain
 import org.don.onlineTrade.data.remote.models.category.CategoryModel
 import org.don.onlineTrade.data.remote.models.getPublicProducts.Data
+import org.don.onlineTrade.data.remote.models.region.RegionDistrictModel
 import org.don.onlineTrade.domain.repository.NetworkRepository
 import org.don.onlineTrade.utils.DEFAULT_PAGE_SIZE
 import org.don.onlineTrade.utils.PublicProductsPagingSource
@@ -73,6 +74,10 @@ class NetworkRepositoryImpl @Inject constructor(
 
     override suspend fun getAllCategories(token: String, language: String): CategoryModel {
         return apiInterface.getAllCategories(token, language)
+    }
+
+    override suspend fun getAllRegions(token: String, language: String): RegionDistrictModel {
+        return apiInterface.getRegionDistrict(token, language)
     }
 
 

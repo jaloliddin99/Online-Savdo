@@ -43,7 +43,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import org.don.onlineTrade.ui.navigation.NavigationDefaults
-import org.don.onlineTrade.ui.navigation.chatScreen
+import org.don.onlineTrade.ui.navigation.addProductScreen
 import org.don.onlineTrade.ui.navigation.homeScreen
 import org.don.onlineTrade.ui.navigation.loginScreen
 import org.don.onlineTrade.ui.navigation.searchScreen
@@ -55,6 +55,8 @@ import org.don.onlineTrade.ui.dialogs.settings.UserEditableSettings
 import org.don.onlineTrade.ui.navigation.categoriesNavigationRoute
 import org.don.onlineTrade.ui.navigation.categoriesScreen
 import org.don.onlineTrade.ui.navigation.profileScreen
+import org.don.onlineTrade.ui.navigation.regionsNavigationRoute
+import org.don.onlineTrade.ui.navigation.regionsScreen
 import org.don.onlineTrade.ui.theme.AppBackground
 import org.don.onlineTrade.ui.theme.AppGradientBackground
 import org.don.onlineTrade.ui.theme.GradientColors
@@ -112,7 +114,10 @@ fun MainScreenView(
                 contentColor = MaterialTheme.colorScheme.onBackground,
                 contentWindowInsets = WindowInsets(0, 0, 0, 0),
                 bottomBar = {
-                    if (destination != null && destination.screenRoute != categoriesNavigationRoute) {
+                    if (destination != null
+                        && destination.screenRoute != categoriesNavigationRoute
+                        && destination.screenRoute != regionsNavigationRoute
+                        ) {
                         BottomNavigation(rememberNavController, appState)
                     }
                 }
@@ -225,12 +230,12 @@ fun NavigationGraph(appState: ApplicationState) {
     ) {
 
         homeScreen()
-        chatScreen(
+        addProductScreen(
             navigateToCategories = {
                 navController.navigate(categoriesNavigationRoute)
             },
             navigateToSelectRegions = {
-
+                navController.navigate(regionsNavigationRoute)
             }
         )
         settingsScreen()
@@ -261,6 +266,14 @@ fun NavigationGraph(appState: ApplicationState) {
                 navController.previousBackStackEntry
                     ?.savedStateHandle
                     ?.set("category_item", it)
+                navController.popBackStack()
+            }
+        )
+        regionsScreen(
+            onBackPressed = {
+                navController.previousBackStackEntry
+                    ?.savedStateHandle
+                    ?.set("regions_item", it)
                 navController.popBackStack()
             }
         )

@@ -5,14 +5,15 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import org.don.onlineTrade.data.remote.models.category.CompactedCategoryItem
-import org.don.onlineTrade.ui.add.ChatRoute
+import org.don.onlineTrade.data.remote.models.region.RegionDistrictModelItem
+import org.don.onlineTrade.ui.add.AddProductRoute
 
 const val chatNavigationRoute = "chat"
 fun NavController.navigateToChat(navOptions: NavOptions? = null) {
     this.navigate(chatNavigationRoute, navOptions)
 }
 
-fun NavGraphBuilder.chatScreen(
+fun NavGraphBuilder.addProductScreen(
     navigateToCategories: () -> Unit,
     navigateToSelectRegions: () -> Unit,
 
@@ -21,10 +22,12 @@ fun NavGraphBuilder.chatScreen(
         route = chatNavigationRoute,
     ) { entry ->
         val item = entry.savedStateHandle.get<CompactedCategoryItem>("category_item")
-        ChatRoute(
+        val regions = entry.savedStateHandle.get<RegionDistrictModelItem>("regions_item")
+        AddProductRoute(
             navigateToCategories = navigateToCategories,
             navigateToSelectRegions = navigateToSelectRegions,
-            item = item
+            item = item,
+            regions = regions
         )
     }
 }

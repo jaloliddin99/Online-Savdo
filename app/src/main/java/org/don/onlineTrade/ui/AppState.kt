@@ -18,6 +18,7 @@ import org.don.onlineTrade.ui.navigation.navigateToProfile
 import org.don.onlineTrade.ui.navigation.navigateToSearch
 import org.don.onlineTrade.ui.navigation.navigateToSettingsGraph
 import org.don.onlineTrade.ui.navigation.profileNavigationRoute
+import org.don.onlineTrade.ui.navigation.regionsNavigationRoute
 import org.don.onlineTrade.ui.navigation.savedNavigationRoute
 
 
@@ -50,6 +51,7 @@ class ApplicationState(
             savedNavigationRoute -> NavItems.Saved
             profileNavigationRoute -> NavItems.Profile
             categoriesNavigationRoute -> NavItems.Categories
+            regionsNavigationRoute -> NavItems.Regions
             else -> null
         }
 

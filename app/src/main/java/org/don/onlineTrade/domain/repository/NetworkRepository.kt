@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.Flow
 import org.don.onlineTrade.data.remote.models.RegisterMain
 import org.don.onlineTrade.data.remote.models.category.CategoryModel
 import org.don.onlineTrade.data.remote.models.getPublicProducts.Data
+import org.don.onlineTrade.data.remote.models.region.RegionDistrictModel
 import org.don.onlineTrade.utils.DEFAULT_PAGE_SIZE
 import retrofit2.http.Query
 
@@ -47,4 +48,12 @@ interface NetworkRepository {
         token: String,
         language: String
     ): CategoryModel
+
+
+    suspend fun getAllRegions(
+        token: String,
+        language: String
+    ): RegionDistrictModel
+
+
 }

@@ -3,6 +3,7 @@ package org.don.onlineTrade.data.remote
 import org.don.onlineTrade.data.remote.models.RegisterMain
 import org.don.onlineTrade.data.remote.models.category.CategoryModel
 import org.don.onlineTrade.data.remote.models.getPublicProducts.PublicProductsModel
+import org.don.onlineTrade.data.remote.models.region.RegionDistrictModel
 import retrofit2.Response
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
@@ -51,6 +52,12 @@ interface ApiInterface {
         @Query("lang") language: String,
     ): CategoryModel
 
+
+    @GET("api/regions")
+    suspend fun getRegionDistrict(
+        @Query("token") token: String,
+        @Query("lang") language: String,
+    ): RegionDistrictModel
 
 
 

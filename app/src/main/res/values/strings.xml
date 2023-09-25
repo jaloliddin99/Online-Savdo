@@ -46,6 +46,7 @@
     <string name="please_enter_description">Please enter description</string>
     <string name="select_region">Select region*</string>
     <string name="please_select_region">Please select region</string>
+    <string name="regions">Regions</string>
 
 
 </resources>

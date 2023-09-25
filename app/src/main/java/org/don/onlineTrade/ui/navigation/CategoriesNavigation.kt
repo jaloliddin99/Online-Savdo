@@ -5,7 +5,6 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import org.don.onlineTrade.data.remote.models.category.CompactedCategoryItem
-import org.don.onlineTrade.ui.add.ChatRoute
 import org.don.onlineTrade.ui.categoriesList.CategoriesRoute
 
 const val categoriesNavigationRoute = "categories"
