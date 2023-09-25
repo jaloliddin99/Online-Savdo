@@ -29,6 +29,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -101,9 +102,6 @@ fun AddProductScreen(
         mutableStateOf(false)
     }
 
-    val focusManager = LocalFocusManager.current
-    val focusRequester = remember { FocusRequester() }
-
     val productTitleState by rememberSaveable(stateSaver = ProductTitleStateSaver) {
         mutableStateOf(ProductTitleState())
     }
@@ -134,6 +132,8 @@ fun AddProductScreen(
     if (state.error.isNotBlank()) {
         Toast.makeText(context, state.error, Toast.LENGTH_SHORT).show()
     }
+    val focusRequester = remember { FocusRequester() }
+    FreeLoading(isFeedLoading)
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
@@ -144,7 +144,6 @@ fun AddProductScreen(
     ) {
 
         item {
-            FreeLoading(isFeedLoading)
             ProductTitle(title = R.string.enter_title)
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen2Dp))
             TextFieldForProduct(
@@ -185,7 +184,6 @@ fun AddProductScreen(
                 modifier = Modifier.fillMaxWidth(),
                 title = R.string.please_select_category,
                 isFocusedOrClicked = {
-                    focusManager.clearFocus(true)
                     navigateToCategories()
                 }
             )
@@ -203,7 +201,6 @@ fun AddProductScreen(
                 modifier = Modifier.fillMaxWidth(),
                 title = R.string.please_select_region,
                 isFocusedOrClicked = {
-                    focusManager.clearFocus(true)
                     navigateToSelectRegions()
                 }
             )

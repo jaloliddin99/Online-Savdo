@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import org.don.onlineTrade.R
+import org.don.onlineTrade.ui.theme.spacing
 
 @Composable
 fun DialogCameraOrGallery(
@@ -35,14 +36,16 @@ fun DialogCameraOrGallery(
         modifier = Modifier.widthIn(max = configuration.screenWidthDp.dp - 80.dp),
         title = {
             Text(
-                text = stringResource(id = R.string.settings),
+                text = stringResource(id = R.string.select_options),
                 style = MaterialTheme.typography.titleLarge,
             )
         },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 CustomText(title = R.string.camera, onTextClicked = onCameraSelected)
-                Divider()
+                Divider(
+                    modifier = Modifier.padding(vertical = MaterialTheme.spacing.dimen8Dp)
+                )
                 CustomText(title = R.string.gallery, onTextClicked = onGallerySelected)
             }
         },
@@ -58,7 +61,7 @@ fun CustomText(@StringRes title: Int,
     Text(
         text = stringResource(id = title),
         fontWeight = FontWeight.Medium,
-        style = MaterialTheme.typography.titleSmall,
+        style = MaterialTheme.typography.titleMedium,
         modifier = Modifier.clickable {
             onTextClicked()
         }
