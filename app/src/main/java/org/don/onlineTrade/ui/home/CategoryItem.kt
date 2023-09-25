@@ -49,6 +49,7 @@ fun Categories(state: List<CompactedCategoryItem>) {
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryItem(
     item: CompactedCategoryItem,
@@ -56,8 +57,10 @@ fun CategoryItem(
 ) {
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        modifier = modifier.clickable {  },
         shape = RoundedCornerShape(MaterialTheme.spacing.dimen12Dp),
+        onClick = {
+
+        }
         ) {
         Column(
             modifier = modifier

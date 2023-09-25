@@ -1,5 +1,6 @@
 package org.don.onlineTrade.ui
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
@@ -224,9 +225,14 @@ fun BottomNavigation(
 @Composable
 fun NavigationGraph(appState: ApplicationState) {
     val navController = appState.navController
+
     NavHost(
         navController = navController,
-        startDestination = if (isUserHasRightToAccessToMainPart()) NavItems.Home.screenRoute else welcomeScreen
+        startDestination = if (isUserHasRightToAccessToMainPart()){
+            NavItems.Home.screenRoute
+        } else {
+            welcomeScreen
+        }
     ) {
 
         homeScreen()
@@ -248,7 +254,11 @@ fun NavigationGraph(appState: ApplicationState) {
 
         registrationScreen(
             navigateToMainScreen = {
-                navController.navigate(NavItems.Home.screenRoute)
+                navController.navigate(NavItems.Home.screenRoute){
+                    popUpTo(navController.graph.id){
+                        inclusive = true
+                    }
+                }
             },
             onLoginPage = {
                 navController.navigate(loginScreen)
@@ -257,7 +267,11 @@ fun NavigationGraph(appState: ApplicationState) {
 
         loginScreen(
             navigateToMainScreen = {
-                navController.navigate(NavItems.Home.screenRoute)
+                navController.navigate(NavItems.Home.screenRoute){
+                    popUpTo(navController.graph.id){
+                        inclusive = true
+                    }
+                }
             }
         )
 
@@ -286,8 +300,9 @@ fun isUserHasRightToAccessToMainPart(
     isLoggedIn: Boolean = SharedPref.deviceLoggedIn,
     loginTime: Long = SharedPref.loginTime
 ): Boolean {
+
     return if (isLoggedIn) {
-        val userSpentTime = Date().time - loginTime
-        userSpentTime - tokenExpTime > 0
+        val userSpentTime = (Date().time - loginTime)/1000
+        userSpentTime - tokenExpTime < 0
     } else false
 }

@@ -29,6 +29,7 @@ fun TextFieldForProduct(
     imeAction: ImeAction = ImeAction.Next,
     productState: TextFieldState = remember { ProductTitleState() },
     @StringRes title: Int = R.string.for_instance_redme,
+    keyboardType: KeyboardType = KeyboardType.Text
 ) {
 
     OutlinedTextField(
@@ -46,7 +47,7 @@ fun TextFieldForProduct(
         textStyle = MaterialTheme.typography.bodyMedium,
         keyboardOptions = KeyboardOptions.Default.copy(
             imeAction = imeAction,
-            keyboardType = KeyboardType.Text,
+            keyboardType = keyboardType,
         ),
         keyboardActions = KeyboardActions(
             onDone = {

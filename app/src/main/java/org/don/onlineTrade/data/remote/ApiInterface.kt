@@ -2,6 +2,7 @@ package org.don.onlineTrade.data.remote
 
 import org.don.onlineTrade.data.remote.models.RegisterMain
 import org.don.onlineTrade.data.remote.models.category.CategoryModel
+import org.don.onlineTrade.data.remote.models.currencies.ModelCurrencyLists
 import org.don.onlineTrade.data.remote.models.getPublicProducts.PublicProductsModel
 import org.don.onlineTrade.data.remote.models.region.RegionDistrictModel
 import retrofit2.Response
@@ -58,6 +59,13 @@ interface ApiInterface {
         @Query("token") token: String,
         @Query("lang") language: String,
     ): RegionDistrictModel
+
+
+    @GET("api/currencies")
+    suspend fun getAllCurrencies(
+        @Query("token") token: String,
+        @Query("lang") string: String
+    ): ModelCurrencyLists
 
 
 

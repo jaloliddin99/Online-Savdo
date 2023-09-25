@@ -6,6 +6,7 @@ import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
 import org.don.onlineTrade.data.remote.models.RegisterMain
 import org.don.onlineTrade.data.remote.models.category.CategoryModel
+import org.don.onlineTrade.data.remote.models.currencies.ModelCurrencyLists
 import org.don.onlineTrade.data.remote.models.getPublicProducts.Data
 import org.don.onlineTrade.data.remote.models.region.RegionDistrictModel
 import org.don.onlineTrade.utils.DEFAULT_PAGE_SIZE
@@ -55,5 +56,8 @@ interface NetworkRepository {
         language: String
     ): RegionDistrictModel
 
-
+    suspend fun getAllCurrencies(
+        token: String,
+        language: String
+    ): ModelCurrencyLists
 }

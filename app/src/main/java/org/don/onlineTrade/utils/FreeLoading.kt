@@ -1,0 +1,45 @@
+package org.don.onlineTrade.utils
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import org.don.onlineTrade.R
+
+
+@Composable
+fun FreeLoading(
+    isFeedLoading: Boolean = true
+) {
+    AnimatedVisibility(
+        visible = isFeedLoading,
+        enter = slideInVertically(
+            initialOffsetY = { fullHeight -> -fullHeight },
+        ) + fadeIn(),
+        exit = slideOutVertically(
+            targetOffsetY = { fullHeight -> -fullHeight },
+        ) + fadeOut(),
+    ) {
+        val loadingContentDescription = stringResource(id = R.string.for_you_loading)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp),
+        ) {
+            OnlineMarketLoadingWheel(
+                modifier = Modifier
+                    .align(Alignment.Center),
+                contentDesc = loadingContentDescription,
+            )
+        }
+    }
+}

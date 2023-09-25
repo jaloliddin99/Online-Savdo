@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -60,6 +61,7 @@ fun ProductsItemsList(pagingItems: LazyPagingItems<Data>) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductItem(data: Data, itemSize: Dp) {
     Card(
@@ -70,10 +72,13 @@ fun ProductItem(data: Data, itemSize: Dp) {
                 end = MaterialTheme.spacing.dimen8Dp
             )
             .width(itemSize)
-            .aspectRatio(0.7f)
-            .clickable {  },
+            .aspectRatio(0.7f),
+
         shape = RoundedCornerShape(MaterialTheme.spacing.dimen12Dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        onClick = {
+
+        }
     ) {
         Column(
             verticalArrangement = Arrangement.Top

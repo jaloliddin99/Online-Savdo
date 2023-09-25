@@ -78,28 +78,7 @@ fun RegionsScreen(
             Toast.makeText(context, state.error, Toast.LENGTH_SHORT).show()
         }
 
-        AnimatedVisibility(
-            visible = isFeedLoading,
-            enter = slideInVertically(
-                initialOffsetY = { fullHeight -> -fullHeight },
-            ) + fadeIn(),
-            exit = slideOutVertically(
-                targetOffsetY = { fullHeight -> -fullHeight },
-            ) + fadeOut(),
-        ) {
-            val loadingContentDescription = stringResource(id = R.string.for_you_loading)
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
-            ) {
-                OnlineMarketLoadingWheel(
-                    modifier = Modifier
-                        .align(Alignment.Center),
-                    contentDesc = loadingContentDescription,
-                )
-            }
-        }
+
 
     }
 
