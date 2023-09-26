@@ -1,8 +1,13 @@
 package org.don.onlineTrade.ui.add
 
+import android.app.Activity
+import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -36,6 +41,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -50,6 +56,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.core.graphics.drawable.toIcon
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
@@ -62,6 +69,8 @@ import org.don.onlineTrade.ui.home.AddProductScreenState
 import org.don.onlineTrade.ui.region.RegionsViewModel
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.FreeLoading
+import org.don.onlineTrade.utils.runTimePermission.OnRunTimePermissionListener
+import org.don.onlineTrade.utils.runTimePermission.RunTimePermission
 import java.io.IOException
 
 
@@ -132,6 +141,13 @@ fun AddProductScreen(
     if (state.error.isNotBlank()) {
         Toast.makeText(context, state.error, Toast.LENGTH_SHORT).show()
     }
+
+    var images by remember { mutableStateOf(listOf<Uri>()) }
+    val galleryLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) {
+            images = it
+        }
+
     val focusRequester = remember { FocusRequester() }
     FreeLoading(isFeedLoading)
     LazyColumn(
@@ -245,22 +261,42 @@ fun AddProductScreen(
             ProductTitle(title = R.string.select_image_for_your_product)
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen2Dp))
 
-            ShowSelectedImages(onAddButtonClicked = {
+            ShowSelectedImages(
+                onAddButtonClicked = {
                 showGalleryOrCameraDialog = true
-            })
+            },
+                imagesList = images.map { it.toImageUrl(false) }
+                )
 
             if (showGalleryOrCameraDialog) {
                 DialogCameraOrGallery(
-                    onDismiss = { showGalleryOrCameraDialog = false },
+                    onDismiss = {
+                        showGalleryOrCameraDialog = false
+                    },
                     onCameraSelected = {
                         showGalleryOrCameraDialog = false
+                        RunTimePermission().permissionListForCamera(
+                            cameraPermission = {
+                                if (it) {
+                                    galleryLauncher.launch("image/*")
+                                }
+                            }, context
+                        )
                     },
                     onGallerySelected = {
                         showGalleryOrCameraDialog = false
+                        RunTimePermission().permissionForGallery(
+                            galleryPermission = {
+                                if (it) {
+                                    galleryLauncher.launch("image/*")
+                                }
+                            }, context
+                        )
                     }
                 )
             }
         }
     }
 }
+
 

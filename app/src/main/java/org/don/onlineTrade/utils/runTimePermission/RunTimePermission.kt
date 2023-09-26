@@ -13,7 +13,7 @@ class RunTimePermission {
 
 
 
-    fun permissionForGallery(listener: GalleryPermission, context: Context) {
+    fun permissionForGallery(galleryPermission: (Boolean) -> Unit, context: Context) {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
             Dexter.withContext(context)
                 .withPermissions(
@@ -22,13 +22,13 @@ class RunTimePermission {
 
                 ).withListener(object : MultiplePermissionsListener {
                     override fun onPermissionsChecked(report: MultiplePermissionsReport) {
-                        listener.onGalleryGranted()
+                        galleryPermission(true)
                     }
                     override fun onPermissionRationaleShouldBeShown(
                         permissions: List<PermissionRequest?>?,
                         token: PermissionToken?
                     ) {
-                        listener.onGalleryDenied()
+                        galleryPermission(false)
                     }
                 }).check()
         }else{
@@ -38,38 +38,35 @@ class RunTimePermission {
                     Manifest.permission.READ_EXTERNAL_STORAGE,
                 ).withListener(object : MultiplePermissionsListener {
                     override fun onPermissionsChecked(report: MultiplePermissionsReport) {
-                        listener.onGalleryGranted()
+                        galleryPermission(true)
                     }
                     override fun onPermissionRationaleShouldBeShown(
                         permissions: List<PermissionRequest?>?,
                         token: PermissionToken?
                     ) {
-                        listener.onGalleryDenied()
+                        galleryPermission(false)
                     }
                 }).check()
         }
     }
 
 
-    interface GalleryPermission{
-        fun onGalleryGranted()
-        fun onGalleryDenied()
-    }
 
-    fun permissionListForCamera(onRunTimePermissionListener: OnRunTimePermissionListener, context: Context) {
+
+    fun permissionListForCamera(cameraPermission: (Boolean) -> Unit, context: Context) {
         Dexter.withContext(context)
             .withPermissions(
                 Manifest.permission.CAMERA
             ).withListener(object : MultiplePermissionsListener {
                 override fun onPermissionsChecked(report: MultiplePermissionsReport) {
-                    onRunTimePermissionListener.onPermissionGranted()
+                    cameraPermission(true)
                 }
 
                 override fun onPermissionRationaleShouldBeShown(
                     permissions: List<PermissionRequest?>?,
                     token: PermissionToken?
                 ) {
-                    onRunTimePermissionListener.onPermissionDenied()
+                    cameraPermission(false)
                 }
             }).check()
     }

@@ -1,6 +1,8 @@
 package org.don.onlineTrade.ui.add
 
 import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -13,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -24,10 +27,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -35,33 +43,34 @@ import coil.compose.rememberAsyncImagePainter
 import org.don.onlineTrade.ui.theme.spacing
 
 
+
+
 @Composable
 fun ShowSelectedImages(
-    onAddButtonClicked: () -> Unit
+    onAddButtonClicked: () -> Unit,
+    imagesList: List<ImageUrl>
 ) {
-
-    val imagesUrlList = remember {
-        mutableStateListOf<ImageUrl>()
-    }
 
     OutlinedCard(
         modifier = Modifier
             .fillMaxWidth()
             .height(150.dp)
     ) {
-        Row(
+        LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()
                 .padding(MaterialTheme.spacing.dimen12Dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            imagesUrlList.forEach { imageUrl ->
-                ImagesDisplayView(imageUrl)
-                Spacer(modifier = Modifier.width(MaterialTheme.spacing.dimen8Dp))
-            }
-            ShowCircularImage {
-                onAddButtonClicked()
+            item {
+                imagesList.forEach { imageUrl ->
+                    ImagesDisplayView(imageUrl)
+                    Spacer(modifier = Modifier.width(MaterialTheme.spacing.dimen8Dp))
+                }
+                ShowCircularImage {
+                    onAddButtonClicked()
+                }
             }
         }
     }
@@ -96,19 +105,20 @@ fun ShowCircularImage(
 fun ImagesDisplayView(imageUrl: ImageUrl) {
     Box(
         modifier = Modifier
-            .width(40.dp)
+            .width(80.dp)
             .fillMaxHeight()
     ) {
-        Icon(
-            imageVector = Icons.Filled.Cancel, contentDescription = null,
-            modifier = Modifier.align(Alignment.TopEnd)
-        )
         Image(
             painter = rememberAsyncImagePainter(model = imageUrl.uri), contentDescription = null,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(MaterialTheme.spacing.dimen8Dp)
-                .align(Alignment.Center)
+                .align(Alignment.Center),
+            contentScale = ContentScale.Crop,
+        )
+        Icon(
+            imageVector = Icons.Filled.Cancel, contentDescription = null,
+            modifier = Modifier.align(Alignment.TopEnd)
         )
     }
 }
@@ -129,3 +139,11 @@ data class ImageUrl(
     val uri: Uri,
     val fakeUri: Uri
 )
+
+fun Uri.toImageUrl(isFromCamera: Boolean): ImageUrl{
+    return ImageUrl(
+        isFromCamera = isFromCamera,
+        this,
+        this
+    )
+}
