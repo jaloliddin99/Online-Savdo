@@ -1,9 +1,14 @@
 package org.don.onlineTrade.ui.add
 
+import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Environment
+import android.provider.MediaStore
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
@@ -28,6 +33,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -57,10 +63,15 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat.startActivityForResult
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.toIcon
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
 import org.don.onlineTrade.R
+import org.don.onlineTrade.app.App
 import org.don.onlineTrade.data.remote.models.category.CompactedCategoryItem
 import org.don.onlineTrade.data.remote.models.currencies.ModelCurrencyListsItem
 import org.don.onlineTrade.data.remote.models.region.RegionDistrictModelItem
@@ -71,7 +82,12 @@ import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.FreeLoading
 import org.don.onlineTrade.utils.runTimePermission.OnRunTimePermissionListener
 import org.don.onlineTrade.utils.runTimePermission.RunTimePermission
+import java.io.File
 import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.Objects
 
 
 @Composable
@@ -81,6 +97,7 @@ fun AddProductRoute(
     modifier: Modifier = Modifier,
     item: CompactedCategoryItem? = null,
     regions: RegionDistrictModelItem? = null,
+
 ) {
 
     val addProductViewModel = hiltViewModel<AddProductScreenViewModel>()
@@ -92,7 +109,7 @@ fun AddProductRoute(
         navigateToSelectRegions,
         item,
         regions,
-        state
+        state,
     )
 }
 
@@ -103,7 +120,7 @@ fun AddProductScreen(
     navigateToSelectRegions: () -> Unit,
     item: CompactedCategoryItem? = null,
     region: RegionDistrictModelItem? = null,
-    state: AddProductScreenState
+    state: AddProductScreenState,
 ) {
 
 
@@ -116,19 +133,11 @@ fun AddProductScreen(
     }
 
     val productDescriptionState by rememberSaveable(stateSaver = ProductDescriptionStateSaver) {
-        mutableStateOf(ProductTitleState())
-    }
-
-    val categoryState by rememberSaveable(stateSaver = CategoryStateSaver) {
-        mutableStateOf(ProductTitleState())
-    }
-
-    val regionState by rememberSaveable(stateSaver = RegionStateSaver) {
-        mutableStateOf(ProductTitleState())
+        mutableStateOf(ProductDescriptionState())
     }
 
     val productPriceState by rememberSaveable(stateSaver = ProductPriceStateSaver) {
-        mutableStateOf(ProductTitleState())
+        mutableStateOf(ProductPriceState())
     }
 
     var currencyItem by remember {
@@ -142,10 +151,29 @@ fun AddProductScreen(
         Toast.makeText(context, state.error, Toast.LENGTH_SHORT).show()
     }
 
-    var images by remember { mutableStateOf(listOf<Uri>()) }
+    var images by remember {
+        mutableStateOf(listOf<Uri>())
+    }
+
     val galleryLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) {
-            images = it
+            images =  it
+        }
+
+
+    val file = context.createImageFile()
+    val uri = FileProvider.getUriForFile(
+        Objects.requireNonNull(context),
+        "org.don.onlineTrade.provider", file
+    )
+
+    var capturedImageUri by remember {
+        mutableStateOf<Uri>(Uri.EMPTY)
+    }
+
+    val cameraLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
+            capturedImageUri = uri
         }
 
     val focusRequester = remember { FocusRequester() }
@@ -192,11 +220,9 @@ fun AddProductScreen(
             ProductTitle(title = R.string.select_category)
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen2Dp))
 
-            if (item != null) {
-                categoryState.text = item.title
-            }
+
             TextFieldUnEditable(
-                productState = categoryState,
+                productTitle = item?.title,
                 modifier = Modifier.fillMaxWidth(),
                 title = R.string.please_select_category,
                 isFocusedOrClicked = {
@@ -209,11 +235,9 @@ fun AddProductScreen(
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen2Dp))
 
 
-            if (region != null) {
-                regionState.text = region.title
-            }
+
             TextFieldUnEditable(
-                productState = regionState,
+                productTitle = region?.title,
                 modifier = Modifier.fillMaxWidth(),
                 title = R.string.please_select_region,
                 isFocusedOrClicked = {
@@ -261,6 +285,11 @@ fun AddProductScreen(
             ProductTitle(title = R.string.select_image_for_your_product)
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen2Dp))
 
+
+            if (capturedImageUri.path?.isNotEmpty() == true) {
+                images = listOf(capturedImageUri)
+            }
+
             ShowSelectedImages(
                 onAddButtonClicked = {
                 showGalleryOrCameraDialog = true
@@ -268,6 +297,46 @@ fun AddProductScreen(
                 imagesList = images.map { it.toImageUrl(false) }
                 )
 
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen16Dp))
+
+
+            val categoryIsAdded = !item?.title.isNullOrEmpty()
+            val regionIsAdded = !region?.title.isNullOrEmpty()
+
+            val isEnabled = productTitleState.isValid && productDescriptionState.isValid
+                    && categoryIsAdded
+                    && regionIsAdded
+                    && productPriceState.isValid
+                    && currencyItem.id != -1
+                    && (images.isNotEmpty() && images.size < 10)
+
+            val onSubmit = {
+                if (!productTitleState.isValid){
+                    productTitleState.enableShowErrors()
+                }
+                if (!productDescriptionState.isValid){
+                    productDescriptionState.enableShowErrors()
+                }
+                if (!productPriceState.isValid){
+                    productPriceState.enableShowErrors()
+                }
+
+            }
+
+            Button(
+                onClick = onSubmit,
+                enabled = isEnabled,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 28.dp, bottom = 3.dp)
+                    .height(56.dp)
+            ) {
+                Text(
+                    text = stringResource(id = R.string.continuee),
+                    style = MaterialTheme.typography.titleSmall
+                )
+            }
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen24Dp))
             if (showGalleryOrCameraDialog) {
                 DialogCameraOrGallery(
                     onDismiss = {
@@ -278,7 +347,7 @@ fun AddProductScreen(
                         RunTimePermission().permissionListForCamera(
                             cameraPermission = {
                                 if (it) {
-                                    galleryLauncher.launch("image/*")
+                                    cameraLauncher.launch(uri)
                                 }
                             }, context
                         )
@@ -300,3 +369,14 @@ fun AddProductScreen(
 }
 
 
+fun Context.createImageFile(): File {
+    // Create an image file name
+    val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+    val imageFileName = "JPEG_" + timeStamp + "_"
+    val image = File.createTempFile(
+        imageFileName, /* prefix */
+        ".jpg", /* suffix */
+        externalCacheDir      /* directory */
+    )
+    return image
+}

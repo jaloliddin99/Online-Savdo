@@ -32,6 +32,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import org.don.onlineTrade.R
+import org.don.onlineTrade.ui.auth.TextFieldError
 import org.don.onlineTrade.ui.auth.TextFieldState
 import org.don.onlineTrade.ui.theme.spacing
 
@@ -56,7 +57,14 @@ fun TextFieldForProduct(
                 style = MaterialTheme.typography.bodyMedium,
             )
         },
-        modifier = modifier,
+        isError = productState.showErrors(),
+        modifier = modifier
+            .onFocusChanged { focusState ->
+                productState.onFocusChange(focusState.isFocused)
+                if (!focusState.isFocused) {
+                    productState.enableShowErrors()
+                }
+            },
         textStyle = MaterialTheme.typography.bodyMedium,
         keyboardOptions = KeyboardOptions.Default.copy(
             imeAction = imeAction,
@@ -67,7 +75,10 @@ fun TextFieldForProduct(
                 onImeAction()
             }
         ),
-        shape = RoundedCornerShape(MaterialTheme.spacing.dimen12Dp)
+        shape = RoundedCornerShape(MaterialTheme.spacing.dimen12Dp),
+        supportingText = {
+            productState.getError()?.let { error -> TextFieldError(textError = error) }
+        },
     )
 }
 
@@ -76,7 +87,7 @@ fun TextFieldForProduct(
 @Composable
 fun TextFieldUnEditable(
     modifier: Modifier = Modifier,
-    productState: TextFieldState = remember { ProductTitleState() },
+    productTitle: String? = "",
     @StringRes title: Int,
     isFocusedOrClicked: () -> Unit = {}
 ) {
@@ -88,16 +99,20 @@ fun TextFieldUnEditable(
         shape = RoundedCornerShape(MaterialTheme.spacing.dimen12Dp),
         onClick = {
             isFocusedOrClicked()
-        }
+        },
+
     ) {
         Row(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
                 .padding(horizontal = MaterialTheme.spacing.dimen12Dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = productState.text.ifEmpty { stringResource(id = title) },
+                text = if (!productTitle.isNullOrEmpty()) {
+                    productTitle
+                } else stringResource(id = title),
                 style = MaterialTheme.typography.bodyMedium,
             )
             Icon(imageVector = Icons.Filled.ArrowForward, contentDescription = null)
