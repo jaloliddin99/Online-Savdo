@@ -49,6 +49,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -57,6 +58,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -98,7 +100,7 @@ fun AddProductRoute(
     item: CompactedCategoryItem? = null,
     regions: RegionDistrictModelItem? = null,
 
-) {
+    ) {
 
     val addProductViewModel = hiltViewModel<AddProductScreenViewModel>()
     val state = addProductViewModel.state.value
@@ -113,6 +115,7 @@ fun AddProductRoute(
     )
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun AddProductScreen(
     modifier: Modifier,
@@ -157,7 +160,7 @@ fun AddProductScreen(
 
     val galleryLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) {
-            images =  it
+            images = it
         }
 
 
@@ -177,7 +180,13 @@ fun AddProductScreen(
         }
 
     val focusRequester = remember { FocusRequester() }
+    val descriptionFocusRequester = remember {
+        FocusRequester()
+    }
     FreeLoading(isFeedLoading)
+
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
@@ -199,15 +208,11 @@ fun AddProductScreen(
                     .fillMaxWidth()
             )
 
-
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
-            ProductTitle(title = R.string.add_description)
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen2Dp))
-
+            DividerTextAndSpace(R.string.add_description)
             TextFieldForProduct(
                 productState = productDescriptionState,
                 onImeAction = {
-                    focusRequester.requestFocus()
+                    descriptionFocusRequester.requestFocus()
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -215,12 +220,7 @@ fun AddProductScreen(
                     .height(200.dp),
                 title = R.string.please_enter_description
             )
-
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
-            ProductTitle(title = R.string.select_category)
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen2Dp))
-
-
+            DividerTextAndSpace(R.string.select_category)
             TextFieldUnEditable(
                 productTitle = item?.title,
                 modifier = Modifier.fillMaxWidth(),
@@ -229,12 +229,7 @@ fun AddProductScreen(
                     navigateToCategories()
                 }
             )
-
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
-            ProductTitle(title = R.string.select_region)
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen2Dp))
-
-
+            DividerTextAndSpace(R.string.select_region)
 
             TextFieldUnEditable(
                 productTitle = region?.title,
@@ -244,35 +239,38 @@ fun AddProductScreen(
                     navigateToSelectRegions()
                 }
             )
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
-            ProductTitle(title = R.string.enter_amount)
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen2Dp))
-
+            DividerTextAndSpace(R.string.enter_amount)
 
             if (state.regions != null) {
                 Row(
                     modifier = Modifier.wrapContentHeight(),
                     verticalAlignment = Alignment.Bottom
                 ) {
-                    SpinnerSample(
-                        list = state.regions,
-                        preselected = state.regions[0],
-                        onSelectionChanged = {
-                            focusRequester.requestFocus()
-                            currencyItem = it
-                        },
+                    currencyItem = state.regions[0]
+                    Column(
                         modifier = Modifier.weight(1f)
-                    )
+                    ) {
+                        SpinnerSample(
+                            list = state.regions,
+                            preselected = state.regions[0],
+                            onSelectionChanged = {
+                                descriptionFocusRequester.requestFocus()
+                                currencyItem = it
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
                     Spacer(modifier = Modifier.width(MaterialTheme.spacing.dimen12Dp))
                     TextFieldForProduct(
                         productState = productPriceState,
                         onImeAction = {
-                            //focusRequester.requestFocus()
+                            keyboardController?.hide()
                         },
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(2f)
-                            .focusRequester(focusRequester),
+                            .focusRequester(descriptionFocusRequester),
                         title = R.string.price_5000,
                         keyboardType = KeyboardType.Number,
                         imeAction = ImeAction.Done
@@ -280,30 +278,25 @@ fun AddProductScreen(
                 }
             }
 
-
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
-            ProductTitle(title = R.string.select_image_for_your_product)
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen2Dp))
-
+            DividerTextAndSpace(R.string.select_image_for_your_product)
 
             if (capturedImageUri.path?.isNotEmpty() == true) {
                 images = listOf(capturedImageUri)
             }
 
             ShowSelectedImages(
+                imagesList = images.map { it.toImageUrl(false) },
                 onAddButtonClicked = {
-                showGalleryOrCameraDialog = true
-            },
-                imagesList = images.map { it.toImageUrl(false) }
-                )
+                    showGalleryOrCameraDialog = true
+                })
 
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen16Dp))
-
 
             val categoryIsAdded = !item?.title.isNullOrEmpty()
             val regionIsAdded = !region?.title.isNullOrEmpty()
 
-            val isEnabled = productTitleState.isValid && productDescriptionState.isValid
+            val isEnabled = productTitleState.isValid
+                    && productDescriptionState.isValid
                     && categoryIsAdded
                     && regionIsAdded
                     && productPriceState.isValid
@@ -311,16 +304,15 @@ fun AddProductScreen(
                     && (images.isNotEmpty() && images.size < 10)
 
             val onSubmit = {
-                if (!productTitleState.isValid){
+                if (!productTitleState.isValid) {
                     productTitleState.enableShowErrors()
                 }
-                if (!productDescriptionState.isValid){
+                if (!productDescriptionState.isValid) {
                     productDescriptionState.enableShowErrors()
                 }
-                if (!productPriceState.isValid){
+                if (!productPriceState.isValid) {
                     productPriceState.enableShowErrors()
                 }
-
             }
 
             Button(
@@ -368,6 +360,14 @@ fun AddProductScreen(
     }
 }
 
+
+@Composable
+fun DividerTextAndSpace(@StringRes title: Int) {
+    Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
+    ProductTitle(title = title)
+    Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen2Dp))
+
+}
 
 fun Context.createImageFile(): File {
     // Create an image file name
