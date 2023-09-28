@@ -47,7 +47,7 @@ class ApplicationState(
     val currentTopLevelDestination: NavItems?
         @Composable get() = when (currentDestination?.route) {
             homeNavigationRoute -> NavItems.Home
-            chatNavigationRoute -> NavItems.Chat
+            chatNavigationRoute -> NavItems.AddProduct
             savedNavigationRoute -> NavItems.Saved
             profileNavigationRoute -> NavItems.Profile
             categoriesNavigationRoute -> NavItems.Categories
@@ -83,7 +83,7 @@ class ApplicationState(
 
         when (topLevelDestination) {
             NavItems.Home -> navController.navigateToHome(topLevelNavOptions)
-            NavItems.Chat -> navController.navigateToChat(topLevelNavOptions)
+            NavItems.AddProduct -> navController.navigateToChat(topLevelNavOptions)
             NavItems.Saved -> navController.navigateToSettingsGraph(topLevelNavOptions)
             NavItems.Profile -> navController.navigateToProfile(topLevelNavOptions)
             else -> null

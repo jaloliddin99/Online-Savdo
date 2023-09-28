@@ -72,7 +72,7 @@ private fun priceValidationError(price: String): String {
 }
 
 private fun isValidPrice(title: String): Boolean {
-    return title.length > 3
+    return title.isNotEmpty()
 }
 
 

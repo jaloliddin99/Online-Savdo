@@ -99,7 +99,7 @@ fun AddProductRoute(
     modifier: Modifier = Modifier,
     item: CompactedCategoryItem? = null,
     regions: RegionDistrictModelItem? = null,
-
+    popBack: () -> Unit
     ) {
 
     val addProductViewModel = hiltViewModel<AddProductScreenViewModel>()
@@ -112,6 +112,24 @@ fun AddProductRoute(
         item,
         regions,
         state,
+        submitProduct = {  titleProduct: String,
+            descriptionProduct: String,
+            priceText: String,
+            currencyId: Int,
+            region: Int,
+            categoryId: Int,
+            images: List<ImageUrl> ->
+            addProductViewModel.postNewProduct(
+                titleProduct = titleProduct,
+                descriptionProduct = descriptionProduct,
+                priceText = priceText,
+                currencyId = currencyId,
+                region = region,
+                categoryId = categoryId,
+                images = images
+            )
+        },
+        popBack
     )
 }
 
@@ -124,6 +142,16 @@ fun AddProductScreen(
     item: CompactedCategoryItem? = null,
     region: RegionDistrictModelItem? = null,
     state: AddProductScreenState,
+    submitProduct: (
+        titleProduct: String,
+        descriptionProduct: String,
+        priceText: String,
+        currencyId: Int,
+        region: Int,
+        categoryId: Int,
+        images: List<ImageUrl>,
+    ) -> Unit,
+    popBack: () -> Unit
 ) {
 
 
@@ -155,12 +183,20 @@ fun AddProductScreen(
     }
 
     var images by remember {
-        mutableStateOf(listOf<Uri>())
+        mutableStateOf(listOf<ImageUrl>())
+    }
+
+    fun clearItems(){
+        images = listOf()
+        productTitleState.text = ""
+        productDescriptionState.text = ""
+        productPriceState.text = ""
+        popBack()
     }
 
     val galleryLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) {
-            images = it
+            images = it.map { it.toImageUrl(isFromCamera = false) }
         }
 
 
@@ -186,6 +222,10 @@ fun AddProductScreen(
     FreeLoading(isFeedLoading)
 
     val keyboardController = LocalSoftwareKeyboardController.current
+
+    if (state.postNewProduct != null){
+        clearItems()
+    }
 
     LazyColumn(
         modifier = modifier
@@ -278,14 +318,15 @@ fun AddProductScreen(
                 }
             }
 
+
             DividerTextAndSpace(R.string.select_image_for_your_product)
 
             if (capturedImageUri.path?.isNotEmpty() == true) {
-                images = listOf(capturedImageUri)
+                images = listOf(capturedImageUri).map { it.toImageUrl(isFromCamera = true) }
             }
 
             ShowSelectedImages(
-                imagesList = images.map { it.toImageUrl(false) },
+                imagesList = images,
                 onAddButtonClicked = {
                     showGalleryOrCameraDialog = true
                 })
@@ -313,6 +354,16 @@ fun AddProductScreen(
                 if (!productPriceState.isValid) {
                     productPriceState.enableShowErrors()
                 }
+
+                submitProduct(
+                     productTitleState.text,
+                     productDescriptionState.text,
+                     productPriceState.text,
+                     currencyItem.id,
+                     region!!.id,
+                     item!!.id,
+                     images
+                )
             }
 
             Button(

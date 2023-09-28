@@ -1,6 +1,5 @@
 package org.don.onlineTrade.ui
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
@@ -172,7 +171,7 @@ fun BottomNavigation(
     ) {
         val items = listOf(
             NavItems.Home,
-            NavItems.Chat,
+            NavItems.AddProduct,
             NavItems.Saved,
             NavItems.Profile
         )
@@ -242,7 +241,8 @@ fun NavigationGraph(appState: ApplicationState) {
             },
             navigateToSelectRegions = {
                 navController.navigate(regionsNavigationRoute)
-            }
+            },
+            popBack = navController::popBackStack
         )
         settingsScreen()
         profileScreen()

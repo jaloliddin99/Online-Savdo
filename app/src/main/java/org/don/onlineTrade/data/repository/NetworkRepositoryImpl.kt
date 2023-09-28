@@ -6,11 +6,13 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.liveData
 import kotlinx.coroutines.flow.Flow
+import okhttp3.RequestBody
 import org.don.onlineTrade.data.remote.ApiInterface
 import org.don.onlineTrade.data.remote.models.RegisterMain
 import org.don.onlineTrade.data.remote.models.category.CategoryModel
 import org.don.onlineTrade.data.remote.models.currencies.ModelCurrencyLists
 import org.don.onlineTrade.data.remote.models.getPublicProducts.Data
+import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.RegionDistrictModel
 import org.don.onlineTrade.domain.repository.NetworkRepository
 import org.don.onlineTrade.utils.DEFAULT_PAGE_SIZE
@@ -83,6 +85,10 @@ class NetworkRepositoryImpl @Inject constructor(
 
     override suspend fun getAllCurrencies(token: String, language: String): ModelCurrencyLists {
         return apiInterface.getAllCurrencies(token, language)
+    }
+
+    override suspend fun newProduct(token: String, requestBody: RequestBody): PostModel {
+        return apiInterface.newProduct(token, requestBody)
     }
 
 

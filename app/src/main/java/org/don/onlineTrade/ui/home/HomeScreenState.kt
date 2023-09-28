@@ -2,6 +2,7 @@ package org.don.onlineTrade.ui.home
 
 import org.don.onlineTrade.data.remote.models.category.CompactedCategoryItem
 import org.don.onlineTrade.data.remote.models.currencies.ModelCurrencyListsItem
+import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.RegionDistrictModelItem
 
 data class HomeScreenState(
@@ -21,5 +22,6 @@ data class RegionsScreenState(
 data class AddProductScreenState(
     val isLoading: Boolean = false,
     val regions: List<ModelCurrencyListsItem>?= null,
+    val postNewProduct: PostModel ?= null,
     val error: String = ""
 )

@@ -4,10 +4,12 @@ import androidx.lifecycle.LiveData
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
+import okhttp3.RequestBody
 import org.don.onlineTrade.data.remote.models.RegisterMain
 import org.don.onlineTrade.data.remote.models.category.CategoryModel
 import org.don.onlineTrade.data.remote.models.currencies.ModelCurrencyLists
 import org.don.onlineTrade.data.remote.models.getPublicProducts.Data
+import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.RegionDistrictModel
 import org.don.onlineTrade.utils.DEFAULT_PAGE_SIZE
 import retrofit2.http.Query
@@ -60,4 +62,9 @@ interface NetworkRepository {
         token: String,
         language: String
     ): ModelCurrencyLists
+
+    suspend fun newProduct(
+        token: String,
+        requestBody: RequestBody
+    ): PostModel
 }

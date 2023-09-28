@@ -1,15 +1,19 @@
 package org.don.onlineTrade.data.remote
 
+import okhttp3.RequestBody
 import org.don.onlineTrade.data.remote.models.RegisterMain
 import org.don.onlineTrade.data.remote.models.category.CategoryModel
 import org.don.onlineTrade.data.remote.models.currencies.ModelCurrencyLists
 import org.don.onlineTrade.data.remote.models.getPublicProducts.PublicProductsModel
+import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.RegionDistrictModel
 import retrofit2.Response
+import retrofit2.http.Body
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.Headers
 import retrofit2.http.POST
 import retrofit2.http.Query
 
@@ -66,6 +70,14 @@ interface ApiInterface {
         @Query("token") token: String,
         @Query("lang") string: String
     ): ModelCurrencyLists
+
+
+    @Headers("Accept: application/json")
+    @POST("api/profile/products")
+    suspend fun newProduct(
+        @Header("Authorization") token: String,
+        @Body requestBody: RequestBody
+    ): PostModel
 
 
 

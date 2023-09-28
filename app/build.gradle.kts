@@ -111,6 +111,8 @@ dependencies {
 
     implementation("com.google.accompanist:accompanist-flowlayout:0.20.0")
 
+    implementation("id.zelory:compressor:3.0.1")
+
 
 
 }

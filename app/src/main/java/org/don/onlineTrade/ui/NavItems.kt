@@ -6,16 +6,16 @@ import androidx.compose.material.icons.filled.AreaChart
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.LibraryAdd
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Save
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.AreaChart
 import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.LibraryAdd
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Save
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 import org.don.onlineTrade.R
 import org.don.onlineTrade.ui.navigation.categoriesNavigationRoute
@@ -40,13 +40,13 @@ sealed class NavItems(
         "home",
         titleRes = R.string.top_home
     )
-    object Chat: NavItems(
-        title = "Chat",
-        selectedIcon = Icons.Filled.Email,
-        unselectedIcon = Icons.Outlined.Email,
+    object AddProduct: NavItems(
+        title = "Add",
+        selectedIcon = Icons.Filled.LibraryAdd,
+        unselectedIcon = Icons.Outlined.LibraryAdd,
         hasNews = false,
         badgeCount = 45,
-        "chat",
+        "add",
         titleRes = R.string.chat_page
     )
     object Saved: NavItems(

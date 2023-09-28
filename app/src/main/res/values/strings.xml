@@ -3,7 +3,7 @@
 
     <string name="app_name">Internet Savdo</string>
     <string name="top_home">Main Page</string>
-    <string name="chat_page">Chat Page</string>
+    <string name="chat_page">Create Product</string>
     <string name="settings_page">Settings Page</string>
     <string name="ok">OK</string>
     <string name="settings">Settings</string>
@@ -53,6 +53,7 @@
     <string name="gallery">Gallery</string>
     <string name="select_image_for_your_product">Select image(s) of produt*</string>
     <string name="select_options">Please select</string>
+    <string name="selectet_image_size">Image is large to upload</string>
 
 
 </resources>

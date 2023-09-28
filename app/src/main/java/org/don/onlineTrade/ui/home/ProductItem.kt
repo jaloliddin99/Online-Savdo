@@ -119,38 +119,41 @@ fun ProductItem(data: Data, itemSize: Dp) {
                 )
             }
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen6Dp))
-            Text(
-                text = data.title,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier
-                    .padding(horizontal = MaterialTheme.spacing.dimen6Dp),
-            )
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen4Dp))
-            Text(
-                text = data.price,
-                modifier = Modifier
-                    .padding(horizontal = MaterialTheme.spacing.dimen6Dp)
-                    .background(
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                        shape = RoundedCornerShape(MaterialTheme.spacing.dimen4Dp)
-                    ),
-                style = MaterialTheme.typography.titleSmall,
-            )
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen4Dp))
-            Text(
-                text = data.region.title,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier
-                    .padding(horizontal = MaterialTheme.spacing.dimen6Dp),
-            )
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen4Dp))
 
-            Text(
-                text = data.date,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier
-                    .padding(horizontal = MaterialTheme.spacing.dimen6Dp),
-            )
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Text(
+                    text = data.title,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier
+                        .padding(horizontal = MaterialTheme.spacing.dimen6Dp),
+                )
+                Text(
+                    text = data.price,
+                    modifier = Modifier
+                        .padding(horizontal = MaterialTheme.spacing.dimen6Dp)
+                        .background(
+                            color = MaterialTheme.colorScheme.primaryContainer,
+                            shape = RoundedCornerShape(MaterialTheme.spacing.dimen4Dp)
+                        ),
+                    style = MaterialTheme.typography.titleSmall,
+                )
+                Text(
+                    text = data.region.title,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier
+                        .padding(horizontal = MaterialTheme.spacing.dimen6Dp),
+                )
+                Text(
+                    text = data.date,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier
+                        .padding(horizontal = MaterialTheme.spacing.dimen6Dp),
+                )
+            }
+
         }
     }
 }

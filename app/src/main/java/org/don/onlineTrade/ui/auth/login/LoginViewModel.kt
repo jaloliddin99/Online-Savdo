@@ -1,5 +1,6 @@
 package org.don.onlineTrade.ui.auth.login
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -65,7 +66,7 @@ class LoginViewModel @Inject constructor(
 
 fun assignDate(data: RegisterMain){
     SharedPref.expirationTime = data.expired_at?:0
-    SharedPref.deviceToken = data.token ?: ""
+    SharedPref.deviceToken = "Bearer ${data.token ?: ""}"
     SharedPref.loginTime = Date().time
     SharedPref.deviceLoggedIn = true
 }

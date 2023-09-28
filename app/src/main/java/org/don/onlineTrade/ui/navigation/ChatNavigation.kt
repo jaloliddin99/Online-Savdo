@@ -8,7 +8,7 @@ import org.don.onlineTrade.data.remote.models.category.CompactedCategoryItem
 import org.don.onlineTrade.data.remote.models.region.RegionDistrictModelItem
 import org.don.onlineTrade.ui.add.AddProductRoute
 
-const val chatNavigationRoute = "chat"
+const val chatNavigationRoute = "add"
 fun NavController.navigateToChat(navOptions: NavOptions? = null) {
     this.navigate(chatNavigationRoute, navOptions)
 }
@@ -16,7 +16,7 @@ fun NavController.navigateToChat(navOptions: NavOptions? = null) {
 fun NavGraphBuilder.addProductScreen(
     navigateToCategories: () -> Unit,
     navigateToSelectRegions: () -> Unit,
-
+    popBack: () -> Unit
 ) {
     composable(
         route = chatNavigationRoute,
@@ -27,7 +27,8 @@ fun NavGraphBuilder.addProductScreen(
             navigateToCategories = navigateToCategories,
             navigateToSelectRegions = navigateToSelectRegions,
             item = item,
-            regions = regions
+            regions = regions,
+            popBack = popBack
         )
     }
 }
