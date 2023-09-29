@@ -1,24 +1,22 @@
 package org.don.onlineTrade.ui.navigation
 
-import android.util.Log
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import org.don.onlineTrade.ui.home.HomeRoute
-import org.don.onlineTrade.ui.presentProduct.PresentRoute
+import org.don.onlineTrade.ui.presentProduct.ProductDetailsRoute
 
 
-const val presentProductNavigationRoute = "presentProduct"
+const val pDetailsNavigationRoute = "productDetails"
 fun NavController.navigateToPresent(navOptions: NavOptions? = null) {
-    this.navigate(presentProductNavigationRoute, navOptions)
+    this.navigate(pDetailsNavigationRoute, navOptions)
 }
 
-fun NavGraphBuilder.presentProductScreen() {
+fun NavGraphBuilder.productDetailsScreen() {
     composable(
-        route = "$presentProductNavigationRoute/{param}",
+        route = "$pDetailsNavigationRoute/{param}",
         arguments = listOf(
             navArgument("param") {
                 type = NavType.IntType
@@ -27,7 +25,6 @@ fun NavGraphBuilder.presentProductScreen() {
         )
     ) { backStackEntry ->
         val param = backStackEntry.arguments?.getInt("param")
-        Log.d("TAG", "presentProductScreendwdwadawd $param")
-        PresentRoute(param?:0)
+        ProductDetailsRoute(param?:0)
     }
 }

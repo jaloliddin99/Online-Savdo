@@ -1,6 +1,5 @@
 package org.don.onlineTrade.ui
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
@@ -55,8 +54,8 @@ import org.don.onlineTrade.ui.dialogs.settings.SettingsDialog
 import org.don.onlineTrade.ui.dialogs.settings.UserEditableSettings
 import org.don.onlineTrade.ui.navigation.categoriesNavigationRoute
 import org.don.onlineTrade.ui.navigation.categoriesScreen
-import org.don.onlineTrade.ui.navigation.presentProductNavigationRoute
-import org.don.onlineTrade.ui.navigation.presentProductScreen
+import org.don.onlineTrade.ui.navigation.pDetailsNavigationRoute
+import org.don.onlineTrade.ui.navigation.productDetailsScreen
 import org.don.onlineTrade.ui.navigation.profileScreen
 import org.don.onlineTrade.ui.navigation.regionsNavigationRoute
 import org.don.onlineTrade.ui.navigation.regionsScreen
@@ -120,7 +119,8 @@ fun MainScreenView(
                     if (destination != null
                         && destination.screenRoute != categoriesNavigationRoute
                         && destination.screenRoute != regionsNavigationRoute
-                        ) {
+                        && destination.screenRoute != pDetailsNavigationRoute
+                    ) {
                         BottomNavigation(rememberNavController, appState)
                     }
                 }
@@ -138,7 +138,7 @@ fun MainScreenView(
                 ) {
                     if (destination != null) {
                         TopAppBar(
-                            titleRes = destination.titleRes,
+                            titleRes = destination.titleRes!!,
                             navigationIcon = Icons.Filled.Search,
                             navigationIconContentDescription = null,
                             actionIcon = Icons.Filled.Settings,
@@ -206,7 +206,7 @@ fun BottomNavigation(
                     }) {
                         Icon(
                             imageVector = if (index == selectedItemIndex)
-                                item.selectedIcon else item.unselectedIcon,
+                                item.selectedIcon!! else item.unselectedIcon!!,
 
                             contentDescription = item.title
                         )
@@ -230,7 +230,7 @@ fun NavigationGraph(appState: ApplicationState) {
 
     NavHost(
         navController = navController,
-        startDestination = if (isUserHasRightToAccessToMainPart()){
+        startDestination = if (isUserHasRightToAccessToMainPart()) {
             NavItems.Home.screenRoute
         } else {
             welcomeScreen
@@ -242,11 +242,10 @@ fun NavigationGraph(appState: ApplicationState) {
 
             },
             navigateToProduct = {
-                Log.d("TAG", "presentProductScreendwdwadawd0 $it")
-                navController.navigate("$presentProductNavigationRoute/$it")
+                navController.navigate("$pDetailsNavigationRoute/$it")
             }
         )
-        presentProductScreen()
+        productDetailsScreen()
 
         addProductScreen(
             navigateToCategories = {
@@ -267,8 +266,8 @@ fun NavigationGraph(appState: ApplicationState) {
 
         registrationScreen(
             navigateToMainScreen = {
-                navController.navigate(NavItems.Home.screenRoute){
-                    popUpTo(navController.graph.id){
+                navController.navigate(NavItems.Home.screenRoute) {
+                    popUpTo(navController.graph.id) {
                         inclusive = true
                     }
                 }
@@ -280,8 +279,8 @@ fun NavigationGraph(appState: ApplicationState) {
 
         loginScreen(
             navigateToMainScreen = {
-                navController.navigate(NavItems.Home.screenRoute){
-                    popUpTo(navController.graph.id){
+                navController.navigate(NavItems.Home.screenRoute) {
+                    popUpTo(navController.graph.id) {
                         inclusive = true
                     }
                 }
@@ -315,7 +314,7 @@ fun isUserHasRightToAccessToMainPart(
 ): Boolean {
 
     return if (isLoggedIn) {
-        val userSpentTime = (Date().time - loginTime)/1000
+        val userSpentTime = (Date().time - loginTime) / 1000
         userSpentTime - tokenExpTime < 0
     } else false
 }

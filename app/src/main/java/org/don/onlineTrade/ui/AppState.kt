@@ -17,6 +17,7 @@ import org.don.onlineTrade.ui.navigation.navigateToHome
 import org.don.onlineTrade.ui.navigation.navigateToProfile
 import org.don.onlineTrade.ui.navigation.navigateToSearch
 import org.don.onlineTrade.ui.navigation.navigateToSettingsGraph
+import org.don.onlineTrade.ui.navigation.pDetailsNavigationRoute
 import org.don.onlineTrade.ui.navigation.profileNavigationRoute
 import org.don.onlineTrade.ui.navigation.regionsNavigationRoute
 import org.don.onlineTrade.ui.navigation.savedNavigationRoute
@@ -52,6 +53,7 @@ class ApplicationState(
             profileNavigationRoute -> NavItems.Profile
             categoriesNavigationRoute -> NavItems.Categories
             regionsNavigationRoute -> NavItems.Regions
+            pDetailsNavigationRoute -> NavItems.ProductDescription
             else -> null
         }
 

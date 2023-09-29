@@ -1,6 +1,7 @@
 package org.don.onlineTrade.ui.presentProduct
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -14,7 +15,7 @@ import org.don.onlineTrade.utils.SharedPref
 
 
 @Composable
-fun PresentRoute(
+fun ProductDetailsRoute(
     productId: Int
 ) {
     val homeViewModel = hiltViewModel<PresentViewModel>()
@@ -28,13 +29,13 @@ fun PresentRoute(
     }
 
     val state = homeViewModel.state.value
-    PresentScreen(
+    ProductDetailsScreen(
         state = state
     )
 }
 
 @Composable
-fun PresentScreen(
+fun ProductDetailsScreen(
     modifier: Modifier = Modifier,
     state: PresentProductState,
 
@@ -44,7 +45,7 @@ fun PresentScreen(
 
     val context = LocalContext.current
 
-    Box(
+    Column(
         modifier = modifier.fillMaxSize()
     ) {
         FreeLoading(isFeedLoading = isFeedLoading)
