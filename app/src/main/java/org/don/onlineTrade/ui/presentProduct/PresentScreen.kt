@@ -9,6 +9,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import org.don.onlineTrade.ui.home.PresentProductState
 import org.don.onlineTrade.ui.home.TOKEN
+import org.don.onlineTrade.utils.FreeLoading
 import org.don.onlineTrade.utils.SharedPref
 
 
@@ -46,7 +47,7 @@ fun PresentScreen(
     Box(
         modifier = modifier.fillMaxSize()
     ) {
-        
+        FreeLoading(isFeedLoading = isFeedLoading)
     }
 
 }
