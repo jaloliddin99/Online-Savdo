@@ -14,6 +14,7 @@ import org.don.onlineTrade.data.remote.models.currencies.ModelCurrencyLists
 import org.don.onlineTrade.data.remote.models.getPublicProducts.Data
 import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.RegionDistrictModel
+import org.don.onlineTrade.data.remote.models.showProducts.ShowProductModel
 import org.don.onlineTrade.domain.repository.NetworkRepository
 import org.don.onlineTrade.utils.DEFAULT_PAGE_SIZE
 import org.don.onlineTrade.utils.PublicProductsPagingSource
@@ -89,6 +90,14 @@ class NetworkRepositoryImpl @Inject constructor(
 
     override suspend fun newProduct(token: String, requestBody: RequestBody): PostModel {
         return apiInterface.newProduct(token, requestBody)
+    }
+
+    override suspend fun showProductModel(
+        id: Int,
+        token: String,
+        language: String
+    ): ShowProductModel {
+        return apiInterface.showProductModel(id, token, language)
     }
 
 

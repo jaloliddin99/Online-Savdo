@@ -39,20 +39,27 @@ import org.don.onlineTrade.utils.OnlineMarketLoadingWheel
 
 @Composable
 fun HomeRoute(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    navigateToProduct: (Int) -> Unit,
+    navigateToCategory: (Int) -> Unit
 ) {
     val homeViewModel = hiltViewModel<HomeViewModel>()
     val state = homeViewModel.state.value
     val products = homeViewModel.collectProducts().collectAsLazyPagingItems()
 
-    HomeScreen(modifier = modifier, state = state, pagingItems = products)
+    HomeScreen(modifier = modifier, state = state, pagingItems = products,
+        navigateToProduct = navigateToProduct,
+        navigateToCategory = navigateToCategory
+        )
 }
 
 @Composable
 fun HomeScreen(
     modifier: Modifier,
     state: HomeScreenState,
-    pagingItems: LazyPagingItems<Data>
+    pagingItems: LazyPagingItems<Data>,
+    navigateToProduct: (Int) -> Unit,
+    navigateToCategory: (Int) -> Unit
 ) {
     val isFeedLoading = state.isLoading
 
@@ -64,14 +71,15 @@ fun HomeScreen(
         ) {
             item {
                 if (state.registerMain != null) {
-                    Categories(state.registerMain)
+                    Categories(state.registerMain,
+                        navigateToCategory = navigateToCategory)
                 }
             }
 
             item {
-
                 if (pagingItems.itemSnapshotList.items.isNotEmpty()){
-                    ProductsItemsList(pagingItems)
+                    ProductsItemsList(pagingItems,
+                        onItemClicked = navigateToProduct)
                 }
             }
 

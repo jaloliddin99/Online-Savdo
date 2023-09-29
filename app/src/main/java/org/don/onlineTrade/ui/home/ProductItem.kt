@@ -45,7 +45,8 @@ import org.don.onlineTrade.ui.theme.spacing
 
 
 @Composable
-fun ProductsItemsList(pagingItems: LazyPagingItems<Data>) {
+fun ProductsItemsList(pagingItems: LazyPagingItems<Data>,
+                      onItemClicked: (Int) -> Unit) {
     val itemSize: Dp = (LocalConfiguration.current.screenWidthDp.dp / 2) - 24.dp
 
     Box(modifier = Modifier.padding(horizontal = MaterialTheme.spacing.dimen8Dp)) {
@@ -55,7 +56,7 @@ fun ProductsItemsList(pagingItems: LazyPagingItems<Data>) {
         ) {
             val items = pagingItems.itemSnapshotList.items
             items.forEachIndexed { _, data ->
-                ProductItem(data, itemSize)
+                ProductItem(data, itemSize, onItemClicked = onItemClicked)
             }
         }
     }
@@ -63,7 +64,8 @@ fun ProductsItemsList(pagingItems: LazyPagingItems<Data>) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductItem(data: Data, itemSize: Dp) {
+fun ProductItem(data: Data, itemSize: Dp,
+                onItemClicked: (Int) -> Unit) {
     Card(
         modifier = Modifier
             .padding(
@@ -77,7 +79,7 @@ fun ProductItem(data: Data, itemSize: Dp) {
         shape = RoundedCornerShape(MaterialTheme.spacing.dimen12Dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         onClick = {
-
+            onItemClicked(data.id)
         }
     ) {
         Column(

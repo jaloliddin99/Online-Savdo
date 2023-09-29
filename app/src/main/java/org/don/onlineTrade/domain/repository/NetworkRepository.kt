@@ -11,6 +11,7 @@ import org.don.onlineTrade.data.remote.models.currencies.ModelCurrencyLists
 import org.don.onlineTrade.data.remote.models.getPublicProducts.Data
 import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.RegionDistrictModel
+import org.don.onlineTrade.data.remote.models.showProducts.ShowProductModel
 import org.don.onlineTrade.utils.DEFAULT_PAGE_SIZE
 import retrofit2.http.Query
 
@@ -67,4 +68,10 @@ interface NetworkRepository {
         token: String,
         requestBody: RequestBody
     ): PostModel
+
+    suspend fun showProductModel(
+        id: Int,
+        token: String,
+        language: String
+    ): ShowProductModel
 }

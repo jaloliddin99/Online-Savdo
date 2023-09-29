@@ -11,6 +11,7 @@ object SharedPref: KotprefModel() {
 
     var loginTime by longPref()
 
+    var language by stringPref("uz")
 
 
 }

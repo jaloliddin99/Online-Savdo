@@ -32,14 +32,16 @@ import org.don.onlineTrade.data.remote.models.category.CompactedCategoryItem
 import org.don.onlineTrade.ui.theme.spacing
 
 @Composable
-fun Categories(state: List<CompactedCategoryItem>) {
+fun Categories(state: List<CompactedCategoryItem>,
+               navigateToCategory: (Int) -> Unit) {
     LazyRow(verticalAlignment = Alignment.CenterVertically) {
         itemsIndexed(state) { index, item ->
             Spacer(modifier = Modifier.width(MaterialTheme.spacing.dimen12Dp))
             CategoryItem(
                 item = item, modifier = Modifier
                     .width(MaterialTheme.spacing.dimen100Dp)
-                    .height(MaterialTheme.spacing.dimen120Dp)
+                    .height(MaterialTheme.spacing.dimen120Dp),
+                navigateToCategory = navigateToCategory
             )
             if (index == state.lastIndex) {
                 Spacer(modifier = Modifier.width(MaterialTheme.spacing.dimen12Dp))
@@ -53,13 +55,14 @@ fun Categories(state: List<CompactedCategoryItem>) {
 @Composable
 fun CategoryItem(
     item: CompactedCategoryItem,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    navigateToCategory: (Int) -> Unit
 ) {
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(MaterialTheme.spacing.dimen12Dp),
         onClick = {
-
+            navigateToCategory(item.id)
         }
         ) {
         Column(

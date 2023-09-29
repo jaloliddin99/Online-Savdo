@@ -7,6 +7,7 @@ import org.don.onlineTrade.data.remote.models.currencies.ModelCurrencyLists
 import org.don.onlineTrade.data.remote.models.getPublicProducts.PublicProductsModel
 import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.RegionDistrictModel
+import org.don.onlineTrade.data.remote.models.showProducts.ShowProductModel
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.Field
@@ -15,6 +16,7 @@ import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Headers
 import retrofit2.http.POST
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ApiInterface {
@@ -78,6 +80,14 @@ interface ApiInterface {
         @Header("Authorization") token: String,
         @Body requestBody: RequestBody
     ): PostModel
+
+
+    @GET("api/products/{id}")
+    suspend fun showProductModel(
+        @Path("id") id: Int,
+        @Query("token") token: String,
+        @Query("lang") language: String
+    ): ShowProductModel
 
 
 

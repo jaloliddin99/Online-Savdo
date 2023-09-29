@@ -1,5 +1,6 @@
 package org.don.onlineTrade.ui
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
@@ -54,6 +55,8 @@ import org.don.onlineTrade.ui.dialogs.settings.SettingsDialog
 import org.don.onlineTrade.ui.dialogs.settings.UserEditableSettings
 import org.don.onlineTrade.ui.navigation.categoriesNavigationRoute
 import org.don.onlineTrade.ui.navigation.categoriesScreen
+import org.don.onlineTrade.ui.navigation.presentProductNavigationRoute
+import org.don.onlineTrade.ui.navigation.presentProductScreen
 import org.don.onlineTrade.ui.navigation.profileScreen
 import org.don.onlineTrade.ui.navigation.regionsNavigationRoute
 import org.don.onlineTrade.ui.navigation.regionsScreen
@@ -234,7 +237,17 @@ fun NavigationGraph(appState: ApplicationState) {
         }
     ) {
 
-        homeScreen()
+        homeScreen(
+            navigateToCategory = {
+
+            },
+            navigateToProduct = {
+                Log.d("TAG", "presentProductScreendwdwadawd0 $it")
+                navController.navigate("$presentProductNavigationRoute/$it")
+            }
+        )
+        presentProductScreen()
+
         addProductScreen(
             navigateToCategories = {
                 navController.navigate(categoriesNavigationRoute)
@@ -242,7 +255,7 @@ fun NavigationGraph(appState: ApplicationState) {
             navigateToSelectRegions = {
                 navController.navigate(regionsNavigationRoute)
             },
-            popBack = navController::popBackStack
+            popBack = {}//navController::popBackStack
         )
         settingsScreen()
         profileScreen()
