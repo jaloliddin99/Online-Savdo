@@ -1,6 +1,7 @@
 package org.don.onlineTrade.ui.region
 
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,11 +12,13 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import org.don.onlineTrade.data.remote.models.region.RegionDistrictModelItem
 import org.don.onlineTrade.ui.home.RegionsScreenState
 import org.don.onlineTrade.ui.theme.spacing
+import org.don.onlineTrade.utils.FreeLoading
 
 @Composable
 fun RegionsRoute(modifier: Modifier = Modifier,
@@ -42,8 +45,10 @@ fun RegionsScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
+            .background(color = Color.Yellow)
             .padding(MaterialTheme.spacing.dimen16Dp)
     ) {
+        FreeLoading(isFeedLoading = isFeedLoading)
         LazyColumn {
             if (state.regions != null) {
                 itemsIndexed(state.regions) { index, item ->

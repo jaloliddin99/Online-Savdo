@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -38,6 +39,7 @@ import androidx.paging.compose.LazyPagingItems
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import com.google.accompanist.flowlayout.FlowMainAxisAlignment
+import com.google.accompanist.flowlayout.FlowRow
 import com.google.accompanist.flowlayout.SizeMode
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.getPublicProducts.Data
@@ -50,7 +52,7 @@ fun ProductsItemsList(pagingItems: LazyPagingItems<Data>,
     val itemSize: Dp = (LocalConfiguration.current.screenWidthDp.dp / 2) - 24.dp
 
     Box(modifier = Modifier.padding(horizontal = MaterialTheme.spacing.dimen8Dp)) {
-        com.google.accompanist.flowlayout.FlowRow(
+        FlowRow(
             mainAxisSize = SizeMode.Expand,
             mainAxisAlignment = FlowMainAxisAlignment.SpaceEvenly,
         ) {
@@ -65,14 +67,16 @@ fun ProductsItemsList(pagingItems: LazyPagingItems<Data>,
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductItem(data: Data, itemSize: Dp,
-                onItemClicked: (Int) -> Unit) {
+                onItemClicked: (Int) -> Unit,
+                paddingValues: PaddingValues = PaddingValues(
+                    start = MaterialTheme.spacing.dimen8Dp,
+                    top = MaterialTheme.spacing.dimen16Dp,
+                    end = MaterialTheme.spacing.dimen8Dp
+                )
+) {
     Card(
         modifier = Modifier
-            .padding(
-                start = MaterialTheme.spacing.dimen8Dp,
-                top = MaterialTheme.spacing.dimen16Dp,
-                end = MaterialTheme.spacing.dimen8Dp
-            )
+            .padding(paddingValues)
             .width(itemSize)
             .aspectRatio(0.7f),
 

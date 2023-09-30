@@ -44,7 +44,6 @@ class ApplicationState(
     val currentDestination: NavDestination?
         @Composable get() = navController
             .currentBackStackEntryAsState().value?.destination
-
     val currentTopLevelDestination: NavItems?
         @Composable get() = when (currentDestination?.route) {
             homeNavigationRoute -> NavItems.Home
@@ -53,7 +52,7 @@ class ApplicationState(
             profileNavigationRoute -> NavItems.Profile
             categoriesNavigationRoute -> NavItems.Categories
             regionsNavigationRoute -> NavItems.Regions
-            pDetailsNavigationRoute -> NavItems.ProductDescription
+            pDetailsNavigationRoute -> NavItems.ProductDetails
             else -> null
         }
 

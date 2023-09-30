@@ -7,5 +7,5 @@ data class User(
     val id: Int,
     val image: Any,
     val name: String,
-    val phone_number: Any
+    val phone_number: String?
 ): Serializable

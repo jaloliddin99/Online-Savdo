@@ -4,12 +4,14 @@ import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AreaChart
 import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.Details
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LibraryAdd
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.outlined.AreaChart
 import androidx.compose.material.icons.outlined.Category
+import androidx.compose.material.icons.outlined.Details
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.LibraryAdd
 import androidx.compose.material.icons.outlined.Person
@@ -22,12 +24,12 @@ import org.don.onlineTrade.ui.navigation.regionsNavigationRoute
 
 sealed class NavItems(
     val title: String,
-    val selectedIcon: ImageVector? = null,
-    val unselectedIcon: ImageVector? = null,
+    val selectedIcon: ImageVector,
+    val unselectedIcon: ImageVector,
     val hasNews: Boolean,
     val badgeCount: Int? = null,
     var screenRoute:String,
-    @StringRes val titleRes: Int?
+    @StringRes val titleRes: Int
 ){
 
     object Home: NavItems(
@@ -87,9 +89,10 @@ sealed class NavItems(
         regionsNavigationRoute,
         titleRes = R.string.regions
     )
-
-    object ProductDescription: NavItems(
+    object ProductDetails: NavItems(
         title = "Product Details",
+        selectedIcon = Icons.Filled.Details,
+        unselectedIcon = Icons.Outlined.Details,
         hasNews = true,
         badgeCount = null,
         screenRoute = pDetailsNavigationRoute,

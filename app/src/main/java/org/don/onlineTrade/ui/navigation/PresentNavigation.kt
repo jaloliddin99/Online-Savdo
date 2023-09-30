@@ -9,14 +9,16 @@ import androidx.navigation.navArgument
 import org.don.onlineTrade.ui.presentProduct.ProductDetailsRoute
 
 
-const val pDetailsNavigationRoute = "productDetails"
+const val pDetailsNavigationRoute = "productDetails/{param}"
 fun NavController.navigateToPresent(navOptions: NavOptions? = null) {
     this.navigate(pDetailsNavigationRoute, navOptions)
 }
 
-fun NavGraphBuilder.productDetailsScreen() {
+fun NavGraphBuilder.productDetailsScreen(
+    onSimilarItemClicked: (Int) -> Unit
+) {
     composable(
-        route = "$pDetailsNavigationRoute/{param}",
+        route = pDetailsNavigationRoute,
         arguments = listOf(
             navArgument("param") {
                 type = NavType.IntType
@@ -25,6 +27,7 @@ fun NavGraphBuilder.productDetailsScreen() {
         )
     ) { backStackEntry ->
         val param = backStackEntry.arguments?.getInt("param")
-        ProductDetailsRoute(param?:0)
+        ProductDetailsRoute(param?:0,
+            onSimilarItemClicked = onSimilarItemClicked)
     }
 }

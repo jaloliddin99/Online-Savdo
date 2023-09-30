@@ -120,6 +120,35 @@ fun ProductTitle(@StringRes title: Int) {
     )
 }
 
+@Composable
+fun ProductTitle(title: String) {
+    Text(
+        text = title,
+        fontWeight = FontWeight.Medium,
+        style = MaterialTheme.typography.titleSmall
+    )
+}
+
+@Composable
+fun TextThin(title: String) {
+    Text(
+        text = title,
+        fontWeight = FontWeight.Light,
+        style = MaterialTheme.typography.titleSmall
+    )
+}
+
+@Composable
+fun TextBold(title: String,
+             modifier: Modifier = Modifier) {
+    Text(
+        modifier = modifier,
+        text = title,
+        fontWeight = FontWeight.SemiBold,
+        style = MaterialTheme.typography.titleMedium
+    )
+}
+
 
 data class ImageUrl(
     val isFromCamera: Boolean,

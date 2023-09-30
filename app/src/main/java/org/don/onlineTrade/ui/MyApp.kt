@@ -1,5 +1,6 @@
 package org.don.onlineTrade.ui
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Badge
@@ -108,6 +110,7 @@ fun MainScreenView(
         ) {
             val destination = appState.currentTopLevelDestination
 
+
             Scaffold(
                 modifier = Modifier.semantics {
                     testTagsAsResourceId = true
@@ -137,9 +140,12 @@ fun MainScreenView(
                         )
                 ) {
                     if (destination != null) {
+                        val showBackArrow = destination.screenRoute == categoriesNavigationRoute
+                                || destination.screenRoute == regionsNavigationRoute
+                                || destination.screenRoute == pDetailsNavigationRoute
                         TopAppBar(
-                            titleRes = destination.titleRes!!,
-                            navigationIcon = Icons.Filled.Search,
+                            titleRes = destination.titleRes,
+                            navigationIcon = if (!showBackArrow) Icons.Filled.Search  else Icons.Filled.ArrowBack,
                             navigationIconContentDescription = null,
                             actionIcon = Icons.Filled.Settings,
                             actionIconContentDescription = null,
@@ -148,7 +154,11 @@ fun MainScreenView(
                             ),
                             onActionClick = { showSettingsDialog = true },
                             onNavigationClick = {
-                                appState.navigateToSearch()
+                                if (showBackArrow){
+                                    appState.navController.popBackStack()
+                                }else{
+                                    appState.navigateToSearch()
+                                }
                             }
                         )
                     }
@@ -242,10 +252,14 @@ fun NavigationGraph(appState: ApplicationState) {
 
             },
             navigateToProduct = {
-                navController.navigate("$pDetailsNavigationRoute/$it")
+                navController.navigate("productDetails/$it")
             }
         )
-        productDetailsScreen()
+        productDetailsScreen(
+            onSimilarItemClicked = {
+                navController.navigate("productDetails/$it")
+            }
+        )
 
         addProductScreen(
             navigateToCategories = {

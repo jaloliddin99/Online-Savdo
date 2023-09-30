@@ -24,10 +24,12 @@ class HomeViewModel @Inject constructor(
     ViewModel() {
 
 
-    fun collectProducts(): Flow<PagingData<Data>> = networkRepository.getPublicProducts(
+    fun collectProducts(
+        categoryId: Int?=null
+    ): Flow<PagingData<Data>> = networkRepository.getPublicProducts(
         token = TOKEN,
         query = null,
-        categoryId = null,
+        categoryId = categoryId,
         language = "uz",
         minPrice = null,
         maxPrice = null
