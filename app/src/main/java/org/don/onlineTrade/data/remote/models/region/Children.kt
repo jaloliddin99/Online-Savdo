@@ -8,4 +8,4 @@ data class Children(
     val id: Int,
     @SerializedName("title")
     val title: String
-):Serializable
+): Serializable

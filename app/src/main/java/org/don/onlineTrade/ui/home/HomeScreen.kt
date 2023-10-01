@@ -4,7 +4,12 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -24,10 +29,11 @@ fun HomeRoute(
     val state = homeViewModel.state.value
     val products = homeViewModel.collectProducts().collectAsLazyPagingItems()
 
-    HomeScreen(modifier = modifier, state = state, pagingItems = products,
+    HomeScreen(
+        modifier = modifier, state = state, pagingItems = products,
         navigateToProduct = navigateToProduct,
         navigateToCategory = navigateToCategory
-        )
+    )
 }
 
 @Composable
@@ -42,21 +48,28 @@ fun HomeScreen(
 
     val context = LocalContext.current
 
-    Box(modifier = modifier.fillMaxSize()){
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+    ) {
         LazyColumn(
-            modifier = modifier.fillMaxSize()
-        ) {
+            modifier = modifier.fillMaxSize(),
+            ) {
             item {
                 if (state.registerMain != null) {
-                    Categories(state.registerMain,
-                        navigateToCategory = navigateToCategory)
+                    Categories(
+                        state.registerMain,
+                        navigateToCategory = navigateToCategory
+                    )
                 }
             }
 
             item {
-                if (pagingItems.itemSnapshotList.items.isNotEmpty()){
-                    ProductsItemsList(pagingItems,
-                        onItemClicked = navigateToProduct)
+                if (pagingItems.itemSnapshotList.items.isNotEmpty()) {
+                    ProductsItemsList(
+                        pagingItems,
+                        onItemClicked = navigateToProduct
+                    )
                 }
             }
 
@@ -71,10 +84,6 @@ fun HomeScreen(
     }
 
 }
-
-
-
-
 
 
 const val alphaValue = 0.3f

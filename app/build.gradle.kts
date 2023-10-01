@@ -101,11 +101,9 @@ dependencies {
     kapt("androidx.hilt:hilt-compiler:1.0.0")
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
 
-    // core
     implementation("com.chibatching.kotpref:kotpref:2.13.1")
     implementation("com.google.code.gson:gson:2.9.0")
 
-    //Retrofit with Gson
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
@@ -115,13 +113,11 @@ dependencies {
 
     implementation("com.karumi:dexter:6.2.3")
 
-    //paging3
     implementation("androidx.paging:paging-runtime-ktx:3.2.1")
     implementation("androidx.paging:paging-compose:3.2.1")
     implementation("io.coil-kt:coil-compose:2.4.0")
 
     implementation("com.google.accompanist:accompanist-flowlayout:0.20.0")
-
     implementation("id.zelory:compressor:3.0.1")
 
 

@@ -82,13 +82,15 @@ fun CategoryItem(
                 model = item.image, contentDescription = null
             )
 
-            Text(
-                text = item.title,
-                textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Medium,
-                fontSize = 12.sp,
-                maxLines = 1
-            )
+            item.title?.let {
+                Text(
+                    text = it,
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 12.sp,
+                    maxLines = 1
+                )
+            }
         }
     }
 }
@@ -123,13 +125,15 @@ fun CategoryItemInVertical(
                 model = item.image, contentDescription = null
             )
             Spacer(modifier = Modifier.width(12.dp))
-            Text(
-                text = item.title,
-                textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Medium,
-                fontSize = 12.sp,
-                maxLines = 1
-            )
+            item.title?.let {
+                Text(
+                    text = it,
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 12.sp,
+                    maxLines = 1
+                )
+            }
         }
     }
 }

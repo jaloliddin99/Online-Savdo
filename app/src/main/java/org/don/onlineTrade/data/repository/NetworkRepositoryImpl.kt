@@ -12,6 +12,7 @@ import org.don.onlineTrade.data.remote.models.RegisterMain
 import org.don.onlineTrade.data.remote.models.category.CategoryModel
 import org.don.onlineTrade.data.remote.models.currencies.ModelCurrencyLists
 import org.don.onlineTrade.data.remote.models.getPublicProducts.Data
+import org.don.onlineTrade.data.remote.models.liked.LikedProductsModel
 import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.RegionDistrictModel
 import org.don.onlineTrade.data.remote.models.showProducts.ShowProductModel
@@ -98,6 +99,10 @@ class NetworkRepositoryImpl @Inject constructor(
         language: String
     ): ShowProductModel {
         return apiInterface.showProductModel(id, token, language)
+    }
+
+    override suspend fun getLikedProducts(token: String, language: String): LikedProductsModel {
+        return apiInterface.getLikedProducts(token, language)
     }
 
 

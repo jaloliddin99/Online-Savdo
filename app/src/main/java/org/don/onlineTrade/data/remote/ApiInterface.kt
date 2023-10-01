@@ -1,10 +1,12 @@
 package org.don.onlineTrade.data.remote
 
+import androidx.annotation.Keep
 import okhttp3.RequestBody
 import org.don.onlineTrade.data.remote.models.RegisterMain
 import org.don.onlineTrade.data.remote.models.category.CategoryModel
 import org.don.onlineTrade.data.remote.models.currencies.ModelCurrencyLists
 import org.don.onlineTrade.data.remote.models.getPublicProducts.PublicProductsModel
+import org.don.onlineTrade.data.remote.models.liked.LikedProductsModel
 import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.RegionDistrictModel
 import org.don.onlineTrade.data.remote.models.showProducts.ShowProductModel
@@ -19,6 +21,7 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 
+@Keep
 interface ApiInterface {
 
     @FormUrlEncoded
@@ -88,6 +91,13 @@ interface ApiInterface {
         @Query("token") token: String,
         @Query("lang") language: String
     ): ShowProductModel
+
+
+    @GET("api/profile/products/liked")
+    suspend fun getLikedProducts(
+        @Header("Authorization") token: String,
+        @Query("lang") language: String
+    ): LikedProductsModel
 
 
 
