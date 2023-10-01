@@ -1,7 +1,6 @@
 package org.don.onlineTrade.ui.home
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,8 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -33,12 +31,20 @@ import org.don.onlineTrade.data.remote.models.category.CompactedCategoryItem
 import org.don.onlineTrade.ui.theme.spacing
 
 @Composable
-fun Categories(state: List<CompactedCategoryItem>,
-               navigateToCategory: (Int) -> Unit) {
+fun Categories(
+    state: List<CompactedCategoryItem>,
+    navigateToCategory: (Int) -> Unit
+) {
     Box(modifier = Modifier.fillMaxWidth()) {
-        Row {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(
+                    rememberScrollState()
+                )
+        ) {
             state.forEachIndexed { index, item ->
-                Spacer(modifier = Modifier.width(MaterialTheme.spacing.dimen12Dp))
+                Spacer(modifier = Modifier.width(MaterialTheme.spacing.dimen8Dp))
                 CategoryItem(
                     item = item, modifier = Modifier
                         .width(MaterialTheme.spacing.dimen100Dp)
@@ -46,7 +52,7 @@ fun Categories(state: List<CompactedCategoryItem>,
                     navigateToCategory = navigateToCategory
                 )
                 if (index == state.lastIndex) {
-                    Spacer(modifier = Modifier.width(MaterialTheme.spacing.dimen12Dp))
+                    Spacer(modifier = Modifier.width(MaterialTheme.spacing.dimen8Dp))
                 }
             }
         }
@@ -67,7 +73,7 @@ fun CategoryItem(
         onClick = {
             navigateToCategory(item.id)
         }
-        ) {
+    ) {
         Column(
             modifier = modifier
                 .padding(
@@ -106,7 +112,8 @@ fun CategoryItemInVertical(
 ) {
     Card(
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface),
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
         modifier = Modifier
             .fillMaxWidth()
             .height(48.dp),
