@@ -1,6 +1,5 @@
 package org.don.onlineTrade.domain.repository
 
-import androidx.lifecycle.LiveData
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
@@ -13,7 +12,6 @@ import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.RegionDistrictModel
 import org.don.onlineTrade.data.remote.models.showProducts.ShowProductModel
 import org.don.onlineTrade.utils.DEFAULT_PAGE_SIZE
-import retrofit2.http.Query
 
 interface NetworkRepository {
 

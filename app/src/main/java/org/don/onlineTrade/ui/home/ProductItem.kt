@@ -1,5 +1,6 @@
 package org.don.onlineTrade.ui.home
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,6 +17,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -147,7 +150,7 @@ fun ProductItem(data: Data, itemSize: Dp,
                     style = MaterialTheme.typography.titleSmall,
                 )
                 Text(
-                    text = data.region.title,
+                    text = data.region.title ?: "",
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier
                         .padding(horizontal = MaterialTheme.spacing.dimen6Dp),

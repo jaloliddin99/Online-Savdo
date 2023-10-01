@@ -188,7 +188,7 @@ fun BottomNavigation(
             NavItems.Saved,
             NavItems.Profile
         )
-        var selectedItemIndex by rememberSaveable {
+        val selectedItemIndex by rememberSaveable {
             mutableIntStateOf(0)
         }
         val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -216,7 +216,7 @@ fun BottomNavigation(
                     }) {
                         Icon(
                             imageVector = if (index == selectedItemIndex)
-                                item.selectedIcon!! else item.unselectedIcon!!,
+                                item.selectedIcon else item.unselectedIcon,
 
                             contentDescription = item.title
                         )

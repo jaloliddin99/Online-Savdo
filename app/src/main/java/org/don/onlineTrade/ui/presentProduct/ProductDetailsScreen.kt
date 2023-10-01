@@ -1,15 +1,11 @@
 package org.don.onlineTrade.ui.presentProduct
 
-import android.util.Log
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -21,11 +17,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.HeartBroken
@@ -33,33 +26,20 @@ import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CardElevation
 import androidx.compose.material3.Divider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import coil.compose.AsyncImage
-import com.google.android.material.animation.AnimationUtils.lerp
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.getPublicProducts.Data
 import org.don.onlineTrade.data.remote.models.showProducts.ShowProductModel
@@ -69,12 +49,10 @@ import org.don.onlineTrade.ui.add.TextThin
 import org.don.onlineTrade.ui.home.HomeViewModel
 import org.don.onlineTrade.ui.home.PresentProductState
 import org.don.onlineTrade.ui.home.ProductItem
-import org.don.onlineTrade.ui.home.ProductsItemsList
 import org.don.onlineTrade.ui.home.TOKEN
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.FreeLoading
 import org.don.onlineTrade.utils.SharedPref
-import kotlin.math.absoluteValue
 
 
 @Composable

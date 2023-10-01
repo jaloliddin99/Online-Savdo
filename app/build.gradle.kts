@@ -24,8 +24,19 @@ android {
     }
 
     buildTypes {
+
+        debug {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -112,7 +123,6 @@ dependencies {
     implementation("com.google.accompanist:accompanist-flowlayout:0.20.0")
 
     implementation("id.zelory:compressor:3.0.1")
-
 
 
 }
