@@ -79,8 +79,7 @@ fun CategoryItem(
                 .padding(
                     start = MaterialTheme.spacing.dimen12Dp,
                     end = MaterialTheme.spacing.dimen12Dp
-                )
-                .clip(RoundedCornerShape(MaterialTheme.spacing.dimen12Dp)),
+                ),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceEvenly
         ) {

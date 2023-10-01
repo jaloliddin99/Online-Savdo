@@ -1,4 +1,4 @@
-package org.don.onlineTrade.ui.presentProduct
+package org.don.onlineTrade.ui.detailsPage
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.onEach
 import org.don.onlineTrade.domain.state.Resource
 import org.don.onlineTrade.domain.useCase.presentUseCase.PresentProductUseCase
 import org.don.onlineTrade.ui.home.PresentProductState
-import org.don.onlineTrade.ui.home.TOKEN
 import javax.inject.Inject
 
 @HiltViewModel

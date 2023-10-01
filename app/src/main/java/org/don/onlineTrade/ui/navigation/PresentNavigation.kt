@@ -6,7 +6,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import org.don.onlineTrade.ui.presentProduct.ProductDetailsRoute
+import org.don.onlineTrade.ui.detailsPage.ProductDetailsRoute
 
 
 const val pDetailsNavigationRoute = "productDetails/{param}"

@@ -45,8 +45,6 @@ fun SavedScreen(
 ) {
 
     val isFreeLoading = state.isLoading
-
-
     if (isFreeLoading){
         FreeLoading(isFreeLoading)
     }
@@ -60,12 +58,10 @@ fun SavedScreen(
                 LikedItem(
                     data = it,
                     onItemClicked = {
-
                     }
                 )
             }
         }
     }
-
 }
 

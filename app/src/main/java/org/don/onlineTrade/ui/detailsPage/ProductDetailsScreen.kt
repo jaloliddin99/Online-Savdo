@@ -1,8 +1,9 @@
-package org.don.onlineTrade.ui.presentProduct
+package org.don.onlineTrade.ui.detailsPage
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,9 +17,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.HeartBroken
@@ -49,6 +49,7 @@ import org.don.onlineTrade.ui.add.TextThin
 import org.don.onlineTrade.ui.home.HomeViewModel
 import org.don.onlineTrade.ui.home.PresentProductState
 import org.don.onlineTrade.ui.home.ProductItem
+import org.don.onlineTrade.ui.home.ProductItemForDetailsPage
 import org.don.onlineTrade.ui.home.TOKEN
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.FreeLoading
@@ -97,12 +98,10 @@ fun ProductDetailsScreen(
         val pagerState = rememberPagerState(pageCount = {
             state.registerMain.images.size
         })
-
         Box(
             modifier = modifier
                 .fillMaxSize()
         ) {
-            FreeLoading(isFeedLoading = isFeedLoading)
             LazyColumn {
                 item {
                     ImagePager(state, pagerState)
@@ -149,17 +148,14 @@ fun SimilarContents(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .wrapContentSize(),
+            .horizontalScroll(rememberScrollState()),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         list.forEachIndexed { index, data ->
-            ProductItem(
+            ProductItemForDetailsPage(
                 data = data,
                 onItemClicked = onItemClicked,
-                paddingValues = PaddingValues(
-                    start = MaterialTheme.spacing.dimen16Dp,
-                    top = MaterialTheme.spacing.dimen16Dp,
-                )
+                itemSize = itemSize,
             )
             if (index == list.lastIndex){
                 Spacer(modifier = Modifier.width(MaterialTheme.spacing.dimen16Dp))

@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -51,103 +52,141 @@ import org.don.onlineTrade.ui.theme.spacing
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductItem(data: Data,
-                onItemClicked: (Int) -> Unit,
-                paddingValues: PaddingValues = PaddingValues(
-                    start = MaterialTheme.spacing.dimen8Dp,
-                    top = MaterialTheme.spacing.dimen16Dp,
-                    end = MaterialTheme.spacing.dimen8Dp
-                )
+fun ProductItem(
+    data: Data,
+    onItemClicked: (Int) -> Unit,
+    paddingValues: PaddingValues = PaddingValues(
+        start = MaterialTheme.spacing.dimen8Dp,
+        top = MaterialTheme.spacing.dimen16Dp,
+        end = MaterialTheme.spacing.dimen8Dp
+    )
 ) {
     Card(
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        modifier = Modifier.padding(paddingValues).aspectRatio(0.7f),
+        onClick = {
+            onItemClicked(data.id)
+        }
+    ) {
+        ProductItemDetails(data)
+    }
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ProductItemForDetailsPage(
+    data: Data,
+    onItemClicked: (Int) -> Unit,
+    itemSize: Dp,
+    paddingValues: PaddingValues = PaddingValues(
+        start = MaterialTheme.spacing.dimen16Dp,
+        top = MaterialTheme.spacing.dimen16Dp,
+    )
+) {
+    Card(
+        shape = RoundedCornerShape(MaterialTheme.spacing.dimen12Dp),
         modifier = Modifier
             .padding(paddingValues)
+            .width(itemSize)
             .aspectRatio(0.7f),
-
-        shape = RoundedCornerShape(MaterialTheme.spacing.dimen12Dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         onClick = {
             onItemClicked(data.id)
         },
         elevation = CardDefaults.cardElevation(
             defaultElevation = 10.dp
         )
-
     ) {
-        Column(
-            verticalArrangement = Arrangement.Top
+        ProductItemDetails(data)
+    }
+}
+
+
+@Composable
+fun ProductItemDetails(
+    data: Data
+) {
+    Column(
+        verticalArrangement = Arrangement.Top
+    ) {
+        var isLoading by remember {
+            mutableStateOf(true)
+        }
+        var isError by remember {
+            mutableStateOf(false)
+        }
+        val imageLoader = rememberAsyncImagePainter(model = data.images[0],
+            onState = { state ->
+                isLoading = state is AsyncImagePainter.State.Loading
+                isError = state is AsyncImagePainter.State.Error
+            })
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.5f),
+            contentAlignment = Alignment.Center
         ) {
-            var isLoading by remember {
-                mutableStateOf(true)
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .size(80.dp),
+                    color = MaterialTheme.colorScheme.tertiary,
+                )
             }
-            var isError by remember {
-                mutableStateOf(false)
-            }
-            val imageLoader = rememberAsyncImagePainter(model = data.images[0],
-                onState = { state ->
-                    isLoading = state is AsyncImagePainter.State.Loading
-                    isError = state is AsyncImagePainter.State.Error
-                })
+
+            Image(
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentScale = ContentScale.Crop,
+                painter = if (isError.not()) imageLoader else painterResource(R.drawable.ic_launcher_background),
+            )
+        }
+        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen6Dp))
+
+        val paddingValues = PaddingValues(
+            bottom = MaterialTheme.spacing.dimen8Dp,
+            start = MaterialTheme.spacing.dimen8Dp,
+            end = MaterialTheme.spacing.dimen8Dp
+        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            verticalArrangement = Arrangement.SpaceEvenly,
+        ) {
+            Text(
+                text = data.title,
+                style = MaterialTheme.typography.bodyMedium,
+            )
 
             Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(0.5f),
-                contentAlignment = Alignment.Center
-            ) {
-                if (isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                            .size(80.dp),
-                        color = MaterialTheme.colorScheme.tertiary,
+                    .wrapContentSize()
+                    .background(
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        shape = RoundedCornerShape(MaterialTheme.spacing.dimen4Dp)
                     )
-                }
-
-                Image(
-                    contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    contentScale = ContentScale.Crop,
-                    painter = if (isError.not()) imageLoader else painterResource(R.drawable.ic_launcher_background),
-                )
-            }
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen6Dp))
-
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.SpaceEvenly
             ) {
-                Text(
-                    text = data.title,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier
-                        .padding(horizontal = MaterialTheme.spacing.dimen6Dp),
-                )
                 Text(
                     text = data.price,
-                    modifier = Modifier
-                        .padding(horizontal = MaterialTheme.spacing.dimen6Dp)
-                        .background(
-                            color = MaterialTheme.colorScheme.primaryContainer,
-                            shape = RoundedCornerShape(MaterialTheme.spacing.dimen4Dp)
-                        ),
+                    modifier = Modifier.padding(
+                        horizontal = MaterialTheme.spacing.dimen4Dp,
+                        vertical = MaterialTheme.spacing.dimen2Dp,
+                    ),
                     style = MaterialTheme.typography.titleSmall,
                 )
-                Text(
-                    text = data.region.title ?: "",
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier
-                        .padding(horizontal = MaterialTheme.spacing.dimen6Dp),
-                )
-                Text(
-                    text = data.date,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier
-                        .padding(horizontal = MaterialTheme.spacing.dimen6Dp),
-                )
             }
-
+            Text(
+                text = data.region.title ?: "",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            Text(
+                text = data.date,
+                style = MaterialTheme.typography.bodyMedium,
+            )
         }
     }
 }

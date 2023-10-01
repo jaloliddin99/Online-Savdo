@@ -56,6 +56,7 @@ import org.don.onlineTrade.ui.dialogs.settings.SettingsDialog
 import org.don.onlineTrade.ui.dialogs.settings.UserEditableSettings
 import org.don.onlineTrade.ui.navigation.categoriesNavigationRoute
 import org.don.onlineTrade.ui.navigation.categoriesScreen
+import org.don.onlineTrade.ui.navigation.filterCategoryScreen
 import org.don.onlineTrade.ui.navigation.pDetailsNavigationRoute
 import org.don.onlineTrade.ui.navigation.productDetailsScreen
 import org.don.onlineTrade.ui.navigation.profileScreen
@@ -145,7 +146,7 @@ fun MainScreenView(
                                 || destination.screenRoute == pDetailsNavigationRoute
                         TopAppBar(
                             titleRes = destination.titleRes,
-                            navigationIcon = if (!showBackArrow) Icons.Filled.Search  else Icons.Filled.ArrowBack,
+                            navigationIcon = if (!showBackArrow) Icons.Filled.Search else Icons.Filled.ArrowBack,
                             navigationIconContentDescription = null,
                             actionIcon = Icons.Filled.Settings,
                             actionIconContentDescription = null,
@@ -154,9 +155,9 @@ fun MainScreenView(
                             ),
                             onActionClick = { showSettingsDialog = true },
                             onNavigationClick = {
-                                if (showBackArrow){
+                                if (showBackArrow) {
                                     appState.navController.popBackStack()
-                                }else{
+                                } else {
                                     appState.navigateToSearch()
                                 }
                             }
@@ -249,7 +250,7 @@ fun NavigationGraph(appState: ApplicationState) {
 
         homeScreen(
             navigateToCategory = {
-
+                navController.navigate("filterCategory/$it")
             },
             navigateToProduct = {
                 navController.navigate("productDetails/$it")
@@ -260,6 +261,12 @@ fun NavigationGraph(appState: ApplicationState) {
                 navController.navigate("productDetails/$it")
             }
         )
+        filterCategoryScreen(
+            onItemClicked = {
+                navController.navigate("productDetails/$it")
+            }
+        )
+
 
         addProductScreen(
             navigateToCategories = {
