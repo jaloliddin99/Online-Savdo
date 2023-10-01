@@ -3,6 +3,7 @@ package org.don.onlineTrade.ui.home
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -34,17 +35,19 @@ import org.don.onlineTrade.ui.theme.spacing
 @Composable
 fun Categories(state: List<CompactedCategoryItem>,
                navigateToCategory: (Int) -> Unit) {
-    LazyRow(verticalAlignment = Alignment.CenterVertically) {
-        itemsIndexed(state) { index, item ->
-            Spacer(modifier = Modifier.width(MaterialTheme.spacing.dimen12Dp))
-            CategoryItem(
-                item = item, modifier = Modifier
-                    .width(MaterialTheme.spacing.dimen100Dp)
-                    .height(MaterialTheme.spacing.dimen120Dp),
-                navigateToCategory = navigateToCategory
-            )
-            if (index == state.lastIndex) {
+    Box(modifier = Modifier.fillMaxWidth()) {
+        Row {
+            state.forEachIndexed { index, item ->
                 Spacer(modifier = Modifier.width(MaterialTheme.spacing.dimen12Dp))
+                CategoryItem(
+                    item = item, modifier = Modifier
+                        .width(MaterialTheme.spacing.dimen100Dp)
+                        .height(MaterialTheme.spacing.dimen120Dp),
+                    navigateToCategory = navigateToCategory
+                )
+                if (index == state.lastIndex) {
+                    Spacer(modifier = Modifier.width(MaterialTheme.spacing.dimen12Dp))
+                }
             }
         }
     }
@@ -113,7 +116,8 @@ fun CategoryItemInVertical(
         shape = RoundedCornerShape(MaterialTheme.spacing.dimen12Dp),
     ) {
         Row(
-            modifier = Modifier.fillMaxHeight()
+            modifier = Modifier
+                .fillMaxHeight()
                 .padding(horizontal = MaterialTheme.spacing.dimen12Dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,

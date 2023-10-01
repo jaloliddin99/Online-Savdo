@@ -49,27 +49,9 @@ import org.don.onlineTrade.data.remote.models.getPublicProducts.Data
 import org.don.onlineTrade.ui.theme.spacing
 
 
-@Composable
-fun ProductsItemsList(pagingItems: LazyPagingItems<Data>,
-                      onItemClicked: (Int) -> Unit) {
-    val itemSize: Dp = (LocalConfiguration.current.screenWidthDp.dp / 2) - 24.dp
-
-    Box(modifier = Modifier.padding(horizontal = MaterialTheme.spacing.dimen8Dp)) {
-        FlowRow(
-            mainAxisSize = SizeMode.Expand,
-            mainAxisAlignment = FlowMainAxisAlignment.SpaceEvenly,
-        ) {
-            val items = pagingItems.itemSnapshotList.items
-            items.forEachIndexed { _, data ->
-                ProductItem(data, itemSize, onItemClicked = onItemClicked)
-            }
-        }
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductItem(data: Data, itemSize: Dp,
+fun ProductItem(data: Data,
                 onItemClicked: (Int) -> Unit,
                 paddingValues: PaddingValues = PaddingValues(
                     start = MaterialTheme.spacing.dimen8Dp,
@@ -80,7 +62,6 @@ fun ProductItem(data: Data, itemSize: Dp,
     Card(
         modifier = Modifier
             .padding(paddingValues)
-            .width(itemSize)
             .aspectRatio(0.7f),
 
         shape = RoundedCornerShape(MaterialTheme.spacing.dimen12Dp),

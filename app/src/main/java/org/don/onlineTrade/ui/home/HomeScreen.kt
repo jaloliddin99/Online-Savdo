@@ -4,6 +4,9 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
@@ -48,44 +51,32 @@ fun HomeScreen(
 
     val context = LocalContext.current
 
-    Box(
-        modifier = modifier
-            .fillMaxSize()
+    FreeLoading(isFeedLoading = isFeedLoading)
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        modifier = modifier.fillMaxSize(),
     ) {
-        LazyColumn(
-            modifier = modifier.fillMaxSize(),
-            ) {
-            item {
-                if (state.registerMain != null) {
-                    Categories(
-                        state.registerMain,
-                        navigateToCategory = navigateToCategory
-                    )
-                }
-            }
 
-            item {
-                if (pagingItems.itemSnapshotList.items.isNotEmpty()) {
-                    ProductsItemsList(
-                        pagingItems,
-                        onItemClicked = navigateToProduct
-                    )
-                }
+        if (state.registerMain != null) {
+            item(span = { GridItemSpan(2) }) {
+                Categories(
+                    state.registerMain,
+                    navigateToCategory = navigateToCategory
+                )
             }
-
         }
 
-        if (state.error.isNotBlank()) {
-            Toast.makeText(context, state.error, Toast.LENGTH_SHORT).show()
+        val dataSet = pagingItems.itemSnapshotList.items
+        if (dataSet.isNotEmpty()) {
+            items(dataSet.size-1){
+                ProductItem(dataSet[it], onItemClicked = navigateToProduct)
+            }
         }
-
-        FreeLoading(isFeedLoading = isFeedLoading)
-
     }
 
+    if (state.error.isNotBlank()) {
+        Toast.makeText(context, state.error, Toast.LENGTH_SHORT).show()
+    }
+
+
 }
-
-
-const val alphaValue = 0.3f
-const val alphaValue06 = 0.6f
-

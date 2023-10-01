@@ -146,16 +146,15 @@ fun SimilarContents(
         , modifier = Modifier
             .padding(start = MaterialTheme.spacing.dimen16Dp))
 
-    LazyRow(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentSize(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        itemsIndexed(list) { index, it ->
+        list.forEachIndexed { index, data ->
             ProductItem(
-                data = it,
-                itemSize = itemSize,
+                data = data,
                 onItemClicked = onItemClicked,
                 paddingValues = PaddingValues(
                     start = MaterialTheme.spacing.dimen16Dp,

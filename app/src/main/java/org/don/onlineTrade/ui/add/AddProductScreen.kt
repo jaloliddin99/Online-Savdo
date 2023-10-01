@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -60,7 +62,7 @@ fun AddProductRoute(
     item: CompactedCategoryItem? = null,
     regions: RegionDistrictModelItem? = null,
     popBack: () -> Unit
-    ) {
+) {
 
     val addProductViewModel = hiltViewModel<AddProductScreenViewModel>()
     val state = addProductViewModel.state.value
@@ -72,13 +74,13 @@ fun AddProductRoute(
         item,
         regions,
         state,
-        submitProduct = {  titleProduct: String,
-            descriptionProduct: String,
-            priceText: String,
-            currencyId: Int,
-            region: Int,
-            categoryId: Int,
-            images: List<ImageUrl> ->
+        submitProduct = { titleProduct: String,
+                          descriptionProduct: String,
+                          priceText: String,
+                          currencyId: Int,
+                          region: Int,
+                          categoryId: Int,
+                          images: List<ImageUrl> ->
             addProductViewModel.postNewProduct(
                 titleProduct = titleProduct,
                 descriptionProduct = descriptionProduct,
@@ -146,7 +148,7 @@ fun AddProductScreen(
         mutableStateOf(listOf<ImageUrl>())
     }
 
-    fun clearItems(){
+    fun clearItems() {
         images = listOf()
         productTitleState.text = ""
         productDescriptionState.text = ""
@@ -183,191 +185,190 @@ fun AddProductScreen(
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    if (state.postNewProduct != null){
+    if (state.postNewProduct != null) {
         clearItems()
     }
 
-    LazyColumn(
+    Column(
         modifier = modifier
             .fillMaxSize()
             .padding(
                 horizontal = MaterialTheme.spacing.dimen16Dp
-            ),
+            )
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.Start,
-    ) {
+        ) {
+        ProductTitle(title = R.string.enter_title)
+        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen2Dp))
+        TextFieldForProduct(
+            productState = productTitleState,
+            onImeAction = {
+                focusRequester.requestFocus()
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+        )
 
-        item {
-            ProductTitle(title = R.string.enter_title)
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen2Dp))
-            TextFieldForProduct(
-                productState = productTitleState,
-                onImeAction = {
-                    focusRequester.requestFocus()
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
-
-            DividerTextAndSpace(R.string.add_description)
-            TextFieldForProduct(
-                productState = productDescriptionState,
-                onImeAction = {
-                    descriptionFocusRequester.requestFocus()
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(focusRequester)
-                    .height(200.dp),
-                title = R.string.please_enter_description
-            )
-            DividerTextAndSpace(R.string.select_category)
-            TextFieldUnEditable(
-                productTitle = item?.title,
-                modifier = Modifier.fillMaxWidth(),
-                title = R.string.please_select_category,
-                isFocusedOrClicked = {
-                    navigateToCategories()
-                }
-            )
-            DividerTextAndSpace(R.string.select_region)
-
-            TextFieldUnEditable(
-                productTitle = region?.title,
-                modifier = Modifier.fillMaxWidth(),
-                title = R.string.please_select_region,
-                isFocusedOrClicked = {
-                    navigateToSelectRegions()
-                }
-            )
-            DividerTextAndSpace(R.string.enter_amount)
-
-            if (state.regions != null) {
-                Row(
-                    modifier = Modifier.wrapContentHeight(),
-                    verticalAlignment = Alignment.Bottom
-                ) {
-                    currencyItem = state.regions[0]
-                    Column(
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        SpinnerSample(
-                            list = state.regions,
-                            preselected = state.regions[0],
-                            onSelectionChanged = {
-                                descriptionFocusRequester.requestFocus()
-                                currencyItem = it
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                    }
-                    Spacer(modifier = Modifier.width(MaterialTheme.spacing.dimen12Dp))
-                    TextFieldForProduct(
-                        productState = productPriceState,
-                        onImeAction = {
-                            keyboardController?.hide()
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(2f)
-                            .focusRequester(descriptionFocusRequester),
-                        title = R.string.price_5000,
-                        keyboardType = KeyboardType.Number,
-                        imeAction = ImeAction.Done
-                    )
-                }
+        DividerTextAndSpace(R.string.add_description)
+        TextFieldForProduct(
+            productState = productDescriptionState,
+            onImeAction = {
+                descriptionFocusRequester.requestFocus()
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(focusRequester)
+                .height(200.dp),
+            title = R.string.please_enter_description
+        )
+        DividerTextAndSpace(R.string.select_category)
+        TextFieldUnEditable(
+            productTitle = item?.title,
+            modifier = Modifier.fillMaxWidth(),
+            title = R.string.please_select_category,
+            isFocusedOrClicked = {
+                navigateToCategories()
             }
+        )
+        DividerTextAndSpace(R.string.select_region)
 
-
-            DividerTextAndSpace(R.string.select_image_for_your_product)
-
-            if (capturedImageUri.path?.isNotEmpty() == true) {
-                images = listOf(capturedImageUri).map { it.toImageUrl(isFromCamera = true) }
+        TextFieldUnEditable(
+            productTitle = region?.title,
+            modifier = Modifier.fillMaxWidth(),
+            title = R.string.please_select_region,
+            isFocusedOrClicked = {
+                navigateToSelectRegions()
             }
+        )
+        DividerTextAndSpace(R.string.enter_amount)
 
-            ShowSelectedImages(
-                imagesList = images,
-                onAddButtonClicked = {
-                    showGalleryOrCameraDialog = true
-                })
-
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen16Dp))
-
-            val categoryIsAdded = !item?.title.isNullOrEmpty()
-            val regionIsAdded = !region?.title.isNullOrEmpty()
-
-            val isEnabled = productTitleState.isValid
-                    && productDescriptionState.isValid
-                    && categoryIsAdded
-                    && regionIsAdded
-                    && productPriceState.isValid
-                    && currencyItem.id != -1
-                    && (images.isNotEmpty() && images.size < 10)
-
-            val onSubmit = {
-                if (!productTitleState.isValid) {
-                    productTitleState.enableShowErrors()
-                }
-                if (!productDescriptionState.isValid) {
-                    productDescriptionState.enableShowErrors()
-                }
-                if (!productPriceState.isValid) {
-                    productPriceState.enableShowErrors()
-                }
-
-                submitProduct(
-                     productTitleState.text,
-                     productDescriptionState.text,
-                     productPriceState.text,
-                     currencyItem.id,
-                     region!!.id,
-                     item!!.id,
-                     images
-                )
-            }
-
-            Button(
-                onClick = onSubmit,
-                enabled = isEnabled,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 28.dp, bottom = 3.dp)
-                    .height(56.dp)
+        if (state.regions != null) {
+            Row(
+                modifier = Modifier.wrapContentHeight(),
+                verticalAlignment = Alignment.Bottom
             ) {
-                Text(
-                    text = stringResource(id = R.string.continuee),
-                    style = MaterialTheme.typography.titleSmall
-                )
-            }
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen24Dp))
-            if (showGalleryOrCameraDialog) {
-                DialogCameraOrGallery(
-                    onDismiss = {
-                        showGalleryOrCameraDialog = false
+                currencyItem = state.regions[0]
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    SpinnerSample(
+                        list = state.regions,
+                        preselected = state.regions[0],
+                        onSelectionChanged = {
+                            descriptionFocusRequester.requestFocus()
+                            currencyItem = it
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+                Spacer(modifier = Modifier.width(MaterialTheme.spacing.dimen12Dp))
+                TextFieldForProduct(
+                    productState = productPriceState,
+                    onImeAction = {
+                        keyboardController?.hide()
                     },
-                    onCameraSelected = {
-                        showGalleryOrCameraDialog = false
-                        RunTimePermission().permissionListForCamera(
-                            cameraPermission = {
-                                if (it) {
-                                    cameraLauncher.launch(uri)
-                                }
-                            }, context
-                        )
-                    },
-                    onGallerySelected = {
-                        showGalleryOrCameraDialog = false
-                        RunTimePermission().permissionForGallery(
-                            galleryPermission = {
-                                if (it) {
-                                    galleryLauncher.launch("image/*")
-                                }
-                            }, context
-                        )
-                    }
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(2f)
+                        .focusRequester(descriptionFocusRequester),
+                    title = R.string.price_5000,
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Done
                 )
             }
         }
+
+
+        DividerTextAndSpace(R.string.select_image_for_your_product)
+
+        if (capturedImageUri.path?.isNotEmpty() == true) {
+            images = listOf(capturedImageUri).map { it.toImageUrl(isFromCamera = true) }
+        }
+
+        ShowSelectedImages(
+            imagesList = images,
+            onAddButtonClicked = {
+                showGalleryOrCameraDialog = true
+            })
+
+        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen16Dp))
+
+        val categoryIsAdded = !item?.title.isNullOrEmpty()
+        val regionIsAdded = !region?.title.isNullOrEmpty()
+
+        val isEnabled = productTitleState.isValid
+                && productDescriptionState.isValid
+                && categoryIsAdded
+                && regionIsAdded
+                && productPriceState.isValid
+                && currencyItem.id != -1
+                && (images.isNotEmpty() && images.size < 10)
+
+        val onSubmit = {
+            if (!productTitleState.isValid) {
+                productTitleState.enableShowErrors()
+            }
+            if (!productDescriptionState.isValid) {
+                productDescriptionState.enableShowErrors()
+            }
+            if (!productPriceState.isValid) {
+                productPriceState.enableShowErrors()
+            }
+
+            submitProduct(
+                productTitleState.text,
+                productDescriptionState.text,
+                productPriceState.text,
+                currencyItem.id,
+                region!!.id,
+                item!!.id,
+                images
+            )
+        }
+
+        Button(
+            onClick = onSubmit,
+            enabled = isEnabled,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 28.dp, bottom = 3.dp)
+                .height(56.dp)
+        ) {
+            Text(
+                text = stringResource(id = R.string.continuee),
+                style = MaterialTheme.typography.titleSmall
+            )
+        }
+        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen24Dp))
+        if (showGalleryOrCameraDialog) {
+            DialogCameraOrGallery(
+                onDismiss = {
+                    showGalleryOrCameraDialog = false
+                },
+                onCameraSelected = {
+                    showGalleryOrCameraDialog = false
+                    RunTimePermission().permissionListForCamera(
+                        cameraPermission = {
+                            if (it) {
+                                cameraLauncher.launch(uri)
+                            }
+                        }, context
+                    )
+                },
+                onGallerySelected = {
+                    showGalleryOrCameraDialog = false
+                    RunTimePermission().permissionForGallery(
+                        galleryPermission = {
+                            if (it) {
+                                galleryLauncher.launch("image/*")
+                            }
+                        }, context
+                    )
+                }
+            )
+        }
+
     }
 }
 
