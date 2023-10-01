@@ -19,6 +19,7 @@ import androidx.compose.material.icons.outlined.Save
 import androidx.compose.ui.graphics.vector.ImageVector
 import org.don.onlineTrade.R
 import org.don.onlineTrade.ui.navigation.categoriesNavigationRoute
+import org.don.onlineTrade.ui.navigation.filterCategoryNavigationRoute
 import org.don.onlineTrade.ui.navigation.pDetailsNavigationRoute
 import org.don.onlineTrade.ui.navigation.regionsNavigationRoute
 
@@ -97,5 +98,15 @@ sealed class NavItems(
         badgeCount = null,
         screenRoute = pDetailsNavigationRoute,
         titleRes = R.string.details
+    )
+
+    object FilterCategories: NavItems(
+        title = "Product Categories",
+        selectedIcon = Icons.Filled.Category,
+        unselectedIcon = Icons.Outlined.Category,
+        hasNews = true,
+        badgeCount = null,
+        screenRoute = filterCategoryNavigationRoute,
+        titleRes = R.string.categories
     )
 }

@@ -60,6 +60,7 @@
     <string name="contact_details">Contact details</string>
     <string name="name">Name</string>
     <string name="similar_items">Similar Products</string>
+    <string name="categories">Product Categories</string>
 
 
 </resources>

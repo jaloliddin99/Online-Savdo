@@ -11,6 +11,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
 import org.don.onlineTrade.ui.navigation.categoriesNavigationRoute
 import org.don.onlineTrade.ui.navigation.chatNavigationRoute
+import org.don.onlineTrade.ui.navigation.filterCategoryNavigationRoute
 import org.don.onlineTrade.ui.navigation.homeNavigationRoute
 import org.don.onlineTrade.ui.navigation.navigateToChat
 import org.don.onlineTrade.ui.navigation.navigateToHome
@@ -53,6 +54,7 @@ class ApplicationState(
             categoriesNavigationRoute -> NavItems.Categories
             regionsNavigationRoute -> NavItems.Regions
             pDetailsNavigationRoute -> NavItems.ProductDetails
+            filterCategoryNavigationRoute -> NavItems.FilterCategories
             else -> null
         }
 

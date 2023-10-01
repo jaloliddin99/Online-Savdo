@@ -38,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.unit.dp
@@ -56,6 +57,7 @@ import org.don.onlineTrade.ui.dialogs.settings.SettingsDialog
 import org.don.onlineTrade.ui.dialogs.settings.UserEditableSettings
 import org.don.onlineTrade.ui.navigation.categoriesNavigationRoute
 import org.don.onlineTrade.ui.navigation.categoriesScreen
+import org.don.onlineTrade.ui.navigation.filterCategoryNavigationRoute
 import org.don.onlineTrade.ui.navigation.filterCategoryScreen
 import org.don.onlineTrade.ui.navigation.pDetailsNavigationRoute
 import org.don.onlineTrade.ui.navigation.productDetailsScreen
@@ -124,6 +126,7 @@ fun MainScreenView(
                         && destination.screenRoute != categoriesNavigationRoute
                         && destination.screenRoute != regionsNavigationRoute
                         && destination.screenRoute != pDetailsNavigationRoute
+                        && destination.screenRoute != filterCategoryNavigationRoute
                     ) {
                         BottomNavigation(rememberNavController, appState)
                     }
@@ -144,8 +147,9 @@ fun MainScreenView(
                         val showBackArrow = destination.screenRoute == categoriesNavigationRoute
                                 || destination.screenRoute == regionsNavigationRoute
                                 || destination.screenRoute == pDetailsNavigationRoute
+                                || destination.screenRoute == filterCategoryNavigationRoute
                         TopAppBar(
-                            titleRes = destination.titleRes,
+                            title = stringResource(id = destination.titleRes),
                             navigationIcon = if (!showBackArrow) Icons.Filled.Search else Icons.Filled.ArrowBack,
                             navigationIconContentDescription = null,
                             actionIcon = Icons.Filled.Settings,

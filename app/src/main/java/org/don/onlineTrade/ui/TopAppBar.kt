@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.sp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppBar(
-    @StringRes titleRes: Int,
+    title: String,
     navigationIcon: ImageVector,
     navigationIconContentDescription: String?,
     actionIcon: ImageVector,
@@ -33,7 +33,7 @@ fun TopAppBar(
     CenterAlignedTopAppBar(
         title = {
             Text(
-                text = stringResource(id = titleRes),
+                text = title,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 18.sp
             )

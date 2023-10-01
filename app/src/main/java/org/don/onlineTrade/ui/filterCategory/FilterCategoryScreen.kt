@@ -8,7 +8,11 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import org.don.onlineTrade.data.remote.models.getPublicProducts.Data
+import org.don.onlineTrade.ui.home.HomeViewModel
 import org.don.onlineTrade.ui.home.ProductItem
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.FreeLoading
@@ -17,13 +21,17 @@ import org.don.onlineTrade.utils.FreeLoading
 @Composable
 fun FilterCategoryRoute(
     modifier: Modifier = Modifier,
-    list: List<Data>,
-    onItemClicked: (Int) -> Unit
+    onItemClicked: (Int) -> Unit,
+    categoryId: Int?
 ) {
+    val homeViewModel = hiltViewModel<HomeViewModel>()
+    val products = homeViewModel.collectProducts(
+        categoryId = categoryId
+    ).collectAsLazyPagingItems()
     FilterCategoryScreen(
         modifier = modifier,
         onItemClicked = onItemClicked,
-        list = list
+        pagingItems = products
     )
 }
 
@@ -32,14 +40,12 @@ fun FilterCategoryRoute(
 fun FilterCategoryScreen(
     modifier: Modifier = Modifier,
     onItemClicked: (Int) -> Unit,
-    list: List<Data>
+    pagingItems: LazyPagingItems<Data>?
 ) {
 
-    val isFreeLoading = list.isEmpty()
-    if (isFreeLoading) {
-        FreeLoading(isFreeLoading)
-    }
-    if (list.isNotEmpty()) {
+
+    if (pagingItems != null){
+        val list = pagingItems.itemSnapshotList.items
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             modifier = modifier
@@ -53,7 +59,10 @@ fun FilterCategoryScreen(
                 )
             }
         }
+    }else{
+        FreeLoading()
     }
+
 
 
 }
