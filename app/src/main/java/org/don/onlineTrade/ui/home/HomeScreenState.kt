@@ -2,6 +2,7 @@ package org.don.onlineTrade.ui.home
 
 import org.don.onlineTrade.data.remote.models.category.CompactedCategoryItem
 import org.don.onlineTrade.data.remote.models.currencies.ModelCurrencyListsItem
+import org.don.onlineTrade.data.remote.models.getProfile.ModelGetProfile
 import org.don.onlineTrade.data.remote.models.liked.LikedProductsModel
 import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.RegionDistrictModelItem
@@ -40,3 +41,9 @@ data class LikedProductsState(
     val error: String = ""
 )
 
+
+data class GetProfileState(
+    val isLoading: Boolean = false,
+    val getProfile: ModelGetProfile?= null,
+    val error: String = ""
+)

@@ -1,5 +1,7 @@
 package org.don.onlineTrade.ui.filterCategory
 
+import android.util.Log
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -7,6 +9,12 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.LazyPagingItems
@@ -28,6 +36,8 @@ fun FilterCategoryRoute(
     val products = homeViewModel.collectProducts(
         categoryId = categoryId
     ).collectAsLazyPagingItems()
+
+
     FilterCategoryScreen(
         modifier = modifier,
         onItemClicked = onItemClicked,
@@ -40,12 +50,16 @@ fun FilterCategoryRoute(
 fun FilterCategoryScreen(
     modifier: Modifier = Modifier,
     onItemClicked: (Int) -> Unit,
-    pagingItems: LazyPagingItems<Data>?
+    pagingItems: LazyPagingItems<Data>
 ) {
+    Log.d("TAG", "FilterCategoryScreendwaddaw1111212")
+    val list = pagingItems.itemSnapshotList.items
 
 
-    if (pagingItems != null){
-        val list = pagingItems.itemSnapshotList.items
+
+    Box(
+        modifier = modifier.fillMaxSize()
+    ) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             modifier = modifier
@@ -59,10 +73,7 @@ fun FilterCategoryScreen(
                 )
             }
         }
-    }else{
-        FreeLoading()
+        FreeLoading(list.isEmpty())
     }
-
-
 
 }

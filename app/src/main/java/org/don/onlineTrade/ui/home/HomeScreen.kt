@@ -59,32 +59,35 @@ fun HomeScreen(
 
     val context = LocalContext.current
 
-    FreeLoading(isFeedLoading = isFeedLoading)
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
-        modifier = modifier
-            .fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = MaterialTheme.spacing.dimen8Dp)
+    Box(
+        modifier = modifier.fillMaxSize()
     ) {
-        if (state.registerMain != null) {
-            item(span = { GridItemSpan(2) }) {
-                Categories(
-                    state.registerMain,
-                    navigateToCategory = navigateToCategory
-                )
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            contentPadding = PaddingValues(horizontal = MaterialTheme.spacing.dimen8Dp)
+        ) {
+            if (state.registerMain != null) {
+                item(span = { GridItemSpan(2) }) {
+                    Categories(
+                        state.registerMain,
+                        navigateToCategory = navigateToCategory
+                    )
+                }
             }
-        }
 
-        val dataSet = pagingItems.itemSnapshotList.items
-        if (dataSet.isNotEmpty()) {
-            items(dataSet.size - 1) {
-                ProductItem(dataSet[it], onItemClicked = navigateToProduct)
+            val dataSet = pagingItems.itemSnapshotList.items
+            if (dataSet.isNotEmpty()) {
+                items(dataSet.size - 1) {
+                    ProductItem(dataSet[it], onItemClicked = navigateToProduct)
+                }
+            }
+            item {
+                Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen16Dp))
             }
         }
-        item {
-            Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen16Dp))
-        }
+        FreeLoading(isFeedLoading = isFeedLoading)
     }
+
 
     if (state.error.isNotBlank()) {
         Toast.makeText(context, state.error, Toast.LENGTH_SHORT).show()

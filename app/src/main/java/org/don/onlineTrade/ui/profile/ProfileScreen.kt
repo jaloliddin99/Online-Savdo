@@ -1,38 +1,300 @@
 package org.don.onlineTrade.ui.profile
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddToPhotos
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.EditNotifications
+import androidx.compose.material.icons.filled.Help
+import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.Button
+import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import kotlinx.coroutines.launch
+import org.don.onlineTrade.R
+import org.don.onlineTrade.ui.add.ProductTitle
+import org.don.onlineTrade.ui.add.TextBold
+import org.don.onlineTrade.ui.add.TextThin
+import org.don.onlineTrade.ui.home.GetProfileState
+import org.don.onlineTrade.ui.theme.spacing
+import org.don.onlineTrade.utils.FreeLoading
+import org.don.onlineTrade.utils.SharedPref
+import org.don.onlineTrade.utils.appLanguageName
 
 @Composable
 fun ProfileRoute(
     modifier: Modifier = Modifier,
 ) {
-    ProfileScreen(modifier)
+    val viewModel = hiltViewModel<ProfileViewModel>()
+    val state = viewModel.state.value
+    ProfileScreen(modifier, state)
 }
+
 @Composable
 fun ProfileScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    state: GetProfileState
 ) {
 
-    Column(
+
+    Box(modifier = modifier.fillMaxSize()) {
+        Column(
+            modifier = modifier
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen24Dp))
+            RoundImage(image = painterResource(id = R.drawable.user))
+            Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen12Dp))
+
+            if (state.getProfile != null) {
+                val user = state.getProfile.user
+                TextBold(title = user.name)
+                user.phone_number?.let { ProductTitle(title = it) }
+                Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen24Dp))
+                AppLanguage()
+                Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen8Dp))
+                ProfileSettingsAndPosts()
+                Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen8Dp))
+                Notification()
+                Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen8Dp))
+                AboutAppAndContactWithUs()
+                Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen8Dp))
+                LogOut()
+            }
+
+        }
+        FreeLoading(state.isLoading)
+    }
+}
+
+
+@Composable
+fun RoundImage(
+    image: Painter,
+    modifier: Modifier = Modifier
+) {
+    Box(
         modifier = modifier
-            .fillMaxSize()
-            .wrapContentSize(Alignment.Center)
+            .width(100.dp)
+            .height(100.dp),
     ) {
-        Text(
-            text = "Profile Screen",
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            textAlign = TextAlign.Center,
-            fontSize = 20.sp
+        Image(
+            painter = image,
+            contentDescription = null,
+            modifier = modifier
+                .fillMaxSize()
+                .aspectRatio(1f, matchHeightConstraintsFirst = true)
+                .border(
+                    width = 2.dp,
+                    color = Color.LightGray,
+                    shape = CircleShape
+                )
+                .padding(3.dp)
+                .clip(CircleShape)
         )
+        Image(
+            imageVector = Icons.Filled.Edit,
+            contentDescription = null,
+            modifier = modifier
+                .height(37.dp)
+                .width(37.dp)
+                .padding(4.dp)
+                .align(Alignment.BottomEnd)
+                .clip(CircleShape)
+                .background(color = MaterialTheme.colorScheme.primary)
+                .padding(4.dp),
+            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary)
+        )
+    }
+}
+
+
+@Composable
+fun AboutAppAndContactWithUs() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(color = MaterialTheme.colorScheme.surface)
+    ) {
+        ProfileColumnItem(
+            imageVector = Icons.Filled.Warning,
+            title = stringResource(id = R.string.about_app),
+            onItemClicked = {
+
+            }
+        )
+        Divider(
+            modifier = Modifier
+                .padding(horizontal = 24.dp)
+                .clip(CircleShape),
+            thickness = 0.5.dp
+        )
+        ProfileColumnItem(
+            imageVector = Icons.Filled.Help,
+            title = stringResource(id = R.string.technical_assistance),
+            onItemClicked = {
+
+            }
+        )
+    }
+}
+@Composable
+fun ProfileSettingsAndPosts() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(color = MaterialTheme.colorScheme.surface)
+    ) {
+        ProfileColumnItem(
+            imageVector = Icons.Filled.Settings,
+            title = stringResource(id = R.string.profile_settings),
+            onItemClicked = {
+
+            }
+        )
+        Divider(
+            modifier = Modifier
+                .padding(horizontal = 24.dp)
+                .clip(CircleShape),
+            thickness = 0.5.dp
+        )
+        ProfileColumnItem(
+            imageVector = Icons.Filled.AddToPhotos,
+            title = stringResource(id = R.string.my_orders),
+            onItemClicked = {
+
+            }
+        )
+    }
+}
+
+@Composable
+fun LogOut() {
+    ProfileColumnItem(
+        imageVector = Icons.Filled.Logout,
+        title = stringResource(id = R.string.logout),
+        onItemClicked = {
+
+        }
+    )
+}
+@Composable
+fun Notification() {
+    ProfileColumnItem(
+        imageVector = Icons.Filled.EditNotifications,
+        title = stringResource(id = R.string.notification_settings),
+        onItemClicked = {
+
+        }
+    )
+}
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AppLanguage() {
+
+    val sheetState = rememberModalBottomSheetState()
+    val scope = rememberCoroutineScope()
+    var showBottomSheet by remember { mutableStateOf(false) }
+
+    ProfileColumnItem(
+        imageVector = ImageVector.vectorResource(id = R.drawable.ic_flag_uzb),
+        title = stringResource(id = R.string.app_language),
+        desc = appLanguageName(SharedPref.language),
+        onItemClicked = {
+            showBottomSheet = true
+        }
+    )
+
+    if (showBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = {
+                showBottomSheet = false
+            },
+            sheetState = sheetState
+        ) {
+            Button(onClick = {
+                scope.launch { sheetState.hide() }.invokeOnCompletion {
+                    if (!sheetState.isVisible) {
+                        showBottomSheet = false
+                    }
+                }
+            }) {
+                Text("Hide bottom sheet")
+            }
+        }
+    }
+}
+
+@Composable
+fun ProfileColumnItem(
+    imageVector: ImageVector,
+    title: String,
+    desc: String = "",
+    onItemClicked: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .clickable { onItemClicked() }
+            .fillMaxWidth()
+            .height(56.dp)
+            .background(color = MaterialTheme.colorScheme.surface)
+            .padding(horizontal = MaterialTheme.spacing.dimen16Dp)
+        ,
+        verticalAlignment = Alignment.CenterVertically) {
+        Image(
+            modifier = Modifier
+                .width(20.dp)
+                .height(20.dp)
+                .clip(CircleShape),
+            imageVector = imageVector, contentDescription = null,
+        )
+        Spacer(modifier = Modifier.width(MaterialTheme.spacing.dimen12Dp))
+        TextThin(title = title)
+        Spacer(modifier = Modifier.weight(1f))
+        ProductTitle(title = desc)
+        Spacer(modifier = Modifier.width(MaterialTheme.spacing.dimen12Dp))
+        Image(imageVector = Icons.Filled.KeyboardArrowRight, contentDescription = null)
     }
 }

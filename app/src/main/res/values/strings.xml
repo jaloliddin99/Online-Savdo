@@ -61,6 +61,13 @@
     <string name="name">Name</string>
     <string name="similar_items">Similar Products</string>
     <string name="categories">Product Categories</string>
+    <string name="app_language">App language</string>
+    <string name="profile_settings">Profile settings</string>
+    <string name="my_orders">My posts</string>
+    <string name="notification_settings">Manage notifications</string>
+    <string name="about_app">About app</string>
+    <string name="technical_assistance">Help</string>
+    <string name="logout">Log out</string>
 
 
 </resources>

@@ -5,6 +5,7 @@ import okhttp3.RequestBody
 import org.don.onlineTrade.data.remote.models.RegisterMain
 import org.don.onlineTrade.data.remote.models.category.CategoryModel
 import org.don.onlineTrade.data.remote.models.currencies.ModelCurrencyLists
+import org.don.onlineTrade.data.remote.models.getProfile.ModelGetProfile
 import org.don.onlineTrade.data.remote.models.getPublicProducts.PublicProductsModel
 import org.don.onlineTrade.data.remote.models.liked.LikedProductsModel
 import org.don.onlineTrade.data.remote.models.post.PostModel
@@ -99,6 +100,11 @@ interface ApiInterface {
         @Query("lang") language: String
     ): LikedProductsModel
 
+
+    @GET("api/profile")
+    suspend fun getProfile(
+        @Header("Authorization") token: String,
+    ): ModelGetProfile
 
 
 

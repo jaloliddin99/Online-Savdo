@@ -45,23 +45,30 @@ fun SavedScreen(
 ) {
 
     val isFreeLoading = state.isLoading
-    if (isFreeLoading){
-        FreeLoading(isFreeLoading)
-    }
-    if (state.registerMain != null){
-        LazyVerticalGrid(columns = GridCells.Fixed(2),
-            modifier = Modifier
-                .padding(end = MaterialTheme.spacing.dimen16Dp)
-                .fillMaxSize(),
-        ){
-            items(state.registerMain){
-                LikedItem(
-                    data = it,
-                    onItemClicked = {
-                    }
-                )
+
+
+    Box(
+        modifier = modifier.fillMaxSize()
+    ) {
+        if (state.registerMain != null){
+            LazyVerticalGrid(columns = GridCells.Fixed(2),
+                modifier = Modifier
+                    .padding(end = MaterialTheme.spacing.dimen16Dp)
+                    .fillMaxSize(),
+            ){
+                items(state.registerMain){
+                    LikedItem(
+                        data = it,
+                        onItemClicked = {
+                        }
+                    )
+                }
             }
         }
+        if (isFreeLoading){
+            FreeLoading(isFreeLoading)
+        }
     }
+
 }
 
