@@ -1,5 +1,6 @@
 package org.don.onlineTrade.ui.search
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,6 +16,7 @@ class SearchViewModel @Inject constructor(
     val searchQuery = savedStateHandle.getStateFlow(SEARCH_QUERY, "")
 
     fun onSearchQueryChanged(query: String) {
+        Log.d("TAG", "onSearchQueryChangeddawwaddwa $query")
         savedStateHandle[SEARCH_QUERY] = query
     }
 

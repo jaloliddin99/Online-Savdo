@@ -74,13 +74,7 @@ fun AddProductRoute(
         item,
         regions,
         state,
-        submitProduct = { titleProduct: String,
-                          descriptionProduct: String,
-                          priceText: String,
-                          currencyId: Int,
-                          region: Int,
-                          categoryId: Int,
-                          images: List<ImageUrl> ->
+        submitProduct = { titleProduct: String, descriptionProduct: String, priceText: String, currencyId: Int, region: Int, categoryId: Int, images: List<ImageUrl> ->
             addProductViewModel.postNewProduct(
                 titleProduct = titleProduct,
                 descriptionProduct = descriptionProduct,
@@ -164,18 +158,16 @@ fun AddProductScreen(
 
     val file = context.createImageFile()
     val uri = FileProvider.getUriForFile(
-        Objects.requireNonNull(context),
-        "org.don.onlineTrade.provider", file
+        Objects.requireNonNull(context), "org.don.onlineTrade.provider", file
     )
 
     var capturedImageUri by remember {
         mutableStateOf<Uri>(Uri.EMPTY)
     }
 
-    val cameraLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
-            capturedImageUri = uri
-        }
+    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
+        capturedImageUri = uri
+    }
 
     val focusRequester = remember { FocusRequester() }
     val descriptionFocusRequester = remember {
@@ -197,16 +189,13 @@ fun AddProductScreen(
             )
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.Start,
-        ) {
+    ) {
         ProductTitle(title = R.string.enter_title)
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen2Dp))
         TextFieldForProduct(
-            productState = productTitleState,
-            onImeAction = {
+            productState = productTitleState, onImeAction = {
                 focusRequester.requestFocus()
-            },
-            modifier = Modifier
-                .fillMaxWidth()
+            }, modifier = Modifier.fillMaxWidth()
         )
 
         DividerTextAndSpace(R.string.add_description)
@@ -222,43 +211,35 @@ fun AddProductScreen(
             title = R.string.please_enter_description
         )
         DividerTextAndSpace(R.string.select_category)
-        TextFieldUnEditable(
-            productTitle = item?.title,
+        TextFieldUnEditable(productTitle = item?.title,
             modifier = Modifier.fillMaxWidth(),
             title = R.string.please_select_category,
             isFocusedOrClicked = {
                 navigateToCategories()
-            }
-        )
+            })
         DividerTextAndSpace(R.string.select_region)
 
-        TextFieldUnEditable(
-            productTitle = region?.title,
+        TextFieldUnEditable(productTitle = region?.title,
             modifier = Modifier.fillMaxWidth(),
             title = R.string.please_select_region,
             isFocusedOrClicked = {
                 navigateToSelectRegions()
-            }
-        )
+            })
         DividerTextAndSpace(R.string.enter_amount)
 
         if (state.regions != null) {
             Row(
-                modifier = Modifier.wrapContentHeight(),
-                verticalAlignment = Alignment.Bottom
+                modifier = Modifier.wrapContentHeight(), verticalAlignment = Alignment.Bottom
             ) {
                 currencyItem = state.regions[0]
                 Column(
                     modifier = Modifier.weight(1f)
                 ) {
                     SpinnerSample(
-                        list = state.regions,
-                        preselected = state.regions[0],
-                        onSelectionChanged = {
+                        list = state.regions, preselected = state.regions[0], onSelectionChanged = {
                             descriptionFocusRequester.requestFocus()
                             currencyItem = it
-                        },
-                        modifier = Modifier.fillMaxWidth()
+                        }, modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                 }
@@ -286,24 +267,17 @@ fun AddProductScreen(
             images = listOf(capturedImageUri).map { it.toImageUrl(isFromCamera = true) }
         }
 
-        ShowSelectedImages(
-            imagesList = images,
-            onAddButtonClicked = {
-                showGalleryOrCameraDialog = true
-            })
+        ShowSelectedImages(imagesList = images, onAddButtonClicked = {
+            showGalleryOrCameraDialog = true
+        })
 
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen16Dp))
 
         val categoryIsAdded = !item?.title.isNullOrEmpty()
         val regionIsAdded = !region?.title.isNullOrEmpty()
 
-        val isEnabled = productTitleState.isValid
-                && productDescriptionState.isValid
-                && categoryIsAdded
-                && regionIsAdded
-                && productPriceState.isValid
-                && currencyItem.id != -1
-                && (images.isNotEmpty() && images.size < 10)
+        val isEnabled =
+            productTitleState.isValid && productDescriptionState.isValid && categoryIsAdded && regionIsAdded && productPriceState.isValid && currencyItem.id != -1 && (images.isNotEmpty() && images.size < 10)
 
         val onSubmit = {
             if (!productTitleState.isValid) {
@@ -342,31 +316,27 @@ fun AddProductScreen(
         }
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen24Dp))
         if (showGalleryOrCameraDialog) {
-            DialogCameraOrGallery(
-                onDismiss = {
-                    showGalleryOrCameraDialog = false
-                },
-                onCameraSelected = {
-                    showGalleryOrCameraDialog = false
-                    RunTimePermission().permissionListForCamera(
-                        cameraPermission = {
-                            if (it) {
-                                cameraLauncher.launch(uri)
-                            }
-                        }, context
-                    )
-                },
-                onGallerySelected = {
-                    showGalleryOrCameraDialog = false
-                    RunTimePermission().permissionForGallery(
-                        galleryPermission = {
-                            if (it) {
-                                galleryLauncher.launch("image/*")
-                            }
-                        }, context
-                    )
-                }
-            )
+            DialogCameraOrGallery(onDismiss = {
+                showGalleryOrCameraDialog = false
+            }, onCameraSelected = {
+                showGalleryOrCameraDialog = false
+                RunTimePermission().permissionListForCamera(
+                    cameraPermission = {
+                        if (it) {
+                            cameraLauncher.launch(uri)
+                        }
+                    }, context
+                )
+            }, onGallerySelected = {
+                showGalleryOrCameraDialog = false
+                RunTimePermission().permissionForGallery(
+                    galleryPermission = {
+                        if (it) {
+                            galleryLauncher.launch("image/*")
+                        }
+                    }, context
+                )
+            })
         }
 
     }

@@ -1,6 +1,7 @@
 package org.don.onlineTrade.data.remote
 
 import androidx.annotation.Keep
+import androidx.annotation.Nullable
 import okhttp3.RequestBody
 import org.don.onlineTrade.data.remote.models.RegisterMain
 import org.don.onlineTrade.data.remote.models.category.CategoryModel
@@ -49,7 +50,7 @@ interface ApiInterface {
     suspend fun getPublicProducts(
         @Query("token") token: String,
         @Query("q") query: String?,
-        @Query("category_id") category_id: Int?,
+        @Query("category_id") categoryId: Int?,
         @Query("lang") language: String,
         @Query("page") page: Int,
         @Query("count") count: Int,

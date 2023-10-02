@@ -180,7 +180,7 @@ fun ProductItemDetails(
                 )
             }
             Text(
-                text = data.region.title ?: "",
+                text = data.region.title,
                 style = MaterialTheme.typography.bodyMedium,
             )
             Text(

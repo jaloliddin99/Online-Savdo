@@ -4,16 +4,20 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
 import okhttp3.RequestBody
+import org.don.onlineTrade.data.remote.ApiInterface
 import org.don.onlineTrade.data.remote.models.RegisterMain
 import org.don.onlineTrade.data.remote.models.category.CategoryModel
 import org.don.onlineTrade.data.remote.models.currencies.ModelCurrencyLists
 import org.don.onlineTrade.data.remote.models.getProfile.ModelGetProfile
 import org.don.onlineTrade.data.remote.models.getPublicProducts.Data
+import org.don.onlineTrade.data.remote.models.getPublicProducts.PublicProductsModel
 import org.don.onlineTrade.data.remote.models.liked.LikedProductsModel
 import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.RegionDistrictModel
 import org.don.onlineTrade.data.remote.models.showProducts.ShowProductModel
+import org.don.onlineTrade.ui.home.TOKEN
 import org.don.onlineTrade.utils.DEFAULT_PAGE_SIZE
+import org.don.onlineTrade.utils.SharedPref
 
 interface NetworkRepository {
 
@@ -84,4 +88,17 @@ interface NetworkRepository {
     suspend fun getProfile(
         token: String
     ): ModelGetProfile
+
+
+    suspend fun getProductsPager(
+        token: String = TOKEN,
+        query:String?,
+        categoryId: Int?,
+        language: String = SharedPref.language,
+        minPrice: Int?,
+        maxPrice: Int?,
+        page: Int,
+        count: Int
+    ): PublicProductsModel
+
 }

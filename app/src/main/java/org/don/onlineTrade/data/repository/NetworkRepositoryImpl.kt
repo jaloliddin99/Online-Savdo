@@ -13,6 +13,7 @@ import org.don.onlineTrade.data.remote.models.category.CategoryModel
 import org.don.onlineTrade.data.remote.models.currencies.ModelCurrencyLists
 import org.don.onlineTrade.data.remote.models.getProfile.ModelGetProfile
 import org.don.onlineTrade.data.remote.models.getPublicProducts.Data
+import org.don.onlineTrade.data.remote.models.getPublicProducts.PublicProductsModel
 import org.don.onlineTrade.data.remote.models.liked.LikedProductsModel
 import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.RegionDistrictModel
@@ -108,6 +109,28 @@ class NetworkRepositoryImpl @Inject constructor(
 
     override suspend fun getProfile(token: String): ModelGetProfile {
         return apiInterface.getProfile(token)
+    }
+
+    override suspend fun getProductsPager(
+        token: String,
+        query: String?,
+        categoryId: Int?,
+        language: String,
+        minPrice: Int?,
+        maxPrice: Int?,
+        page: Int,
+        count: Int
+    ): PublicProductsModel {
+        return apiInterface.getPublicProducts(
+            token = token,
+            query = query,
+            categoryId = categoryId,
+            language = language,
+            minPrice = minPrice,
+            maxPrice = maxPrice,
+            page = page,
+            count = count
+        )
     }
 
 

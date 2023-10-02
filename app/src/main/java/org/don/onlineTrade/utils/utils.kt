@@ -9,3 +9,12 @@ val appLanguageName: (String) -> String = {
         else -> "O'zbekcha"
     }
 }
+
+val reverseAppLanguageName: (String) -> String = {
+    when(it){
+        "O'zbekcha" -> "uz"
+        "English" -> "uz"
+        "Русский" -> "uz"
+        else -> "uz"
+    }
+}

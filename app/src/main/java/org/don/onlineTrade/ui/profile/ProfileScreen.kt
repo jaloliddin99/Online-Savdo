@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -31,6 +32,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -46,9 +48,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.launch
@@ -61,6 +65,7 @@ import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.FreeLoading
 import org.don.onlineTrade.utils.SharedPref
 import org.don.onlineTrade.utils.appLanguageName
+import org.don.onlineTrade.utils.reverseAppLanguageName
 
 @Composable
 fun ProfileRoute(
@@ -254,14 +259,67 @@ fun AppLanguage() {
             },
             sheetState = sheetState
         ) {
-            Button(onClick = {
-                scope.launch { sheetState.hide() }.invokeOnCompletion {
-                    if (!sheetState.isVisible) {
-                        showBottomSheet = false
-                    }
+            RadioGroupExample(
+                onLanguageSelected = {
+
                 }
-            }) {
-                Text("Hide bottom sheet")
+            )
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
+            Button(
+                onClick = {
+                    scope.launch { sheetState.hide() }.invokeOnCompletion {
+                        if (!sheetState.isVisible) {
+                            showBottomSheet = false
+                        }
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .padding(horizontal = MaterialTheme.spacing.dimen16Dp)
+            ) {
+                Text(
+                    text = stringResource(id = R.string.continuee),
+                    style = MaterialTheme.typography.titleSmall
+                )
+            }
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen24Dp))
+        }
+    }
+}
+
+@Composable
+fun RadioGroupExample(
+    onLanguageSelected: (String) -> Unit
+) {
+    val options = listOf("O'zbekcha", "Русский", "English")
+    val selectedOption = remember { mutableStateOf(options.first()) }
+
+    Column() {
+        options.forEach { option ->
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .selectable(
+                        selected = (option == selectedOption.value),
+                        onClick = { selectedOption.value = option }
+                    )
+                    .padding(8.dp)
+                    .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RadioButton(
+                    selected = (option == selectedOption.value),
+                    onClick = {
+                        SharedPref.language = reverseAppLanguageName(selectedOption.value)
+                        onLanguageSelected(SharedPref.language)
+                    }
+                )
+                Text(
+                    text = option,
+                    modifier = Modifier.padding(start = 16.dp)
+                )
             }
         }
     }
