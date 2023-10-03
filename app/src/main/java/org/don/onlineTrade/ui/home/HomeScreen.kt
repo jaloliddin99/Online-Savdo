@@ -75,13 +75,11 @@ fun HomeScreen(
                     )
                 }
             }
-            Log.d("TAG", "HomeScreendawdawdawdawd ${pagerState.items.size}")
 
             items(pagerState.items.size) { i ->
                 val item = pagerState.items[i]
                 LaunchedEffect(scrollState) {
                     if (i >= pagerState.items.size - 1 && !pagerState.endReached && !pagerState.isLoading) {
-                        Log.d("TAG", "HomeScreendawdawdawdawd2 ${pagerState.items.size}")
                         viewModel.loadNextItems()
                     }
                 }
@@ -89,7 +87,7 @@ fun HomeScreen(
                 ProductItem(item, onItemClicked = navigateToProduct)
             }
             item(span = { GridItemSpan(2) }) {
-                if (pagerState.isLoading) {
+                if (pagerState.isLoading && pagerState.page != 0) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()

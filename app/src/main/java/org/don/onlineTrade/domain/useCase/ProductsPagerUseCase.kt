@@ -35,13 +35,16 @@ class ProductsPagerUseCase @Inject constructor(
             count = pageSize
         ).data
 
-        Log.d("TAG", "HomeScreendawdawdawdawd1 ${startingIndex + pageSize}, ${networkPager.size}")
-
-        return if (startingIndex + pageSize <= networkPager.size) {
-            Result.success(
-                networkPager.slice(startingIndex until startingIndex + pageSize)
+//        return if (startingIndex + pageSize <= networkPager.size) {
+//            Result.success(
+//                networkPager.slice(startingIndex until startingIndex + pageSize)
+//            )
+//        } else {
+//            Result.success(emptyList())
+//        }
+        return Result.success(
+                networkPager
             )
-        } else Result.success(emptyList())
     }
 
 

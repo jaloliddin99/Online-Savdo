@@ -1,5 +1,6 @@
 package org.don.onlineTrade.ui.home
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -94,7 +95,7 @@ class HomeViewModel @Inject constructor(
                       maxPrice: Int? ->
             productsPagerUseCase.getItems(
                 page = nextPage,
-                pageSize = 15,
+                pageSize = 10,
                 query = query,
                 categoryId = categoryId,
                 minPrice = minPrice,
@@ -108,6 +109,8 @@ class HomeViewModel @Inject constructor(
             pagerState = pagerState.copy(error = it?.localizedMessage)
         },
         onSuccess = { items, newKey ->
+            Log.d("TAG", "HomeScreendawdawdawdawd## ${pagerState.items.size}, ${items.size}")
+
             pagerState = pagerState.copy(
                 items = pagerState.items + items,
                 page = newKey,

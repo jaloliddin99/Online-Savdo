@@ -15,13 +15,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -142,13 +142,6 @@ fun AddProductScreen(
         mutableStateOf(listOf<ImageUrl>())
     }
 
-    fun clearItems() {
-        images = listOf()
-        productTitleState.text = ""
-        productDescriptionState.text = ""
-        productPriceState.text = ""
-        popBack()
-    }
 
     val galleryLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) {
@@ -176,10 +169,6 @@ fun AddProductScreen(
     FreeLoading(isFeedLoading)
 
     val keyboardController = LocalSoftwareKeyboardController.current
-
-    if (state.postNewProduct != null) {
-        clearItems()
-    }
 
     Column(
         modifier = modifier
@@ -277,7 +266,12 @@ fun AddProductScreen(
         val regionIsAdded = !region?.title.isNullOrEmpty()
 
         val isEnabled =
-            productTitleState.isValid && productDescriptionState.isValid && categoryIsAdded && regionIsAdded && productPriceState.isValid && currencyItem.id != -1 && (images.isNotEmpty() && images.size < 10)
+            productTitleState.isValid
+                    && productDescriptionState.isValid
+                    && categoryIsAdded
+                    && regionIsAdded
+                    && productPriceState.isValid
+                    && currencyItem.id != -1 && (images.isNotEmpty() && images.size < 10)
 
         val onSubmit = {
             if (!productTitleState.isValid) {

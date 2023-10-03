@@ -128,7 +128,7 @@ class NetworkRepositoryImpl @Inject constructor(
             language = language,
             minPrice = minPrice,
             maxPrice = maxPrice,
-            page = page,
+            page = (page + 1),
             count = count
         )
     }

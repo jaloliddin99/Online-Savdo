@@ -7,7 +7,6 @@ import android.widget.Toast
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import id.zelory.compressor.Compressor
@@ -22,7 +21,6 @@ import org.don.onlineTrade.domain.state.Resource
 import org.don.onlineTrade.domain.useCase.currencies.CurrenciesUseCase
 import org.don.onlineTrade.domain.useCase.postNewProduct.PostNewProductUseCase
 import org.don.onlineTrade.ui.home.AddProductScreenState
-import org.don.onlineTrade.ui.home.RegionsScreenState
 import org.don.onlineTrade.ui.home.TOKEN
 import org.don.onlineTrade.utils.SharedPref
 import java.io.File
@@ -41,13 +39,13 @@ class AddProductScreenViewModel @Inject constructor(
     val state: State<AddProductScreenState> = _state
 
     init {
-        getAllCategories(
+        getCurrencies(
             token = TOKEN,
             language = "uz"
         )
     }
 
-    private fun getAllCategories(
+    private fun getCurrencies(
         token: String,
         language: String,
     ) {
@@ -57,17 +55,29 @@ class AddProductScreenViewModel @Inject constructor(
         ).onEach { result ->
             when (result) {
                 is Resource.Success -> {
-                    _state.value = AddProductScreenState(regions = result.data)
-                }
-
-                is Resource.Error -> {
-                    _state.value = AddProductScreenState(
-                        error = result.message ?: "An unexpected error occured"
+                    _state.value = _state.value.copy(
+                        regions = result.data,
+                        isLoading = false,
+                        error = ""
                     )
                 }
 
+                is Resource.Error -> {
+                    _state.value =
+                        _state.value.copy(
+                            regions = null,
+                            isLoading = false,
+                            error = result.message ?: "An unexpected error occured"
+                        )
+                }
+
                 is Resource.Loading -> {
-                    _state.value = AddProductScreenState(isLoading = true)
+                    _state.value =
+                        _state.value.copy(
+                            regions = null,
+                            isLoading = true,
+                            error = ""
+                        )
                 }
             }
         }.launchIn(viewModelScope)
@@ -152,17 +162,28 @@ class AddProductScreenViewModel @Inject constructor(
              ).onEach { result ->
                  when (result) {
                      is Resource.Success -> {
-                         _state.value = AddProductScreenState(postNewProduct = result.data)
-                     }
-
-                     is Resource.Error -> {
-                         _state.value = AddProductScreenState(
-                             error = result.message ?: "An unexpected error occured"
+                         _state.value =_state.value.copy(
+                             postNewProduct = result.data,
+                             isLoading = false,
+                             error = ""
                          )
                      }
 
+                     is Resource.Error -> {
+                         _state.value =
+                             _state.value.copy(
+                                 postNewProduct = null,
+                                 isLoading = false,
+                                 error = result.message ?: "An unexpected error occured"
+                             )
+                     }
+
                      is Resource.Loading -> {
-                         _state.value = AddProductScreenState(isLoading = true)
+                         _state.value = _state.value.copy(
+                             postNewProduct = null,
+                             isLoading = true,
+                             error = ""
+                         )
                      }
                  }
              }.launchIn(viewModelScope)
