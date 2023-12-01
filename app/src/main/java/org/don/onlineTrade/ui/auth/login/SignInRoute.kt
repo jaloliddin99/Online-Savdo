@@ -1,6 +1,7 @@
 package org.don.onlineTrade.ui.auth.login
 
 import android.util.Log
+import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import org.don.onlineTrade.ui.auth.register.SignUpScreen
@@ -13,6 +14,7 @@ fun SignInRoute(
 ) {
     val welcomeViewModel = hiltViewModel<LoginViewModel>()
     val state = welcomeViewModel.state
+    Icons
     SignInScreen(
         onSignInSignUp = { email, password ->
             welcomeViewModel.registerUser(

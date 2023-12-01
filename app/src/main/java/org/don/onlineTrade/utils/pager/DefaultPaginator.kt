@@ -31,7 +31,10 @@ class DefaultPaginator<Key, Item>(
         onLoadUpdated(true)
         val result = onRequest(
             currentKey,
-            query, categoryId, minPrice, maxPrice
+            query,
+            categoryId,
+            minPrice,
+            maxPrice
         )
         isMakingRequest = false
         val items = result.getOrElse {

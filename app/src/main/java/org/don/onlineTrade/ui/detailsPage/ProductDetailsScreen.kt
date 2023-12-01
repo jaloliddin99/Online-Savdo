@@ -85,7 +85,6 @@ fun ProductDetailsScreen(
 ) {
 
     val isFeedLoading = state.isLoading
-    FreeLoading(isFeedLoading = isFeedLoading)
     if (state.registerMain != null) {
         val pagingItems = homeViewModel.collectProducts(
             categoryId = state.registerMain.category.id
@@ -125,6 +124,7 @@ fun ProductDetailsScreen(
             }
         }
     }
+    FreeLoading(isFeedLoading = isFeedLoading)
 }
 
 

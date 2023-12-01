@@ -12,13 +12,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import org.don.onlineTrade.R
 
 
 @Composable
 fun FreeLoading(
-    isFeedLoading: Boolean = true
+    isFeedLoading: Boolean = true,
+    paddingTop: Dp = 8.dp
+
 ) {
     AnimatedVisibility(
         visible = isFeedLoading,
@@ -33,7 +36,7 @@ fun FreeLoading(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp),
+                .padding(top = paddingTop),
         ) {
             OnlineMarketLoadingWheel(
                 modifier = Modifier

@@ -151,16 +151,6 @@ fun OnlineMarketLoadingWheel(
 
 @ThemePreviews
 @Composable
-fun NiaLoadingWheelPreview() {
-    BottomAppBar {
-        Surface {
-            NiaLoadingWheel(contentDesc = "LoadingWheel")
-        }
-    }
-}
-
-@ThemePreviews
-@Composable
 fun NiaOverlayLoadingWheelPreview() {
     BottomAppBar {
         Surface {

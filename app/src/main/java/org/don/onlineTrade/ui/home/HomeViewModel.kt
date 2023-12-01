@@ -5,6 +5,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -22,12 +23,13 @@ import org.don.onlineTrade.domain.useCase.allCategoriesUseCase.AllCategoriesUseC
 import org.don.onlineTrade.utils.SharedPref
 import org.don.onlineTrade.utils.pager.DefaultPaginator
 import javax.inject.Inject
+import javax.inject.Named
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val categoryUseCase: AllCategoriesUseCase,
     private val networkRepository: NetworkRepository,
-    private val productsPagerUseCase: ProductsPagerUseCase
+    private val productsPagerUseCase: ProductsPagerUseCase,
 ) :
     ViewModel() {
 
@@ -80,10 +82,14 @@ class HomeViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
+    fun resetPager(){
+        paginator.reset()
+        pagerState = ScreenState()
+    }
 
     var pagerState by mutableStateOf(ScreenState())
 
-    private val paginator = DefaultPaginator(
+    private var paginator = DefaultPaginator(
         initialKey = pagerState.page,
         onLoadUpdated = {
             pagerState = pagerState.copy(isLoading = it)
@@ -93,6 +99,8 @@ class HomeViewModel @Inject constructor(
                       categoryId: Int?,
                       minPrice: Int?,
                       maxPrice: Int? ->
+
+
             productsPagerUseCase.getItems(
                 page = nextPage,
                 pageSize = 10,
@@ -109,7 +117,6 @@ class HomeViewModel @Inject constructor(
             pagerState = pagerState.copy(error = it?.localizedMessage)
         },
         onSuccess = { items, newKey ->
-            Log.d("TAG", "HomeScreendawdawdawdawd## ${pagerState.items.size}, ${items.size}")
 
             pagerState = pagerState.copy(
                 items = pagerState.items + items,
@@ -119,9 +126,6 @@ class HomeViewModel @Inject constructor(
         }
     )
 
-    init {
-        loadNextItems()
-    }
 
     fun loadNextItems(
         query: String? = null,

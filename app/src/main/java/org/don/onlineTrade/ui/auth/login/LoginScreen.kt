@@ -48,6 +48,7 @@ import org.don.onlineTrade.ui.auth.PasswordState
 import org.don.onlineTrade.ui.auth.register.Branding
 import org.don.onlineTrade.ui.auth.register.RegistrationState
 import org.don.onlineTrade.ui.auth.register.SignUpScreen
+import org.don.onlineTrade.utils.FreeLoading
 import org.don.onlineTrade.utils.SharedPref
 import java.util.Date
 
@@ -114,14 +115,7 @@ fun SignInScreen(
                     Toast.makeText(rememberedContext(), state.error, Toast.LENGTH_SHORT).show()
                 }
             }
-//            LaunchedEffect(Unit){
-//                if (state.error.isNotBlank()){
-//                    Toast.makeText(rememberedContext(), state.error, Toast.LENGTH_SHORT).show()
-//                }
-//            }
-            if (state.isLoading){
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            }
+            FreeLoading(state.isLoading, paddingTop = 64.dp)
         }
     }
 

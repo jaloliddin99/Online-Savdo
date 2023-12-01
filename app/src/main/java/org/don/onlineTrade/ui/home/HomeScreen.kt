@@ -1,6 +1,5 @@
 package org.don.onlineTrade.ui.home
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,19 +14,15 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.collectAsLazyPagingItems
-import org.don.onlineTrade.data.remote.models.getPublicProducts.Data
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.FreeLoading
 
@@ -59,6 +54,10 @@ fun HomeScreen(
 
     val pagerState = viewModel.pagerState
     val scrollState = rememberLazyGridState()
+
+    LaunchedEffect(key1 = viewModel) {
+        viewModel.loadNextItems()
+    }
 
     Box(
         modifier = modifier.fillMaxSize()
@@ -109,6 +108,15 @@ fun HomeScreen(
     if (state.error.isNotBlank()) {
         Toast.makeText(context, state.error, Toast.LENGTH_SHORT).show()
     }
+}
 
 
+@Preview
+@Composable
+fun HomeScreenPreview() {
+    HomeScreen(
+        modifier = Modifier,
+        navigateToProduct = {},
+        navigateToCategory = {}
+    )
 }

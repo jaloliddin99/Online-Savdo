@@ -11,8 +11,6 @@ import javax.inject.Inject
 class ProductsPagerUseCase @Inject constructor(
     private val repository: NetworkRepository
 ) {
-
-
     suspend fun getItems(
         token: String = TOKEN,
         query: String?,

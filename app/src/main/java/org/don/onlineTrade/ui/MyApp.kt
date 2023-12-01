@@ -148,6 +148,7 @@ fun MainScreenView(
                                 || destination.screenRoute == regionsNavigationRoute
                                 || destination.screenRoute == pDetailsNavigationRoute
                                 || destination.screenRoute == filterCategoryNavigationRoute
+
                         TopAppBar(
                             title = stringResource(id = destination.titleRes),
                             navigationIcon = if (!showBackArrow) Icons.Filled.Search else Icons.Filled.ArrowBack,

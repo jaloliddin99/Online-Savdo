@@ -1,6 +1,7 @@
 package org.don.onlineTrade.ui.search
 
 import android.util.Log
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,8 +12,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -20,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -83,18 +87,16 @@ fun SearchScreen(
     onSearchTriggered: (String) -> Unit = {},
     searchQuery: String,
     onClearRecentSearches: () -> Unit = {},
-    homeViewModel: HomeViewModel = hiltViewModel()
 ) {
 
     var searchTextListener by remember {
         mutableStateOf("")
     }
 
+    val homeViewModel = hiltViewModel<HomeViewModel>()
+    val pagerState = homeViewModel.pagerState
 
-    val result = homeViewModel.collectProducts(
-        query = searchTextListener
-    ).collectAsLazyPagingItems()
-
+    val scrollState = rememberLazyGridState()
 
     Column(modifier = modifier) {
         Spacer(modifier = Modifier.windowInsetsTopHeight(WindowInsets.safeDrawing))
@@ -104,27 +106,51 @@ fun SearchScreen(
             onSearchTriggered = {
                 onSearchTriggered(it)
                 searchTextListener = it
+                homeViewModel.resetPager()
+                homeViewModel.loadNextItems(
+                    query = searchTextListener
+                )
             },
             searchQuery = searchQuery,
         )
 
-        val list = result.itemSnapshotList.items
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             modifier = modifier
                 .padding(end = MaterialTheme.spacing.dimen16Dp)
                 .fillMaxSize(),
         ) {
-            items(list) {
+
+            items(pagerState.items.size) { i ->
+                val item = pagerState.items[i]
+                LaunchedEffect(scrollState) {
+                    if (i >= pagerState.items.size - 1 && !pagerState.endReached && !pagerState.isLoading) {
+                        homeViewModel.loadNextItems(
+                            query = searchTextListener
+                        )
+                    }
+                }
                 ProductItem(
-                    data = it,
+                    item,
                     onItemClicked = {
 
-                    }
-                )
+                })
             }
+            item(span = { GridItemSpan(2) }) {
+                if (pagerState.isLoading && pagerState.page != 0) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+            }
+
         }
-        FreeLoading(list.isEmpty())
+//        FreeLoading(list.isEmpty())
 
 
     }

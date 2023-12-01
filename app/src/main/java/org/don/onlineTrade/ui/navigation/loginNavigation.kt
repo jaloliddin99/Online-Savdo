@@ -5,8 +5,6 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import org.don.onlineTrade.ui.auth.login.SignInRoute
-import org.don.onlineTrade.ui.auth.login.SignInScreen
-import org.don.onlineTrade.utils.SharedPref
 
 
 const val loginScreen = "loginScreen"
