@@ -51,7 +51,7 @@ object AppModule {
         builder.addInterceptor(chuckerInterceptor)
 
         return Retrofit.Builder()
-            .baseUrl("https://arendo.uz/")
+            .baseUrl("http://91.227.40.169:8080/api/v1/")
             .client(builder.build())
             .addConverterFactory(GsonConverterFactory.create())
             .build()

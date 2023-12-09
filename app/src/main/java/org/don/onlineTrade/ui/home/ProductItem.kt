@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,14 +17,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,11 +38,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import androidx.paging.compose.LazyPagingItems
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
@@ -47,6 +59,8 @@ import com.google.accompanist.flowlayout.FlowRow
 import com.google.accompanist.flowlayout.SizeMode
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.getPublicProducts.Data
+import org.don.onlineTrade.data.remote.models.getPublicProducts.Region
+import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.spacing
 
 
@@ -63,13 +77,30 @@ fun ProductItem(
 ) {
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        modifier = Modifier.padding(paddingValues).aspectRatio(0.7f),
+        modifier = Modifier
+            .padding(paddingValues)
+            .aspectRatio(0.5f),
         onClick = {
             onItemClicked(data.id)
         }
     ) {
         ProductItemDetails(data)
     }
+}
+
+@Preview
+@Composable
+fun ProductItemPreView() {
+    ProductItem(data = Data(
+        "12-12-2023",
+        "lorem ipsum adwd ad wdaw da wd",
+        2,
+        listOf("https://www.google.com/url?sa=i&url=https%3A%2F%2Fstock.adobe.com%2Fsearch%3Fk%3Dnature%2Bwallpaper%2Bhd&psig=AOvVaw2_xIEa8TYcbAt1LnAbhPuO&ust=1702065174693000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCKiH6YKN_oIDFQAAAAAdAAAAABAD"),
+        "400 000",
+        Region(1, "Jizzax"),
+        "Lacetti",
+        "300",
+    ), onItemClicked = {})
 }
 
 
@@ -124,7 +155,7 @@ fun ProductItemDetails(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.5f),
+                .fillMaxHeight(0.65f),
             contentAlignment = Alignment.Center
         ) {
             if (isLoading) {
@@ -144,8 +175,6 @@ fun ProductItemDetails(
                 painter = if (isError.not()) imageLoader else painterResource(R.drawable.ic_launcher_background),
             )
         }
-        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen6Dp))
-
         val paddingValues = PaddingValues(
             bottom = MaterialTheme.spacing.dimen8Dp,
             start = MaterialTheme.spacing.dimen8Dp,
@@ -155,14 +184,53 @@ fun ProductItemDetails(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
-            verticalArrangement = Arrangement.SpaceEvenly,
+            verticalArrangement = Arrangement.SpaceAround,
         ) {
-            Text(
-                text = data.title,
-                style = MaterialTheme.typography.bodyMedium,
-            )
+            ConstraintLayout(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                val (text, icon) = createRefs()
 
-            Box(
+                Text(
+                    text = data.title,
+                    modifier = Modifier
+                        .constrainAs(text) {
+                            start.linkTo(parent.start)
+                            end.linkTo(icon.start)
+                            top.linkTo(parent.top)
+                            bottom.linkTo(parent.bottom)
+                        }
+                        .wrapContentWidth(),
+                    fontSize = 14.sp,
+                    fontFamily = robotoFontFamily,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+
+                val shape = RoundedCornerShape(8.dp)
+
+                Icon(
+                    painter = painterResource(id = R.drawable.solar_heart_outline),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .width(MaterialTheme.spacing.dimen32Dp)
+                        .height(MaterialTheme.spacing.dimen32Dp)
+                        .padding(MaterialTheme.spacing.dimen4Dp)
+                        .clip(shape)
+                        .constrainAs(icon) {
+                            end.linkTo(parent.end)
+                            top.linkTo(parent.top)
+                            bottom.linkTo(parent.bottom)
+                        }
+                        .clickable {
+
+                        }
+                )
+            }
+
+            Row(
                 modifier = Modifier
                     .wrapContentSize()
                     .background(
@@ -172,11 +240,9 @@ fun ProductItemDetails(
             ) {
                 Text(
                     text = data.price,
-                    modifier = Modifier.padding(
-                        horizontal = MaterialTheme.spacing.dimen4Dp,
-                        vertical = MaterialTheme.spacing.dimen2Dp,
-                    ),
-                    style = MaterialTheme.typography.titleSmall,
+                    fontSize = 14.sp,
+                    fontFamily = robotoFontFamily,
+                    fontWeight = FontWeight.Bold,
                 )
             }
             Text(

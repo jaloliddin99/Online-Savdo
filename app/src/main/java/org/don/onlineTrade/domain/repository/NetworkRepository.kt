@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import okhttp3.RequestBody
 import org.don.onlineTrade.data.remote.ApiInterface
 import org.don.onlineTrade.data.remote.models.RegisterMain
+import org.don.onlineTrade.data.remote.models.RegistrationBody
 import org.don.onlineTrade.data.remote.models.category.CategoryModel
 import org.don.onlineTrade.data.remote.models.currencies.ModelCurrencyLists
 import org.don.onlineTrade.data.remote.models.getProfile.ModelGetProfile
@@ -23,11 +24,7 @@ interface NetworkRepository {
 
 
     suspend fun register(
-        name: String,
-        email: String,
-        password: String,
-        passwordConfirmation: String,
-        phoneNumber: String
+        registrationBody: RegistrationBody
     ): RegisterMain
 
     suspend fun login(

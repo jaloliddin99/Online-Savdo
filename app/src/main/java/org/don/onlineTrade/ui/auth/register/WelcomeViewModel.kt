@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import org.don.onlineTrade.data.remote.models.RegistrationBody
 import org.don.onlineTrade.domain.state.Resource
 import org.don.onlineTrade.domain.useCase.registrationUseCase.RegistrationUseCase
 import org.don.onlineTrade.ui.auth.login.assignDate
@@ -32,18 +33,10 @@ class WelcomeViewModel @Inject constructor(
 
 
     fun registerUser(
-        name: String,
-        email: String,
-        password: String,
-        passwordConfirmation: String,
-        phoneNumber: String
+        registrationBody: RegistrationBody
     ) {
         registrationUseCase(
-            name,
-            email,
-            password,
-            passwordConfirmation,
-            phoneNumber
+            registrationBody
         ).onEach { result ->
             when (result) {
                 is Resource.Success -> {

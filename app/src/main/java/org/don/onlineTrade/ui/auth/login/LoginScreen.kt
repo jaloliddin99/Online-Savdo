@@ -168,7 +168,8 @@ fun SignInToLoginAccount(
             imeAction = ImeAction.Next,
             onImeAction = {
                 focusRequester.requestFocus()
-            }
+            },
+            modifier = Modifier
         )
         Spacer(modifier = Modifier.height(24.dp))
 

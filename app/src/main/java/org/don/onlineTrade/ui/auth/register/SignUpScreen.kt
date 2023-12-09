@@ -44,6 +44,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
@@ -57,14 +58,20 @@ import org.don.onlineTrade.ui.auth.ConfirmPasswordState
 import org.don.onlineTrade.ui.auth.Email
 import org.don.onlineTrade.ui.auth.EmailState
 import org.don.onlineTrade.ui.auth.EmailStateSaver
+import org.don.onlineTrade.ui.auth.NameField
 import org.don.onlineTrade.ui.auth.OrSignInAsGuest
 import org.don.onlineTrade.ui.auth.Password
 import org.don.onlineTrade.ui.auth.PasswordState
+import org.don.onlineTrade.ui.auth.PhoneNumber
+import org.don.onlineTrade.ui.auth.PhoneNumberState
+import org.don.onlineTrade.ui.auth.TextFieldState
+import org.don.onlineTrade.ui.theme.robotoFontFamily
+import org.don.onlineTrade.ui.theme.spacing
 
 
 @Composable
 fun SignUpScreen(
-    onSignInSignUp: (email: String, password: String, phoneNumber: String) -> Unit,
+    onSignInSignUp: (firstName: String, lastName: String, email: String, password: String, phoneNumber: String) -> Unit,
     onSignInAsGuest: () -> Unit,
     state: RegistrationState,
     registrationSuccess: () -> Unit,
@@ -172,7 +179,8 @@ fun Logo(
     }
     Image(
         painter = painterResource(id = assetId),
-        modifier = modifier,
+        modifier = modifier
+            .padding(top = MaterialTheme.spacing.dimen12Dp),
         contentDescription = null
     )
 }
@@ -180,27 +188,32 @@ fun Logo(
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SignUpCreateAccount(
-    onSignInSignUp: (email: String, password: String, phoneNumber: String) -> Unit,
+    onSignInSignUp: (firstName: String, lastName: String, email: String, password: String, phoneNumber: String) -> Unit,
     onSignInAsGuest: () -> Unit,
     onFocusChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     onLoginPage: () -> Unit
 ) {
+
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
 
+    val firstNameFocus = remember { FocusRequester() }
+    val lastNameFocus = remember { FocusRequester() }
     val focusRequester = remember { FocusRequester() }
     val confirmationPasswordFocusRequest = remember { FocusRequester() }
+    val phoneNumberRequester = remember { FocusRequester() }
 
+    val nameState = remember { TextFieldState() }
+    val lastNameState = remember { TextFieldState() }
     val emailState by rememberSaveable(stateSaver = EmailStateSaver) {
         mutableStateOf(EmailState())
     }
-    val passwordState = remember {
-        PasswordState()
-    }
+    val passwordState = remember { PasswordState() }
     val confirmPasswordState = remember {
         ConfirmPasswordState(passwordState = passwordState)
     }
+    val phoneState = remember { PhoneNumberState() }
 
     Column(
         modifier = modifier
@@ -210,10 +223,12 @@ fun SignUpCreateAccount(
     ) {
         Text(
             text = stringResource(id = R.string.sign_in_or_create_account),
-            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(top = 64.dp, bottom = 12.dp)
+            modifier = Modifier.padding(top = 24.dp, bottom = 12.dp),
+            fontFamily = robotoFontFamily,
+            fontWeight = FontWeight.Medium,
+            fontSize = MaterialTheme.spacing.dimen16Sp
         )
 
         val onSubmit = {
@@ -221,19 +236,51 @@ fun SignUpCreateAccount(
                 emailState.enableShowErrors()
             }
             if (emailState.isValid && passwordState.isValid) {
-                onSignInSignUp(emailState.text, passwordState.text, "998996666608")
+                onSignInSignUp(
+                    nameState.text,
+                    lastNameState.text,
+                    emailState.text,
+                    passwordState.text,
+                    phoneState.text
+                )
             }
         }
-        onFocusChange(emailState.isFocused || passwordState.isFocused || confirmPasswordState.isFocused)
+        onFocusChange(
+            emailState.isFocused
+                    || passwordState.isFocused
+                    || confirmPasswordState.isFocused
+                    || nameState.isFocused
+                    || lastNameState.isFocused
+                    || phoneState.isFocused
+        )
+        NameField(
+            modifier = Modifier,
+            nameState = nameState,
+            imeAction = ImeAction.Next,
+            onImeAction = {
+                firstNameFocus.requestFocus()
+            },
+        )
+        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
+        NameField(
+            modifier = Modifier.focusRequester(firstNameFocus),
+            nameState = lastNameState,
+            imeAction = ImeAction.Next,
+            onImeAction = {
+                lastNameFocus.requestFocus()
+            },
+            resId = R.string.lastName
+        )
+        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
         Email(
             emailState = emailState,
             imeAction = ImeAction.Next,
             onImeAction = {
                 focusRequester.requestFocus()
-            }
+            },
+            modifier = Modifier.focusRequester(lastNameFocus)
         )
-        Spacer(modifier = Modifier.height(24.dp))
-
+        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
         Password(
             label = stringResource(id = R.string.password),
             passwordState = passwordState,
@@ -243,35 +290,42 @@ fun SignUpCreateAccount(
                 confirmationPasswordFocusRequest.requestFocus()
             }
         )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
+        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
         Password(
             label = stringResource(id = R.string.confirm_password),
             passwordState = confirmPasswordState,
             modifier = Modifier.focusRequester(confirmationPasswordFocusRequest),
             onImeAction = {
+                phoneNumberRequester.requestFocus()
+            }
+        )
+        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
+        PhoneNumber(
+            phoneState = phoneState,
+            modifier = Modifier.focusRequester(phoneNumberRequester),
+            onImeAction = {
                 focusManager.clearFocus()
                 keyboardController?.hide()
             }
         )
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
         DoYouHaveAccount {
             onLoginPage()
         }
 
         val isEnabled = emailState.isValid &&
                 passwordState.isValid &&
-                confirmPasswordState.isValid
-
-
+                confirmPasswordState.isValid &&
+                nameState.isValid &&
+                lastNameState.isValid &&
+                phoneState.isValid
 
         Button(
             onClick = onSubmit,
             enabled = isEnabled,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 28.dp, bottom = 3.dp)
+                .padding(top = 20.dp, bottom = 3.dp)
         ) {
             Text(
                 text = stringResource(id = R.string.continuee),
@@ -284,8 +338,6 @@ fun SignUpCreateAccount(
         )
 
     }
-
-
 }
 
 @Composable
@@ -293,46 +345,35 @@ fun DoYouHaveAccount(
     onTextClicked: () -> Unit
 ) {
     val getString = stringResource(id = R.string.do_you_already_have_account)
-    val getStringYes = stringResource(id = R.string.yes)
 
     val annotatedString = buildAnnotatedString {
         withStyle(
             style = SpanStyle(
-                fontWeight = FontWeight.Normal
-            )
-        ) {
-            append(getString)
-        }
-        append(" ")
-
-        withStyle(
-            style = SpanStyle(
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.Normal,
                 textDecoration = TextDecoration.Underline
             )
         ) {
-            append(getStringYes)
+            append(getString)
         }
     }
     Box(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = annotatedString,
-            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface,
-            fontSize = 12.sp,
+            fontFamily = robotoFontFamily,
+            fontWeight = FontWeight.Normal,
+            fontSize = 14.sp,
             modifier = Modifier.clickable {
                 onTextClicked()
             }
         )
-
     }
 }
 
 @Preview
 @Composable
 private fun WelcomeScreenPreview() {
-    SignUpScreen(onSignInSignUp = { s: String, s1: String, s2: String -> },
+    SignUpScreen(onSignInSignUp = { firstName: String, lastName: String, s: String, s1: String, s2: String -> },
         onSignInAsGuest = {},
         state = RegistrationState(),
         registrationSuccess = {},

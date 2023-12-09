@@ -35,7 +35,7 @@
     <string name="login_account">Login Account</string>
     <string name="please_login">Please login to your account</string>
     <string name="do_you_already_have_account">Do you have an account?</string>
-    <string name="for_you_loading">Loading Items...</string>
+    <string name="for_you_loading">Loading Items…</string>
     <string name="profile">Profile</string>
     <string name="saved_page">Saved Page</string>
     <string name="enter_title">Enter title*</string>
@@ -61,6 +61,7 @@
     <string name="name">Name</string>
     <string name="similar_items">Similar Products</string>
     <string name="categories">Product Categories</string>
+
     <string name="app_language">App language</string>
     <string name="profile_settings">Profile settings</string>
     <string name="my_orders">My posts</string>
@@ -68,6 +69,11 @@
     <string name="about_app">About app</string>
     <string name="technical_assistance">Help</string>
     <string name="logout">Log out</string>
+    <string name="nothing_found_for_for_search">Nothing found for your search</string>
+    <string name="all_posts">All posts</string>
+    <string name="firstName">First name</string>
+    <string name="lastName">Last name</string>
+    <string name="phone_number">Phone Number</string>
 
 
 </resources>

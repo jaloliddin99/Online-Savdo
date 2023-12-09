@@ -5,7 +5,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 data class Spacing(
     val dimen0Dp: Dp = 0.dp,
@@ -25,6 +27,25 @@ data class Spacing(
     val dimen80Dp: Dp = 80.dp,
     val dimen100Dp: Dp = 100.dp,
     val dimen120Dp: Dp = 120.dp,
+
+
+    val dimen0Sp: TextUnit = 0.sp,
+    val dimen1Sp: TextUnit = 1.sp,
+    val dimen2Sp: TextUnit = 2.sp,
+    val dimen4Sp: TextUnit = 4.sp,
+    val dimen6Sp: TextUnit = 6.sp,
+    val dimen8Sp: TextUnit = 8.sp,
+    val dimen10Sp: TextUnit = 10.sp,
+    val dimen12Sp: TextUnit = 12.sp,
+    val dimen16Sp: TextUnit = 16.sp,
+    val dimen20Sp: TextUnit = 20.sp,
+    val dimen24Sp: TextUnit = 24.sp,
+    val dimen30Sp: TextUnit = 30.sp,
+    val dimen32Sp: TextUnit = 32.sp,
+    val dimen40Sp: TextUnit = 40.sp,
+    val dimen80Sp: TextUnit = 80.sp,
+    val dimen100Sp: TextUnit = 100.sp,
+    val dimen120Sp: TextUnit = 120.sp,
 )
 
 val LocalSpacing = compositionLocalOf{ Spacing() }

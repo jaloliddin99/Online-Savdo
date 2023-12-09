@@ -4,6 +4,7 @@ import androidx.annotation.Keep
 import androidx.annotation.Nullable
 import okhttp3.RequestBody
 import org.don.onlineTrade.data.remote.models.RegisterMain
+import org.don.onlineTrade.data.remote.models.RegistrationBody
 import org.don.onlineTrade.data.remote.models.category.CategoryModel
 import org.don.onlineTrade.data.remote.models.currencies.ModelCurrencyLists
 import org.don.onlineTrade.data.remote.models.getProfile.ModelGetProfile
@@ -27,14 +28,9 @@ import retrofit2.http.Query
 interface ApiInterface {
 
     @FormUrlEncoded
-    @POST("api/register")
+    @POST("auth/register")
     suspend fun register(
-        @Header("Accept") accept: String,
-        @Field("name") name: String,
-        @Field("email") email: String,
-        @Field("password") password: String,
-        @Field("password_confirmation") passwordConfirmation: String,
-        @Field("phone_number") phoneNumber: String
+        @Body registrationBody: RegistrationBody
     ): RegisterMain
 
     @FormUrlEncoded

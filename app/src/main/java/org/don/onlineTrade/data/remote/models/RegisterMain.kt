@@ -13,3 +13,12 @@ data class Errors(
     val email: List<String>?,
     val phone_number: List<String>?
 )
+
+
+data class RegistrationBody(
+    val email: String,
+    val firstName: String,
+    val lastName: String,
+    val password: String,
+    val phoneNumber: String
+)

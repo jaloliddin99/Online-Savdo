@@ -71,6 +71,7 @@ dependencies {
     implementation(platform("androidx.compose:compose-bom:2023.06.01"))
     testImplementation("junit:junit:4.13.2")
 
+    implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
 
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
@@ -110,6 +111,9 @@ dependencies {
 
     implementation("com.google.accompanist:accompanist-flowlayout:0.20.0")
     implementation("id.zelory:compressor:3.0.1")
+    implementation("com.airbnb.android:lottie-compose:6.0.1")
+
+
 
 
 }

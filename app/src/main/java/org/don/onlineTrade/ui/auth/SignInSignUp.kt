@@ -1,12 +1,17 @@
 package org.don.onlineTrade.ui.auth
 
+import androidx.annotation.IntegerRes
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -27,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -35,15 +41,118 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import org.don.onlineTrade.R
+import org.don.onlineTrade.ui.theme.spacing
 
-// OutlinedTextField is experimental in m3
-@OptIn(ExperimentalMaterial3Api::class)
+
+@Composable
+fun PhoneNumber(
+    phoneState: TextFieldState = remember { PhoneNumberState() },
+    imeAction: ImeAction = ImeAction.Done,
+    onImeAction: () -> Unit = {},
+    modifier: Modifier,
+    @StringRes resId: Int = R.string.phone_number
+){
+    val cornerSize = with(LocalDensity.current) { MaterialTheme.spacing.dimen8Dp }
+
+    OutlinedTextField(
+        value = phoneState.text,
+        onValueChange = {
+            phoneState.text = it
+        },
+        label = {
+            Text(
+                text = stringResource(id = resId),
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        },
+        modifier = modifier
+            .fillMaxWidth()
+            .onFocusChanged { focusState ->
+                phoneState.onFocusChange(focusState.isFocused)
+                if (!focusState.isFocused) {
+                    phoneState.enableShowErrors()
+                }
+            },
+        shape = MaterialTheme.shapes.medium.copy(
+            topStart = CornerSize(cornerSize),
+            topEnd = CornerSize(cornerSize),
+            bottomStart = CornerSize(cornerSize),
+            bottomEnd = CornerSize(cornerSize)
+        ),
+        textStyle = MaterialTheme.typography.bodyMedium,
+        isError = phoneState.showErrors(),
+        keyboardOptions = KeyboardOptions.Default.copy(
+            imeAction = imeAction,
+            keyboardType = KeyboardType.Phone
+        ),
+        keyboardActions = KeyboardActions(
+            onDone = {
+                onImeAction()
+            }
+        ),
+    )
+
+    phoneState.getError()?.let { error -> TextFieldError(textError = error) }
+}
+@Composable
+fun NameField(
+    nameState: TextFieldState = remember { TextFieldState() },
+    imeAction: ImeAction = ImeAction.Next,
+    onImeAction: () -> Unit = {},
+    modifier: Modifier,
+    @StringRes resId: Int = R.string.firstName
+){
+    val cornerSize = with(LocalDensity.current) { MaterialTheme.spacing.dimen8Dp }
+
+    OutlinedTextField(
+        value = nameState.text,
+        onValueChange = {
+            nameState.text = it
+        },
+        label = {
+            Text(
+                text = stringResource(id = resId),
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        },
+        modifier = modifier
+            .fillMaxWidth()
+            .onFocusChanged { focusState ->
+                nameState.onFocusChange(focusState.isFocused)
+                if (!focusState.isFocused) {
+                    nameState.enableShowErrors()
+                }
+            },
+        shape = MaterialTheme.shapes.medium.copy(
+            topStart = CornerSize(cornerSize),
+            topEnd = CornerSize(cornerSize),
+            bottomStart = CornerSize(cornerSize),
+            bottomEnd = CornerSize(cornerSize)
+        ),
+        textStyle = MaterialTheme.typography.bodyMedium,
+        isError = nameState.showErrors(),
+        keyboardOptions = KeyboardOptions.Default.copy(
+            imeAction = imeAction,
+            keyboardType = KeyboardType.Text
+        ),
+        keyboardActions = KeyboardActions(
+            onDone = {
+                onImeAction()
+            }
+        ),
+    )
+
+    nameState.getError()?.let { error -> TextFieldError(textError = error) }
+}
 @Composable
 fun Email(
     emailState: TextFieldState = remember { EmailState() },
     imeAction: ImeAction = ImeAction.Next,
-    onImeAction: () -> Unit = {}
+    onImeAction: () -> Unit = {},
+    modifier: Modifier
 ) {
+    val cornerSize = with(LocalDensity.current) { MaterialTheme.spacing.dimen8Dp }
+
     OutlinedTextField(
         value = emailState.text,
         onValueChange = {
@@ -55,7 +164,7 @@ fun Email(
                 style = MaterialTheme.typography.bodyMedium,
             )
         },
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .onFocusChanged { focusState ->
                 emailState.onFocusChange(focusState.isFocused)
@@ -63,6 +172,12 @@ fun Email(
                     emailState.enableShowErrors()
                 }
             },
+        shape = MaterialTheme.shapes.medium.copy(
+            topStart = CornerSize(cornerSize),
+            topEnd = CornerSize(cornerSize),
+            bottomStart = CornerSize(cornerSize),
+            bottomEnd = CornerSize(cornerSize)
+        ),
         textStyle = MaterialTheme.typography.bodyMedium,
         isError = emailState.showErrors(),
         keyboardOptions = KeyboardOptions.Default.copy(
@@ -108,20 +223,19 @@ fun OrSignInAsGuest(
             text = stringResource(id = R.string.or),
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-            modifier = Modifier.paddingFromBaseline(top = 25.dp)
+            modifier = Modifier.paddingFromBaseline(top = 16.dp)
         )
         OutlinedButton(
             onClick = onSignInAsGuest,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 20.dp, bottom = 24.dp),
+                .padding(top = 16.dp, bottom = 24.dp),
         ) {
             Text(text = stringResource(id = R.string.sign_in_guest))
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class) // OutlinedTextField is experimental in m3
 @Composable
 fun Password(
     label: String,
@@ -131,6 +245,8 @@ fun Password(
     onImeAction: () -> Unit = {}
 ) {
     val showPassword = rememberSaveable { mutableStateOf(false) }
+    val cornerSize = with(LocalDensity.current) { MaterialTheme.spacing.dimen8Dp }
+
     OutlinedTextField(
         value = passwordState.text,
         onValueChange = {
@@ -145,6 +261,12 @@ fun Password(
                     passwordState.enableShowErrors()
                 }
             },
+        shape = MaterialTheme.shapes.medium.copy(
+            topStart = CornerSize(cornerSize),
+            topEnd = CornerSize(cornerSize),
+            bottomStart = CornerSize(cornerSize),
+            bottomEnd = CornerSize(cornerSize)
+        ),
         textStyle = MaterialTheme.typography.bodyMedium,
         label = {
             Text(
@@ -175,18 +297,16 @@ fun Password(
             PasswordVisualTransformation()
         },
         isError = passwordState.showErrors(),
-        supportingText = {
-            passwordState.getError()?.let { error -> TextFieldError(textError = error) }
-        },
         keyboardOptions = KeyboardOptions.Default.copy(
             imeAction = imeAction,
             keyboardType = KeyboardType.Password
         ),
         keyboardActions = KeyboardActions(
             onDone = {
-
                 onImeAction()
             }
         ),
     )
+    passwordState.getError()?.let { error -> TextFieldError(textError = error) }
+
 }

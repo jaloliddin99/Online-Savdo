@@ -3,6 +3,7 @@ package org.don.onlineTrade.ui.auth.register
 import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
+import org.don.onlineTrade.data.remote.models.RegistrationBody
 
 
 @Composable
@@ -13,14 +14,17 @@ fun SignUpRoute(
     val welcomeViewModel = hiltViewModel<WelcomeViewModel>()
     val state = welcomeViewModel.state
     SignUpScreen(
-        onSignInSignUp = { email, password, phoneNumber ->
+        onSignInSignUp = { firstName, lastName, email, password, phoneNumber ->
 
+            val body = RegistrationBody(
+                firstName = firstName,
+                lastName = lastName,
+                email = email,
+                password = password,
+                phoneNumber = phoneNumber
+            )
             welcomeViewModel.registerUser(
-                "Jalol",
-                email,
-                password,
-                password,
-                phoneNumber
+                body
             )
         },
         state = state.value,

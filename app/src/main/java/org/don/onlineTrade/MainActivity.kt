@@ -61,6 +61,8 @@ OnRunTimePermissionListener{
         }
 
         enableEdgeToEdge()
+
+
         setContent {
             val darkTheme = shouldUseDarkTheme(state.darkThemeConfig)
             IELTSAIExaminerTheme(

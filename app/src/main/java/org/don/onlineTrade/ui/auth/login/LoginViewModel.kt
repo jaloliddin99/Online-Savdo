@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.onEach
 import org.don.onlineTrade.data.remote.models.RegisterMain
 import org.don.onlineTrade.domain.state.Resource
 import org.don.onlineTrade.domain.useCase.loginUseCase.LoginUseCase
-import org.don.onlineTrade.domain.useCase.registrationUseCase.RegistrationUseCase
 import org.don.onlineTrade.utils.SharedPref
 import java.util.Date
 import javax.inject.Inject

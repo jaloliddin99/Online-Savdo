@@ -16,13 +16,19 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import org.don.onlineTrade.R
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.FreeLoading
 
@@ -67,6 +73,18 @@ fun HomeScreen(
             contentPadding = PaddingValues(horizontal = MaterialTheme.spacing.dimen8Dp)
         ) {
             if (state.registerMain != null) {
+                item {
+                    Text(
+                        text = stringResource(id = R.string.category),
+                        style = TextStyle.Default,
+                        modifier = Modifier.padding(
+                            start = MaterialTheme.spacing.dimen8Dp,
+                            bottom = MaterialTheme.spacing.dimen8Dp
+                        ),
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = MaterialTheme.spacing.dimen16Sp
+                    )
+                }
                 item(span = { GridItemSpan(2) }) {
                     Categories(
                         state.registerMain,
@@ -74,7 +92,18 @@ fun HomeScreen(
                     )
                 }
             }
-
+            item(span = { GridItemSpan(2) }) {
+                Text(
+                    text = stringResource(id = R.string.all_posts),
+                    style = TextStyle.Default,
+                    modifier = Modifier.padding(
+                        start = MaterialTheme.spacing.dimen8Dp,
+                        top = MaterialTheme.spacing.dimen8Dp
+                    ),
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = MaterialTheme.spacing.dimen16Sp
+                )
+            }
             items(pagerState.items.size) { i ->
                 val item = pagerState.items[i]
                 LaunchedEffect(scrollState) {
