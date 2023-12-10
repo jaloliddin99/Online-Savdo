@@ -8,9 +8,10 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import org.don.onlineTrade.data.remote.models.LoginBody
 import org.don.onlineTrade.data.remote.models.RegisterMain
 import org.don.onlineTrade.domain.state.Resource
-import org.don.onlineTrade.domain.useCase.loginUseCase.LoginUseCase
+import org.don.onlineTrade.domain.useCase.auth.loginUseCase.LoginUseCase
 import org.don.onlineTrade.utils.SharedPref
 import java.util.Date
 import javax.inject.Inject
@@ -34,17 +35,15 @@ class LoginViewModel @Inject constructor(
 
 
     fun registerUser(
-        email: String,
-        password: String,
+        loginBody: LoginBody
     ) {
         loginUseCase(
-            email,
-            password,
+           loginBody
         ).onEach { result ->
             when (result) {
                 is Resource.Success -> {
-                    result.data?.let { assignDate(it) }
-                    _state.value = LoginState(registerMain = result.data)
+                    _state.value = LoginState(registerMain = result.data,
+                        email = loginBody.email)
                 }
 
                 is Resource.Error -> {

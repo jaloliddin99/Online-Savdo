@@ -113,6 +113,10 @@ dependencies {
     implementation("id.zelory:compressor:3.0.1")
     implementation("com.airbnb.android:lottie-compose:6.0.1")
 
+    //PinView
+    implementation("com.github.ozcanalasalvar:otpview:2.0.1")
+
+
 
 
 

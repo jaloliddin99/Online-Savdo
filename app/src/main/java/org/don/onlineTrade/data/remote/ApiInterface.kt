@@ -3,6 +3,8 @@ package org.don.onlineTrade.data.remote
 import androidx.annotation.Keep
 import androidx.annotation.Nullable
 import okhttp3.RequestBody
+import org.don.onlineTrade.data.remote.models.LoginBody
+import org.don.onlineTrade.data.remote.models.ModelSuccess
 import org.don.onlineTrade.data.remote.models.RegisterMain
 import org.don.onlineTrade.data.remote.models.RegistrationBody
 import org.don.onlineTrade.data.remote.models.category.CategoryModel
@@ -27,19 +29,21 @@ import retrofit2.http.Query
 @Keep
 interface ApiInterface {
 
-    @FormUrlEncoded
     @POST("auth/register")
     suspend fun register(
         @Body registrationBody: RegistrationBody
-    ): RegisterMain
+    ): ModelSuccess
 
-    @FormUrlEncoded
-    @POST("api/login")
+    @POST("auth/authenticate")
     suspend fun login(
-        @Header("Accept") accept: String,
-        @Field("email") email: String,
-        @Field("password") password: String,
-    ): RegisterMain
+        @Body loginBody: LoginBody
+    ): ModelSuccess
+
+    @GET("auth/verify")
+    suspend fun verify(
+        @Query("code") code: Int,
+        @Query("email") email: String
+    ): ModelSuccess
 
 
     @GET("api/products")

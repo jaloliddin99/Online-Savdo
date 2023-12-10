@@ -13,13 +13,13 @@ fun NavController.navigateToWelcome(navOptions: NavOptions? = null) {
 }
 
 fun NavGraphBuilder.registrationScreen(
-    navigateToMainScreen: () -> Unit,
+    navigateToVerification: (email: String) -> Unit,
     onLoginPage: () -> Unit
 ) {
     composable(route = welcomeScreen) {
         SignUpRoute(
-            navigateToMainScreen = {
-                navigateToMainScreen()
+            navigateToVerification = {
+                navigateToVerification(it)
             },
             onLoginPage = {
                 onLoginPage()

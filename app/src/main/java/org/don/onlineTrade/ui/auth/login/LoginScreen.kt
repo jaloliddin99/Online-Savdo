@@ -55,9 +55,8 @@ import java.util.Date
 @Composable
 fun SignInScreen(
     onSignInSignUp: (email: String, password: String) -> Unit,
-    onSignInAsGuest: () -> Unit,
     state: LoginState,
-    loginSuccess: () -> Unit
+    loginSuccess: (email: String) -> Unit
 ) {
     var showBranding by remember {
         mutableStateOf(true)
@@ -96,7 +95,7 @@ fun SignInScreen(
                 )
                 SignInToLoginAccount(
                     onSignInSignUp = onSignInSignUp,
-                    onSignInAsGuest = onSignInAsGuest,
+                    onSignInAsGuest = {},
                     onFocusChange = { hasFocus -> showBranding = !hasFocus },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -105,7 +104,7 @@ fun SignInScreen(
                 )
             }
             if (state.registerMain!= null){
-                loginSuccess.invoke()
+                loginSuccess.invoke(state.email)
             }
 
             val context = LocalContext.current
@@ -213,7 +212,6 @@ fun SignInToLoginAccount(
 @Composable
 private fun WelcomeScreenPreview() {
     SignInScreen(onSignInSignUp = { s: String, s1: String -> },
-        onSignInAsGuest = {},
         state = LoginState(),
         loginSuccess = {}
     )

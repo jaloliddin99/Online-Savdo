@@ -64,6 +64,7 @@ import org.don.onlineTrade.ui.navigation.productDetailsScreen
 import org.don.onlineTrade.ui.navigation.profileScreen
 import org.don.onlineTrade.ui.navigation.regionsNavigationRoute
 import org.don.onlineTrade.ui.navigation.regionsScreen
+import org.don.onlineTrade.ui.navigation.verificationScreen
 import org.don.onlineTrade.ui.theme.AppBackground
 import org.don.onlineTrade.ui.theme.AppGradientBackground
 import org.don.onlineTrade.ui.theme.GradientColors
@@ -291,12 +292,8 @@ fun NavigationGraph(appState: ApplicationState) {
         )
 
         registrationScreen(
-            navigateToMainScreen = {
-                navController.navigate(NavItems.Home.screenRoute) {
-                    popUpTo(navController.graph.id) {
-                        inclusive = true
-                    }
-                }
+            navigateToVerification = {
+                navController.navigate("verification_screen/$it")
             },
             onLoginPage = {
                 navController.navigate(loginScreen)
@@ -304,13 +301,24 @@ fun NavigationGraph(appState: ApplicationState) {
         )
 
         loginScreen(
-            navigateToMainScreen = {
+            navigationToVerification = {
                 navController.navigate(NavItems.Home.screenRoute) {
                     popUpTo(navController.graph.id) {
                         inclusive = true
                     }
                 }
             }
+        )
+
+        verificationScreen(
+            navigateToMainScreen = {
+                navController.navigate(NavItems.Home.screenRoute) {
+                    popUpTo(navController.graph.id) {
+                        inclusive = true
+                    }
+                }
+            },
+            onBackPressed = navController::popBackStack
         )
 
         categoriesScreen(

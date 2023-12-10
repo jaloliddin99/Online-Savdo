@@ -8,6 +8,8 @@ import androidx.paging.liveData
 import kotlinx.coroutines.flow.Flow
 import okhttp3.RequestBody
 import org.don.onlineTrade.data.remote.ApiInterface
+import org.don.onlineTrade.data.remote.models.LoginBody
+import org.don.onlineTrade.data.remote.models.ModelSuccess
 import org.don.onlineTrade.data.remote.models.RegisterMain
 import org.don.onlineTrade.data.remote.models.RegistrationBody
 import org.don.onlineTrade.data.remote.models.category.CategoryModel
@@ -32,17 +34,21 @@ class NetworkRepositoryImpl @Inject constructor(
 ) : NetworkRepository {
     override suspend fun register(
         registrationBody: RegistrationBody
-    ): RegisterMain {
+    ): ModelSuccess {
         return apiInterface.register(
             registrationBody
         )
     }
 
-    override suspend fun login(email: String, password: String): RegisterMain {
+    override suspend fun login(loginBody: LoginBody): ModelSuccess {
         return apiInterface.login(
-            "application/json",
-            email,
-            password
+            loginBody
+        )
+    }
+
+    override suspend fun verify(code: Int, email: String): ModelSuccess {
+        return apiInterface.verify(
+            code, email
         )
     }
 

@@ -5,6 +5,8 @@ import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
 import okhttp3.RequestBody
 import org.don.onlineTrade.data.remote.ApiInterface
+import org.don.onlineTrade.data.remote.models.LoginBody
+import org.don.onlineTrade.data.remote.models.ModelSuccess
 import org.don.onlineTrade.data.remote.models.RegisterMain
 import org.don.onlineTrade.data.remote.models.RegistrationBody
 import org.don.onlineTrade.data.remote.models.category.CategoryModel
@@ -25,12 +27,17 @@ interface NetworkRepository {
 
     suspend fun register(
         registrationBody: RegistrationBody
-    ): RegisterMain
+    ): ModelSuccess
 
     suspend fun login(
-        email: String,
-        password: String,
-    ): RegisterMain
+        loginBody: LoginBody
+    ): ModelSuccess
+
+    suspend fun verify(
+        code: Int,
+        email: String
+    ): ModelSuccess
+
 
     fun getPublicProducts(
         token: String,

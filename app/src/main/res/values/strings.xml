@@ -74,6 +74,9 @@
     <string name="firstName">First name</string>
     <string name="lastName">Last name</string>
     <string name="phone_number">Phone Number</string>
+    <string name="verification">Verification</string>
+    <string name="enter_code_that_we_send">Enter the code that we send to your %s email.</string>
+    <string name="send">Send</string>
 
 
 </resources>

@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import org.don.onlineTrade.data.remote.models.RegistrationBody
 import org.don.onlineTrade.domain.state.Resource
-import org.don.onlineTrade.domain.useCase.registrationUseCase.RegistrationUseCase
+import org.don.onlineTrade.domain.useCase.auth.registrationUseCase.RegistrationUseCase
 import org.don.onlineTrade.ui.auth.login.assignDate
 import javax.inject.Inject
 
@@ -17,7 +17,6 @@ import javax.inject.Inject
 class WelcomeViewModel @Inject constructor(
     private val registrationUseCase: RegistrationUseCase
 ) : ViewModel() {
-
 
 
     fun signInAsGuest(
@@ -31,7 +30,6 @@ class WelcomeViewModel @Inject constructor(
     val state: State<RegistrationState> = _state
 
 
-
     fun registerUser(
         registrationBody: RegistrationBody
     ) {
@@ -40,8 +38,10 @@ class WelcomeViewModel @Inject constructor(
         ).onEach { result ->
             when (result) {
                 is Resource.Success -> {
-                    result.data?.let { assignDate(it) }
-                    _state.value = RegistrationState(registerMain = result.data)
+                    _state.value = RegistrationState(
+                        registerMain = result.data,
+                        email = registrationBody.email
+                    )
                 }
 
                 is Resource.Error -> {

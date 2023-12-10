@@ -14,12 +14,12 @@ fun NavController.navigationToHome(navOptions: NavOptions? = null) {
 }
 
 fun NavGraphBuilder.loginScreen(
-    navigateToMainScreen: () -> Unit,
+    navigationToVerification: (email: String) -> Unit,
 ) {
     composable(route = loginScreen) {
         SignInRoute(
-            navigateToMainScreen = {
-                navigateToMainScreen()
+            navigateToVerification = {
+                navigationToVerification(it)
             },
         )
     }

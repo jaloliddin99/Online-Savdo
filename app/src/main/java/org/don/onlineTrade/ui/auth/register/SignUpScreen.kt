@@ -72,9 +72,8 @@ import org.don.onlineTrade.ui.theme.spacing
 @Composable
 fun SignUpScreen(
     onSignInSignUp: (firstName: String, lastName: String, email: String, password: String, phoneNumber: String) -> Unit,
-    onSignInAsGuest: () -> Unit,
     state: RegistrationState,
-    registrationSuccess: () -> Unit,
+    registrationSuccess: (email: String) -> Unit,
     onLoginPage: () -> Unit
 ) {
 
@@ -115,7 +114,7 @@ fun SignUpScreen(
                 )
                 SignUpCreateAccount(
                     onSignInSignUp = onSignInSignUp,
-                    onSignInAsGuest = onSignInAsGuest,
+                    onSignInAsGuest = {},
                     onFocusChange = { hasFocus -> showBranding = !hasFocus },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -127,7 +126,7 @@ fun SignUpScreen(
             }
 
             if (state.registerMain != null) {
-                registrationSuccess.invoke()
+                registrationSuccess.invoke(state.email )
             }
             if (state.error.isNotBlank()) {
                 Toast.makeText(LocalContext.current, state.error, Toast.LENGTH_SHORT).show()
@@ -181,7 +180,7 @@ fun Logo(
         painter = painterResource(id = assetId),
         modifier = modifier
             .padding(top = MaterialTheme.spacing.dimen12Dp),
-        contentDescription = null
+        contentDescription = null,
     )
 }
 
@@ -345,7 +344,6 @@ fun DoYouHaveAccount(
     onTextClicked: () -> Unit
 ) {
     val getString = stringResource(id = R.string.do_you_already_have_account)
-
     val annotatedString = buildAnnotatedString {
         withStyle(
             style = SpanStyle(
@@ -374,7 +372,6 @@ fun DoYouHaveAccount(
 @Composable
 private fun WelcomeScreenPreview() {
     SignUpScreen(onSignInSignUp = { firstName: String, lastName: String, s: String, s1: String, s2: String -> },
-        onSignInAsGuest = {},
         state = RegistrationState(),
         registrationSuccess = {},
         onLoginPage = {}

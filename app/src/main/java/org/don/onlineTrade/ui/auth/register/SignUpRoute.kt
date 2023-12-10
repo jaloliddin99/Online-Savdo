@@ -8,7 +8,7 @@ import org.don.onlineTrade.data.remote.models.RegistrationBody
 
 @Composable
 fun SignUpRoute(
-    navigateToMainScreen: () -> Unit,
+    navigateToVerification: (email: String) -> Unit,
     onLoginPage: () -> Unit
 ) {
     val welcomeViewModel = hiltViewModel<WelcomeViewModel>()
@@ -28,10 +28,7 @@ fun SignUpRoute(
             )
         },
         state = state.value,
-        onSignInAsGuest = {
-            welcomeViewModel.signInAsGuest(navigateToMainScreen)
-        },
-        registrationSuccess = navigateToMainScreen,
+        registrationSuccess = navigateToVerification,
         onLoginPage = onLoginPage
     )
 }

@@ -1,31 +1,26 @@
 package org.don.onlineTrade.ui.auth.login
 
-import android.util.Log
 import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
-import org.don.onlineTrade.ui.auth.register.SignUpScreen
-import org.don.onlineTrade.ui.auth.register.WelcomeViewModel
+import org.don.onlineTrade.data.remote.models.LoginBody
 
 
 @Composable
 fun SignInRoute(
-    navigateToMainScreen: () -> Unit,
+    navigateToVerification: (email: String) -> Unit,
 ) {
     val welcomeViewModel = hiltViewModel<LoginViewModel>()
     val state = welcomeViewModel.state
-    Icons
+
     SignInScreen(
         onSignInSignUp = { email, password ->
+            val loginBody = LoginBody(email, password)
             welcomeViewModel.registerUser(
-                email,
-                password,
+                loginBody,
             )
         },
         state = state.value,
-        onSignInAsGuest = {
-            welcomeViewModel.signInAsGuest(navigateToMainScreen)
-        },
-        loginSuccess = navigateToMainScreen
+        loginSuccess = navigateToVerification
     )
 }

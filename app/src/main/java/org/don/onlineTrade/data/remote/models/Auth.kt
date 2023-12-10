@@ -22,3 +22,14 @@ data class RegistrationBody(
     val password: String,
     val phoneNumber: String
 )
+
+data class LoginBody(
+    val email: String,
+    val password: String,
+)
+
+data class ModelSuccess(
+    val message: String,
+    val success: Boolean,
+    val data: Any
+)
