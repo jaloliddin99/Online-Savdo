@@ -1,7 +1,9 @@
 package org.don.onlineTrade.ui.auth.verify
 
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,8 +18,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -41,6 +46,7 @@ import org.don.onlineTrade.ui.auth.register.Logo
 import org.don.onlineTrade.ui.auth.register.RegistrationState
 import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.spacing
+import org.don.onlineTrade.utils.FreeLoading
 
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -66,98 +72,121 @@ fun VerificationScreen(
         mutableStateOf(true)
     }
 
-    Column(
-        modifier = modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
+
+    Surface(
+        color = Color.Transparent,
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = Color.Transparent)
     ) {
-        Box(
-            modifier = modifier
-                .fillMaxWidth()
-                .height(56.dp)
-        ) {
-            IconButton(onClick = onBackPressed) {
-                Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
-            }
-            Text(
-                text = stringResource(id = R.string.verification),
-                modifier = Modifier.align(Alignment.Center),
-                fontWeight = FontWeight.Medium,
-                fontFamily = robotoFontFamily,
-                fontSize = MaterialTheme.spacing.dimen16Sp
-            )
-        }
+        Box(modifier = Modifier.fillMaxSize()) {
 
-        AnimatedVisibility(
-            visible = showBranding,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Logo(
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(horizontal = 76.dp),
-
-                )
-        }
-
-        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen20Dp))
-
-        Text(
-            text = String.format(stringResource(id = R.string.enter_code_that_we_send), emailParam),
-            fontWeight = FontWeight.Normal,
-            fontFamily = robotoFontFamily,
-            modifier = Modifier.padding(horizontal = MaterialTheme.spacing.dimen16Dp),
-            fontSize = MaterialTheme.spacing.dimen16Sp,
-            textAlign = TextAlign.Center
-        )
-
-        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen20Dp))
-        OtpView(
-            value = "",
-            digits = 6,
-            modifier = Modifier.fillMaxWidth(.7f),
-            textColor = MaterialTheme.colorScheme.onPrimary,
-            activeColor = MaterialTheme.colorScheme.primary,
-            passiveColor = MaterialTheme.colorScheme.secondary,
-            fontSize = 22.sp,
-            fontWeight = FontWeight.Bold,
-            fontFamily = robotoFontFamily,
-            onTextChange = { value, completed ->
-                otpCodeState.value = value
-                if (completed) {
-                    enabledState.value = true
-                    keyboardController?.hide()
-                    focusManager.clearFocus()
+            Column(
+                modifier = modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Box(
+                    modifier = modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                ) {
+                    IconButton(onClick = onBackPressed) {
+                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
+                    }
+                    Text(
+                        text = stringResource(id = R.string.verification),
+                        modifier = Modifier.align(Alignment.Center),
+                        fontWeight = FontWeight.Medium,
+                        fontFamily = robotoFontFamily,
+                        fontSize = MaterialTheme.spacing.dimen16Sp
+                    )
                 }
-            },
-            onFocusChanged = { hasFocus ->
-                showBranding = !hasFocus
+
+                AnimatedVisibility(
+                    visible = showBranding,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Logo(
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .padding(horizontal = 76.dp),
+
+                        )
+                }
+
+                Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen20Dp))
+
+                Text(
+                    text = String.format(stringResource(id = R.string.enter_code_that_we_send), emailParam),
+                    fontWeight = FontWeight.Normal,
+                    fontFamily = robotoFontFamily,
+                    modifier = Modifier.padding(horizontal = MaterialTheme.spacing.dimen16Dp),
+                    fontSize = MaterialTheme.spacing.dimen16Sp,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen20Dp))
+                OtpView(
+                    value = "",
+                    digits = 6,
+                    modifier = Modifier.fillMaxWidth(.7f),
+                    textColor = MaterialTheme.colorScheme.onPrimary,
+                    activeColor = MaterialTheme.colorScheme.primary,
+                    passiveColor = MaterialTheme.colorScheme.secondary,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = robotoFontFamily,
+                    onTextChange = { value, completed ->
+                        otpCodeState.value = value
+                        if (completed) {
+                            enabledState.value = true
+                            keyboardController?.hide()
+                            focusManager.clearFocus()
+                        }
+                    },
+                    onFocusChanged = { hasFocus ->
+                        showBranding = !hasFocus
+                    }
+                )
+
+                val onSubmitClick = {
+                    onSubmit(emailParam, otpCodeState.value.toInt())
+                }
+                Spacer(
+                    modifier = Modifier
+                        .weight(1f, fill = showBranding)
+                        .animateContentSize()
+                )
+                Button(
+                    onClick = onSubmitClick,
+                    enabled = enabledState.value,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp)
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.send),
+                        fontSize = 16.sp,
+                        fontFamily = robotoFontFamily,
+                        fontWeight = FontWeight.Normal
+                    )
+                }
+
+
             }
-        )
-
-        val onSubmitClick = {
-            onSubmit(emailParam, otpCodeState.value.toInt())
         }
-        Spacer(
-            modifier = Modifier
-                .weight(1f, fill = showBranding)
-                .animateContentSize()
-        )
-        Button(
-            onClick = onSubmitClick,
-            enabled = enabledState.value,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(24.dp)
-        ) {
-            Text(
-                text = stringResource(id = R.string.send),
-                fontSize = 16.sp,
-                fontFamily = robotoFontFamily,
-                fontWeight = FontWeight.Normal
-            )
+        if (state.registerMain!= null){
+            onMainScreen.invoke()
         }
 
-
+        val context = LocalContext.current
+        val rememberedContext = remember { { context } }
+        SideEffect {
+            if (state.error.isNotBlank()){
+                Toast.makeText(rememberedContext(), state.error, Toast.LENGTH_SHORT).show()
+            }
+        }
+        FreeLoading(state.isLoading, paddingTop = 64.dp)
     }
 }
 
