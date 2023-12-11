@@ -17,13 +17,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -40,9 +36,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -50,15 +45,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.constraintlayout.compose.Dimension
-import androidx.paging.compose.LazyPagingItems
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
-import com.google.accompanist.flowlayout.FlowMainAxisAlignment
-import com.google.accompanist.flowlayout.FlowRow
-import com.google.accompanist.flowlayout.SizeMode
 import org.don.onlineTrade.R
-import org.don.onlineTrade.data.remote.models.getPublicProducts.Data
+import org.don.onlineTrade.data.remote.models.currencies.ModelCurrencyListsItem
+import org.don.onlineTrade.data.remote.models.getPublicProducts.Content
 import org.don.onlineTrade.data.remote.models.getPublicProducts.Region
 import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.spacing
@@ -67,7 +58,7 @@ import org.don.onlineTrade.ui.theme.spacing
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductItem(
-    data: Data,
+    data: Content,
     onItemClicked: (Int) -> Unit,
     paddingValues: PaddingValues = PaddingValues(
         start = MaterialTheme.spacing.dimen8Dp,
@@ -91,15 +82,15 @@ fun ProductItem(
 @Preview
 @Composable
 fun ProductItemPreView() {
-    ProductItem(data = Data(
+    ProductItem(data = Content(
         "12-12-2023",
-        "lorem ipsum adwd ad wdaw da wd",
-        2,
-        listOf("https://www.google.com/url?sa=i&url=https%3A%2F%2Fstock.adobe.com%2Fsearch%3Fk%3Dnature%2Bwallpaper%2Bhd&psig=AOvVaw2_xIEa8TYcbAt1LnAbhPuO&ust=1702065174693000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCKiH6YKN_oIDFQAAAAAdAAAAABAD"),
-        "400 000",
+        1,
+        1,
+        org.don.onlineTrade.data.remote.models.getPublicProducts.Image(1, "awd"),
+        23,
+        2.3,
         Region(1, "Jizzax"),
-        "Lacetti",
-        "300",
+        "dawdawd"
     ), onItemClicked = {})
 }
 
@@ -107,7 +98,7 @@ fun ProductItemPreView() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductItemForDetailsPage(
-    data: Data,
+    data: Content,
     onItemClicked: (Int) -> Unit,
     itemSize: Dp,
     paddingValues: PaddingValues = PaddingValues(
@@ -135,7 +126,7 @@ fun ProductItemForDetailsPage(
 
 @Composable
 fun ProductItemDetails(
-    data: Data
+    data: Content
 ) {
     Column(
         verticalArrangement = Arrangement.Top
@@ -146,7 +137,9 @@ fun ProductItemDetails(
         var isError by remember {
             mutableStateOf(false)
         }
-        val imageLoader = rememberAsyncImagePainter(model = data.images[0],
+        val url = "http://91.227.40.169:8080/api/v1/post/image/${data.image.imagePath}"
+        Log.d("TAG", "ProductItemDetaildawdwadwad $url")
+        val imageLoader = rememberAsyncImagePainter(model = url,
             onState = { state ->
                 isLoading = state is AsyncImagePainter.State.Loading
                 isError = state is AsyncImagePainter.State.Error
@@ -239,20 +232,39 @@ fun ProductItemDetails(
                     )
             ) {
                 Text(
-                    text = data.price,
+                    text = "${data.price} ${getCurrency(currencyId = data.currency_id)}",
                     fontSize = 14.sp,
                     fontFamily = robotoFontFamily,
                     fontWeight = FontWeight.Bold,
                 )
             }
             Text(
-                text = data.region.title,
+                text = data.region.name,
                 style = MaterialTheme.typography.bodyMedium,
             )
             Text(
-                text = data.date,
+                text = data.createdDate,
                 style = MaterialTheme.typography.bodyMedium,
             )
         }
     }
+}
+
+@Composable
+fun getCurrency(currencyId: Int): String {
+    return when (currencyId) {
+        1 -> stringResource(id = R.string.sum)
+        2 -> stringResource(id = R.string.usd)
+        3 -> stringResource(id = R.string.ruble)
+        else -> stringResource(id = R.string.sum)
+    }
+}
+
+@Composable
+fun getCurrencyList(): List<ModelCurrencyListsItem> {
+    return listOf(
+        ModelCurrencyListsItem(1, stringResource(id = R.string.sum)),
+        ModelCurrencyListsItem(2, stringResource(id = R.string.usd)),
+        ModelCurrencyListsItem(3, stringResource(id = R.string.ruble))
+    )
 }

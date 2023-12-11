@@ -78,7 +78,7 @@ sealed class NavItems(
         hasNews = true,
         badgeCount = null,
         categoriesNavigationRoute,
-        titleRes = R.string.profile
+        titleRes = R.string.select_category_without
     )
 
     object Regions: NavItems(

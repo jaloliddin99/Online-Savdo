@@ -302,11 +302,7 @@ fun NavigationGraph(appState: ApplicationState) {
 
         loginScreen(
             navigationToVerification = {
-                navController.navigate(NavItems.Home.screenRoute) {
-                    popUpTo(navController.graph.id) {
-                        inclusive = true
-                    }
-                }
+                navController.navigate("verification_screen/$it")
             }
         )
 
@@ -342,13 +338,6 @@ fun NavigationGraph(appState: ApplicationState) {
 
 
 fun isUserHasRightToAccessToMainPart(
-    tokenExpTime: Int = SharedPref.expirationTime,
-    isLoggedIn: Boolean = SharedPref.deviceLoggedIn,
-    loginTime: Long = SharedPref.loginTime
 ): Boolean {
-
-    return if (isLoggedIn) {
-        val userSpentTime = (Date().time - loginTime) / 1000
-        userSpentTime - tokenExpTime < 0
-    } else false
+    return SharedPref.deviceToken.isNotEmpty() && SharedPref.deviceLoggedIn
 }

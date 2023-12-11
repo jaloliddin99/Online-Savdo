@@ -38,50 +38,6 @@ class AddProductScreenViewModel @Inject constructor(
     private val _state = mutableStateOf(AddProductScreenState())
     val state: State<AddProductScreenState> = _state
 
-    init {
-        getCurrencies(
-            token = TOKEN,
-            language = "uz"
-        )
-    }
-
-    private fun getCurrencies(
-        token: String,
-        language: String,
-    ) {
-        currencyUseCase(
-            token,
-            language,
-        ).onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    _state.value = _state.value.copy(
-                        regions = result.data,
-                        isLoading = false,
-                        error = ""
-                    )
-                }
-
-                is Resource.Error -> {
-                    _state.value =
-                        _state.value.copy(
-                            regions = null,
-                            isLoading = false,
-                            error = result.message ?: "An unexpected error occured"
-                        )
-                }
-
-                is Resource.Loading -> {
-                    _state.value =
-                        _state.value.copy(
-                            regions = null,
-                            isLoading = true,
-                            error = ""
-                        )
-                }
-            }
-        }.launchIn(viewModelScope)
-    }
 
 
      fun postNewProduct(

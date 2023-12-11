@@ -39,7 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import org.don.onlineTrade.R
-import org.don.onlineTrade.data.remote.models.getPublicProducts.Data
+import org.don.onlineTrade.data.remote.models.getPublicProducts.Content
 import org.don.onlineTrade.data.remote.models.showProducts.ShowProductModel
 import org.don.onlineTrade.ui.add.ProductTitle
 import org.don.onlineTrade.ui.add.TextBold
@@ -87,7 +87,6 @@ fun ProductDetailsScreen(
     val isFeedLoading = state.isLoading
     if (state.registerMain != null) {
         val pagingItems = homeViewModel.collectProducts(
-            categoryId = state.registerMain.category.id
         ).collectAsLazyPagingItems()
         val pagerState = rememberPagerState(pageCount = {
             state.registerMain.images.size
@@ -130,7 +129,7 @@ fun ProductDetailsScreen(
 
 @Composable
 fun SimilarContents(
-    list: List<Data>,
+    list: List<Content>,
     itemSize: Dp,
     onItemClicked: (Int) -> Unit
 ) {

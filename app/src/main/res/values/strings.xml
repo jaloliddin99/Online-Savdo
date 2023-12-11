@@ -41,6 +41,7 @@
     <string name="enter_title">Enter title*</string>
     <string name="for_instance_redme">For ex. Iphone 15 Pro Max</string>
     <string name="select_category">Select Category*</string>
+    <string name="select_category_without">Select Category</string>
     <string name="add_description">Add description*</string>
     <string name="please_select_category">Please select category</string>
     <string name="please_enter_description">Please enter description</string>
@@ -60,7 +61,7 @@
     <string name="contact_details">Contact details</string>
     <string name="name">Name</string>
     <string name="similar_items">Similar Products</string>
-    <string name="categories">Product Categories</string>
+    <string name="categories">Post Categories</string>
 
     <string name="app_language">App language</string>
     <string name="profile_settings">Profile settings</string>
@@ -77,6 +78,9 @@
     <string name="verification">Verification</string>
     <string name="enter_code_that_we_send">Enter the code that we send to your %s email.</string>
     <string name="send">Send</string>
+    <string name="ruble">ruble</string>
+    <string name="usd">USD</string>
+    <string name="sum">sum</string>
 
 
 </resources>

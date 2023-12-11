@@ -12,6 +12,7 @@ import org.don.onlineTrade.domain.useCase.regionUseCase.RegionsUseCase
 import org.don.onlineTrade.ui.home.HomeScreenState
 import org.don.onlineTrade.ui.home.RegionsScreenState
 import org.don.onlineTrade.ui.home.TOKEN
+import org.don.onlineTrade.utils.SharedPref
 import javax.inject.Inject
 
 @HiltViewModel
@@ -24,13 +25,13 @@ class RegionsViewModel @Inject constructor(
     val state: State<RegionsScreenState> = _state
 
     init {
-        getAllCategories(
-            token = TOKEN,
-            language = "uz"
+        getAllRegions(
+            token = SharedPref.deviceToken,
+            language = SharedPref.language
         )
     }
 
-    private fun getAllCategories(
+    private fun getAllRegions(
         token: String,
         language: String,
     ) {

@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -48,6 +49,8 @@ import org.don.onlineTrade.ui.auth.PasswordState
 import org.don.onlineTrade.ui.auth.register.Branding
 import org.don.onlineTrade.ui.auth.register.RegistrationState
 import org.don.onlineTrade.ui.auth.register.SignUpScreen
+import org.don.onlineTrade.ui.theme.robotoFontFamily
+import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.FreeLoading
 import org.don.onlineTrade.utils.SharedPref
 import java.util.Date
@@ -147,10 +150,12 @@ fun SignInToLoginAccount(
     ) {
         Text(
             text = stringResource(id = R.string.login_account),
-            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(top = 64.dp, bottom = 12.dp)
+            modifier = Modifier.padding(top = 24.dp, bottom = 12.dp),
+            fontFamily = robotoFontFamily,
+            fontWeight = FontWeight.Medium,
+            fontSize = MaterialTheme.spacing.dimen16Sp
         )
 
         val onSubmit = {

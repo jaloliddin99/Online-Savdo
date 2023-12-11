@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.flow
 import org.don.onlineTrade.data.remote.models.ModelSuccess
 import org.don.onlineTrade.data.remote.models.RegisterMain
 import org.don.onlineTrade.data.remote.models.RegistrationBody
+import org.don.onlineTrade.data.remote.models.VerificationRes
 import org.don.onlineTrade.domain.repository.NetworkRepository
 import org.don.onlineTrade.domain.state.Resource
 import retrofit2.HttpException
@@ -19,7 +20,7 @@ class VerifyUseCase @Inject constructor(
     operator fun invoke(
         code: Int,
         email: String
-    ): Flow<Resource<ModelSuccess>> = flow {
+    ): Flow<Resource<VerificationRes>> = flow {
         try {
             emit(Resource.Loading())
             emit(

@@ -1,5 +1,6 @@
 package org.don.onlineTrade.ui.home
 
+import android.util.Log
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,6 +16,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -83,22 +85,21 @@ fun CategoryItem(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
+            val url = "http://91.227.40.169:8080/api/v1/categories/image/${item.image}"
             AsyncImage(
                 modifier = Modifier
                     .width(MaterialTheme.spacing.dimen80Dp)
                     .height(MaterialTheme.spacing.dimen80Dp),
-                model = item.image, contentDescription = null
+                model = url, contentDescription = null
             )
 
-            item.title?.let {
-                Text(
-                    text = it,
-                    textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 12.sp,
-                    maxLines = 1
-                )
-            }
+            Text(
+                text = item.title,
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Medium,
+                fontSize = 12.sp,
+                maxLines = 1
+            )
         }
     }
 }
@@ -109,35 +110,38 @@ fun CategoryItemInVertical(
     item: CompactedCategoryItem,
     onCategoryItemClick: (CompactedCategoryItem) -> Unit,
 ) {
-    Card(
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(48.dp),
-        onClick = {
-            onCategoryItemClick(item)
-        },
-        shape = RoundedCornerShape(MaterialTheme.spacing.dimen12Dp),
-    ) {
-        Row(
+    Column {
+        Card(
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface
+            ),
             modifier = Modifier
-                .fillMaxHeight()
-                .padding(horizontal = MaterialTheme.spacing.dimen12Dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-        ) {
-            AsyncImage(
+                .fillMaxWidth()
+                .height(56.dp),
+            onClick = {
+                onCategoryItemClick(item)
+            },
+            shape = RoundedCornerShape(0.dp),
+
+            ) {
+            Row(
                 modifier = Modifier
-                    .width(MaterialTheme.spacing.dimen20Dp)
-                    .height(MaterialTheme.spacing.dimen20Dp),
-                model = item.image, contentDescription = null
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-            item.title?.let {
+                    .fillMaxHeight()
+                    .padding(horizontal = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+
+            ) {
+                val url = "http://91.227.40.169:8080/api/v1/categories/image/${item.image}"
+                AsyncImage(
+                    modifier = Modifier
+                        .width(MaterialTheme.spacing.dimen20Dp)
+                        .height(MaterialTheme.spacing.dimen20Dp),
+                    model = url, contentDescription = null
+                )
+                Spacer(modifier = Modifier.width(12.dp))
                 Text(
-                    text = it,
+                    text = item.title,
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.Medium,
                     fontSize = 12.sp,
@@ -145,5 +149,9 @@ fun CategoryItemInVertical(
                 )
             }
         }
+        Divider(modifier = Modifier.fillMaxWidth()
+            .padding(horizontal = 12.dp)
+            .height(0.3.dp))
     }
+
 }

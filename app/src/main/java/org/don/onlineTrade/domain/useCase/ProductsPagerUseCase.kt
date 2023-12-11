@@ -1,7 +1,6 @@
 package org.don.onlineTrade.domain.useCase
 
-import android.util.Log
-import kotlinx.coroutines.delay
+import org.don.onlineTrade.data.remote.models.getPublicProducts.Content
 import org.don.onlineTrade.data.remote.models.getPublicProducts.Data
 import org.don.onlineTrade.domain.repository.NetworkRepository
 import org.don.onlineTrade.ui.home.TOKEN
@@ -12,26 +11,18 @@ class ProductsPagerUseCase @Inject constructor(
     private val repository: NetworkRepository
 ) {
     suspend fun getItems(
-        token: String = TOKEN,
-        query: String?,
-        categoryId: Int?,
-        language: String = SharedPref.language,
-        minPrice: Int?,
-        maxPrice: Int?,
+        token: String = SharedPref.deviceToken,
         page: Int,
-        pageSize: Int
-    ): Result<List<Data>> {
+        pageSize: Int,
+        lang: String = SharedPref.language
+    ): Result<List<Content>> {
         val startingIndex = page * pageSize
         val networkPager = repository.getProductsPager(
             token = token,
-            query = query,
-            categoryId = categoryId,
-            language = language,
-            minPrice = minPrice,
-            maxPrice = maxPrice,
             page = page,
-            count = pageSize
-        ).data
+            count = pageSize,
+            lang = lang
+        ).data.content
 
 //        return if (startingIndex + pageSize <= networkPager.size) {
 //            Result.success(

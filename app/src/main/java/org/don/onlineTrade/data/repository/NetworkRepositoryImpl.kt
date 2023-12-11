@@ -1,29 +1,27 @@
 package org.don.onlineTrade.data.repository
 
-import androidx.lifecycle.LiveData
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import androidx.paging.liveData
 import kotlinx.coroutines.flow.Flow
 import okhttp3.RequestBody
 import org.don.onlineTrade.data.remote.ApiInterface
 import org.don.onlineTrade.data.remote.models.LoginBody
 import org.don.onlineTrade.data.remote.models.ModelSuccess
-import org.don.onlineTrade.data.remote.models.RegisterMain
 import org.don.onlineTrade.data.remote.models.RegistrationBody
+import org.don.onlineTrade.data.remote.models.VerificationRes
 import org.don.onlineTrade.data.remote.models.category.CategoryModel
 import org.don.onlineTrade.data.remote.models.currencies.ModelCurrencyLists
 import org.don.onlineTrade.data.remote.models.getProfile.ModelGetProfile
-import org.don.onlineTrade.data.remote.models.getPublicProducts.Data
-import org.don.onlineTrade.data.remote.models.getPublicProducts.PublicProductsModel
+import org.don.onlineTrade.data.remote.models.getPublicProducts.Content
+import org.don.onlineTrade.data.remote.models.getPublicProducts.ModelPosts
 import org.don.onlineTrade.data.remote.models.liked.LikedProductsModel
 import org.don.onlineTrade.data.remote.models.post.PostModel
-import org.don.onlineTrade.data.remote.models.region.RegionDistrictModel
+import org.don.onlineTrade.data.remote.models.region.ModelGetRegions
 import org.don.onlineTrade.data.remote.models.showProducts.ShowProductModel
 import org.don.onlineTrade.domain.repository.NetworkRepository
-import org.don.onlineTrade.utils.DEFAULT_PAGE_SIZE
 import org.don.onlineTrade.utils.PublicProductsPagingSource
+import org.don.onlineTrade.utils.SharedPref
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -46,7 +44,7 @@ class NetworkRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun verify(code: Int, email: String): ModelSuccess {
+    override suspend fun verify(code: Int, email: String): VerificationRes {
         return apiInterface.verify(
             code, email
         )
@@ -54,24 +52,15 @@ class NetworkRepositoryImpl @Inject constructor(
 
     override fun getPublicProducts(
         token: String,
-        query: String?,
-        categoryId: Int?,
-        language: String,
-        minPrice: Int?,
-        maxPrice: Int?,
         pagingConfig: PagingConfig
-    ): Flow<PagingData<Data>> {
+    ): Flow<PagingData<Content>> {
         return Pager(
             config = pagingConfig,
             pagingSourceFactory = {
                 PublicProductsPagingSource(
                     token = token,
-                    query = query,
-                    categoryId = categoryId,
-                    language = language,
-                    minPrice = minPrice,
-                    maxPrice = maxPrice,
-                    doggoApiService = apiInterface
+                    doggoApiService = apiInterface,
+                    lang = SharedPref.language
                 )
             }
         ).flow
@@ -81,7 +70,7 @@ class NetworkRepositoryImpl @Inject constructor(
         return apiInterface.getAllCategories(token, language)
     }
 
-    override suspend fun getAllRegions(token: String, language: String): RegionDistrictModel {
+    override suspend fun getAllRegions(token: String, language: String): ModelGetRegions {
         return apiInterface.getRegionDistrict(token, language)
     }
 
@@ -111,23 +100,15 @@ class NetworkRepositoryImpl @Inject constructor(
 
     override suspend fun getProductsPager(
         token: String,
-        query: String?,
-        categoryId: Int?,
-        language: String,
-        minPrice: Int?,
-        maxPrice: Int?,
         page: Int,
-        count: Int
-    ): PublicProductsModel {
+        count: Int,
+        lang: String
+    ): ModelPosts {
         return apiInterface.getPublicProducts(
             token = token,
-            query = query,
-            categoryId = categoryId,
-            language = language,
-            minPrice = minPrice,
-            maxPrice = maxPrice,
-            page = (page + 1),
-            count = count
+            page = page,
+            size = count,
+            lang = lang
         )
     }
 

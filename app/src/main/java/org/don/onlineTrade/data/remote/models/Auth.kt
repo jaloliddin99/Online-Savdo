@@ -28,6 +28,12 @@ data class LoginBody(
     val password: String,
 )
 
+data class VerificationRes(
+    val status: Boolean,
+    val message: String,
+    val token: String
+)
+
 data class ModelSuccess(
     val message: String,
     val success: Boolean,

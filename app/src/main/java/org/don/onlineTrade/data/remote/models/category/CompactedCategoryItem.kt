@@ -6,7 +6,7 @@ import java.io.Serializable
 
 @Keep
 data class CompactedCategoryItem(
-    val id: Int = -1,
-    val image: String?=null,
+    val id: Int,
+    val image: String,
     val title: String
 ): Serializable

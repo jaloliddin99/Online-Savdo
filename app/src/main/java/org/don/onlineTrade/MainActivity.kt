@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import org.don.onlineTrade.domain.model.ThemeBrand
 import org.don.onlineTrade.ui.dialogs.settings.SETTINGS_UI_STATE
 import org.don.onlineTrade.utils.ModelPref
+import org.don.onlineTrade.utils.SharedPref
 import org.don.onlineTrade.utils.runTimePermission.OnRunTimePermissionListener
 import org.don.onlineTrade.utils.runTimePermission.RunTimePermission
 
@@ -61,7 +62,6 @@ OnRunTimePermissionListener{
         }
 
         enableEdgeToEdge()
-
 
         setContent {
             val darkTheme = shouldUseDarkTheme(state.darkThemeConfig)

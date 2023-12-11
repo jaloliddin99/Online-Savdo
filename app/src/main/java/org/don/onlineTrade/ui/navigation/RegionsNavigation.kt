@@ -4,7 +4,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
-import org.don.onlineTrade.data.remote.models.region.RegionDistrictModelItem
+import org.don.onlineTrade.data.remote.models.region.Data
 import org.don.onlineTrade.ui.region.RegionsRoute
 
 const val regionsNavigationRoute = "regions"
@@ -13,7 +13,7 @@ fun NavController.navigateToRegions(navOptions: NavOptions? = null) {
 }
 
 fun NavGraphBuilder.regionsScreen(
-    onBackPressed: (RegionDistrictModelItem) -> Unit
+    onBackPressed: (Data) -> Unit
 ) {
     composable(
         route = regionsNavigationRoute,

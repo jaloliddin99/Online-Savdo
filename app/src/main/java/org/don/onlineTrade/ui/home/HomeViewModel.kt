@@ -1,11 +1,9 @@
 package org.don.onlineTrade.ui.home
 
-import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -15,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import org.don.onlineTrade.data.remote.models.getPublicProducts.Data
+import org.don.onlineTrade.data.remote.models.getPublicProducts.Content
 import org.don.onlineTrade.domain.repository.NetworkRepository
 import org.don.onlineTrade.domain.state.Resource
 import org.don.onlineTrade.domain.useCase.ProductsPagerUseCase
@@ -23,7 +21,6 @@ import org.don.onlineTrade.domain.useCase.allCategoriesUseCase.AllCategoriesUseC
 import org.don.onlineTrade.utils.SharedPref
 import org.don.onlineTrade.utils.pager.DefaultPaginator
 import javax.inject.Inject
-import javax.inject.Named
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -34,15 +31,8 @@ class HomeViewModel @Inject constructor(
     ViewModel() {
 
     fun collectProducts(
-        categoryId: Int? = null,
-        query: String? = null
-    ): Flow<PagingData<Data>> = networkRepository.getPublicProducts(
-        token = TOKEN,
-        query = query,
-        categoryId = categoryId,
-        language = SharedPref.language,
-        minPrice = null,
-        maxPrice = null
+    ): Flow<PagingData<Content>> = networkRepository.getPublicProducts(
+        token = SharedPref.deviceToken,
     ).cachedIn(viewModelScope)
 
 
@@ -51,8 +41,8 @@ class HomeViewModel @Inject constructor(
 
     init {
         getAllCategories(
-            token = TOKEN,
-            language = "uz"
+            token = SharedPref.deviceToken,
+            language = SharedPref.language
         )
     }
 
@@ -104,10 +94,6 @@ class HomeViewModel @Inject constructor(
             productsPagerUseCase.getItems(
                 page = nextPage,
                 pageSize = 10,
-                query = query,
-                categoryId = categoryId,
-                minPrice = minPrice,
-                maxPrice = maxPrice
             )
         },
         getNextKey = {
@@ -148,7 +134,7 @@ class HomeViewModel @Inject constructor(
 
 data class ScreenState(
     val isLoading: Boolean = false,
-    val items: List<Data> = emptyList(),
+    val items: List<Content> = emptyList(),
     val error: String? = null,
     val endReached: Boolean = false,
     val page: Int = 0

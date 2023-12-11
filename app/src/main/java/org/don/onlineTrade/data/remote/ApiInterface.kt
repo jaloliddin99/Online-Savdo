@@ -1,24 +1,20 @@
 package org.don.onlineTrade.data.remote
 
 import androidx.annotation.Keep
-import androidx.annotation.Nullable
 import okhttp3.RequestBody
 import org.don.onlineTrade.data.remote.models.LoginBody
 import org.don.onlineTrade.data.remote.models.ModelSuccess
-import org.don.onlineTrade.data.remote.models.RegisterMain
 import org.don.onlineTrade.data.remote.models.RegistrationBody
+import org.don.onlineTrade.data.remote.models.VerificationRes
 import org.don.onlineTrade.data.remote.models.category.CategoryModel
 import org.don.onlineTrade.data.remote.models.currencies.ModelCurrencyLists
 import org.don.onlineTrade.data.remote.models.getProfile.ModelGetProfile
-import org.don.onlineTrade.data.remote.models.getPublicProducts.PublicProductsModel
+import org.don.onlineTrade.data.remote.models.getPublicProducts.ModelPosts
 import org.don.onlineTrade.data.remote.models.liked.LikedProductsModel
 import org.don.onlineTrade.data.remote.models.post.PostModel
-import org.don.onlineTrade.data.remote.models.region.RegionDistrictModel
+import org.don.onlineTrade.data.remote.models.region.ModelGetRegions
 import org.don.onlineTrade.data.remote.models.showProducts.ShowProductModel
-import retrofit2.Response
 import retrofit2.http.Body
-import retrofit2.http.Field
-import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Headers
@@ -43,33 +39,29 @@ interface ApiInterface {
     suspend fun verify(
         @Query("code") code: Int,
         @Query("email") email: String
-    ): ModelSuccess
+    ): VerificationRes
 
 
-    @GET("api/products")
+    @GET("post")
     suspend fun getPublicProducts(
-        @Query("token") token: String,
-        @Query("q") query: String?,
-        @Query("category_id") categoryId: Int?,
-        @Query("lang") language: String,
+        @Header("Authorization") token: String,
         @Query("page") page: Int,
-        @Query("count") count: Int,
-        @Query("min_price") minPrice: Int?,
-        @Query("max_price") maxPrice: Int?
-    ): PublicProductsModel
+        @Query("size") size: Int,
+        @Query("lang") lang: String
+    ): ModelPosts
 
-    @GET("api/categories")
+    @GET("categories")
     suspend fun getAllCategories(
-        @Query("token") token: String,
+        @Header("Authorization") token: String,
         @Query("lang") language: String,
     ): CategoryModel
 
 
-    @GET("api/regions")
+    @GET("getRegions")
     suspend fun getRegionDistrict(
-        @Query("token") token: String,
+        @Header("Authorization") token: String,
         @Query("lang") language: String,
-    ): RegionDistrictModel
+    ): ModelGetRegions
 
 
     @GET("api/currencies")

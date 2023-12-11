@@ -2,7 +2,6 @@ package org.don.onlineTrade.ui.add
 
 import android.content.Context
 import android.net.Uri
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
@@ -21,7 +20,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,20 +35,21 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.category.CompactedCategoryItem
 import org.don.onlineTrade.data.remote.models.currencies.ModelCurrencyListsItem
-import org.don.onlineTrade.data.remote.models.region.RegionDistrictModelItem
-import org.don.onlineTrade.ui.home.AddProductScreenState
+import org.don.onlineTrade.data.remote.models.region.Data
+import org.don.onlineTrade.ui.home.getCurrencyList
 import org.don.onlineTrade.ui.theme.spacing
-import org.don.onlineTrade.utils.FreeLoading
 import org.don.onlineTrade.utils.runTimePermission.RunTimePermission
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 import java.util.Objects
 
 
@@ -60,12 +59,11 @@ fun AddProductRoute(
     navigateToSelectRegions: () -> Unit,
     modifier: Modifier = Modifier,
     item: CompactedCategoryItem? = null,
-    regions: RegionDistrictModelItem? = null,
+    regions: Data? = null,
     popBack: () -> Unit
 ) {
 
     val addProductViewModel = hiltViewModel<AddProductScreenViewModel>()
-    val state = addProductViewModel.state.value
 
     AddProductScreen(
         modifier = modifier,
@@ -73,7 +71,6 @@ fun AddProductRoute(
         navigateToSelectRegions,
         item,
         regions,
-        state,
         submitProduct = { titleProduct: String, descriptionProduct: String, priceText: String, currencyId: Int, region: Int, categoryId: Int, images: List<ImageUrl> ->
             addProductViewModel.postNewProduct(
                 titleProduct = titleProduct,
@@ -89,15 +86,15 @@ fun AddProductRoute(
     )
 }
 
+
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun AddProductScreen(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     navigateToCategories: () -> Unit,
     navigateToSelectRegions: () -> Unit,
     item: CompactedCategoryItem? = null,
-    region: RegionDistrictModelItem? = null,
-    state: AddProductScreenState,
+    region: Data? = null,
     submitProduct: (
         titleProduct: String,
         descriptionProduct: String,
@@ -131,12 +128,8 @@ fun AddProductScreen(
         mutableStateOf(ModelCurrencyListsItem())
     }
 
-    val isFeedLoading = state.isLoading
     val context = LocalContext.current
 
-    if (state.error.isNotBlank()) {
-        Toast.makeText(context, state.error, Toast.LENGTH_SHORT).show()
-    }
 
     var images by remember {
         mutableStateOf(listOf<ImageUrl>())
@@ -144,7 +137,7 @@ fun AddProductScreen(
 
 
     val galleryLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) {
+        rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { it ->
             images = it.map { it.toImageUrl(isFromCamera = false) }
         }
 
@@ -166,8 +159,6 @@ fun AddProductScreen(
     val descriptionFocusRequester = remember {
         FocusRequester()
     }
-    FreeLoading(isFeedLoading)
-
     val keyboardController = LocalSoftwareKeyboardController.current
 
     Column(
@@ -208,7 +199,7 @@ fun AddProductScreen(
             })
         DividerTextAndSpace(R.string.select_region)
 
-        TextFieldUnEditable(productTitle = region?.title,
+        TextFieldUnEditable(productTitle = region?.name,
             modifier = Modifier.fillMaxWidth(),
             title = R.string.please_select_region,
             isFocusedOrClicked = {
@@ -216,37 +207,36 @@ fun AddProductScreen(
             })
         DividerTextAndSpace(R.string.enter_amount)
 
-        if (state.regions != null) {
-            Row(
-                modifier = Modifier.wrapContentHeight(), verticalAlignment = Alignment.Bottom
+
+        Row(
+            modifier = Modifier.wrapContentHeight(), verticalAlignment = Alignment.Bottom
+        ) {
+            currencyItem = getCurrencyList()[0]
+            Column(
+                modifier = Modifier.weight(1f)
             ) {
-                currencyItem = state.regions[0]
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    SpinnerSample(
-                        list = state.regions, preselected = state.regions[0], onSelectionChanged = {
-                            descriptionFocusRequester.requestFocus()
-                            currencyItem = it
-                        }, modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-                Spacer(modifier = Modifier.width(MaterialTheme.spacing.dimen12Dp))
-                TextFieldForProduct(
-                    productState = productPriceState,
-                    onImeAction = {
-                        keyboardController?.hide()
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(2f)
-                        .focusRequester(descriptionFocusRequester),
-                    title = R.string.price_5000,
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Done
+                SpinnerSample(
+                    list = getCurrencyList(), preselected = getCurrencyList()[0], onSelectionChanged = {
+                        descriptionFocusRequester.requestFocus()
+                        currencyItem = it
+                    }, modifier = Modifier.fillMaxWidth()
                 )
+                Spacer(modifier = Modifier.height(16.dp))
             }
+            Spacer(modifier = Modifier.width(MaterialTheme.spacing.dimen12Dp))
+            TextFieldForProduct(
+                productState = productPriceState,
+                onImeAction = {
+                    keyboardController?.hide()
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(2f)
+                    .focusRequester(descriptionFocusRequester),
+                title = R.string.price_5000,
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Done
+            )
         }
 
 
@@ -263,7 +253,7 @@ fun AddProductScreen(
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen16Dp))
 
         val categoryIsAdded = !item?.title.isNullOrEmpty()
-        val regionIsAdded = !region?.title.isNullOrEmpty()
+        val regionIsAdded = !region?.name.isNullOrEmpty()
 
         val isEnabled =
             productTitleState.isValid
@@ -346,13 +336,12 @@ fun DividerTextAndSpace(@StringRes title: Int) {
 }
 
 fun Context.createImageFile(): File {
-    // Create an image file name
-    val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+    val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.ENGLISH).format(Date())
     val imageFileName = "JPEG_" + timeStamp + "_"
     val image = File.createTempFile(
-        imageFileName, /* prefix */
-        ".jpg", /* suffix */
-        externalCacheDir      /* directory */
+        imageFileName,
+        ".jpg",
+        externalCacheDir
     )
     return image
 }

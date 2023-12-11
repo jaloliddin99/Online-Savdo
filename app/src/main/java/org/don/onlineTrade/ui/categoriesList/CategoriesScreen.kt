@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import org.don.onlineTrade.data.remote.models.category.CompactedCategoryItem
 import org.don.onlineTrade.ui.home.CategoryItemInVertical
@@ -28,25 +29,30 @@ fun CategoriesRoute(
     val homeViewModel = hiltViewModel<HomeViewModel>()
     val state = homeViewModel.state.value
     CategoriesScreen(
-        modifier = modifier, state = state, onBackPressed = onBackPressed
+        modifier = modifier,
+        state = state,
+        onBackPressed = onBackPressed
     )
 }
 
+@Preview
+@Composable
+fun CategoriesScreenPreView(){
+    CategoriesScreen(state = HomeScreenState(), onBackPressed = {})
+}
 
 @Composable
 fun CategoriesScreen(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     state: HomeScreenState,
     onBackPressed: (CompactedCategoryItem) -> Unit
 ) {
-
     val isFeedLoading = state.isLoading
     val context = LocalContext.current
 
     Box(
         modifier = modifier
             .fillMaxSize()
-            .padding(MaterialTheme.spacing.dimen16Dp)
     ) {
         LazyColumn {
             if (state.registerMain != null) {
@@ -57,7 +63,6 @@ fun CategoriesScreen(
                             onBackPressed.invoke(it)
                         }
                     )
-                    Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
                 }
             }
 
