@@ -6,7 +6,7 @@ import org.don.onlineTrade.data.remote.models.liked.LikedProductsModel
 import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.Data
 import org.don.onlineTrade.data.remote.models.region.DataDistrict
-import org.don.onlineTrade.data.remote.models.showProducts.ShowProductModel
+import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsModel
 
 data class HomeScreenState(
     val isLoading: Boolean = false,
@@ -31,7 +31,7 @@ data class AddProductScreenState(
 
 data class PresentProductState(
     val isLoading: Boolean = false,
-    val registerMain: ShowProductModel?= null,
+    val registerMain: PostDetailsModel?= null,
     val error: String = ""
 )
 

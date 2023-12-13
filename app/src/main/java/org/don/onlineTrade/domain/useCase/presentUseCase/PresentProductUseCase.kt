@@ -2,10 +2,7 @@ package org.don.onlineTrade.domain.useCase.presentUseCase
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import okhttp3.RequestBody
-import org.don.onlineTrade.data.remote.models.RegisterMain
-import org.don.onlineTrade.data.remote.models.post.PostModel
-import org.don.onlineTrade.data.remote.models.showProducts.ShowProductModel
+import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsModel
 import org.don.onlineTrade.domain.repository.NetworkRepository
 import org.don.onlineTrade.domain.state.Resource
 import retrofit2.HttpException
@@ -21,7 +18,7 @@ class PresentProductUseCase@Inject constructor(
         id: Int,
         token: String,
         language: String
-    ): Flow<Resource<ShowProductModel>> = flow {
+    ): Flow<Resource<PostDetailsModel>> = flow {
         try {
             emit(Resource.Loading())
             emit(

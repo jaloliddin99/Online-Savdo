@@ -37,9 +37,12 @@ fun ImagePager(
                 .padding(MaterialTheme.spacing.dimen16Dp),
 
         ) {
-            val imageUrl = state.registerMain!!.images[it]
+            val prefix = "http://91.227.40.169:8080/api/v1/post/image/"
+
+            val suffix = state.registerMain!!.data.images[0].imagePath
+            val url  = "$prefix$suffix"
             AsyncImage(
-                model = imageUrl, contentDescription = null,
+                model = url, contentDescription = null,
                 modifier = Modifier
                     .fillMaxSize(),
                 contentScale = ContentScale.Crop

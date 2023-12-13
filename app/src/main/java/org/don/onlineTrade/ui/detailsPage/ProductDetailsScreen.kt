@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddLocation
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.HeartBroken
 import androidx.compose.material.icons.filled.KeyboardArrowRight
@@ -40,7 +41,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.getPublicProducts.Content
-import org.don.onlineTrade.data.remote.models.showProducts.ShowProductModel
+import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsModel
 import org.don.onlineTrade.ui.add.ProductTitle
 import org.don.onlineTrade.ui.add.TextBold
 import org.don.onlineTrade.ui.add.TextThin
@@ -48,6 +49,7 @@ import org.don.onlineTrade.ui.home.HomeViewModel
 import org.don.onlineTrade.ui.home.PresentProductState
 import org.don.onlineTrade.ui.home.ProductItemForDetailsPage
 import org.don.onlineTrade.ui.home.TOKEN
+import org.don.onlineTrade.ui.home.getCurrency
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.FreeLoading
 import org.don.onlineTrade.utils.SharedPref
@@ -64,7 +66,7 @@ fun ProductDetailsRoute(
         detailsViewModel.getProductDetail(
             id = productId,
             language = SharedPref.language,
-            token = TOKEN
+            token = SharedPref.deviceToken
         )
     }
 
@@ -89,7 +91,7 @@ fun ProductDetailsScreen(
         val pagingItems = homeViewModel.collectProducts(
         ).collectAsLazyPagingItems()
         val pagerState = rememberPagerState(pageCount = {
-            state.registerMain.images.size
+            state.registerMain.data.images.size
         })
         Box(
             modifier = modifier
@@ -177,7 +179,7 @@ fun ItemDescription(state: PresentProductState) {
             modifier = Modifier
                 .padding(vertical = MaterialTheme.spacing.dimen10Dp)
         )
-        DescriptionItems(desc = state.registerMain.region.title)
+        DescriptionItems(desc = state.registerMain.data.region.name)
         Divider(
             modifier = Modifier
                 .padding(vertical = MaterialTheme.spacing.dimen10Dp)
@@ -185,7 +187,7 @@ fun ItemDescription(state: PresentProductState) {
         DescriptionItems(
             imageVector = Icons.Filled.Category,
             title = stringResource(id = R.string.category),
-            desc = state.registerMain.category.title
+            desc = state.registerMain.data.category.title
         )
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
     }
@@ -193,7 +195,7 @@ fun ItemDescription(state: PresentProductState) {
 
 @Composable
 fun ProductDescription(
-    item: ShowProductModel
+    item: PostDetailsModel
 ) {
     Column {
         Row(
@@ -204,8 +206,8 @@ fun ProductDescription(
             Column(
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
-                ProductTitle(title = item.title)
-                TextBold(title = item.price)
+                ProductTitle(title = item.data.title)
+                TextBold(title = "${item.data.price} ${getCurrency(currencyId = item.data.currency_id)}")
             }
 
             Image(
@@ -214,13 +216,13 @@ fun ProductDescription(
             )
         }
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
-        TextThin(title = item.description)
+        TextThin(title = item.data.description)
     }
 }
 
 @Composable
 fun DescriptionItems(
-    imageVector: ImageVector = Icons.Filled.MyLocation,
+    imageVector: ImageVector = Icons.Filled.AddLocation,
     title: String = stringResource(id = R.string.location),
     desc: String
 ) {
@@ -248,7 +250,7 @@ fun DescriptionItems(
 
 @Composable
 fun ContactDetails(
-    state: ShowProductModel
+    state: PostDetailsModel
 ) {
     Column(
         modifier = Modifier
@@ -264,19 +266,20 @@ fun ContactDetails(
         DescriptionItems(
             imageVector = Icons.Filled.Person,
             title = stringResource(id = R.string.name),
-            desc = state.title
+            desc = "${state.data.user.lastName} ${state.data.user.firstName}"
         )
         Divider(
             modifier = Modifier
                 .padding(vertical = MaterialTheme.spacing.dimen10Dp)
         )
-        if (state.user.phone_number != null) {
+        state.data.user.phoneNumber?.let {
             DescriptionItems(
                 imageVector = Icons.Filled.Phone,
                 title = stringResource(id = R.string.name),
-                desc = state.user.phone_number.toString()
+                desc = it
             )
         }
+
     }
 
 

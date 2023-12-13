@@ -14,12 +14,10 @@ import org.don.onlineTrade.data.remote.models.liked.LikedProductsModel
 import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.ModelGetDistricts
 import org.don.onlineTrade.data.remote.models.region.ModelGetRegions
-import org.don.onlineTrade.data.remote.models.showProducts.ShowProductModel
+import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsModel
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
-import retrofit2.http.Headers
-import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -87,12 +85,12 @@ interface ApiInterface {
     ): PostModel
 
 
-    @GET("api/products/{id}")
+    @GET("post/{id}")
     suspend fun showProductModel(
+        @Header("Authorization") token: String,
         @Path("id") id: Int,
-        @Query("token") token: String,
         @Query("lang") language: String
-    ): ShowProductModel
+    ): PostDetailsModel
 
 
     @GET("api/profile/products/liked")

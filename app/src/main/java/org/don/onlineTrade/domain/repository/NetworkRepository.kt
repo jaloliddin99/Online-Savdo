@@ -17,7 +17,7 @@ import org.don.onlineTrade.data.remote.models.liked.LikedProductsModel
 import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.ModelGetDistricts
 import org.don.onlineTrade.data.remote.models.region.ModelGetRegions
-import org.don.onlineTrade.data.remote.models.showProducts.ShowProductModel
+import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsModel
 import org.don.onlineTrade.utils.DEFAULT_PAGE_SIZE
 
 interface NetworkRepository {
@@ -80,7 +80,7 @@ interface NetworkRepository {
         id: Int,
         token: String,
         language: String
-    ): ShowProductModel
+    ): PostDetailsModel
 
 
     suspend fun getLikedProducts(

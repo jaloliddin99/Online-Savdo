@@ -19,7 +19,7 @@ import org.don.onlineTrade.data.remote.models.liked.LikedProductsModel
 import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.ModelGetDistricts
 import org.don.onlineTrade.data.remote.models.region.ModelGetRegions
-import org.don.onlineTrade.data.remote.models.showProducts.ShowProductModel
+import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsModel
 import org.don.onlineTrade.domain.repository.NetworkRepository
 import org.don.onlineTrade.utils.PublicProductsPagingSource
 import org.don.onlineTrade.utils.SharedPref
@@ -95,8 +95,8 @@ class NetworkRepositoryImpl @Inject constructor(
         id: Int,
         token: String,
         language: String
-    ): ShowProductModel {
-        return apiInterface.showProductModel(id, token, language)
+    ): PostDetailsModel {
+        return apiInterface.showProductModel( token, id, language)
     }
 
     override suspend fun getLikedProducts(token: String, language: String): LikedProductsModel {
