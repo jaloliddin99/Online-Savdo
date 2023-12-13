@@ -179,7 +179,9 @@ fun ItemDescription(state: PresentProductState) {
             modifier = Modifier
                 .padding(vertical = MaterialTheme.spacing.dimen10Dp)
         )
-        DescriptionItems(desc = state.registerMain.data.region.name)
+        val region = state.registerMain.data.region.name
+        val district = state.registerMain.data.district.name
+        DescriptionItems(desc = "$region, $district")
         Divider(
             modifier = Modifier
                 .padding(vertical = MaterialTheme.spacing.dimen10Dp)
