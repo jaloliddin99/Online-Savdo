@@ -93,7 +93,7 @@ class HomeViewModel @Inject constructor(
 
             productsPagerUseCase.getItems(
                 page = nextPage,
-                pageSize = 10,
+                pageSize = 20,
             )
         },
         getNextKey = {

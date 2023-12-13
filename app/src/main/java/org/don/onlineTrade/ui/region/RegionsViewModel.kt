@@ -24,6 +24,8 @@ class RegionsViewModel @Inject constructor(
     private val _state = mutableStateOf(RegionsScreenState())
     val state: State<RegionsScreenState> = _state
 
+
+
     init {
         getAllRegions(
             token = SharedPref.deviceToken,
@@ -42,6 +44,35 @@ class RegionsViewModel @Inject constructor(
             when (result) {
                 is Resource.Success -> {
                     _state.value = RegionsScreenState(regions = result.data)
+                }
+
+                is Resource.Error -> {
+                    _state.value = RegionsScreenState(
+                        error = result.message ?: "An unexpected error occured"
+                    )
+                }
+
+                is Resource.Loading -> {
+                    _state.value = RegionsScreenState(isLoading = true)
+                }
+            }
+        }.launchIn(viewModelScope)
+    }
+
+
+    fun getAllDistricts(
+        token: String = SharedPref.deviceToken,
+        language: String = SharedPref.language,
+        regionId: Int
+    ) {
+        regionsUseCase.invokeDistricts(
+            token,
+            language,
+            regionId
+        ).onEach { result ->
+            when (result) {
+                is Resource.Success -> {
+                    _state.value = RegionsScreenState(districts = result.data)
                 }
 
                 is Resource.Error -> {

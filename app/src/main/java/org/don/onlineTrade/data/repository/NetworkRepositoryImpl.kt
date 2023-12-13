@@ -17,6 +17,7 @@ import org.don.onlineTrade.data.remote.models.getPublicProducts.Content
 import org.don.onlineTrade.data.remote.models.getPublicProducts.ModelPosts
 import org.don.onlineTrade.data.remote.models.liked.LikedProductsModel
 import org.don.onlineTrade.data.remote.models.post.PostModel
+import org.don.onlineTrade.data.remote.models.region.ModelGetDistricts
 import org.don.onlineTrade.data.remote.models.region.ModelGetRegions
 import org.don.onlineTrade.data.remote.models.showProducts.ShowProductModel
 import org.don.onlineTrade.domain.repository.NetworkRepository
@@ -72,6 +73,14 @@ class NetworkRepositoryImpl @Inject constructor(
 
     override suspend fun getAllRegions(token: String, language: String): ModelGetRegions {
         return apiInterface.getRegionDistrict(token, language)
+    }
+
+    override suspend fun getAllDistricts(
+        token: String,
+        language: String,
+        regionId: Int
+    ): ModelGetDistricts {
+        return apiInterface.getDistricts(token, regionId, language)
     }
 
     override suspend fun getAllCurrencies(token: String, language: String): ModelCurrencyLists {

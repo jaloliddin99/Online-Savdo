@@ -5,6 +5,7 @@ import org.don.onlineTrade.data.remote.models.getProfile.ModelGetProfile
 import org.don.onlineTrade.data.remote.models.liked.LikedProductsModel
 import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.Data
+import org.don.onlineTrade.data.remote.models.region.DataDistrict
 import org.don.onlineTrade.data.remote.models.showProducts.ShowProductModel
 
 data class HomeScreenState(
@@ -17,6 +18,7 @@ data class HomeScreenState(
 data class RegionsScreenState(
     val isLoading: Boolean = false,
     val regions: List<Data>?= null,
+    val districts: List<DataDistrict> ?=null,
     val error: String = ""
 )
 

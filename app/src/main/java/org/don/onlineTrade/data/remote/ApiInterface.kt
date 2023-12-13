@@ -12,12 +12,14 @@ import org.don.onlineTrade.data.remote.models.getProfile.ModelGetProfile
 import org.don.onlineTrade.data.remote.models.getPublicProducts.ModelPosts
 import org.don.onlineTrade.data.remote.models.liked.LikedProductsModel
 import org.don.onlineTrade.data.remote.models.post.PostModel
+import org.don.onlineTrade.data.remote.models.region.ModelGetDistricts
 import org.don.onlineTrade.data.remote.models.region.ModelGetRegions
 import org.don.onlineTrade.data.remote.models.showProducts.ShowProductModel
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Headers
+import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -63,6 +65,13 @@ interface ApiInterface {
         @Query("lang") language: String,
     ): ModelGetRegions
 
+    @GET("getRegions/{regionId}")
+    suspend fun getDistricts(
+        @Header("Authorization") token: String,
+        @Path("regionId") regionId: Int,
+        @Query("lang") language: String,
+    ): ModelGetDistricts
+
 
     @GET("api/currencies")
     suspend fun getAllCurrencies(
@@ -71,8 +80,7 @@ interface ApiInterface {
     ): ModelCurrencyLists
 
 
-    @Headers("Accept: application/json")
-    @POST("api/profile/products")
+    @POST("post")
     suspend fun newProduct(
         @Header("Authorization") token: String,
         @Body requestBody: RequestBody

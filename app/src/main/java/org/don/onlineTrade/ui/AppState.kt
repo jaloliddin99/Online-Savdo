@@ -11,9 +11,10 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
 import org.don.onlineTrade.ui.navigation.categoriesNavigationRoute
 import org.don.onlineTrade.ui.navigation.chatNavigationRoute
+import org.don.onlineTrade.ui.navigation.districtsNavigationRoute
 import org.don.onlineTrade.ui.navigation.filterCategoryNavigationRoute
 import org.don.onlineTrade.ui.navigation.homeNavigationRoute
-import org.don.onlineTrade.ui.navigation.navigateToChat
+import org.don.onlineTrade.ui.navigation.navigateToPosts
 import org.don.onlineTrade.ui.navigation.navigateToHome
 import org.don.onlineTrade.ui.navigation.navigateToProfile
 import org.don.onlineTrade.ui.navigation.navigateToSearch
@@ -53,6 +54,7 @@ class ApplicationState(
             profileNavigationRoute -> NavItems.Profile
             categoriesNavigationRoute -> NavItems.Categories
             regionsNavigationRoute -> NavItems.Regions
+            districtsNavigationRoute -> NavItems.District
             pDetailsNavigationRoute -> NavItems.ProductDetails
             filterCategoryNavigationRoute -> NavItems.FilterCategories
             else -> null
@@ -86,7 +88,7 @@ class ApplicationState(
 
         when (topLevelDestination) {
             NavItems.Home -> navController.navigateToHome(topLevelNavOptions)
-            NavItems.AddProduct -> navController.navigateToChat(topLevelNavOptions)
+            NavItems.AddProduct -> navController.navigateToPosts(topLevelNavOptions)
             NavItems.Saved -> navController.navigateToSettingsGraph(topLevelNavOptions)
             NavItems.Profile -> navController.navigateToProfile(topLevelNavOptions)
             else -> null

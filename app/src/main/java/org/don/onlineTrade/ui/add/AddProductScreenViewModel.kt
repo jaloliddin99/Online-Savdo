@@ -4,6 +4,7 @@ import android.app.Application
 import android.net.Uri
 import android.provider.MediaStore
 import android.widget.Toast
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
@@ -17,6 +18,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import org.don.onlineTrade.R
+import org.don.onlineTrade.data.remote.models.category.CompactedCategoryItem
 import org.don.onlineTrade.domain.state.Resource
 import org.don.onlineTrade.domain.useCase.currencies.CurrenciesUseCase
 import org.don.onlineTrade.domain.useCase.postNewProduct.PostNewProductUseCase
@@ -31,121 +33,124 @@ class AddProductScreenViewModel @Inject constructor(
     private val currencyUseCase: CurrenciesUseCase,
     private val postNewProductUseCase: PostNewProductUseCase,
     private val application: Application
-): AndroidViewModel(application) {
-
+) : AndroidViewModel(application) {
 
 
     private val _state = mutableStateOf(AddProductScreenState())
     val state: State<AddProductScreenState> = _state
 
 
-
-     fun postNewProduct(
-         token: String = SharedPref.deviceToken,
-         titleProduct: String,
-         descriptionProduct: String,
-         priceText: String,
-         currencyId: Int,
-         region: Int,
-         categoryId: Int,
-         images: List<ImageUrl>,
-         isPost: Boolean = false,
-         productId: Int? = null,
+    fun postNewProduct(
+        token: String = SharedPref.deviceToken,
+        titleProduct: String,
+        descriptionProduct: String,
+        priceText: String,
+        currencyId: Int,
+        region: Int,
+        districtId: Int,
+        categoryId: Int,
+        lat: Double,
+        lon: Double,
+        images: List<ImageUrl>,
+        isPost: Boolean = false,
+        productId: Int? = null,
     ) {
 
-         val builder: MultipartBody.Builder =
-             MultipartBody.Builder().setType(MultipartBody.FORM)
-         builder.addFormDataPart("title", titleProduct)
-         builder.addFormDataPart("description", descriptionProduct)
-         builder.addFormDataPart("price", priceText)
-         builder.addFormDataPart("category_id", categoryId.toString())
-         builder.addFormDataPart("region_id", region.toString())
-         builder.addFormDataPart("currency_id", currencyId.toString())
-         viewModelScope.launch {
-             for (photoUri in images) {
-                 if (!photoUri.isFromCamera){
-                     getRealPathFromURI(photoUri.uri)?.let { photoPath ->
-                         val file = File(photoPath)
-                         val compressedImageFile = Compressor.compress(application, file)
-                         if (compressedImageFile.sizeInKb > 2000) {
-                             Toast.makeText(
-                                 application,
-                                 application.getString(R.string.selectet_image_size),
-                                 Toast.LENGTH_SHORT
-                             ).show()
-                             return@launch
-                         }
-                         if (compressedImageFile.exists()) {
-                             builder.addFormDataPart(
-                                 "images[]",
-                                 compressedImageFile.name,
-                                 RequestBody.create(
-                                     "image/*".toMediaTypeOrNull(),
-                                     compressedImageFile
-                                 )
-                             )
-                         }
-                     }
-                 }else{
-                     val file = File(photoUri.uri.toString())
-                     val compressedImageFile = Compressor.compress(application, file)
-                     if (compressedImageFile.sizeInKb > 2000) {
-                         Toast.makeText(
-                             application,
-                             application.getString(R.string.selectet_image_size),
-                             Toast.LENGTH_SHORT
-                         ).show()
-                         return@launch
-                     }
-                     if (compressedImageFile.exists()) {
-                         builder.addFormDataPart(
-                             "images[]",
-                             compressedImageFile.name,
-                             RequestBody.create(
-                                 "image/*".toMediaTypeOrNull(),
-                                 compressedImageFile
-                             )
-                         )
-                     }
-                 }
+        val builder: MultipartBody.Builder =
+            MultipartBody.Builder().setType(MultipartBody.FORM)
+        builder.addFormDataPart("userId", "1")
+        builder.addFormDataPart("title", titleProduct)
+        builder.addFormDataPart("description", descriptionProduct)
+        builder.addFormDataPart("price", priceText)
+        builder.addFormDataPart("category_id", categoryId.toString())
+        builder.addFormDataPart("region_id", region.toString())
+        builder.addFormDataPart("district_id", districtId.toString())
+        builder.addFormDataPart("lat", lat.toString())
+        builder.addFormDataPart("lon", lon.toString())
+        builder.addFormDataPart("currency_id", currencyId.toString())
+        viewModelScope.launch {
+            for (photoUri in images) {
+                if (!photoUri.isFromCamera) {
+                    getRealPathFromURI(photoUri.uri)?.let { photoPath ->
+                        val file = File(photoPath)
+                        val compressedImageFile = Compressor.compress(application, file)
+                        if (compressedImageFile.sizeInKb > 1000) {
+                            Toast.makeText(
+                                application,
+                                application.getString(R.string.selectet_image_size),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            return@launch
+                        }
+                        if (compressedImageFile.exists()) {
+                            builder.addFormDataPart(
+                                "files",
+                                compressedImageFile.name,
+                                RequestBody.create(
+                                    "image/*".toMediaTypeOrNull(),
+                                    compressedImageFile
+                                )
+                            )
+                        }
+                    }
+                } else {
+                    val file = File(photoUri.uri.toString())
+                    val compressedImageFile = Compressor.compress(application, file)
+                    if (compressedImageFile.sizeInKb > 2000) {
+                        Toast.makeText(
+                            application,
+                            application.getString(R.string.selectet_image_size),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        return@launch
+                    }
+                    if (compressedImageFile.exists()) {
+                        builder.addFormDataPart(
+                            "files",
+                            compressedImageFile.name,
+                            RequestBody.create(
+                                "image/*".toMediaTypeOrNull(),
+                                compressedImageFile
+                            )
+                        )
+                    }
+                }
 
-             }
-             val requestBody: RequestBody = builder.build()
+            }
+            val requestBody: RequestBody = builder.build()
 
-             postNewProductUseCase(
-                 token,
-                 requestBody,
-             ).onEach { result ->
-                 when (result) {
-                     is Resource.Success -> {
-                         _state.value =_state.value.copy(
-                             postNewProduct = result.data,
-                             isLoading = false,
-                             error = ""
-                         )
-                     }
+            postNewProductUseCase(
+                token,
+                requestBody,
+            ).onEach { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        _state.value = _state.value.copy(
+                            postNewProduct = result.data,
+                            isLoading = false,
+                            error = ""
+                        )
+                    }
 
-                     is Resource.Error -> {
-                         _state.value =
-                             _state.value.copy(
-                                 postNewProduct = null,
-                                 isLoading = false,
-                                 error = result.message ?: "An unexpected error occured"
-                             )
-                     }
+                    is Resource.Error -> {
+                        _state.value =
+                            _state.value.copy(
+                                postNewProduct = null,
+                                isLoading = false,
+                                error = result.message ?: "An unexpected error occured"
+                            )
+                    }
 
-                     is Resource.Loading -> {
-                         _state.value = _state.value.copy(
-                             postNewProduct = null,
-                             isLoading = true,
-                             error = ""
-                         )
-                     }
-                 }
-             }.launchIn(viewModelScope)
-         }
-
-
+                    is Resource.Loading -> {
+                        _state.value = _state.value.copy(
+                            postNewProduct = null,
+                            isLoading = true,
+                            error = ""
+                        )
+                    }
+                }
+            }.launchIn(viewModelScope)
+        }
 
 
     }

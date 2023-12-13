@@ -2,6 +2,7 @@ package org.don.onlineTrade.ui.add
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
@@ -43,6 +44,7 @@ import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.category.CompactedCategoryItem
 import org.don.onlineTrade.data.remote.models.currencies.ModelCurrencyListsItem
 import org.don.onlineTrade.data.remote.models.region.Data
+import org.don.onlineTrade.data.remote.models.region.DataDistrict
 import org.don.onlineTrade.ui.home.getCurrencyList
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.runTimePermission.RunTimePermission
@@ -53,36 +55,56 @@ import java.util.Locale
 import java.util.Objects
 
 
+private var category: CompactedCategoryItem ?= null
 @Composable
 fun AddProductRoute(
     navigateToCategories: () -> Unit,
     navigateToSelectRegions: () -> Unit,
     modifier: Modifier = Modifier,
     item: CompactedCategoryItem? = null,
-    regions: Data? = null,
-    popBack: () -> Unit
+    popBack: () -> Unit,
+    regName: String?=null,
+    disName: String?=null,
+    regId: Int?=null,
+    disId: Int?=null
 ) {
 
+    if (item != null){
+        category = item
+    }
     val addProductViewModel = hiltViewModel<AddProductScreenViewModel>()
+
 
     AddProductScreen(
         modifier = modifier,
         navigateToCategories,
         navigateToSelectRegions,
         item,
-        regions,
-        submitProduct = { titleProduct: String, descriptionProduct: String, priceText: String, currencyId: Int, region: Int, categoryId: Int, images: List<ImageUrl> ->
+        submitProduct = { titleProduct,
+                          descriptionProduct,
+                          priceText, currencyId,
+                          region, district,
+                          categoryId,
+                          lat, lon, images ->
             addProductViewModel.postNewProduct(
                 titleProduct = titleProduct,
                 descriptionProduct = descriptionProduct,
                 priceText = priceText,
                 currencyId = currencyId,
                 region = region,
+                districtId = district,
                 categoryId = categoryId,
+                lat = lat,
+                lon = lon,
                 images = images
             )
+
         },
-        popBack
+        popBack = popBack,
+        regName,
+        disName,
+        regId,
+        disId
     )
 }
 
@@ -94,17 +116,23 @@ fun AddProductScreen(
     navigateToCategories: () -> Unit,
     navigateToSelectRegions: () -> Unit,
     item: CompactedCategoryItem? = null,
-    region: Data? = null,
     submitProduct: (
         titleProduct: String,
         descriptionProduct: String,
         priceText: String,
         currencyId: Int,
         region: Int,
+        district: Int,
         categoryId: Int,
+        lat: Double,
+        lon: Double,
         images: List<ImageUrl>,
     ) -> Unit,
-    popBack: () -> Unit
+    popBack: () -> Unit,
+    regName: String?=null,
+    disName: String?=null,
+    regId: Int?=null,
+    disId: Int?=null
 ) {
 
 
@@ -129,7 +157,6 @@ fun AddProductScreen(
     }
 
     val context = LocalContext.current
-
 
     var images by remember {
         mutableStateOf(listOf<ImageUrl>())
@@ -191,7 +218,7 @@ fun AddProductScreen(
             title = R.string.please_enter_description
         )
         DividerTextAndSpace(R.string.select_category)
-        TextFieldUnEditable(productTitle = item?.title,
+        TextFieldUnEditable(productTitle = category?.title,
             modifier = Modifier.fillMaxWidth(),
             title = R.string.please_select_category,
             isFocusedOrClicked = {
@@ -199,7 +226,8 @@ fun AddProductScreen(
             })
         DividerTextAndSpace(R.string.select_region)
 
-        TextFieldUnEditable(productTitle = region?.name,
+
+        TextFieldUnEditable(productTitle = if (regId!= -1) "$regName, $disName" else "",
             modifier = Modifier.fillMaxWidth(),
             title = R.string.please_select_region,
             isFocusedOrClicked = {
@@ -216,10 +244,13 @@ fun AddProductScreen(
                 modifier = Modifier.weight(1f)
             ) {
                 SpinnerSample(
-                    list = getCurrencyList(), preselected = getCurrencyList()[0], onSelectionChanged = {
+                    list = getCurrencyList(),
+                    preselected = getCurrencyList()[0],
+                    onSelectionChanged = {
                         descriptionFocusRequester.requestFocus()
                         currencyItem = it
-                    }, modifier = Modifier.fillMaxWidth()
+                    },
+                    modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(16.dp))
             }
@@ -252,8 +283,8 @@ fun AddProductScreen(
 
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen16Dp))
 
-        val categoryIsAdded = !item?.title.isNullOrEmpty()
-        val regionIsAdded = !region?.name.isNullOrEmpty()
+        val categoryIsAdded = category != null
+        val regionIsAdded = disId != null
 
         val isEnabled =
             productTitleState.isValid
@@ -261,7 +292,8 @@ fun AddProductScreen(
                     && categoryIsAdded
                     && regionIsAdded
                     && productPriceState.isValid
-                    && currencyItem.id != -1 && (images.isNotEmpty() && images.size < 10)
+                    && currencyItem.id != -1
+                    && (images.isNotEmpty() && images.size < 5)
 
         val onSubmit = {
             if (!productTitleState.isValid) {
@@ -279,8 +311,11 @@ fun AddProductScreen(
                 productDescriptionState.text,
                 productPriceState.text,
                 currencyItem.id,
-                region!!.id,
-                item!!.id,
+                regId!!,
+                disId!!,
+                category!!.id,
+                41.35495013247074,
+                69.3628400419868,
                 images
             )
         }

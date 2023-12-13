@@ -15,6 +15,7 @@ import org.don.onlineTrade.data.remote.models.getPublicProducts.Content
 import org.don.onlineTrade.data.remote.models.getPublicProducts.ModelPosts
 import org.don.onlineTrade.data.remote.models.liked.LikedProductsModel
 import org.don.onlineTrade.data.remote.models.post.PostModel
+import org.don.onlineTrade.data.remote.models.region.ModelGetDistricts
 import org.don.onlineTrade.data.remote.models.region.ModelGetRegions
 import org.don.onlineTrade.data.remote.models.showProducts.ShowProductModel
 import org.don.onlineTrade.utils.DEFAULT_PAGE_SIZE
@@ -58,6 +59,12 @@ interface NetworkRepository {
         token: String,
         language: String
     ): ModelGetRegions
+
+    suspend fun getAllDistricts(
+        token: String,
+        language: String,
+        regionId: Int
+    ): ModelGetDistricts
 
     suspend fun getAllCurrencies(
         token: String,

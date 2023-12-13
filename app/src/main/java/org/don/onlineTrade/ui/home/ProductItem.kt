@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -45,6 +47,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import org.don.onlineTrade.R
@@ -53,6 +56,7 @@ import org.don.onlineTrade.data.remote.models.getPublicProducts.Content
 import org.don.onlineTrade.data.remote.models.getPublicProducts.Region
 import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.spacing
+import org.don.onlineTrade.utils.convertDate
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,7 +74,8 @@ fun ProductItem(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         modifier = Modifier
             .padding(paddingValues)
-            .aspectRatio(0.5f),
+            //.aspectRatio(0.6f),
+            .wrapContentWidth(),
         onClick = {
             onItemClicked(data.id)
         }
@@ -83,14 +88,14 @@ fun ProductItem(
 @Composable
 fun ProductItemPreView() {
     ProductItem(data = Content(
-        "12-12-2023",
+        "2023-12-10T21:09:51.895279",
         1,
         1,
         org.don.onlineTrade.data.remote.models.getPublicProducts.Image(1, "awd"),
         23,
         2.3,
         Region(1, "Jizzax"),
-        "dawdawd"
+        "This is a description text "
     ), onItemClicked = {})
 }
 
@@ -129,7 +134,8 @@ fun ProductItemDetails(
     data: Content
 ) {
     Column(
-        verticalArrangement = Arrangement.Top
+        verticalArrangement = Arrangement.Top,
+        modifier = Modifier.wrapContentHeight()
     ) {
         var isLoading by remember {
             mutableStateOf(true)
@@ -138,7 +144,6 @@ fun ProductItemDetails(
             mutableStateOf(false)
         }
         val url = "http://91.227.40.169:8080/api/v1/post/image/${data.image.imagePath}"
-        Log.d("TAG", "ProductItemDetaildawdwadwad $url")
         val imageLoader = rememberAsyncImagePainter(model = url,
             onState = { state ->
                 isLoading = state is AsyncImagePainter.State.Loading
@@ -147,8 +152,8 @@ fun ProductItemDetails(
 
         Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(0.65f),
+                .wrapContentHeight()
+                .fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
             if (isLoading) {
@@ -159,12 +164,12 @@ fun ProductItemDetails(
                     color = MaterialTheme.colorScheme.tertiary,
                 )
             }
-
             Image(
                 contentDescription = null,
                 modifier = Modifier
-                    .fillMaxSize(),
-                contentScale = ContentScale.Crop,
+                    .fillMaxWidth()
+                    .height(180.dp),
+                contentScale = ContentScale.None,
                 painter = if (isError.not()) imageLoader else painterResource(R.drawable.ic_launcher_background),
             )
         }
@@ -175,25 +180,26 @@ fun ProductItemDetails(
         )
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
+                .wrapContentHeight()
                 .padding(paddingValues),
-            verticalArrangement = Arrangement.SpaceAround,
         ) {
             ConstraintLayout(
                 modifier = Modifier.fillMaxWidth()
+                    .wrapContentHeight()
             ) {
                 val (text, icon) = createRefs()
-
                 Text(
                     text = data.title,
                     modifier = Modifier
                         .constrainAs(text) {
                             start.linkTo(parent.start)
-                            end.linkTo(icon.start)
                             top.linkTo(parent.top)
                             bottom.linkTo(parent.bottom)
+                            end.linkTo(icon.start)
+                            width = Dimension.fillToConstraints
                         }
-                        .wrapContentWidth(),
+                        .fillMaxWidth(),
                     fontSize = 14.sp,
                     fontFamily = robotoFontFamily,
                     fontWeight = FontWeight.Bold,
@@ -223,29 +229,27 @@ fun ProductItemDetails(
                 )
             }
 
-            Row(
-                modifier = Modifier
-                    .wrapContentSize()
-                    .background(
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                        shape = RoundedCornerShape(MaterialTheme.spacing.dimen4Dp)
-                    )
-            ) {
-                Text(
-                    text = "${data.price} ${getCurrency(currencyId = data.currency_id)}",
-                    fontSize = 14.sp,
-                    fontFamily = robotoFontFamily,
-                    fontWeight = FontWeight.Bold,
-                )
-            }
+            Text(
+                text = "${data.price} ${getCurrency(currencyId = data.currency_id)}",
+                fontSize = 14.sp,
+                fontFamily = robotoFontFamily,
+                fontWeight = FontWeight.Medium,
+            )
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen4Dp))
             Text(
                 text = data.region.name,
-                style = MaterialTheme.typography.bodyMedium,
+                fontSize = 12.sp,
+                fontFamily = robotoFontFamily,
+                fontWeight = FontWeight.Normal,
             )
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen4Dp))
             Text(
-                text = data.createdDate,
-                style = MaterialTheme.typography.bodyMedium,
+                text = convertDate(data.createdDate),
+                fontFamily = robotoFontFamily,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Normal,
             )
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen4Dp))
         }
     }
 }

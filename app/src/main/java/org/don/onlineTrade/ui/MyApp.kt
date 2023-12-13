@@ -57,6 +57,8 @@ import org.don.onlineTrade.ui.dialogs.settings.SettingsDialog
 import org.don.onlineTrade.ui.dialogs.settings.UserEditableSettings
 import org.don.onlineTrade.ui.navigation.categoriesNavigationRoute
 import org.don.onlineTrade.ui.navigation.categoriesScreen
+import org.don.onlineTrade.ui.navigation.districtsNavigationRoute
+import org.don.onlineTrade.ui.navigation.districtsScreen
 import org.don.onlineTrade.ui.navigation.filterCategoryNavigationRoute
 import org.don.onlineTrade.ui.navigation.filterCategoryScreen
 import org.don.onlineTrade.ui.navigation.pDetailsNavigationRoute
@@ -126,6 +128,7 @@ fun MainScreenView(
                     if (destination != null
                         && destination.screenRoute != categoriesNavigationRoute
                         && destination.screenRoute != regionsNavigationRoute
+                        && destination.screenRoute != districtsNavigationRoute
                         && destination.screenRoute != pDetailsNavigationRoute
                         && destination.screenRoute != filterCategoryNavigationRoute
                     ) {
@@ -208,7 +211,6 @@ fun BottomNavigation(
                 onClick = {
                     appState.navigateToTopLevelDestination(item)
                 },
-
                 label = { Text(text = item.title) },
 
                 icon = {
@@ -281,7 +283,7 @@ fun NavigationGraph(appState: ApplicationState) {
             navigateToSelectRegions = {
                 navController.navigate(regionsNavigationRoute)
             },
-            popBack = {}//navController::popBackStack
+            popBack = {}
         )
         settingsScreen()
         profileScreen()
@@ -327,10 +329,16 @@ fun NavigationGraph(appState: ApplicationState) {
         )
         regionsScreen(
             onBackPressed = {
-                navController.previousBackStackEntry
-                    ?.savedStateHandle
-                    ?.set("regions_item", it)
-                navController.popBackStack()
+                navController.navigate("district/${it.id}/${it.name}")
+            }
+        )
+        districtsScreen(
+            onBackPressed = { district, region ->
+                navController.navigate("add/${region.id}/${region.name}/${district.id}/${district.name}") {
+                    popUpTo(navController.graph.id) {
+                        inclusive = true
+                    }
+                }
             }
         )
     }

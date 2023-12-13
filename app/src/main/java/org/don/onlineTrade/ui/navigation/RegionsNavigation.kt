@@ -19,7 +19,7 @@ fun NavGraphBuilder.regionsScreen(
         route = regionsNavigationRoute,
     ) {
         RegionsRoute(
-            onBackPressed = onBackPressed
+            onRegionSelected = onBackPressed
         )
     }
 }
