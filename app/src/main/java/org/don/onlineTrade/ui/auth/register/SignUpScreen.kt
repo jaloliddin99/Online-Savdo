@@ -172,9 +172,9 @@ fun Logo(
     lightTheme: Boolean = LocalContentColor.current.luminance() < 0.5f,
 ) {
     val assetId = if (lightTheme) {
-        R.drawable.ic_launcher_foreground
+        R.drawable.logo
     } else {
-        R.drawable.ic_launcher_foreground
+        R.drawable.logo
     }
     Image(
         painter = painterResource(id = assetId),

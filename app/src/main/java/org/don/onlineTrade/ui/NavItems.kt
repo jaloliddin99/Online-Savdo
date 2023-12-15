@@ -7,6 +7,7 @@ import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Details
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LibraryAdd
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.outlined.AreaChart
@@ -14,6 +15,7 @@ import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.Details
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.LibraryAdd
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Save
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -22,6 +24,7 @@ import org.don.onlineTrade.ui.navigation.categoriesNavigationRoute
 import org.don.onlineTrade.ui.navigation.districtsNavigationRoute
 import org.don.onlineTrade.ui.navigation.filterCategoryNavigationRoute
 import org.don.onlineTrade.ui.navigation.myProductsNavigationRoute
+import org.don.onlineTrade.ui.navigation.notificationsNavigationRoute
 import org.don.onlineTrade.ui.navigation.pDetailsNavigationRoute
 import org.don.onlineTrade.ui.navigation.regionsNavigationRoute
 
@@ -120,6 +123,16 @@ sealed class NavItems(
         badgeCount = null,
         screenRoute = pDetailsNavigationRoute,
         titleRes = R.string.details
+    )
+
+    object Notifications: NavItems(
+        title = "Notifications",
+        selectedIcon = Icons.Filled.Notifications,
+        unselectedIcon = Icons.Outlined.Notifications,
+        hasNews = true,
+        badgeCount = null,
+        screenRoute = notificationsNavigationRoute,
+        titleRes = R.string.notifications
     )
 
     object FilterCategories: NavItems(

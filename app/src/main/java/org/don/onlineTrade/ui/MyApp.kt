@@ -1,6 +1,5 @@
 package org.don.onlineTrade.ui
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
@@ -14,6 +13,7 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Badge
@@ -63,6 +63,8 @@ import org.don.onlineTrade.ui.navigation.filterCategoryNavigationRoute
 import org.don.onlineTrade.ui.navigation.filterCategoryScreen
 import org.don.onlineTrade.ui.navigation.myProductsNavigationRoute
 import org.don.onlineTrade.ui.navigation.myProductsScreen
+import org.don.onlineTrade.ui.navigation.notificationsNavigationRoute
+import org.don.onlineTrade.ui.navigation.notificationsScreen
 import org.don.onlineTrade.ui.navigation.pDetailsNavigationRoute
 import org.don.onlineTrade.ui.navigation.productDetailsScreen
 import org.don.onlineTrade.ui.navigation.profileScreen
@@ -99,10 +101,11 @@ fun MainScreenView(
     }
 
     if (showSettingsDialog) {
-        SettingsDialog(
-            state = state,
-            onDismiss = { showSettingsDialog = false },
-        )
+        rememberNavController.navigate("notifications")
+//        SettingsDialog(
+//            state = state,
+//            onDismiss = { showSettingsDialog = false },
+//        )
     }
 
     val shouldShowGradientBackground =
@@ -131,6 +134,7 @@ fun MainScreenView(
                         && destination.screenRoute != categoriesNavigationRoute
                         && destination.screenRoute != regionsNavigationRoute
                         && destination.screenRoute != districtsNavigationRoute
+                        && destination.screenRoute != notificationsNavigationRoute
                         && destination.screenRoute != myProductsNavigationRoute
                         && destination.screenRoute != pDetailsNavigationRoute
                         && destination.screenRoute != filterCategoryNavigationRoute
@@ -154,6 +158,7 @@ fun MainScreenView(
                         val showBackArrow = destination.screenRoute == categoriesNavigationRoute
                                 || destination.screenRoute == regionsNavigationRoute
                                 || destination.screenRoute == pDetailsNavigationRoute
+                                || destination.screenRoute == notificationsNavigationRoute
                                 || destination.screenRoute == myProductsNavigationRoute
                                 || destination.screenRoute == filterCategoryNavigationRoute
 
@@ -161,7 +166,7 @@ fun MainScreenView(
                             title = stringResource(id = destination.titleRes),
                             navigationIcon = if (!showBackArrow) Icons.Filled.Search else Icons.Filled.ArrowBack,
                             navigationIconContentDescription = null,
-                            actionIcon = Icons.Filled.Settings,
+                            actionIcon = Icons.Filled.Notifications,
                             actionIconContentDescription = null,
                             colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                                 containerColor = Color.Transparent
@@ -169,6 +174,7 @@ fun MainScreenView(
                             onActionClick = { showSettingsDialog = true },
                             onNavigationClick = {
                                 if (showBackArrow) {
+                                    showSettingsDialog = false
                                     appState.navController.popBackStack()
                                 } else {
                                     appState.navigateToSearch()
@@ -290,7 +296,7 @@ fun NavigationGraph(appState: ApplicationState) {
             popBack = {}
         )
 
-
+        notificationsScreen()
         settingsScreen()
         profileScreen(
             toMyProducts = {
@@ -342,6 +348,7 @@ fun NavigationGraph(appState: ApplicationState) {
                     ?.set("category_item", it)
                 navController.popBackStack()
             }
+
         )
         regionsScreen(
             onBackPressed = {

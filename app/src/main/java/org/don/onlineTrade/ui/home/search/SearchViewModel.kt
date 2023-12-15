@@ -1,4 +1,4 @@
-package org.don.onlineTrade.ui.search
+package org.don.onlineTrade.ui.home.search
 
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle

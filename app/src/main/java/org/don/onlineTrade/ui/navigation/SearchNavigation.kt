@@ -20,7 +20,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
-import org.don.onlineTrade.ui.search.SearchRoute
+import org.don.onlineTrade.ui.home.search.SearchRoute
 
 const val searchRoute = "search_route"
 
