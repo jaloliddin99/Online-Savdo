@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 import org.don.onlineTrade.data.remote.models.getPublicProducts.Content
 import org.don.onlineTrade.domain.repository.NetworkRepository
 import org.don.onlineTrade.domain.state.Resource
+import org.don.onlineTrade.domain.useCase.MyPostsUseCase
 import org.don.onlineTrade.domain.useCase.ProductsPagerUseCase
 import org.don.onlineTrade.domain.useCase.allCategoriesUseCase.AllCategoriesUseCase
 import org.don.onlineTrade.utils.SharedPref
@@ -27,6 +28,7 @@ class HomeViewModel @Inject constructor(
     private val categoryUseCase: AllCategoriesUseCase,
     private val networkRepository: NetworkRepository,
     private val productsPagerUseCase: ProductsPagerUseCase,
+    private val myPostsUseCase: MyPostsUseCase,
 ) :
     ViewModel() {
 
@@ -88,13 +90,20 @@ class HomeViewModel @Inject constructor(
                       query: String?,
                       categoryId: Int?,
                       minPrice: Int?,
-                      maxPrice: Int? ->
+                      maxPrice: Int?,
+                      isMyPosts: Boolean->
 
-
-            productsPagerUseCase.getItems(
-                page = nextPage,
-                pageSize = 20,
-            )
+            if (isMyPosts){
+                myPostsUseCase.getItems(
+                    page = nextPage,
+                    pageSize = 20,
+                )
+            }else{
+                productsPagerUseCase.getItems(
+                    page = nextPage,
+                    pageSize = 20,
+                )
+            }
         },
         getNextKey = {
             pagerState.page + 1
@@ -117,14 +126,16 @@ class HomeViewModel @Inject constructor(
         query: String? = null,
         categoryId: Int? = null,
         minPrice: Int? = null,
-        maxPrice: Int? = null
+        maxPrice: Int? = null,
+        isMyPosts: Boolean = false
     ) {
         viewModelScope.launch {
             paginator.loadNextItems(
                 query = query,
                 categoryId = categoryId,
                 minPrice = minPrice,
-                maxPrice = maxPrice
+                maxPrice = maxPrice,
+                isMyPosts = isMyPosts
             )
         }
     }

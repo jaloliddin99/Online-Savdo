@@ -50,6 +50,14 @@ interface ApiInterface {
         @Query("lang") lang: String
     ): ModelPosts
 
+    @GET("post/myPosts")
+    suspend fun getMyPosts(
+        @Header("Authorization") token: String,
+        @Query("page") page: Int,
+        @Query("size") size: Int,
+        @Query("lang") lang: String
+    ): ModelPosts
+
     @GET("categories")
     suspend fun getAllCategories(
         @Header("Authorization") token: String,
@@ -93,6 +101,8 @@ interface ApiInterface {
     ): PostDetailsModel
 
 
+
+
     @GET("api/profile/products/liked")
     suspend fun getLikedProducts(
         @Header("Authorization") token: String,
@@ -100,7 +110,7 @@ interface ApiInterface {
     ): LikedProductsModel
 
 
-    @GET("api/profile")
+    @GET("user")
     suspend fun getProfile(
         @Header("Authorization") token: String,
     ): ModelGetProfile

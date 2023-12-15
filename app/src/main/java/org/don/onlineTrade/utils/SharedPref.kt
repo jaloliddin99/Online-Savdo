@@ -5,7 +5,7 @@ import com.chibatching.kotpref.KotprefModel
 object SharedPref: KotprefModel() {
 
 
-    var deviceLoggedIn by booleanPref( )
+    var deviceLoggedIn by booleanPref()
     var deviceToken by stringPref()
     var expirationTime by intPref()
 

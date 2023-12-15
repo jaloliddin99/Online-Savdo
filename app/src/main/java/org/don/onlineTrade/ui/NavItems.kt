@@ -21,6 +21,7 @@ import org.don.onlineTrade.R
 import org.don.onlineTrade.ui.navigation.categoriesNavigationRoute
 import org.don.onlineTrade.ui.navigation.districtsNavigationRoute
 import org.don.onlineTrade.ui.navigation.filterCategoryNavigationRoute
+import org.don.onlineTrade.ui.navigation.myProductsNavigationRoute
 import org.don.onlineTrade.ui.navigation.pDetailsNavigationRoute
 import org.don.onlineTrade.ui.navigation.regionsNavigationRoute
 
@@ -81,6 +82,17 @@ sealed class NavItems(
         categoriesNavigationRoute,
         titleRes = R.string.select_category_without
     )
+
+    object MyPosts: NavItems(
+        title = "My Posts",
+        selectedIcon = Icons.Filled.Category,
+        unselectedIcon = Icons.Outlined.Category,
+        hasNews = true,
+        badgeCount = null,
+        myProductsNavigationRoute,
+        titleRes = R.string.my_orders
+    )
+
 
     object Regions: NavItems(
         title = "Regions",

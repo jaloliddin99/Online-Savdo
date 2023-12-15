@@ -5,7 +5,8 @@ interface Paginator<Key, Item> {
         query: String?,
         categoryId: Int?,
         minPrice: Int?,
-        maxPrice: Int?
+        maxPrice: Int?,
+        isMyPosts: Boolean
     )
     fun reset()
 }

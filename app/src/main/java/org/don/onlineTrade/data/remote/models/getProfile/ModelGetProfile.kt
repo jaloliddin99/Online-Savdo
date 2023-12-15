@@ -1,6 +1,9 @@
 package org.don.onlineTrade.data.remote.models.getProfile
 
+import org.don.onlineTrade.data.remote.models.getPublicProducts.Data
+
 data class ModelGetProfile(
-    val error: Boolean,
-    val user: User,
+    val success: Boolean,
+    val message: String,
+    val `data`: User
 )

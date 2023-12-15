@@ -122,4 +122,18 @@ class NetworkRepositoryImpl @Inject constructor(
     }
 
 
+    override suspend fun getMyPostsPager(
+        token: String,
+        page: Int,
+        count: Int,
+        lang: String
+    ): ModelPosts {
+        return apiInterface.getMyPosts(
+            token = token,
+            page = page,
+            size = count,
+            lang = lang
+        )
+    }
+
 }

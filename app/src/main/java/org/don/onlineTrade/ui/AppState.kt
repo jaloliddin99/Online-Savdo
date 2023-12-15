@@ -14,6 +14,7 @@ import org.don.onlineTrade.ui.navigation.chatNavigationRoute
 import org.don.onlineTrade.ui.navigation.districtsNavigationRoute
 import org.don.onlineTrade.ui.navigation.filterCategoryNavigationRoute
 import org.don.onlineTrade.ui.navigation.homeNavigationRoute
+import org.don.onlineTrade.ui.navigation.myProductsNavigationRoute
 import org.don.onlineTrade.ui.navigation.navigateToPosts
 import org.don.onlineTrade.ui.navigation.navigateToHome
 import org.don.onlineTrade.ui.navigation.navigateToProfile
@@ -53,6 +54,7 @@ class ApplicationState(
             savedNavigationRoute -> NavItems.Saved
             profileNavigationRoute -> NavItems.Profile
             categoriesNavigationRoute -> NavItems.Categories
+            myProductsNavigationRoute -> NavItems.MyPosts
             regionsNavigationRoute -> NavItems.Regions
             districtsNavigationRoute -> NavItems.District
             pDetailsNavigationRoute -> NavItems.ProductDetails

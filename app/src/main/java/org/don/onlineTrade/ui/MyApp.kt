@@ -61,6 +61,8 @@ import org.don.onlineTrade.ui.navigation.districtsNavigationRoute
 import org.don.onlineTrade.ui.navigation.districtsScreen
 import org.don.onlineTrade.ui.navigation.filterCategoryNavigationRoute
 import org.don.onlineTrade.ui.navigation.filterCategoryScreen
+import org.don.onlineTrade.ui.navigation.myProductsNavigationRoute
+import org.don.onlineTrade.ui.navigation.myProductsScreen
 import org.don.onlineTrade.ui.navigation.pDetailsNavigationRoute
 import org.don.onlineTrade.ui.navigation.productDetailsScreen
 import org.don.onlineTrade.ui.navigation.profileScreen
@@ -129,6 +131,7 @@ fun MainScreenView(
                         && destination.screenRoute != categoriesNavigationRoute
                         && destination.screenRoute != regionsNavigationRoute
                         && destination.screenRoute != districtsNavigationRoute
+                        && destination.screenRoute != myProductsNavigationRoute
                         && destination.screenRoute != pDetailsNavigationRoute
                         && destination.screenRoute != filterCategoryNavigationRoute
                     ) {
@@ -151,6 +154,7 @@ fun MainScreenView(
                         val showBackArrow = destination.screenRoute == categoriesNavigationRoute
                                 || destination.screenRoute == regionsNavigationRoute
                                 || destination.screenRoute == pDetailsNavigationRoute
+                                || destination.screenRoute == myProductsNavigationRoute
                                 || destination.screenRoute == filterCategoryNavigationRoute
 
                         TopAppBar(
@@ -285,8 +289,20 @@ fun NavigationGraph(appState: ApplicationState) {
             },
             popBack = {}
         )
+
+
         settingsScreen()
-        profileScreen()
+        profileScreen(
+            toMyProducts = {
+                navController.navigate(myProductsNavigationRoute)
+            }
+        )
+
+        myProductsScreen(
+            onItemClicked = {
+                navController.navigate("productDetails/$it")
+            }
+        )
 
         searchScreen(
             onBackClick = navController::popBackStack,

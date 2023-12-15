@@ -14,9 +14,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddToPhotos
 import androidx.compose.material.icons.filled.Edit
@@ -70,23 +72,26 @@ import org.don.onlineTrade.utils.reverseAppLanguageName
 @Composable
 fun ProfileRoute(
     modifier: Modifier = Modifier,
+    toMyProducts: () -> Unit,
 ) {
     val viewModel = hiltViewModel<ProfileViewModel>()
     val state = viewModel.state.value
-    ProfileScreen(modifier, state)
+    ProfileScreen(modifier, state, toMyProducts)
 }
 
 @Composable
 fun ProfileScreen(
     modifier: Modifier = Modifier,
-    state: GetProfileState
+    state: GetProfileState,
+    toMyProducts: () -> Unit,
 ) {
 
 
     Box(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = modifier
-                .fillMaxSize(),
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen24Dp))
@@ -94,19 +99,23 @@ fun ProfileScreen(
             Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen12Dp))
 
             if (state.getProfile != null) {
-                val user = state.getProfile.user
-                TextBold(title = user.name)
-                user.phone_number?.let { ProductTitle(title = it) }
+                val user = state.getProfile.data
+                TextBold(title = "${user.firstName}, ${user.lastName}")
+                user.phoneNumber?.let { ProductTitle(title = it) }
                 Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen24Dp))
                 AppLanguage()
                 Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen8Dp))
-                ProfileSettingsAndPosts()
+                ProfileSettingsAndPosts(
+                    toMyProducts
+                )
                 Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen8Dp))
                 Notification()
                 Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen8Dp))
                 AboutAppAndContactWithUs()
                 Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen8Dp))
                 LogOut()
+                Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen24Dp))
+
             }
 
         }
@@ -186,7 +195,9 @@ fun AboutAppAndContactWithUs() {
     }
 }
 @Composable
-fun ProfileSettingsAndPosts() {
+fun ProfileSettingsAndPosts(
+    toMyProducts: () -> Unit,
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -208,9 +219,7 @@ fun ProfileSettingsAndPosts() {
         ProfileColumnItem(
             imageVector = Icons.Filled.AddToPhotos,
             title = stringResource(id = R.string.my_orders),
-            onItemClicked = {
-
-            }
+            onItemClicked = toMyProducts
         )
     }
 }

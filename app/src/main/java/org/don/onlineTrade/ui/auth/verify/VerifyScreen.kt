@@ -190,6 +190,7 @@ fun VerificationScreen(
             }
         }
         if (state.registerMain != null) {
+            SharedPref.deviceLoggedIn = true
             SharedPref.deviceToken = "Bearer ${state.registerMain.token}"
             onMainScreen.invoke()
         }

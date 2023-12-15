@@ -8,7 +8,8 @@ class DefaultPaginator<Key, Item>(
         query: String?,
         categoryId: Int?,
         minPrice: Int?,
-        maxPrice: Int?
+        maxPrice: Int?,
+        isMyPosts:Boolean
     ) -> Result<List<Item>>,
     private inline val getNextKey: suspend (List<Item>) -> Key,
     private inline val onError: suspend (Throwable?) -> Unit,
@@ -22,7 +23,8 @@ class DefaultPaginator<Key, Item>(
         query: String?,
         categoryId: Int?,
         minPrice: Int?,
-        maxPrice: Int?
+        maxPrice: Int?,
+        isMyPosts:Boolean
     ) {
         if (isMakingRequest) {
             return
@@ -34,7 +36,8 @@ class DefaultPaginator<Key, Item>(
             query,
             categoryId,
             minPrice,
-            maxPrice
+            maxPrice,
+            isMyPosts
         )
         isMakingRequest = false
         val items = result.getOrElse {

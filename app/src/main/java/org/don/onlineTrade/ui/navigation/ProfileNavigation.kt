@@ -12,8 +12,10 @@ fun NavController.navigateToProfile(navOptions: NavOptions? = null) {
     this.navigate(profileNavigationRoute, navOptions)
 }
 
-fun NavGraphBuilder.profileScreen() {
+fun NavGraphBuilder.profileScreen(toMyProducts: () -> Unit) {
     composable(route = profileNavigationRoute) {
-        ProfileRoute()
+        ProfileRoute(
+            toMyProducts = toMyProducts
+        )
     }
 }

@@ -100,4 +100,12 @@ interface NetworkRepository {
         lang: String
     ): ModelPosts
 
+    suspend fun getMyPostsPager(
+        token: String,
+        page: Int,
+        count: Int,
+        lang: String
+    ): ModelPosts
+
+
 }

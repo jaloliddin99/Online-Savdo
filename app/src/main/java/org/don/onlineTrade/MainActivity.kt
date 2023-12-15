@@ -79,6 +79,10 @@ OnRunTimePermissionListener{
 
     }
 
+
+    /**
+     * this is a function it is called when permisSIon denied
+     */
     override fun onPermissionDenied() {
 
     }
@@ -91,7 +95,6 @@ private fun shouldUseDarkTheme(
     DarkThemeConfig.FOLLOW_SYSTEM -> isSystemInDarkTheme()
     DarkThemeConfig.LIGHT -> false
     DarkThemeConfig.DARK -> true
-
 }
 
 
