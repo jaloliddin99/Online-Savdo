@@ -169,8 +169,8 @@ fun ProductItemDetails(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(180.dp),
-                contentScale = ContentScale.None,
-                painter = if (isError.not()) imageLoader else painterResource(R.drawable.ic_launcher_background),
+                contentScale = ContentScale.Inside,
+                painter = if (isError.not()) imageLoader else painterResource(R.drawable.logo),
             )
         }
         val paddingValues = PaddingValues(

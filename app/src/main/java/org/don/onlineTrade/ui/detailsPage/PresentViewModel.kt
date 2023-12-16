@@ -8,13 +8,16 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import org.don.onlineTrade.domain.state.Resource
+import org.don.onlineTrade.domain.useCase.presentUseCase.LikeDislikeUseCase
 import org.don.onlineTrade.domain.useCase.presentUseCase.PresentProductUseCase
 import org.don.onlineTrade.ui.home.PresentProductState
+import org.don.onlineTrade.utils.SharedPref
 import javax.inject.Inject
 
 @HiltViewModel
 class PresentViewModel @Inject constructor(
-    private val presentProductUseCase: PresentProductUseCase
+    private val presentProductUseCase: PresentProductUseCase,
+    private val likeDislikeUseCase: LikeDislikeUseCase,
 ): ViewModel() {
 
     private val _state = mutableStateOf(PresentProductState())
@@ -29,6 +32,30 @@ class PresentViewModel @Inject constructor(
             id,
             token,
             language
+        ).onEach { result ->
+            when (result) {
+                is Resource.Success -> {
+                    _state.value = PresentProductState(registerMain = result.data)
+                }
+
+                is Resource.Error -> {
+                    _state.value = PresentProductState(
+                        error = result.message ?: "An unexpected error occured"
+                    )
+                }
+
+                is Resource.Loading -> {
+                    _state.value = PresentProductState(isLoading = true)
+                }
+            }
+        }.launchIn(viewModelScope)
+    }
+
+    fun likePost(it: Int) {
+        likeDislikeUseCase(
+            id = it,
+            language = SharedPref.language,
+            token = SharedPref.deviceToken
         ).onEach { result ->
             when (result) {
                 is Resource.Success -> {

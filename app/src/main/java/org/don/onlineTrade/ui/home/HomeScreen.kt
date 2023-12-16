@@ -18,7 +18,9 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -28,6 +30,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import org.don.onlineTrade.R
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.FreeLoading
@@ -85,7 +90,7 @@ fun HomeScreen(
                         fontSize = MaterialTheme.spacing.dimen16Sp
                     )
                 }
-                item(span = { GridItemSpan(2) }) {
+                item(key = "Categories", span = { GridItemSpan(2) }) {
                     Categories(
                         state.registerMain,
                         navigateToCategory = navigateToCategory
@@ -104,7 +109,7 @@ fun HomeScreen(
                     fontSize = MaterialTheme.spacing.dimen16Sp
                 )
             }
-            items(pagerState.items.size) { i ->
+            items(count = pagerState.items.size) { i ->
                 val item = pagerState.items[i]
                 LaunchedEffect(scrollState) {
                     if (i >= pagerState.items.size - 1 && !pagerState.endReached && !pagerState.isLoading) {

@@ -14,5 +14,6 @@ data class Data(
     val price: Double,
     val region: Region,
     val title: String,
-    val user: User
+    val user: User,
+    val isLiked: Boolean
 )

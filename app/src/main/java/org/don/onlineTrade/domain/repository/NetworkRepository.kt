@@ -82,6 +82,12 @@ interface NetworkRepository {
         language: String
     ): PostDetailsModel
 
+    suspend fun likePost(
+        id: Int,
+        token: String,
+        language: String
+    ): PostDetailsModel
+
 
     suspend fun getLikedProducts(
         token: String,

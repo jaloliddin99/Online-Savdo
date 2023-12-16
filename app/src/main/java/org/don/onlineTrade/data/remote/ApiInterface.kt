@@ -100,6 +100,13 @@ interface ApiInterface {
         @Query("lang") language: String
     ): PostDetailsModel
 
+    @POST("post/{id}/like")
+    suspend fun likePost(
+        @Header("Authorization") token: String,
+        @Path("id") id: Int,
+        @Query("lang") language: String
+    ): PostDetailsModel
+
 
 
 

@@ -35,27 +35,26 @@ import org.don.onlineTrade.ui.theme.spacing
 @Composable
 fun Categories(
     state: List<CompactedCategoryItem>,
-    navigateToCategory: (Int) -> Unit
+    navigateToCategory: (Int) -> Unit,
+    modifier: Modifier = Modifier
+
 ) {
-    Box(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(
-                    rememberScrollState()
-                )
-        ) {
-            state.forEachIndexed { index, item ->
-                Spacer(modifier = Modifier.width(MaterialTheme.spacing.dimen8Dp))
-                CategoryItem(
-                    item = item, modifier = Modifier
-                        .width(MaterialTheme.spacing.dimen100Dp)
-                        .height(MaterialTheme.spacing.dimen120Dp),
-                    navigateToCategory = navigateToCategory
-                )
-                if (index == state.lastIndex) {
-                    Spacer(modifier = Modifier.width(MaterialTheme.spacing.dimen8Dp))
-                }
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .horizontalScroll(
+                rememberScrollState()
+            )
+    ) {
+        state.forEachIndexed { index, item ->
+            Spacer(modifier = modifier.width(MaterialTheme.spacing.dimen8Dp))
+            CategoryItem(
+                item = item, modifier = modifier.width(MaterialTheme.spacing.dimen100Dp)
+                    .height(MaterialTheme.spacing.dimen120Dp),
+                navigateToCategory = navigateToCategory
+            )
+            if (index == state.lastIndex) {
+                Spacer(modifier = modifier.width(MaterialTheme.spacing.dimen8Dp))
             }
         }
     }
@@ -93,15 +92,13 @@ fun CategoryItem(
                 model = url, contentDescription = null
             )
 
-            item.title?.let {
-                Text(
-                    text = it,
-                    textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 12.sp,
-                    maxLines = 1
-                )
-            }
+            Text(
+                text = item.title,
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Medium,
+                fontSize = 12.sp,
+                maxLines = 1
+            )
         }
     }
 }

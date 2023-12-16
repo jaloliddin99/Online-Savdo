@@ -26,14 +26,20 @@ import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Divider
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -74,6 +80,9 @@ fun ProductDetailsRoute(
     ProductDetailsScreen(
         state = state,
         onSimilarItemClicked = onSimilarItemClicked,
+        onItemClicked = {
+            detailsViewModel.likePost(it)
+        }
     )
 }
 
@@ -83,44 +92,42 @@ fun ProductDetailsScreen(
     modifier: Modifier = Modifier,
     state: PresentProductState,
     onSimilarItemClicked: (Int) -> Unit,
-    homeViewModel: HomeViewModel = hiltViewModel()
+    homeViewModel: HomeViewModel = hiltViewModel(),
+    onItemClicked: (Int) -> Unit
 ) {
 
     val isFeedLoading = state.isLoading
-    if (state.registerMain != null) {
-        val pagingItems = homeViewModel.collectProducts(
-        ).collectAsLazyPagingItems()
-        val pagerState = rememberPagerState(pageCount = {
-            state.registerMain.data.images.size
-        })
-        Box(
-            modifier = modifier
-                .fillMaxSize()
-        ) {
-            LazyColumn {
-                item {
-                    ImagePager(state, pagerState)
-                }
+    val pagingItems = homeViewModel.collectProducts(
+    ).collectAsLazyPagingItems()
+    val pagerState = rememberPagerState(pageCount = {
+        state.registerMain?.data?.images?.size ?: 0
+    })
 
-                item {
-                    ItemDescription(state)
-                }
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+    ) {
+        LazyColumn {
+            item {
+                ImagePager(state, pagerState)
+            }
 
-                item {
-                    Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
-                    ContactDetails(state.registerMain)
-                }
-
-                item {
-                    val itemSize: Dp = (LocalConfiguration.current.screenWidthDp.dp / 2) - 24.dp
-                    val list = pagingItems.itemSnapshotList.items
-                    if (list.isNotEmpty()) {
-                        SimilarContents(
-                            list,
-                            itemSize,
-                            onSimilarItemClicked
-                        )
-                    }
+            item {
+                ItemDescription(state, onLikeClicked = onItemClicked)
+            }
+            item {
+                Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
+                ContactDetails(state.registerMain)
+            }
+            item {
+                val itemSize: Dp = (LocalConfiguration.current.screenWidthDp.dp / 2) - 24.dp
+                val list = pagingItems.itemSnapshotList.items
+                if (list.isNotEmpty()) {
+                    SimilarContents(
+                        list,
+                        itemSize,
+                        onSimilarItemClicked
+                    )
                 }
             }
         }
@@ -137,8 +144,8 @@ fun SimilarContents(
 ) {
     Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
     TextBold(
-        title = stringResource(id = R.string.similar_items)
-        , modifier = Modifier
+        title = stringResource(id = R.string.similar_items),
+        modifier = Modifier
             .padding(start = MaterialTheme.spacing.dimen16Dp))
 
     Row(
@@ -164,7 +171,8 @@ fun SimilarContents(
 
 
 @Composable
-fun ItemDescription(state: PresentProductState) {
+fun ItemDescription(state: PresentProductState,
+                    onLikeClicked: (Int) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -174,13 +182,13 @@ fun ItemDescription(state: PresentProductState) {
                 horizontal = MaterialTheme.spacing.dimen16Dp
             ),
     ) {
-        ProductDescription(state.registerMain!!)
+        ProductDescription(state.registerMain, onLikeClicked)
         Divider(
             modifier = Modifier
                 .padding(vertical = MaterialTheme.spacing.dimen10Dp)
         )
-        val region = state.registerMain.data.region.name
-        val district = state.registerMain.data.district.name
+        val region = state.registerMain?.data?.region?.name
+        val district = state.registerMain?.data?.district?.name
         DescriptionItems(desc = "$region, $district")
         Divider(
             modifier = Modifier
@@ -189,7 +197,7 @@ fun ItemDescription(state: PresentProductState) {
         DescriptionItems(
             imageVector = Icons.Filled.Category,
             title = stringResource(id = R.string.category),
-            desc = state.registerMain.data.category.title
+            desc = state.registerMain?.data?.category?.title ?:""
         )
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
     }
@@ -197,7 +205,8 @@ fun ItemDescription(state: PresentProductState) {
 
 @Composable
 fun ProductDescription(
-    item: PostDetailsModel
+    item: PostDetailsModel?,
+    onLikeClicked: (Int) -> Unit
 ) {
     Column {
         Row(
@@ -208,17 +217,31 @@ fun ProductDescription(
             Column(
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
-                ProductTitle(title = item.data.title)
-                TextBold(title = "${item.data.price} ${getCurrency(currencyId = item.data.currency_id)}")
+                ProductTitle(title = item?.data?.title ?: "")
+                TextBold(title = "${item?.data?.price} ${getCurrency(currencyId = item?.data?.currency_id?:0)}")
             }
 
-            Image(
-                imageVector = Icons.Filled.HeartBroken, contentDescription = null,
-                colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onSurface)
-            )
+            IconButton(onClick = {
+                item?.data?.id?.let {
+                    onLikeClicked(it)
+                }
+            }) {
+
+                if (item?.data?.isLiked == true){
+                    Image(
+                        painter = painterResource(id = R.drawable.ph_heart_fill),
+                        contentDescription = null
+                    )
+                }else{
+                    Image(
+                        painter = painterResource(id = R.drawable.solar_heart_outline),
+                        contentDescription = null
+                    )
+                }
+            }
         }
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
-        TextThin(title = item.data.description)
+        TextThin(title = item?.data?.description?:"")
     }
 }
 
@@ -252,7 +275,7 @@ fun DescriptionItems(
 
 @Composable
 fun ContactDetails(
-    state: PostDetailsModel
+    state: PostDetailsModel?
 ) {
     Column(
         modifier = Modifier
@@ -268,19 +291,18 @@ fun ContactDetails(
         DescriptionItems(
             imageVector = Icons.Filled.Person,
             title = stringResource(id = R.string.name),
-            desc = "${state.data.user.lastName} ${state.data.user.firstName}"
+            desc = "${state?.data?.user?.lastName} ${state?.data?.user?.firstName}"
         )
         Divider(
             modifier = Modifier
                 .padding(vertical = MaterialTheme.spacing.dimen10Dp)
         )
-        state.data.user.phoneNumber?.let {
-            DescriptionItems(
-                imageVector = Icons.Filled.Phone,
-                title = stringResource(id = R.string.name),
-                desc = it
-            )
-        }
+        DescriptionItems(
+            imageVector = Icons.Filled.Phone,
+            title = stringResource(id = R.string.name),
+            desc = state?.data?.user?.phoneNumber ?: ""
+        )
+
 
     }
 

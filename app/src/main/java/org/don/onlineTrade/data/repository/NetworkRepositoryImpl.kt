@@ -99,6 +99,10 @@ class NetworkRepositoryImpl @Inject constructor(
         return apiInterface.showProductModel( token, id, language)
     }
 
+    override suspend fun likePost(id: Int, token: String, language: String): PostDetailsModel {
+        return apiInterface.likePost( token, id, language)
+    }
+
     override suspend fun getLikedProducts(token: String, language: String): LikedProductsModel {
         return apiInterface.getLikedProducts(token, language)
     }
