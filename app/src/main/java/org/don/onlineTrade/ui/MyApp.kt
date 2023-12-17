@@ -327,11 +327,13 @@ fun NavigationGraph(
             toUpdateProfile ={
                 navController.navigate(profileUpdateNavigationRoute)
             },
-            state = state
         )
 
         profileUpdateScreen(
             goBackAndRefresh = {
+                navController.previousBackStackEntry
+                    ?.savedStateHandle
+                    ?.set("refresh_profile", true)
                 navController.popBackStack()
             }
         )

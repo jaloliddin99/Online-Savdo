@@ -3,7 +3,10 @@ package org.don.onlineTrade.ui.navigation
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
+import androidx.navigation.NavType
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
+import org.don.onlineTrade.data.remote.models.category.CompactedCategoryItem
 import org.don.onlineTrade.ui.dialogs.settings.UserEditableSettings
 import org.don.onlineTrade.ui.profile.ProfileRoute
 import org.don.onlineTrade.ui.profile.update.UpdateProfileRoute
@@ -17,12 +20,20 @@ fun NavController.navigateToProfile(navOptions: NavOptions? = null) {
 fun NavGraphBuilder.profileScreen(
     toMyProducts: () -> Unit,
     toUpdateProfile: () -> Unit,
-    state: UserEditableSettings
 ) {
-    composable(route = profileNavigationRoute) {
+    composable(route = profileNavigationRoute) { entry ->
+        val item = entry.savedStateHandle.get<Boolean>("refresh_profile") ?: false
+        if (item) {
+            // Make your network call here
+            // ...
+
+            // Reset the flag to avoid repeated calls
+            entry.savedStateHandle.set("refresh_profile", false)
+        }
         ProfileRoute(
             toMyProducts = toMyProducts,
-            toUpdateProfile = toUpdateProfile
+            toUpdateProfile = toUpdateProfile,
+            refreshProfile = item
         )
     }
 }

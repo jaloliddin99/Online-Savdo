@@ -82,10 +82,14 @@ import org.don.onlineTrade.utils.reverseAppLanguageName
 fun ProfileRoute(
     modifier: Modifier = Modifier,
     toMyProducts: () -> Unit,
-    toUpdateProfile: () -> Unit
+    toUpdateProfile: () -> Unit,
+    refreshProfile: Boolean = false
 ) {
     val viewModel = hiltViewModel<ProfileViewModel>()
     val state = viewModel.state.value
+    if (refreshProfile){
+        viewModel.refresh()
+    }
     ProfileScreen(modifier, state, toMyProducts, toUpdateProfile)
 }
 
@@ -94,7 +98,7 @@ fun ProfileScreen(
     modifier: Modifier = Modifier,
     state: GetProfileState,
     toMyProducts: () -> Unit,
-    toUpdateProfile: () -> Unit
+    toUpdateProfile: () -> Unit,
 ) {
 
 

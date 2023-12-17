@@ -25,6 +25,12 @@ class ProfileViewModel @Inject constructor(
     private val _state = mutableStateOf(GetProfileState())
     val state: State<GetProfileState> = _state
 
+    fun refresh(){
+        getProfile(
+            token = SharedPref.deviceToken,
+        )
+    }
+
     init {
         getProfile(
             token = SharedPref.deviceToken,
