@@ -61,11 +61,12 @@ fun ImagePager(
         })
     val customShape = RoundedCornerShape(16.dp)
 
-    HorizontalPager(state = pagerState) {
+    HorizontalPager(state = pagerState,
+        modifier = Modifier.fillMaxWidth()
+            .height(300.dp)) {
         Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(300.dp)
+                .fillMaxSize()
                 .padding(MaterialTheme.spacing.dimen16Dp)
                 .background(shape = customShape, color = MaterialTheme.colorScheme.surface)
             ,

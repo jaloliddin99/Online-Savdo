@@ -67,7 +67,10 @@ import org.don.onlineTrade.ui.navigation.notificationsNavigationRoute
 import org.don.onlineTrade.ui.navigation.notificationsScreen
 import org.don.onlineTrade.ui.navigation.pDetailsNavigationRoute
 import org.don.onlineTrade.ui.navigation.productDetailsScreen
+import org.don.onlineTrade.ui.navigation.profileNavigationRoute
 import org.don.onlineTrade.ui.navigation.profileScreen
+import org.don.onlineTrade.ui.navigation.profileUpdateNavigationRoute
+import org.don.onlineTrade.ui.navigation.profileUpdateScreen
 import org.don.onlineTrade.ui.navigation.regionsNavigationRoute
 import org.don.onlineTrade.ui.navigation.regionsScreen
 import org.don.onlineTrade.ui.navigation.verificationScreen
@@ -76,7 +79,6 @@ import org.don.onlineTrade.ui.theme.AppGradientBackground
 import org.don.onlineTrade.ui.theme.GradientColors
 import org.don.onlineTrade.ui.theme.LocalGradientColors
 import org.don.onlineTrade.utils.SharedPref
-import java.util.Date
 
 
 @OptIn(
@@ -96,16 +98,23 @@ fun MainScreenView(
         }
     }
 
+    var toNotificationPage by rememberSaveable {
+        mutableStateOf(false)
+    }
+
     var showSettingsDialog by rememberSaveable {
         mutableStateOf(false)
     }
 
-    if (showSettingsDialog) {
+    if (toNotificationPage) {
         rememberNavController.navigate("notifications")
-//        SettingsDialog(
-//            state = state,
-//            onDismiss = { showSettingsDialog = false },
-//        )
+    }
+
+    if (showSettingsDialog) {
+        SettingsDialog(
+            state = state,
+            onDismiss = { showSettingsDialog = false },
+        )
     }
 
     val shouldShowGradientBackground =
@@ -134,6 +143,7 @@ fun MainScreenView(
                         && destination.screenRoute != categoriesNavigationRoute
                         && destination.screenRoute != regionsNavigationRoute
                         && destination.screenRoute != districtsNavigationRoute
+                        && destination.screenRoute != profileUpdateNavigationRoute
                         && destination.screenRoute != notificationsNavigationRoute
                         && destination.screenRoute != myProductsNavigationRoute
                         && destination.screenRoute != pDetailsNavigationRoute
@@ -157,6 +167,8 @@ fun MainScreenView(
                     if (destination != null) {
                         val showBackArrow = destination.screenRoute == categoriesNavigationRoute
                                 || destination.screenRoute == regionsNavigationRoute
+                                || destination.screenRoute == districtsNavigationRoute
+                                || destination.screenRoute == profileUpdateNavigationRoute
                                 || destination.screenRoute == pDetailsNavigationRoute
                                 || destination.screenRoute == notificationsNavigationRoute
                                 || destination.screenRoute == myProductsNavigationRoute
@@ -166,15 +178,22 @@ fun MainScreenView(
                             title = stringResource(id = destination.titleRes),
                             navigationIcon = if (!showBackArrow) Icons.Filled.Search else Icons.Filled.ArrowBack,
                             navigationIconContentDescription = null,
-                            actionIcon = Icons.Filled.Notifications,
+                            actionIcon = if (destination.screenRoute == profileNavigationRoute) Icons.Filled.Settings else Icons.Filled.Notifications,
                             actionIconContentDescription = null,
                             colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                                 containerColor = Color.Transparent
                             ),
-                            onActionClick = { showSettingsDialog = true },
+                            onActionClick = {
+                                if (destination.screenRoute == profileNavigationRoute) {
+                                    showSettingsDialog = true
+                                } else {
+                                    toNotificationPage = true
+                                }
+
+                            },
                             onNavigationClick = {
                                 if (showBackArrow) {
-                                    showSettingsDialog = false
+                                    toNotificationPage = false
                                     appState.navController.popBackStack()
                                 } else {
                                     appState.navigateToSearch()
@@ -182,7 +201,7 @@ fun MainScreenView(
                             }
                         )
                     }
-                    NavigationGraph(appState)
+                    NavigationGraph(appState, state)
                 }
             }
         }
@@ -254,7 +273,10 @@ fun BottomNavigation(
 }
 
 @Composable
-fun NavigationGraph(appState: ApplicationState) {
+fun NavigationGraph(
+    appState: ApplicationState,
+    state: UserEditableSettings
+) {
     val navController = appState.navController
 
     NavHost(
@@ -301,6 +323,16 @@ fun NavigationGraph(appState: ApplicationState) {
         profileScreen(
             toMyProducts = {
                 navController.navigate(myProductsNavigationRoute)
+            },
+            toUpdateProfile ={
+                navController.navigate(profileUpdateNavigationRoute)
+            },
+            state = state
+        )
+
+        profileUpdateScreen(
+            goBackAndRefresh = {
+                navController.popBackStack()
             }
         )
 

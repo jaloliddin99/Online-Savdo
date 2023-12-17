@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
@@ -150,7 +151,9 @@ fun Branding(modifier: Modifier = Modifier) {
         Logo(
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
-                .padding(horizontal = 76.dp)
+                .padding(top = 48.dp)
+                .width(100.dp)
+                .height(100.dp)
         )
 
         Text(

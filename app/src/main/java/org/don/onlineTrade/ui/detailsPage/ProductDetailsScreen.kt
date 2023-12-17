@@ -103,21 +103,26 @@ fun ProductDetailsScreen(
         state.registerMain?.data?.images?.size ?: 0
     })
 
+    var loadedData by remember {
+        mutableStateOf(PresentProductState())
+    }
+    loadedData = state
+
     Box(
         modifier = modifier
             .fillMaxSize()
     ) {
         LazyColumn {
             item {
-                ImagePager(state, pagerState)
+                ImagePager(loadedData, pagerState)
             }
 
             item {
-                ItemDescription(state, onLikeClicked = onItemClicked)
+                ItemDescription(loadedData, onLikeClicked = onItemClicked)
             }
             item {
                 Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
-                ContactDetails(state.registerMain)
+                ContactDetails(loadedData.registerMain)
             }
             item {
                 val itemSize: Dp = (LocalConfiguration.current.screenWidthDp.dp / 2) - 24.dp

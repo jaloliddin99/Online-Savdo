@@ -1,5 +1,6 @@
 package org.don.onlineTrade.ui.home
 
+import org.don.onlineTrade.data.remote.models.ModelSuccess
 import org.don.onlineTrade.data.remote.models.category.CompactedCategoryItem
 import org.don.onlineTrade.data.remote.models.getProfile.ModelGetProfile
 import org.don.onlineTrade.data.remote.models.liked.LikedProductsModel
@@ -45,5 +46,11 @@ data class LikedProductsState(
 data class GetProfileState(
     val isLoading: Boolean = false,
     val getProfile: ModelGetProfile?= null,
+    val error: String = ""
+)
+
+data class UpdateProfileState(
+    val isLoading: Boolean = false,
+    val getProfile: ModelSuccess?= null,
     val error: String = ""
 )

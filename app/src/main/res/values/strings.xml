@@ -83,6 +83,8 @@
     <string name="sum">sum</string>
     <string name="districts">Districts</string>
     <string name="notifications">Notifications</string>
+    <string name="change_theme">Change Theme</string>
+    <string name="update_profile">Update Profile</string>
 
 
 </resources>

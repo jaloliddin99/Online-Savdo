@@ -13,6 +13,7 @@ import org.don.onlineTrade.data.remote.models.VerificationRes
 import org.don.onlineTrade.data.remote.models.category.CategoryModel
 import org.don.onlineTrade.data.remote.models.currencies.ModelCurrencyLists
 import org.don.onlineTrade.data.remote.models.getProfile.ModelGetProfile
+import org.don.onlineTrade.data.remote.models.getProfile.UpdateProfileModel
 import org.don.onlineTrade.data.remote.models.getPublicProducts.Content
 import org.don.onlineTrade.data.remote.models.getPublicProducts.ModelPosts
 import org.don.onlineTrade.data.remote.models.liked.LikedProductsModel
@@ -109,6 +110,10 @@ class NetworkRepositoryImpl @Inject constructor(
 
     override suspend fun getProfile(token: String): ModelGetProfile {
         return apiInterface.getProfile(token)
+    }
+
+    override suspend fun updateProfile(token: String, body: UpdateProfileModel): ModelSuccess {
+        return apiInterface.updateProfile(token, body)
     }
 
     override suspend fun getProductsPager(

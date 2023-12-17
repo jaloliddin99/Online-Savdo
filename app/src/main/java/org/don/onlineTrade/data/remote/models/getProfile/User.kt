@@ -6,5 +6,6 @@ data class User(
     val firstName: String,
     val lastName: String,
     val role: String,
-    val phoneNumber: String
+    val phoneNumber: String,
+    val profileUrl: String
 )

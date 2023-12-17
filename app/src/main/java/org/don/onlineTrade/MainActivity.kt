@@ -80,9 +80,6 @@ OnRunTimePermissionListener{
     }
 
 
-    /**
-     * this is a function it is called when permisSIon denied
-     */
     override fun onPermissionDenied() {
 
     }

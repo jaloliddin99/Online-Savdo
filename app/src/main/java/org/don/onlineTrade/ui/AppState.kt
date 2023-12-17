@@ -23,6 +23,7 @@ import org.don.onlineTrade.ui.navigation.navigateToSettingsGraph
 import org.don.onlineTrade.ui.navigation.notificationsNavigationRoute
 import org.don.onlineTrade.ui.navigation.pDetailsNavigationRoute
 import org.don.onlineTrade.ui.navigation.profileNavigationRoute
+import org.don.onlineTrade.ui.navigation.profileUpdateNavigationRoute
 import org.don.onlineTrade.ui.navigation.regionsNavigationRoute
 import org.don.onlineTrade.ui.navigation.savedNavigationRoute
 
@@ -58,6 +59,7 @@ class ApplicationState(
             myProductsNavigationRoute -> NavItems.MyPosts
             regionsNavigationRoute -> NavItems.Regions
             districtsNavigationRoute -> NavItems.District
+            profileUpdateNavigationRoute -> NavItems.ProfileUpdate
             pDetailsNavigationRoute -> NavItems.ProductDetails
             notificationsNavigationRoute -> NavItems.Notifications
             filterCategoryNavigationRoute -> NavItems.FilterCategories
