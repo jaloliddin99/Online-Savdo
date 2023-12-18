@@ -66,6 +66,8 @@ import org.don.onlineTrade.ui.navigation.myProductsScreen
 import org.don.onlineTrade.ui.navigation.notificationsNavigationRoute
 import org.don.onlineTrade.ui.navigation.notificationsScreen
 import org.don.onlineTrade.ui.navigation.pDetailsNavigationRoute
+import org.don.onlineTrade.ui.navigation.passwordUpdateNavigationRoute
+import org.don.onlineTrade.ui.navigation.passwordUpdateScreen
 import org.don.onlineTrade.ui.navigation.productDetailsScreen
 import org.don.onlineTrade.ui.navigation.profileNavigationRoute
 import org.don.onlineTrade.ui.navigation.profileScreen
@@ -144,6 +146,7 @@ fun MainScreenView(
                         && destination.screenRoute != regionsNavigationRoute
                         && destination.screenRoute != districtsNavigationRoute
                         && destination.screenRoute != profileUpdateNavigationRoute
+                        && destination.screenRoute != passwordUpdateNavigationRoute
                         && destination.screenRoute != notificationsNavigationRoute
                         && destination.screenRoute != myProductsNavigationRoute
                         && destination.screenRoute != pDetailsNavigationRoute
@@ -169,6 +172,7 @@ fun MainScreenView(
                                 || destination.screenRoute == regionsNavigationRoute
                                 || destination.screenRoute == districtsNavigationRoute
                                 || destination.screenRoute == profileUpdateNavigationRoute
+                                || destination.screenRoute == passwordUpdateNavigationRoute
                                 || destination.screenRoute == pDetailsNavigationRoute
                                 || destination.screenRoute == notificationsNavigationRoute
                                 || destination.screenRoute == myProductsNavigationRoute
@@ -327,9 +331,21 @@ fun NavigationGraph(
             toUpdateProfile ={
                 navController.navigate(profileUpdateNavigationRoute)
             },
+            toUpdatePassword = {
+                navController.navigate(passwordUpdateNavigationRoute)
+            }
         )
 
         profileUpdateScreen(
+            goBackAndRefresh = {
+                navController.previousBackStackEntry
+                    ?.savedStateHandle
+                    ?.set("refresh_profile", true)
+                navController.popBackStack()
+            }
+        )
+
+        passwordUpdateScreen(
             goBackAndRefresh = {
                 navController.previousBackStackEntry
                     ?.savedStateHandle

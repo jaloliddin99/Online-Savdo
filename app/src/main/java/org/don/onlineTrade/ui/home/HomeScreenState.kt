@@ -54,3 +54,4 @@ data class UpdateProfileState(
     val getProfile: ModelSuccess?= null,
     val error: String = ""
 )
+

@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.EditNotifications
 import androidx.compose.material.icons.filled.Help
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
@@ -83,6 +84,7 @@ fun ProfileRoute(
     modifier: Modifier = Modifier,
     toMyProducts: () -> Unit,
     toUpdateProfile: () -> Unit,
+    toUpdatePassword: () -> Unit,
     refreshProfile: Boolean = false
 ) {
     val viewModel = hiltViewModel<ProfileViewModel>()
@@ -90,7 +92,7 @@ fun ProfileRoute(
     if (refreshProfile){
         viewModel.refresh()
     }
-    ProfileScreen(modifier, state, toMyProducts, toUpdateProfile)
+    ProfileScreen(modifier, state, toMyProducts, toUpdateProfile, toUpdatePassword)
 }
 
 @Composable
@@ -99,6 +101,7 @@ fun ProfileScreen(
     state: GetProfileState,
     toMyProducts: () -> Unit,
     toUpdateProfile: () -> Unit,
+    toUpdatePassword: () -> Unit,
 ) {
 
 
@@ -126,10 +129,9 @@ fun ProfileScreen(
                 )
                 Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen8Dp))
 
-                ProfileColumnItem(
-                    imageVector = Icons.Filled.Settings,
-                    title = stringResource(id = R.string.update_profile),
-                    onItemClicked = toUpdateProfile
+                ProfileUpdatePasswordAndProfile(
+                    updateProfile = toUpdateProfile,
+                    updatePassword = toUpdatePassword
                 )
                 Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen8Dp))
                 AboutAppAndContactWithUs()
@@ -235,6 +237,35 @@ fun AboutAppAndContactWithUs() {
             onItemClicked = {
 
             }
+        )
+    }
+}
+
+@Composable
+fun ProfileUpdatePasswordAndProfile(
+    updateProfile: () -> Unit,
+    updatePassword: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(color = MaterialTheme.colorScheme.surface)
+    ) {
+        ProfileColumnItem(
+            imageVector = Icons.Filled.Settings,
+            title = stringResource(id = R.string.update_profile),
+            onItemClicked = updateProfile
+        )
+        Divider(
+            modifier = Modifier
+                .padding(horizontal = 24.dp)
+                .clip(CircleShape),
+            thickness = 0.5.dp
+        )
+        ProfileColumnItem(
+            imageVector = Icons.Filled.Password,
+            title = stringResource(id = R.string.password_update),
+            onItemClicked = updatePassword
         )
     }
 }

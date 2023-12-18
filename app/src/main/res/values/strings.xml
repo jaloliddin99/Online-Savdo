@@ -85,6 +85,8 @@
     <string name="notifications">Notifications</string>
     <string name="change_theme">Change Theme</string>
     <string name="update_profile">Update Profile</string>
+    <string name="current_password">Current password</string>
+    <string name="password_update">Update password</string>
 
 
 </resources>

@@ -9,6 +9,7 @@ import org.don.onlineTrade.data.remote.models.VerificationRes
 import org.don.onlineTrade.data.remote.models.category.CategoryModel
 import org.don.onlineTrade.data.remote.models.currencies.ModelCurrencyLists
 import org.don.onlineTrade.data.remote.models.getProfile.ModelGetProfile
+import org.don.onlineTrade.data.remote.models.getProfile.UpdatePasswordModel
 import org.don.onlineTrade.data.remote.models.getProfile.UpdateProfileModel
 import org.don.onlineTrade.data.remote.models.getPublicProducts.ModelPosts
 import org.don.onlineTrade.data.remote.models.liked.LikedProductsModel
@@ -127,6 +128,12 @@ interface ApiInterface {
     suspend fun updateProfile(
         @Header("Authorization") token: String,
         @Body body: UpdateProfileModel
+    ): ModelSuccess
+
+    @POST("user/update-password")
+    suspend fun updatePassword(
+        @Header("Authorization") token: String,
+        @Body body: UpdatePasswordModel
     ): ModelSuccess
 
 

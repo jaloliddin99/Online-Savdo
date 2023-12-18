@@ -26,6 +26,7 @@ import org.don.onlineTrade.ui.navigation.filterCategoryNavigationRoute
 import org.don.onlineTrade.ui.navigation.myProductsNavigationRoute
 import org.don.onlineTrade.ui.navigation.notificationsNavigationRoute
 import org.don.onlineTrade.ui.navigation.pDetailsNavigationRoute
+import org.don.onlineTrade.ui.navigation.passwordUpdateNavigationRoute
 import org.don.onlineTrade.ui.navigation.profileUpdateNavigationRoute
 import org.don.onlineTrade.ui.navigation.regionsNavigationRoute
 
@@ -86,6 +87,16 @@ sealed class NavItems(
         badgeCount = null,
         profileUpdateNavigationRoute,
         titleRes = R.string.update_profile
+    )
+
+    object PasswordUpdate: NavItems(
+        title = "Password Update",
+        selectedIcon = Icons.Filled.Person,
+        unselectedIcon = Icons.Outlined.Person,
+        hasNews = true,
+        badgeCount = null,
+        passwordUpdateNavigationRoute,
+        titleRes = R.string.password_update
     )
     object Categories: NavItems(
         title = "Categories",
