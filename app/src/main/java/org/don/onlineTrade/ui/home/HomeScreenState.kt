@@ -55,3 +55,15 @@ data class UpdateProfileState(
     val error: String = ""
 )
 
+
+data class ForgotPasswordState(
+    val isLoading: Boolean = false,
+    val main: ModelSuccess?= null,
+    val error: String = "",
+)
+
+data class ResetNewPasswordState(
+    val isLoading: Boolean = false,
+    val main: ModelSuccess?= null,
+    val error: String = "",
+)

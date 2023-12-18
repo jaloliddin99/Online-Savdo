@@ -43,6 +43,17 @@ interface ApiInterface {
         @Query("email") email: String
     ): VerificationRes
 
+    @POST("auth/forgot-password")
+    suspend fun forgotPassword(
+        @Query("email") email: String
+    ): ModelSuccess
+
+    @POST("auth/reset-new-password")
+    suspend fun resetNewPassword(
+        @Query("email") email: String,
+        @Query("code") code: Int,
+        @Query("password") password: String
+    ): ModelSuccess
 
     @GET("post")
     suspend fun getPublicProducts(

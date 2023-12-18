@@ -87,6 +87,8 @@
     <string name="update_profile">Update Profile</string>
     <string name="current_password">Current password</string>
     <string name="password_update">Update password</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="reset_password">Reset password</string>
 
 
 </resources>

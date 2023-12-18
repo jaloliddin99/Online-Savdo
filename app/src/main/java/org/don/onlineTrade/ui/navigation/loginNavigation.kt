@@ -3,7 +3,12 @@ package org.don.onlineTrade.ui.navigation
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
+import androidx.navigation.NavType
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
+import org.don.onlineTrade.ui.auth.forgotPassword.ForgotPasswordRoute
+import org.don.onlineTrade.ui.auth.forgotPassword.ForgotPasswordScreen
+import org.don.onlineTrade.ui.auth.forgotPassword.ResetPasswordRoute
 import org.don.onlineTrade.ui.auth.login.SignInRoute
 
 
@@ -15,12 +20,50 @@ fun NavController.navigationToHome(navOptions: NavOptions? = null) {
 
 fun NavGraphBuilder.loginScreen(
     navigationToVerification: (email: String) -> Unit,
+    forgotPassword: () -> Unit
 ) {
     composable(route = loginScreen) {
         SignInRoute(
             navigateToVerification = {
                 navigationToVerification(it)
             },
+            forgotPassword
         )
     }
 }
+
+
+const val forgotPasswordRoute = "forgotPasswordRoute"
+fun NavGraphBuilder.forgotPasswordRoute(
+    navigationToResetPage: (email: String) -> Unit,
+) {
+    composable(route = forgotPasswordRoute) {
+        ForgotPasswordRoute(
+            goToResetPage = {
+                navigationToResetPage(it)
+            },
+        )
+    }
+}
+
+const val resetPasswordRoute = "resetPasswordRoute/{email}"
+fun NavGraphBuilder.resetPasswordRoute(
+    navigateToLoginPage: () -> Unit,
+) {
+    composable(route = resetPasswordRoute,
+        arguments = listOf(
+            navArgument("email") {
+                type = NavType.StringType
+            }
+        )) {
+        val email = it.arguments?.getString("email") ?: return@composable
+
+        ResetPasswordRoute(
+            goToLoginPage = {
+                navigateToLoginPage()
+            },
+            mEmail = email
+        )
+    }
+}
+

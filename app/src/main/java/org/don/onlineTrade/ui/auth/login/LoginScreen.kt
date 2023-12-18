@@ -47,6 +47,7 @@ import org.don.onlineTrade.ui.auth.OrSignInAsGuest
 import org.don.onlineTrade.ui.auth.Password
 import org.don.onlineTrade.ui.auth.PasswordState
 import org.don.onlineTrade.ui.auth.register.Branding
+import org.don.onlineTrade.ui.auth.register.DoYouHaveAccount
 import org.don.onlineTrade.ui.auth.register.RegistrationState
 import org.don.onlineTrade.ui.auth.register.SignUpScreen
 import org.don.onlineTrade.ui.theme.robotoFontFamily
@@ -59,7 +60,8 @@ import java.util.Date
 fun SignInScreen(
     onSignInSignUp: (email: String, password: String) -> Unit,
     state: LoginState,
-    loginSuccess: (email: String) -> Unit
+    loginSuccess: (email: String) -> Unit,
+    forgotPassword: () -> Unit
 ) {
     var showBranding by remember {
         mutableStateOf(true)
@@ -103,7 +105,8 @@ fun SignInScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 20.dp)
-                        .padding(bottom = 100.dp)
+                        .padding(bottom = 100.dp),
+                    forgotPassword
                 )
             }
             if (state.registerMain!= null){
@@ -129,7 +132,8 @@ fun SignInToLoginAccount(
     onSignInSignUp: (email: String, password: String) -> Unit,
     onSignInAsGuest: () -> Unit,
     onFocusChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    forgotPassword: () -> Unit
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -187,6 +191,12 @@ fun SignInToLoginAccount(
             }
         )
 
+        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
+        DoYouHaveAccount(onTextClicked = {
+            forgotPassword()
+        },
+            text = R.string.forgot_password)
+
         val isEnabled = emailState.isValid &&
                 passwordState.isValid
 
@@ -218,6 +228,7 @@ fun SignInToLoginAccount(
 private fun WelcomeScreenPreview() {
     SignInScreen(onSignInSignUp = { s: String, s1: String -> },
         state = LoginState(),
-        loginSuccess = {}
+        loginSuccess = {},
+        forgotPassword = {}
     )
 }

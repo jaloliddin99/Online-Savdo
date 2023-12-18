@@ -53,6 +53,18 @@ class NetworkRepositoryImpl @Inject constructor(
         )
     }
 
+    override suspend fun forgotPassword(email: String): ModelSuccess {
+        return apiInterface.forgotPassword(email)
+    }
+
+    override suspend fun resetNewPassword(
+        email: String,
+        code: Int,
+        password: String
+    ): ModelSuccess {
+        return apiInterface.resetNewPassword(email, code, password)
+    }
+
     override fun getPublicProducts(
         token: String,
         pagingConfig: PagingConfig

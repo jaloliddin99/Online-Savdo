@@ -39,6 +39,16 @@ interface NetworkRepository {
     ): VerificationRes
 
 
+    suspend fun forgotPassword(
+        email: String
+    ): ModelSuccess
+
+    suspend fun resetNewPassword(
+        email: String,
+        code: Int,
+        password: String
+    ): ModelSuccess
+
     fun getPublicProducts(
         token: String,
         pagingConfig: PagingConfig = getDefaultPageConfig()

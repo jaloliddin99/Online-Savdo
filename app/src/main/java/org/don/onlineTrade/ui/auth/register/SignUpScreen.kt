@@ -1,6 +1,7 @@
 package org.don.onlineTrade.ui.auth.register
 
 import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
@@ -127,7 +128,7 @@ fun SignUpScreen(
             }
 
             if (state.registerMain != null) {
-                registrationSuccess.invoke(state.email )
+                registrationSuccess.invoke(state.email)
             }
             if (state.error.isNotBlank()) {
                 Toast.makeText(LocalContext.current, state.error, Toast.LENGTH_SHORT).show()
@@ -141,7 +142,10 @@ fun SignUpScreen(
 }
 
 @Composable
-fun Branding(modifier: Modifier = Modifier) {
+fun Branding(
+    modifier: Modifier = Modifier,
+    @StringRes text: Int = R.string.please_login
+) {
     Column(
         modifier = modifier
             .wrapContentWidth(align = Alignment.CenterHorizontally)
@@ -157,7 +161,7 @@ fun Branding(modifier: Modifier = Modifier) {
         )
 
         Text(
-            text = stringResource(id = R.string.please_login),
+            text = stringResource(id = text),
             style = MaterialTheme.typography.titleMedium,
             textAlign = TextAlign.Center,
             modifier = Modifier
@@ -311,9 +315,9 @@ fun SignUpCreateAccount(
             }
         )
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
-        DoYouHaveAccount {
+        DoYouHaveAccount(onTextClicked = {
             onLoginPage()
-        }
+        })
 
         val isEnabled = emailState.isValid &&
                 passwordState.isValid &&
@@ -344,9 +348,10 @@ fun SignUpCreateAccount(
 
 @Composable
 fun DoYouHaveAccount(
-    onTextClicked: () -> Unit
+    onTextClicked: () -> Unit,
+    @StringRes text: Int = R.string.do_you_already_have_account
 ) {
-    val getString = stringResource(id = R.string.do_you_already_have_account)
+    val getString = stringResource(id = text)
     val annotatedString = buildAnnotatedString {
         withStyle(
             style = SpanStyle(

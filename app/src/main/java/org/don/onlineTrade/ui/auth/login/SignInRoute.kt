@@ -9,6 +9,7 @@ import org.don.onlineTrade.data.remote.models.LoginBody
 @Composable
 fun SignInRoute(
     navigateToVerification: (email: String) -> Unit,
+    forgotPassword: () -> Unit
 ) {
     val welcomeViewModel = hiltViewModel<LoginViewModel>()
     val state = welcomeViewModel.state
@@ -21,6 +22,7 @@ fun SignInRoute(
             )
         },
         state = state.value,
-        loginSuccess = navigateToVerification
+        loginSuccess = navigateToVerification,
+        forgotPassword
     )
 }

@@ -21,18 +21,9 @@ class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase
 ):ViewModel() {
 
-    fun signInAsGuest(
-        onSignInComplete: () -> Unit,
-    ) {
-        onSignInComplete()
-    }
-
-
 
     private val _state = mutableStateOf(LoginState())
     val state: State<LoginState> = _state
-
-
 
     fun registerUser(
         loginBody: LoginBody

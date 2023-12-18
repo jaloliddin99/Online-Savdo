@@ -61,6 +61,7 @@ import org.don.onlineTrade.ui.navigation.districtsNavigationRoute
 import org.don.onlineTrade.ui.navigation.districtsScreen
 import org.don.onlineTrade.ui.navigation.filterCategoryNavigationRoute
 import org.don.onlineTrade.ui.navigation.filterCategoryScreen
+import org.don.onlineTrade.ui.navigation.forgotPasswordRoute
 import org.don.onlineTrade.ui.navigation.myProductsNavigationRoute
 import org.don.onlineTrade.ui.navigation.myProductsScreen
 import org.don.onlineTrade.ui.navigation.notificationsNavigationRoute
@@ -75,6 +76,7 @@ import org.don.onlineTrade.ui.navigation.profileUpdateNavigationRoute
 import org.don.onlineTrade.ui.navigation.profileUpdateScreen
 import org.don.onlineTrade.ui.navigation.regionsNavigationRoute
 import org.don.onlineTrade.ui.navigation.regionsScreen
+import org.don.onlineTrade.ui.navigation.resetPasswordRoute
 import org.don.onlineTrade.ui.navigation.verificationScreen
 import org.don.onlineTrade.ui.theme.AppBackground
 import org.don.onlineTrade.ui.theme.AppGradientBackground
@@ -377,6 +379,9 @@ fun NavigationGraph(
         loginScreen(
             navigationToVerification = {
                 navController.navigate("verification_screen/$it")
+            },
+            forgotPassword = {
+                navController.navigate(forgotPasswordRoute)
             }
         )
 
@@ -390,6 +395,18 @@ fun NavigationGraph(
             },
             onBackPressed = navController::popBackStack
         )
+
+        forgotPasswordRoute {
+            navController.navigate("resetPasswordRoute/$it")
+        }
+
+        resetPasswordRoute {
+            navController.navigate(loginScreen) {
+                popUpTo(navController.graph.id) {
+                    inclusive = true
+                }
+            }
+        }
 
         categoriesScreen(
             onBackPressed = {
