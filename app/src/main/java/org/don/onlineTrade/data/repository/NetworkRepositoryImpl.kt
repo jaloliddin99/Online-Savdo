@@ -17,7 +17,6 @@ import org.don.onlineTrade.data.remote.models.getProfile.UpdatePasswordModel
 import org.don.onlineTrade.data.remote.models.getProfile.UpdateProfileModel
 import org.don.onlineTrade.data.remote.models.getPublicProducts.Content
 import org.don.onlineTrade.data.remote.models.getPublicProducts.ModelPosts
-import org.don.onlineTrade.data.remote.models.liked.LikedProductsModel
 import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.ModelGetDistricts
 import org.don.onlineTrade.data.remote.models.region.ModelGetRegions
@@ -117,8 +116,17 @@ class NetworkRepositoryImpl @Inject constructor(
         return apiInterface.likePost( token, id, language)
     }
 
-    override suspend fun getLikedProducts(token: String, language: String): LikedProductsModel {
-        return apiInterface.getLikedProducts(token, language)
+    override suspend fun getLikedProducts( token: String,
+                                           page: Int,
+                                           count: Int,
+                                           lang: String
+    ): ModelPosts {
+        return apiInterface.getLikedProducts(
+            token = token,
+            page = page,
+            size = count,
+            lang = lang
+        )
     }
 
     override suspend fun getProfile(token: String): ModelGetProfile {

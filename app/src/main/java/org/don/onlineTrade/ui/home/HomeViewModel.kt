@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 import org.don.onlineTrade.data.remote.models.getPublicProducts.Content
 import org.don.onlineTrade.domain.repository.NetworkRepository
 import org.don.onlineTrade.domain.state.Resource
+import org.don.onlineTrade.domain.useCase.GetLikedProductUseCase
 import org.don.onlineTrade.domain.useCase.MyPostsUseCase
 import org.don.onlineTrade.domain.useCase.ProductsPagerUseCase
 import org.don.onlineTrade.domain.useCase.allCategoriesUseCase.AllCategoriesUseCase
@@ -26,31 +27,21 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val categoryUseCase: AllCategoriesUseCase,
-    private val networkRepository: NetworkRepository,
     private val productsPagerUseCase: ProductsPagerUseCase,
     private val myPostsUseCase: MyPostsUseCase,
+    private val myLikedPostsUseCase: GetLikedProductUseCase
 ) :
     ViewModel() {
 
-    fun collectProducts(
-    ): Flow<PagingData<Content>> = networkRepository.getPublicProducts(
-        token = SharedPref.deviceToken,
-    ).cachedIn(viewModelScope)
 
 
     private val _state = mutableStateOf(HomeScreenState())
     val state: State<HomeScreenState> = _state
 
-    init {
-        getAllCategories(
-            token = SharedPref.deviceToken,
-            language = SharedPref.language
-        )
-    }
 
-    private fun getAllCategories(
-        token: String,
-        language: String,
+    fun getAllCategories(
+        token: String = SharedPref.deviceToken,
+        language: String = SharedPref.language,
     ) {
         categoryUseCase(
             token,

@@ -68,6 +68,7 @@ fun HomeScreen(
 
     LaunchedEffect(key1 = viewModel) {
         viewModel.loadNextItems()
+        viewModel.getAllCategories()
     }
 
     Box(

@@ -1,37 +1,36 @@
 package org.don.onlineTrade.domain.useCase
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import org.don.onlineTrade.data.remote.models.RegisterMain
-import org.don.onlineTrade.data.remote.models.liked.LikedProductsModel
+import org.don.onlineTrade.data.remote.models.getPublicProducts.Content
 import org.don.onlineTrade.domain.repository.NetworkRepository
-import org.don.onlineTrade.domain.state.Resource
-import retrofit2.HttpException
-import java.io.IOException
+import org.don.onlineTrade.utils.SharedPref
 import javax.inject.Inject
 
 class GetLikedProductUseCase @Inject constructor(
     private val repository: NetworkRepository
 ) {
+    suspend fun getItems(
+        token: String = SharedPref.deviceToken,
+        page: Int,
+        pageSize: Int,
+        lang: String = SharedPref.language
+    ): Result<List<Content>> {
+        val networkPager = repository.getLikedProducts(
+            token = token,
+            page = page,
+            count = pageSize,
+            lang = lang
+        ).data.content
 
-
-    operator fun invoke(
-        token: String, language: String
-    ): Flow<Resource<LikedProductsModel>> = flow {
-        try {
-            emit(Resource.Loading())
-            emit(
-                Resource.Success(
-                    repository.getLikedProducts(
-                        token, language
-                    )
-                )
-            )
-        } catch(e: HttpException) {
-            emit(Resource.Error(e.localizedMessage ?: "An unexpected error occured"))
-        } catch(e: IOException) {
-            emit(Resource.Error("Couldn't reach server. Check your internet connection."))
-        }
+//        return if (startingIndex + pageSize <= networkPager.size) {
+//            Result.success(
+//                networkPager.slice(startingIndex until startingIndex + pageSize)
+//            )
+//        } else {
+//            Result.success(emptyList())
+//        }
+        return Result.success(
+            networkPager
+        )
     }
 
 

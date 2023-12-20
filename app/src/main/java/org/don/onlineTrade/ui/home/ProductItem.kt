@@ -38,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -105,24 +106,22 @@ fun ProductItemPreView() {
 fun ProductItemForDetailsPage(
     data: Content,
     onItemClicked: (Int) -> Unit,
-    itemSize: Dp,
     paddingValues: PaddingValues = PaddingValues(
         start = MaterialTheme.spacing.dimen16Dp,
         top = MaterialTheme.spacing.dimen16Dp,
     )
 ) {
+    val itemSize: Dp = (LocalConfiguration.current.screenWidthDp.dp / 2) - 24.dp
+
     Card(
         shape = RoundedCornerShape(MaterialTheme.spacing.dimen12Dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         modifier = Modifier
             .padding(paddingValues)
-            .width(itemSize)
-            .aspectRatio(0.7f),
+            .width(itemSize),
         onClick = {
             onItemClicked(data.id)
-        },
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 10.dp
-        )
+        }
     ) {
         ProductItemDetails(data)
     }
@@ -185,7 +184,8 @@ fun ProductItemDetails(
                 .padding(paddingValues),
         ) {
             ConstraintLayout(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .wrapContentHeight()
             ) {
                 val (text, icon) = createRefs()

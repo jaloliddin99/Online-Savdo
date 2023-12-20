@@ -12,7 +12,6 @@ import org.don.onlineTrade.data.remote.models.getProfile.ModelGetProfile
 import org.don.onlineTrade.data.remote.models.getProfile.UpdatePasswordModel
 import org.don.onlineTrade.data.remote.models.getProfile.UpdateProfileModel
 import org.don.onlineTrade.data.remote.models.getPublicProducts.ModelPosts
-import org.don.onlineTrade.data.remote.models.liked.LikedProductsModel
 import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.ModelGetDistricts
 import org.don.onlineTrade.data.remote.models.region.ModelGetRegions
@@ -123,11 +122,13 @@ interface ApiInterface {
 
 
 
-    @GET("api/profile/products/liked")
+    @GET("post/user/liked-posts")
     suspend fun getLikedProducts(
         @Header("Authorization") token: String,
-        @Query("lang") language: String
-    ): LikedProductsModel
+        @Query("page") page: Int,
+        @Query("size") size: Int,
+        @Query("lang") lang: String
+    ): ModelPosts
 
 
     @GET("user")

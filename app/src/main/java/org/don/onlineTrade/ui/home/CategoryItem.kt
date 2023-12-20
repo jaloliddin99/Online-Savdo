@@ -49,7 +49,9 @@ fun Categories(
         state.forEachIndexed { index, item ->
             Spacer(modifier = modifier.width(MaterialTheme.spacing.dimen8Dp))
             CategoryItem(
-                item = item, modifier = modifier.width(MaterialTheme.spacing.dimen100Dp)
+                item = item,
+                modifier = modifier
+                    .width(MaterialTheme.spacing.dimen100Dp)
                     .height(MaterialTheme.spacing.dimen120Dp),
                 navigateToCategory = navigateToCategory
             )

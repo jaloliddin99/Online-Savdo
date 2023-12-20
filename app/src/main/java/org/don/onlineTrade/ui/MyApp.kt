@@ -50,7 +50,7 @@ import org.don.onlineTrade.ui.navigation.addProductScreen
 import org.don.onlineTrade.ui.navigation.homeScreen
 import org.don.onlineTrade.ui.navigation.loginScreen
 import org.don.onlineTrade.ui.navigation.searchScreen
-import org.don.onlineTrade.ui.navigation.settingsScreen
+import org.don.onlineTrade.ui.navigation.savedScreen
 import org.don.onlineTrade.ui.navigation.welcomeScreen
 import org.don.onlineTrade.ui.navigation.registrationScreen
 import org.don.onlineTrade.ui.dialogs.settings.SettingsDialog
@@ -325,7 +325,11 @@ fun NavigationGraph(
         )
 
         notificationsScreen()
-        settingsScreen()
+        savedScreen(
+            navigateToProduct = {
+                navController.navigate("productDetails/$it")
+            }
+        )
         profileScreen(
             toMyProducts = {
                 navController.navigate(myProductsNavigationRoute)

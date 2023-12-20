@@ -14,9 +14,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddLocation
 import androidx.compose.material.icons.filled.Category
@@ -51,9 +55,12 @@ import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsModel
 import org.don.onlineTrade.ui.add.ProductTitle
 import org.don.onlineTrade.ui.add.TextBold
 import org.don.onlineTrade.ui.add.TextThin
+import org.don.onlineTrade.ui.home.HomeScreenState
 import org.don.onlineTrade.ui.home.HomeViewModel
 import org.don.onlineTrade.ui.home.PresentProductState
+import org.don.onlineTrade.ui.home.ProductItem
 import org.don.onlineTrade.ui.home.ProductItemForDetailsPage
+import org.don.onlineTrade.ui.home.ScreenState
 import org.don.onlineTrade.ui.home.TOKEN
 import org.don.onlineTrade.ui.home.getCurrency
 import org.don.onlineTrade.ui.theme.spacing
@@ -67,8 +74,11 @@ fun ProductDetailsRoute(
     onSimilarItemClicked: (Int) -> Unit
 ) {
     val detailsViewModel = hiltViewModel<PresentViewModel>()
+    val homeViewMode = hiltViewModel<HomeViewModel>()
+    val pagerState = homeViewMode.pagerState
 
     LaunchedEffect(key1 = "hello") {
+        homeViewMode.loadNextItems()
         detailsViewModel.getProductDetail(
             id = productId,
             language = SharedPref.language,
@@ -78,10 +88,14 @@ fun ProductDetailsRoute(
 
     val state = detailsViewModel.state.value
     ProductDetailsScreen(
+        pagerState,
         state = state,
         onSimilarItemClicked = onSimilarItemClicked,
         onItemClicked = {
             detailsViewModel.likePost(it)
+        },
+        loadItems = {
+            homeViewMode.loadNextItems()
         }
     )
 }
@@ -89,16 +103,16 @@ fun ProductDetailsRoute(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ProductDetailsScreen(
+    mPagerState: ScreenState,
     modifier: Modifier = Modifier,
     state: PresentProductState,
     onSimilarItemClicked: (Int) -> Unit,
-    homeViewModel: HomeViewModel = hiltViewModel(),
-    onItemClicked: (Int) -> Unit
+    onItemClicked: (Int) -> Unit,
+    loadItems: () -> Unit
 ) {
 
     val isFeedLoading = state.isLoading
-    val pagingItems = homeViewModel.collectProducts(
-    ).collectAsLazyPagingItems()
+
     val pagerState = rememberPagerState(pageCount = {
         state.registerMain?.data?.images?.size ?: 0
     })
@@ -107,77 +121,67 @@ fun ProductDetailsScreen(
         mutableStateOf(PresentProductState())
     }
     loadedData = state
+    val scrollState = rememberLazyGridState()
 
     Box(
         modifier = modifier
             .fillMaxSize()
     ) {
-        LazyColumn {
-            item {
-                ImagePager(loadedData, pagerState)
-            }
 
-            item {
-                ItemDescription(loadedData, onLikeClicked = onItemClicked)
-            }
-            item {
-                Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
-                ContactDetails(loadedData.registerMain)
-            }
-            item {
-                val itemSize: Dp = (LocalConfiguration.current.screenWidthDp.dp / 2) - 24.dp
-                val list = pagingItems.itemSnapshotList.items
-                if (list.isNotEmpty()) {
-                    SimilarContents(
-                        list,
-                        itemSize,
-                        onSimilarItemClicked
+        Column(
+            modifier = modifier
+                .fillMaxWidth()
+                .verticalScroll(
+                    rememberScrollState()
+                )
+        ) {
+            ImagePager(loadedData, pagerState)
+
+            ItemDescription(loadedData, onLikeClicked = onItemClicked)
+
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
+            ContactDetails(loadedData.registerMain)
+
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
+            TextBold(
+                title = stringResource(id = R.string.similar_items),
+                modifier = Modifier
+                    .padding(start = MaterialTheme.spacing.dimen16Dp)
+            )
+
+
+            LazyRow(modifier = Modifier.wrapContentHeight()){
+                items(count = mPagerState.items.size) { i ->
+                    val item = mPagerState.items[i]
+                    LaunchedEffect(scrollState) {
+                        if (i >= mPagerState.items.size - 1 && !mPagerState.endReached && !mPagerState.isLoading) {
+                            loadItems.invoke()
+                        }
+                    }
+                    ProductItemForDetailsPage(
+                        data = item,
+                        onItemClicked = onItemClicked
                     )
+                    if (mPagerState.items.lastIndex == i){
+                        Spacer(modifier = modifier.width(16.dp))
+                    }
                 }
             }
+
+            Spacer(modifier = modifier.height(24.dp))
         }
+
     }
     FreeLoading(isFeedLoading = isFeedLoading)
 }
 
 
+
 @Composable
-fun SimilarContents(
-    list: List<Content>,
-    itemSize: Dp,
-    onItemClicked: (Int) -> Unit
+fun ItemDescription(
+    state: PresentProductState,
+    onLikeClicked: (Int) -> Unit
 ) {
-    Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
-    TextBold(
-        title = stringResource(id = R.string.similar_items),
-        modifier = Modifier
-            .padding(start = MaterialTheme.spacing.dimen16Dp))
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .horizontalScroll(rememberScrollState()),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        list.forEachIndexed { index, data ->
-            ProductItemForDetailsPage(
-                data = data,
-                onItemClicked = onItemClicked,
-                itemSize = itemSize,
-            )
-            if (index == list.lastIndex){
-                Spacer(modifier = Modifier.width(MaterialTheme.spacing.dimen16Dp))
-            }
-        }
-    }
-    Spacer(modifier = Modifier.height(24.dp))
-}
-
-
-
-@Composable
-fun ItemDescription(state: PresentProductState,
-                    onLikeClicked: (Int) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -202,7 +206,7 @@ fun ItemDescription(state: PresentProductState,
         DescriptionItems(
             imageVector = Icons.Filled.Category,
             title = stringResource(id = R.string.category),
-            desc = state.registerMain?.data?.category?.title ?:""
+            desc = state.registerMain?.data?.category?.title ?: ""
         )
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
     }
@@ -223,7 +227,7 @@ fun ProductDescription(
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
                 ProductTitle(title = item?.data?.title ?: "")
-                TextBold(title = "${item?.data?.price} ${getCurrency(currencyId = item?.data?.currency_id?:0)}")
+                TextBold(title = "${item?.data?.price} ${getCurrency(currencyId = item?.data?.currency_id ?: 0)}")
             }
 
             IconButton(onClick = {
@@ -232,12 +236,12 @@ fun ProductDescription(
                 }
             }) {
 
-                if (item?.data?.isLiked == true){
+                if (item?.data?.isLiked == true) {
                     Image(
                         painter = painterResource(id = R.drawable.ph_heart_fill),
                         contentDescription = null
                     )
-                }else{
+                } else {
                     Image(
                         painter = painterResource(id = R.drawable.solar_heart_outline),
                         contentDescription = null
@@ -246,7 +250,7 @@ fun ProductDescription(
             }
         }
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
-        TextThin(title = item?.data?.description?:"")
+        TextThin(title = item?.data?.description ?: "")
     }
 }
 

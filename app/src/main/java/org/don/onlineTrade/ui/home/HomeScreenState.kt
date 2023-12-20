@@ -3,7 +3,6 @@ package org.don.onlineTrade.ui.home
 import org.don.onlineTrade.data.remote.models.ModelSuccess
 import org.don.onlineTrade.data.remote.models.category.CompactedCategoryItem
 import org.don.onlineTrade.data.remote.models.getProfile.ModelGetProfile
-import org.don.onlineTrade.data.remote.models.liked.LikedProductsModel
 import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.Data
 import org.don.onlineTrade.data.remote.models.region.DataDistrict
@@ -36,11 +35,6 @@ data class PresentProductState(
     val error: String = ""
 )
 
-data class LikedProductsState(
-    val isLoading: Boolean = false,
-    val registerMain: LikedProductsModel?= null,
-    val error: String = ""
-)
 
 
 data class GetProfileState(
