@@ -59,7 +59,9 @@ interface ApiInterface {
         @Header("Authorization") token: String,
         @Query("page") page: Int,
         @Query("size") size: Int,
-        @Query("lang") lang: String
+        @Query("lang") lang: String,
+        @Query("category_id") categoryId: Int?,
+        @Query("query") query: String?
     ): ModelPosts
 
     @GET("post/myPosts")

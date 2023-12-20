@@ -14,14 +14,18 @@ class ProductsPagerUseCase @Inject constructor(
         token: String = SharedPref.deviceToken,
         page: Int,
         pageSize: Int,
-        lang: String = SharedPref.language
+        lang: String = SharedPref.language,
+        categoryId: Int?,
+        query: String?
     ): Result<List<Content>> {
         val startingIndex = page * pageSize
         val networkPager = repository.getProductsPager(
             token = token,
             page = page,
             count = pageSize,
-            lang = lang
+            lang = lang,
+            categoryId = categoryId,
+            query = query
         ).data.content
 
 //        return if (startingIndex + pageSize <= networkPager.size) {

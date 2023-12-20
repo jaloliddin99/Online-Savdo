@@ -121,7 +121,9 @@ interface NetworkRepository {
         token: String,
         page: Int,
         count: Int,
-        lang: String
+        lang: String,
+        categoryId: Int?,
+        query: String?
     ): ModelPosts
 
     suspend fun getMyPostsPager(

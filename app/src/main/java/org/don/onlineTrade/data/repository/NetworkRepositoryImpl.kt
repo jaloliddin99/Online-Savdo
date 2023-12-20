@@ -141,13 +141,17 @@ class NetworkRepositoryImpl @Inject constructor(
         token: String,
         page: Int,
         count: Int,
-        lang: String
+        lang: String,
+        categoryId: Int?,
+        query: String?
     ): ModelPosts {
         return apiInterface.getPublicProducts(
             token = token,
             page = page,
             size = count,
-            lang = lang
+            lang = lang,
+            categoryId = categoryId,
+            query = query
         )
     }
 

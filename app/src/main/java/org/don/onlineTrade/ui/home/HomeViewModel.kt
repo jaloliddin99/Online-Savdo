@@ -93,6 +93,8 @@ class HomeViewModel @Inject constructor(
                 productsPagerUseCase.getItems(
                     page = nextPage,
                     pageSize = 20,
+                    categoryId = categoryId,
+                    query = query
                 )
             }
         },

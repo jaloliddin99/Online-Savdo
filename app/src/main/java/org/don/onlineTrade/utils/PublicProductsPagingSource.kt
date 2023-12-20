@@ -19,7 +19,7 @@ class PublicProductsPagingSource(
         val page = params.key ?: DEFAULT_PAGE_INDEX
         return try {
             val response =
-                doggoApiService.getPublicProducts(token, page, params.loadSize, lang)
+                doggoApiService.getPublicProducts(token, page, params.loadSize, lang, categoryId = null, query = null)
 
             LoadResult.Page(
                 response.data.content,

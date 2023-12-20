@@ -1,25 +1,18 @@
 package org.don.onlineTrade.ui.home
 
-import android.util.Log
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -69,7 +62,8 @@ fun ProductItem(
         start = MaterialTheme.spacing.dimen8Dp,
         top = MaterialTheme.spacing.dimen16Dp,
         end = MaterialTheme.spacing.dimen8Dp
-    )
+    ),
+    isLiked: Boolean = false
 ) {
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -81,7 +75,7 @@ fun ProductItem(
             onItemClicked(data.id)
         }
     ) {
-        ProductItemDetails(data)
+        ProductItemDetails(data, isLiked)
     }
 }
 
@@ -130,7 +124,8 @@ fun ProductItemForDetailsPage(
 
 @Composable
 fun ProductItemDetails(
-    data: Content
+    data: Content,
+    isLiked: Boolean = false
 ) {
     Column(
         verticalArrangement = Arrangement.Top,
@@ -210,7 +205,7 @@ fun ProductItemDetails(
                 val shape = RoundedCornerShape(8.dp)
 
                 Icon(
-                    painter = painterResource(id = R.drawable.solar_heart_outline),
+                    painter = painterResource(id = if (isLiked) R.drawable.ph_heart_fill else R.drawable.solar_heart_outline),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
