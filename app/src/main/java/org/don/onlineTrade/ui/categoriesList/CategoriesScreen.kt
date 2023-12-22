@@ -1,5 +1,6 @@
 package org.don.onlineTrade.ui.categoriesList
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
@@ -10,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,6 +30,10 @@ fun CategoriesRoute(
 ) {
     val homeViewModel = hiltViewModel<HomeViewModel>()
     val state = homeViewModel.state.value
+    LaunchedEffect(key1 = homeViewModel) {
+        homeViewModel.getAllCategories()
+    }
+
     CategoriesScreen(
         modifier = modifier,
         state = state,
@@ -55,6 +61,7 @@ fun CategoriesScreen(
             .fillMaxSize()
     ) {
         LazyColumn {
+            Log.d("TAG", "CategoriesScreendawdawdawdawdwad ${state.registerMain}")
             if (state.registerMain != null) {
                 itemsIndexed(state.registerMain) { index, item ->
                     CategoryItemInVertical(

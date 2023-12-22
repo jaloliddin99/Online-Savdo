@@ -21,7 +21,9 @@ import org.don.onlineTrade.ui.dialogs.settings.SettingsDialogViewModel
 import org.don.onlineTrade.ui.dialogs.settings.UserEditableSettings
 import org.don.onlineTrade.ui.theme.IELTSAIExaminerTheme
 import androidx.compose.runtime.setValue
+import androidx.hilt.navigation.compose.hiltViewModel
 import org.don.onlineTrade.domain.model.ThemeBrand
+import org.don.onlineTrade.ui.add.AddProductScreenViewModel
 import org.don.onlineTrade.ui.dialogs.settings.SETTINGS_UI_STATE
 import org.don.onlineTrade.utils.ModelPref
 import org.don.onlineTrade.utils.SharedPref
@@ -30,9 +32,8 @@ import org.don.onlineTrade.utils.runTimePermission.RunTimePermission
 
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity(),
-
-OnRunTimePermissionListener{
+class MainActivity : ComponentActivity(), OnRunTimePermissionListener{
+    val addProductViewModel: AddProductScreenViewModel by viewModels()
 
     private val viewModel: SettingsDialogViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,7 +71,7 @@ OnRunTimePermissionListener{
                 androidTheme = shouldUseAndroidTheme(state.brand),
                 disableDynamicTheming = shouldDisableDynamicTheming(state.useDynamicColor)
             ) {
-                MainScreenView(state)
+                MainScreenView(state,addProductViewModel = addProductViewModel)
             }
         }
     }

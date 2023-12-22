@@ -2,7 +2,6 @@ package org.don.onlineTrade.ui.add
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
@@ -36,15 +35,12 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.category.CompactedCategoryItem
 import org.don.onlineTrade.data.remote.models.currencies.ModelCurrencyListsItem
-import org.don.onlineTrade.data.remote.models.region.Data
-import org.don.onlineTrade.data.remote.models.region.DataDistrict
 import org.don.onlineTrade.ui.home.getCurrencyList
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.runTimePermission.RunTimePermission
@@ -55,7 +51,6 @@ import java.util.Locale
 import java.util.Objects
 
 
-private var category: CompactedCategoryItem ?= null
 @Composable
 fun AddProductRoute(
     navigateToCategories: () -> Unit,
@@ -66,13 +61,9 @@ fun AddProductRoute(
     regName: String?=null,
     disName: String?=null,
     regId: Int?=null,
-    disId: Int?=null
+    disId: Int?=null,
+    addProductViewModel: AddProductScreenViewModel = hiltViewModel()
 ) {
-
-    if (item != null){
-        category = item
-    }
-    val addProductViewModel = hiltViewModel<AddProductScreenViewModel>()
 
 
     AddProductScreen(
@@ -104,7 +95,8 @@ fun AddProductRoute(
         regName,
         disName,
         regId,
-        disId
+        disId,
+        addProductViewModel
     )
 }
 
@@ -132,8 +124,13 @@ fun AddProductScreen(
     regName: String?=null,
     disName: String?=null,
     regId: Int?=null,
-    disId: Int?=null
+    disId: Int?=null,
+    viewModel: AddProductScreenViewModel
 ) {
+
+    if (item != null){
+        viewModel.categoryValue(item)
+    }
 
 
     var showGalleryOrCameraDialog by rememberSaveable {
@@ -141,15 +138,16 @@ fun AddProductScreen(
     }
 
     val productTitleState by rememberSaveable(stateSaver = ProductTitleStateSaver) {
-        mutableStateOf(ProductTitleState())
+        mutableStateOf(viewModel.titleValue)
     }
 
     val productDescriptionState by rememberSaveable(stateSaver = ProductDescriptionStateSaver) {
-        mutableStateOf(ProductDescriptionState())
+        mutableStateOf(viewModel.descriptionVM)
     }
 
+
     val productPriceState by rememberSaveable(stateSaver = ProductPriceStateSaver) {
-        mutableStateOf(ProductPriceState())
+        mutableStateOf(viewModel.priceVM)
     }
 
     var currencyItem by remember {
@@ -158,14 +156,14 @@ fun AddProductScreen(
 
     val context = LocalContext.current
 
-    var images by remember {
+    var galleryImageUri by remember {
         mutableStateOf(listOf<ImageUrl>())
     }
 
 
     val galleryLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { it ->
-            images = it.map { it.toImageUrl(isFromCamera = false) }
+            galleryImageUri = it.map { it.toImageUrl(isFromCamera = false) }
         }
 
 
@@ -218,7 +216,7 @@ fun AddProductScreen(
             title = R.string.please_enter_description
         )
         DividerTextAndSpace(R.string.select_category)
-        TextFieldUnEditable(productTitle = category?.title,
+        TextFieldUnEditable(productTitle = viewModel.categoryValue.title,
             modifier = Modifier.fillMaxWidth(),
             title = R.string.please_select_category,
             isFocusedOrClicked = {
@@ -231,6 +229,9 @@ fun AddProductScreen(
             modifier = Modifier.fillMaxWidth(),
             title = R.string.please_select_region,
             isFocusedOrClicked = {
+                viewModel.setTitle(productTitleState)
+                viewModel.setDescription(productDescriptionState)
+                viewModel.setPrice(productPriceState as ProductPriceState)
                 navigateToSelectRegions()
             })
         DividerTextAndSpace(R.string.enter_amount)
@@ -274,16 +275,16 @@ fun AddProductScreen(
         DividerTextAndSpace(R.string.select_image_for_your_product)
 
         if (capturedImageUri.path?.isNotEmpty() == true) {
-            images = listOf(capturedImageUri).map { it.toImageUrl(isFromCamera = true) }
+            galleryImageUri = listOf(capturedImageUri).map { it.toImageUrl(isFromCamera = true) }
         }
 
-        ShowSelectedImages(imagesList = images, onAddButtonClicked = {
+        ShowSelectedImages(imagesList = galleryImageUri, onAddButtonClicked = {
             showGalleryOrCameraDialog = true
         })
 
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen16Dp))
 
-        val categoryIsAdded = category != null
+        val categoryIsAdded = viewModel.categoryValue.id != -1
         val regionIsAdded = disId != null
 
         val isEnabled =
@@ -293,7 +294,7 @@ fun AddProductScreen(
                     && regionIsAdded
                     && productPriceState.isValid
                     && currencyItem.id != -1
-                    && (images.isNotEmpty() && images.size < 5)
+                    && (galleryImageUri.isNotEmpty() && galleryImageUri.size < 5)
 
         val onSubmit = {
             if (!productTitleState.isValid) {
@@ -313,10 +314,10 @@ fun AddProductScreen(
                 currencyItem.id,
                 regId!!,
                 disId!!,
-                category!!.id,
+                viewModel.categoryValue.id,
                 41.35495013247074,
                 69.3628400419868,
-                images
+                galleryImageUri
             )
         }
 
@@ -338,7 +339,6 @@ fun AddProductScreen(
             DialogCameraOrGallery(onDismiss = {
                 showGalleryOrCameraDialog = false
             }, onCameraSelected = {
-                showGalleryOrCameraDialog = false
                 RunTimePermission().permissionListForCamera(
                     cameraPermission = {
                         if (it) {
@@ -346,8 +346,8 @@ fun AddProductScreen(
                         }
                     }, context
                 )
-            }, onGallerySelected = {
                 showGalleryOrCameraDialog = false
+            }, onGallerySelected = {
                 RunTimePermission().permissionForGallery(
                     galleryPermission = {
                         if (it) {
@@ -355,6 +355,7 @@ fun AddProductScreen(
                         }
                     }, context
                 )
+                showGalleryOrCameraDialog = false
             })
         }
 

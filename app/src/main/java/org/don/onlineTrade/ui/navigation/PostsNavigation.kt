@@ -1,5 +1,6 @@
 package org.don.onlineTrade.ui.navigation
 
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
@@ -8,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import org.don.onlineTrade.data.remote.models.category.CompactedCategoryItem
 import org.don.onlineTrade.ui.add.AddProductRoute
+import org.don.onlineTrade.ui.add.AddProductScreenViewModel
 
 const val chatNavigationRoute = "add/{reg_id}/{reg_name}/{dis_id}/{dis_name}"
 fun NavController.navigateToPosts(navOptions: NavOptions? = null) {
@@ -19,7 +21,8 @@ fun NavController.navigateToPosts(navOptions: NavOptions? = null) {
 fun NavGraphBuilder.addProductScreen(
     navigateToCategories: () -> Unit,
     navigateToSelectRegions: () -> Unit,
-    popBack: () -> Unit
+    popBack: () -> Unit,
+    addProductViewModel: AddProductScreenViewModel
 ) {
     composable(
         route = chatNavigationRoute,
@@ -51,7 +54,9 @@ fun NavGraphBuilder.addProductScreen(
             regName = reg_name,
             disName = dis_name,
             regId = reg_id,
-            disId = dis_id
+            disId = dis_id,
+            addProductViewModel = addProductViewModel
+
         )
     }
 }

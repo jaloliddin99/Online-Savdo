@@ -4,9 +4,10 @@ import android.app.Application
 import android.net.Uri
 import android.provider.MediaStore
 import android.widget.Toast
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,20 +21,52 @@ import okhttp3.RequestBody
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.category.CompactedCategoryItem
 import org.don.onlineTrade.domain.state.Resource
-import org.don.onlineTrade.domain.useCase.currencies.CurrenciesUseCase
 import org.don.onlineTrade.domain.useCase.postNewProduct.PostNewProductUseCase
+import org.don.onlineTrade.ui.auth.TextFieldState
 import org.don.onlineTrade.ui.home.AddProductScreenState
-import org.don.onlineTrade.ui.home.TOKEN
 import org.don.onlineTrade.utils.SharedPref
 import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
 class AddProductScreenViewModel @Inject constructor(
-    private val currencyUseCase: CurrenciesUseCase,
     private val postNewProductUseCase: PostNewProductUseCase,
     private val application: Application
 ) : AndroidViewModel(application) {
+
+
+    var categoryValue: CompactedCategoryItem by mutableStateOf(CompactedCategoryItem())
+
+    fun categoryValue(newValue: CompactedCategoryItem) {
+        categoryValue = newValue
+    }
+
+    var titleValue: TextFieldState by mutableStateOf(ProductTitleState())
+    fun setTitle(newValue: TextFieldState){
+        titleValue = newValue
+    }
+
+
+    var descriptionVM: TextFieldState by mutableStateOf(ProductDescriptionState())
+    fun setDescription(newValue: TextFieldState){
+        descriptionVM = newValue
+    }
+
+
+    var priceVM: ProductPriceState by mutableStateOf(ProductPriceState())
+    fun setPrice(newValue: ProductPriceState){
+        priceVM = newValue
+    }
+
+
+    fun clearStoredValues(){
+        categoryValue(CompactedCategoryItem())
+        setTitle(ProductTitleState())
+        setDescription(ProductDescriptionState())
+        setPrice(ProductPriceState())
+    }
+
+
 
 
     private val _state = mutableStateOf(AddProductScreenState())

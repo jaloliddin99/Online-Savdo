@@ -42,9 +42,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
+import org.don.onlineTrade.ui.add.AddProductScreenViewModel
 import org.don.onlineTrade.ui.navigation.NavigationDefaults
 import org.don.onlineTrade.ui.navigation.addProductScreen
 import org.don.onlineTrade.ui.navigation.homeScreen
@@ -93,7 +96,9 @@ import org.don.onlineTrade.utils.SharedPref
 @Composable
 fun MainScreenView(
     state: UserEditableSettings,
-    appState: ApplicationState = rememberNiaAppState()
+    appState: ApplicationState = rememberNiaAppState(),
+    addProductViewModel: AddProductScreenViewModel
+
 ) {
     val rememberNavController = appState.navController
     val currentBackStackEntry by rememberNavController.currentBackStackEntryAsState()
@@ -208,7 +213,7 @@ fun MainScreenView(
                             }
                         )
                     }
-                    NavigationGraph(appState, state)
+                    NavigationGraph(appState, addProductViewModel)
                 }
             }
         }
@@ -282,7 +287,7 @@ fun BottomNavigation(
 @Composable
 fun NavigationGraph(
     appState: ApplicationState,
-    state: UserEditableSettings
+    addProductViewModel: AddProductScreenViewModel
 ) {
     val navController = appState.navController
 
@@ -314,7 +319,6 @@ fun NavigationGraph(
             }
         )
 
-
         addProductScreen(
             navigateToCategories = {
                 navController.navigate(categoriesNavigationRoute)
@@ -322,7 +326,8 @@ fun NavigationGraph(
             navigateToSelectRegions = {
                 navController.navigate(regionsNavigationRoute)
             },
-            popBack = {}
+            popBack = {},
+            addProductViewModel = addProductViewModel
         )
 
         notificationsScreen()
