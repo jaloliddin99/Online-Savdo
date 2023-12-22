@@ -33,36 +33,54 @@ fun NavGraphBuilder.loginScreen(
 }
 
 
-const val forgotPasswordRoute = "forgotPasswordRoute"
+const val forgotPasswordRoute = "forgotPasswordRoute/{fromLoginPage}"
 fun NavGraphBuilder.forgotPasswordRoute(
-    navigationToResetPage: (email: String) -> Unit,
+    navigationToResetPage: (email: String, fromLoginPage: Boolean) -> Unit,
 ) {
-    composable(route = forgotPasswordRoute) {
+    composable(
+        route = forgotPasswordRoute,
+        arguments = listOf(
+            navArgument("fromLoginPage") {
+                type = NavType.BoolType
+            },
+        )
+    ) {
+        val fromLoginPage = it.arguments?.getBoolean("fromLoginPage") ?: true
         ForgotPasswordRoute(
             goToResetPage = {
-                navigationToResetPage(it)
+                navigationToResetPage(it, fromLoginPage)
             },
         )
     }
 }
 
-const val resetPasswordRoute = "resetPasswordRoute/{email}"
+const val resetPasswordRoute = "resetPasswordRoute/{email}/{fromLoginPage}"
 fun NavGraphBuilder.resetPasswordRoute(
     navigateToLoginPage: () -> Unit,
+    onBackPressed: () -> Unit
+
 ) {
-    composable(route = resetPasswordRoute,
+    composable(
+        route = resetPasswordRoute,
         arguments = listOf(
             navArgument("email") {
                 type = NavType.StringType
-            }
-        )) {
+            },
+            navArgument("fromLoginPage") {
+                type = NavType.BoolType
+            },
+        )
+    ) {
         val email = it.arguments?.getString("email") ?: return@composable
+        val fromLoginPage = it.arguments?.getBoolean("fromLoginPage") ?: true
 
         ResetPasswordRoute(
             goToLoginPage = {
                 navigateToLoginPage()
             },
-            mEmail = email
+            mEmail = email,
+            fromLoginPage = fromLoginPage,
+            onBackPressed = onBackPressed
         )
     }
 }

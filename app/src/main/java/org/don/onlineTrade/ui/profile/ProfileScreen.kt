@@ -85,14 +85,15 @@ fun ProfileRoute(
     toMyProducts: () -> Unit,
     toUpdateProfile: () -> Unit,
     toUpdatePassword: () -> Unit,
-    refreshProfile: Boolean = false
+    refreshProfile: Boolean = false,
+    toForgotPassword: (Boolean) -> Unit
 ) {
     val viewModel = hiltViewModel<ProfileViewModel>()
     val state = viewModel.state.value
     if (refreshProfile){
         viewModel.refresh()
     }
-    ProfileScreen(modifier, state, toMyProducts, toUpdateProfile, toUpdatePassword)
+    ProfileScreen(modifier, state, toMyProducts, toUpdateProfile, toUpdatePassword, toForgotPassword)
 }
 
 @Composable
@@ -102,6 +103,7 @@ fun ProfileScreen(
     toMyProducts: () -> Unit,
     toUpdateProfile: () -> Unit,
     toUpdatePassword: () -> Unit,
+    toForgotPassword: (Boolean) -> Unit
 ) {
 
 
@@ -136,7 +138,12 @@ fun ProfileScreen(
                 Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen8Dp))
                 AboutAppAndContactWithUs()
                 Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen8Dp))
-                LogOut()
+                LogOut(
+                    logOut = {
+
+                    },
+                    forgotPassword = { toForgotPassword(false) }
+                )
                 Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen24Dp))
 
             }
@@ -300,14 +307,33 @@ fun ProfileSettingsAndPosts(
 }
 
 @Composable
-fun LogOut() {
-    ProfileColumnItem(
-        imageVector = Icons.Filled.Logout,
-        title = stringResource(id = R.string.logout),
-        onItemClicked = {
+fun LogOut(
+    logOut: () -> Unit,
+    forgotPassword: () -> Unit
+) {
 
-        }
-    )
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(color = MaterialTheme.colorScheme.surface)
+    ) {
+        ProfileColumnItem(
+            imageVector = Icons.Filled.Password,
+            title = stringResource(id = R.string.forgot_password),
+            onItemClicked = forgotPassword
+        )
+        Divider(
+            modifier = Modifier
+                .padding(horizontal = 24.dp)
+                .clip(CircleShape),
+            thickness = 0.5.dp
+        )
+        ProfileColumnItem(
+            imageVector = Icons.Filled.Logout,
+            title = stringResource(id = R.string.logout),
+            onItemClicked = logOut
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

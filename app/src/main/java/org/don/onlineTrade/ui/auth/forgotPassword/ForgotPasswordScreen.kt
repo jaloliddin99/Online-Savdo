@@ -51,14 +51,16 @@ import org.don.onlineTrade.utils.FreeLoading
 @Composable
 fun ForgotPasswordRoute(
     modifier: Modifier = Modifier,
-    goToResetPage: (email: String) -> Unit
+    goToResetPage: (email: String) -> Unit,
 ) {
     val viewModel = hiltViewModel<FPasswordViewModel>()
     val state = viewModel.state.value
-    ForgotPasswordScreen(modifier, state, requestToUpdate = {
-        viewModel.forgotPassword(it)
-    },
-        goToResetPage)
+    ForgotPasswordScreen(
+        modifier, state, requestToUpdate = {
+            viewModel.forgotPassword(it)
+        },
+        goToResetPage,
+    )
 }
 
 
@@ -67,7 +69,7 @@ fun ForgotPasswordScreen(
     modifier: Modifier,
     state: ForgotPasswordState,
     requestToUpdate: (email: String) -> Unit,
-    goToResetPage: (email: String) -> Unit
+    goToResetPage: (email: String) -> Unit,
 ) {
     val emailState by rememberSaveable(stateSaver = EmailStateSaver) {
         mutableStateOf(EmailState())
@@ -157,10 +159,10 @@ fun ForgotPasswordScreen(
 
     val context = LocalContext.current
     val rememberedContext = remember { { context } }
-    if (state.main != null){
+    if (state.main != null) {
         goToResetPage.invoke(emailState.text)
     }
-    if (state.error.isNotEmpty()){
+    if (state.error.isNotEmpty()) {
         Toast.makeText(rememberedContext(), state.error, Toast.LENGTH_SHORT).show()
     }
     FreeLoading(state.isLoading, paddingTop = 64.dp)

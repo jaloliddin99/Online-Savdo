@@ -61,7 +61,7 @@ OnRunTimePermissionListener{
             }
         }
 
-       // enableEdgeToEdge()
+        enableEdgeToEdge()
 
         setContent {
             val darkTheme = shouldUseDarkTheme(state.darkThemeConfig)

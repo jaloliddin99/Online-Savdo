@@ -50,7 +50,9 @@ import org.don.onlineTrade.utils.FreeLoading
 fun ResetPasswordRoute(
     modifier: Modifier = Modifier,
     goToLoginPage: () -> Unit,
-    mEmail: String
+    mEmail: String,
+    fromLoginPage: Boolean,
+    onBackPressed: () -> Unit
 ) {
     val viewModel = hiltViewModel<FPasswordViewModel>()
     val state = viewModel.stateR.value
@@ -62,6 +64,8 @@ fun ResetPasswordRoute(
             viewModel.resetNewPassword(email, code, password)
         },
         goToLoginPage = goToLoginPage,
+        fromLoginPage,
+        onBackPressed
     )
 }
 
@@ -72,7 +76,9 @@ fun ResetPasswordScreen(
     state: ResetNewPasswordState,
     email: String,
     requestToUpdate: (email: String, code: Int, password: String) -> Unit,
-    goToLoginPage: () -> Unit
+    goToLoginPage: () -> Unit,
+    fromLoginPage: Boolean,
+    onBackPressed: () -> Unit
 ) {
 
     val otpCodeState = remember {
@@ -236,7 +242,10 @@ fun ResetPasswordScreen(
     val context = LocalContext.current
     val rememberedContext = remember { { context } }
     if (state.main != null) {
-        goToLoginPage.invoke()
+        if (fromLoginPage)
+            goToLoginPage.invoke()
+        else
+            onBackPressed.invoke()
     }
     if (state.error.isNotEmpty()) {
         Toast.makeText(rememberedContext(), state.error, Toast.LENGTH_SHORT).show()

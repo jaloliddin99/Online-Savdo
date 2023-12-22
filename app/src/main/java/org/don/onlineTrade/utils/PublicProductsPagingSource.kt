@@ -15,7 +15,6 @@ class PublicProductsPagingSource(
     PagingSource<Int, Content>() {
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Content> {
-        //for first case it will be null, then we can pass some default value, in our case it's 1
         val page = params.key ?: DEFAULT_PAGE_INDEX
         return try {
             val response =

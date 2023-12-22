@@ -64,6 +64,7 @@ import org.don.onlineTrade.ui.navigation.filterCategoryScreen
 import org.don.onlineTrade.ui.navigation.forgotPasswordRoute
 import org.don.onlineTrade.ui.navigation.myProductsNavigationRoute
 import org.don.onlineTrade.ui.navigation.myProductsScreen
+import org.don.onlineTrade.ui.navigation.navigateToPresent
 import org.don.onlineTrade.ui.navigation.notificationsNavigationRoute
 import org.don.onlineTrade.ui.navigation.notificationsScreen
 import org.don.onlineTrade.ui.navigation.pDetailsNavigationRoute
@@ -334,11 +335,14 @@ fun NavigationGraph(
             toMyProducts = {
                 navController.navigate(myProductsNavigationRoute)
             },
-            toUpdateProfile ={
+            toUpdateProfile = {
                 navController.navigate(profileUpdateNavigationRoute)
             },
             toUpdatePassword = {
                 navController.navigate(passwordUpdateNavigationRoute)
+            },
+            toForgotPassword = {
+                navController.navigate("forgotPasswordRoute/$it")
             }
         )
 
@@ -385,7 +389,7 @@ fun NavigationGraph(
                 navController.navigate("verification_screen/$it")
             },
             forgotPassword = {
-                navController.navigate(forgotPasswordRoute)
+                navController.navigate("forgotPasswordRoute/${true}")
             }
         )
 
@@ -400,17 +404,26 @@ fun NavigationGraph(
             onBackPressed = navController::popBackStack
         )
 
-        forgotPasswordRoute {
-            navController.navigate("resetPasswordRoute/$it")
+        forgotPasswordRoute { email: String, fromLogin: Boolean ->
+            navController.navigate("resetPasswordRoute/${email}/$fromLogin")
         }
 
-        resetPasswordRoute {
-            navController.navigate(loginScreen) {
-                popUpTo(navController.graph.id) {
-                    inclusive = true
+        resetPasswordRoute(
+            navigateToLoginPage = {
+                navController.navigate(loginScreen) {
+                    popUpTo(navController.graph.id) {
+                        inclusive = true
+                    }
+                }
+            },
+            onBackPressed = {
+                navController.navigate(NavItems.Profile.screenRoute) {
+                    popUpTo(navController.graph.id) {
+                        inclusive = true
+                    }
                 }
             }
-        }
+        )
 
         categoriesScreen(
             onBackPressed = {

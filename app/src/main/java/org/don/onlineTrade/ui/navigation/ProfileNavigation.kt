@@ -17,7 +17,8 @@ fun NavController.navigateToProfile(navOptions: NavOptions? = null) {
 fun NavGraphBuilder.profileScreen(
     toMyProducts: () -> Unit,
     toUpdateProfile: () -> Unit,
-    toUpdatePassword: () -> Unit
+    toUpdatePassword: () -> Unit,
+    toForgotPassword: (Boolean) -> Unit
 ) {
     composable(route = profileNavigationRoute) { entry ->
         val item = entry.savedStateHandle.get<Boolean>("refresh_profile") ?: false
@@ -28,7 +29,8 @@ fun NavGraphBuilder.profileScreen(
             toMyProducts = toMyProducts,
             toUpdateProfile = toUpdateProfile,
             toUpdatePassword = toUpdatePassword,
-            refreshProfile = item
+            refreshProfile = item,
+            toForgotPassword = toForgotPassword
         )
     }
 }
