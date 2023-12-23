@@ -34,6 +34,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.don.onlineTrade.R
+import org.don.onlineTrade.ui.profile.ProfileViewModel
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.FreeLoading
 
@@ -57,6 +58,7 @@ fun HomeScreen(
     navigateToProduct: (Int) -> Unit,
     navigateToCategory: (Int) -> Unit,
 ) {
+    hiltViewModel<ProfileViewModel>()
     val viewModel = hiltViewModel<HomeViewModel>()
     val state = viewModel.state.value
     val isFeedLoading = state.isLoading

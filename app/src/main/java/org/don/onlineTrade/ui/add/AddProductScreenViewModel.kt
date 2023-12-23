@@ -6,8 +6,11 @@ import android.provider.MediaStore
 import android.widget.Toast
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,10 +23,12 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.category.CompactedCategoryItem
+import org.don.onlineTrade.data.remote.models.showProducts.User
 import org.don.onlineTrade.domain.state.Resource
 import org.don.onlineTrade.domain.useCase.postNewProduct.PostNewProductUseCase
 import org.don.onlineTrade.ui.auth.TextFieldState
 import org.don.onlineTrade.ui.home.AddProductScreenState
+import org.don.onlineTrade.utils.FileManager.getFileFromUri
 import org.don.onlineTrade.utils.SharedPref
 import java.io.File
 import javax.inject.Inject
@@ -58,12 +63,22 @@ class AddProductScreenViewModel @Inject constructor(
         priceVM = newValue
     }
 
+    private var _imageList = mutableStateListOf<ImageUrl>()
+    val imageList: List<ImageUrl> get() = _imageList
+    fun setImageList(newItem: List<ImageUrl>) {
+        viewModelScope.launch {
+            _imageList = newItem.toMutableStateList()
+        }
+    }
+
+
 
     fun clearStoredValues(){
         categoryValue(CompactedCategoryItem())
         setTitle(ProductTitleState())
         setDescription(ProductDescriptionState())
         setPrice(ProductPriceState())
+        setImageList(listOf())
     }
 
 
@@ -88,10 +103,9 @@ class AddProductScreenViewModel @Inject constructor(
         isPost: Boolean = false,
         productId: Int? = null,
     ) {
-
         val builder: MultipartBody.Builder =
             MultipartBody.Builder().setType(MultipartBody.FORM)
-        builder.addFormDataPart("userId", "1")
+        builder.addFormDataPart("userId", SharedPref.userId.toString())
         builder.addFormDataPart("title", titleProduct)
         builder.addFormDataPart("description", descriptionProduct)
         builder.addFormDataPart("price", priceText)
@@ -101,6 +115,8 @@ class AddProductScreenViewModel @Inject constructor(
         builder.addFormDataPart("lat", lat.toString())
         builder.addFormDataPart("lon", lon.toString())
         builder.addFormDataPart("currency_id", currencyId.toString())
+        val contentResolver = application.contentResolver
+
         viewModelScope.launch {
             for (photoUri in images) {
                 if (!photoUri.isFromCamera) {
@@ -127,26 +143,28 @@ class AddProductScreenViewModel @Inject constructor(
                         }
                     }
                 } else {
-                    val file = File(photoUri.uri.toString())
-                    val compressedImageFile = Compressor.compress(application, file)
-                    if (compressedImageFile.sizeInKb > 2000) {
-                        Toast.makeText(
-                            application,
-                            application.getString(R.string.selectet_image_size),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        return@launch
-                    }
-                    if (compressedImageFile.exists()) {
-                        builder.addFormDataPart(
-                            "files",
-                            compressedImageFile.name,
-                            RequestBody.create(
-                                "image/*".toMediaTypeOrNull(),
-                                compressedImageFile
+                    contentResolver.getFileFromUri(photoUri.uri, application)?.let { file ->
+                        val compressedImageFile = Compressor.compress(application, file)
+                        if (compressedImageFile.sizeInKb > 1000) {
+                            Toast.makeText(
+                                application,
+                                application.getString(R.string.selectet_image_size),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            return@launch
+                        }
+                        if (compressedImageFile.exists()) {
+                            builder.addFormDataPart(
+                                "files",
+                                compressedImageFile.name,
+                                RequestBody.create(
+                                    "image/*".toMediaTypeOrNull(),
+                                    compressedImageFile
+                                )
                             )
-                        )
+                        }
                     }
+
                 }
 
             }
@@ -158,7 +176,8 @@ class AddProductScreenViewModel @Inject constructor(
             ).onEach { result ->
                 when (result) {
                     is Resource.Success -> {
-                        _state.value = _state.value.copy(
+                        clearStoredValues()
+                        _state.value = AddProductScreenState(
                             postNewProduct = result.data,
                             isLoading = false,
                             error = ""
@@ -167,7 +186,7 @@ class AddProductScreenViewModel @Inject constructor(
 
                     is Resource.Error -> {
                         _state.value =
-                            _state.value.copy(
+                            AddProductScreenState(
                                 postNewProduct = null,
                                 isLoading = false,
                                 error = result.message ?: "An unexpected error occured"
@@ -175,7 +194,7 @@ class AddProductScreenViewModel @Inject constructor(
                     }
 
                     is Resource.Loading -> {
-                        _state.value = _state.value.copy(
+                        _state.value = AddProductScreenState(
                             postNewProduct = null,
                             isLoading = true,
                             error = ""
@@ -206,3 +225,4 @@ class AddProductScreenViewModel @Inject constructor(
     val File.size get() = if (!exists()) 0.0 else length().toDouble()
     private val File.sizeInKb get() = size / 1024
 }
+

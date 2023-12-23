@@ -326,7 +326,7 @@ fun NavigationGraph(
             navigateToSelectRegions = {
                 navController.navigate(regionsNavigationRoute)
             },
-            popBack = {},
+            popBack = navController::popBackStack,
             addProductViewModel = addProductViewModel
         )
 

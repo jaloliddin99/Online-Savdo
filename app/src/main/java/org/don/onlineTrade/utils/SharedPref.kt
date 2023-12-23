@@ -9,9 +9,13 @@ object SharedPref: KotprefModel() {
     var deviceToken by stringPref()
     var expirationTime by intPref()
 
+
+
     var loginTime by longPref()
 
     var language by stringPref("uz")
+
+    var userId by intPref()
 
 
 }

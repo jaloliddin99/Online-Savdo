@@ -14,4 +14,8 @@ class App: Application() {
         ModelPref.with(this)
     }
 
+    companion object{
+        val app = App()
+    }
+
 }

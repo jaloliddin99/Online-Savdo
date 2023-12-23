@@ -1,8 +1,10 @@
 package org.don.onlineTrade.ui.add
 
 import android.net.Uri
+import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -18,6 +20,7 @@ import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
@@ -28,14 +31,17 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
 import org.don.onlineTrade.ui.theme.spacing
 
 
 @Composable
 fun ShowSelectedImages(
     onAddButtonClicked: () -> Unit,
-    imagesList: List<ImageUrl>
+    imagesList: List<ImageUrl>,
+    cancelClicked: (ImageUrl) -> Unit
 ) {
 
     OutlinedCard(
@@ -52,7 +58,7 @@ fun ShowSelectedImages(
         ) {
             item {
                 imagesList.forEach { imageUrl ->
-                    ImagesDisplayView(imageUrl)
+                    ImagesDisplayView(imageUrl, cancelClicked = cancelClicked)
                     Spacer(modifier = Modifier.width(MaterialTheme.spacing.dimen8Dp))
                 }
                 ShowCircularImage {
@@ -72,8 +78,7 @@ fun ShowCircularImage(
     OutlinedCard(
         modifier = Modifier
             .width(48.dp)
-            .height(48.dp)
-        ,
+            .height(48.dp),
 
         onClick = onItemClicked,
         shape = RoundedCornerShape(24.dp),
@@ -89,23 +94,32 @@ fun ShowCircularImage(
 }
 
 @Composable
-fun ImagesDisplayView(imageUrl: ImageUrl) {
+fun ImagesDisplayView(
+    imageUrl: ImageUrl,
+    cancelClicked: (ImageUrl) -> Unit
+) {
     Box(
         modifier = Modifier
             .width(80.dp)
             .fillMaxHeight()
     ) {
-        Image(
-            painter = rememberAsyncImagePainter(model = imageUrl.uri), contentDescription = null,
+        Log.d("TAG", "ImagesDisplayViewdwadawdawdwa $imageUrl")
+        AsyncImage(
+            model = imageUrl.uri, contentDescription = null,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(MaterialTheme.spacing.dimen8Dp)
                 .align(Alignment.Center),
             contentScale = ContentScale.Crop,
         )
+
         Icon(
             imageVector = Icons.Filled.Cancel, contentDescription = null,
-            modifier = Modifier.align(Alignment.TopEnd)
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .clickable {
+                    cancelClicked.invoke(imageUrl)
+                }
         )
     }
 }
@@ -139,8 +153,10 @@ fun TextThin(title: String) {
 }
 
 @Composable
-fun TextBold(title: String,
-             modifier: Modifier = Modifier) {
+fun TextBold(
+    title: String,
+    modifier: Modifier = Modifier
+) {
     Text(
         modifier = modifier,
         text = title,
@@ -156,10 +172,10 @@ data class ImageUrl(
     val fakeUri: Uri
 )
 
-fun Uri.toImageUrl(isFromCamera: Boolean): ImageUrl{
+fun Uri.toImageUrl(isFromCamera: Boolean, fakeUri: Uri): ImageUrl {
     return ImageUrl(
         isFromCamera = isFromCamera,
         this,
-        this
+        fakeUri
     )
 }
