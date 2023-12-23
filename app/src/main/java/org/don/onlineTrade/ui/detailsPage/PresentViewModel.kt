@@ -8,6 +8,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import org.don.onlineTrade.domain.state.Resource
+import org.don.onlineTrade.domain.useCase.presentUseCase.DeletePostUseCase
 import org.don.onlineTrade.domain.useCase.presentUseCase.LikeDislikeUseCase
 import org.don.onlineTrade.domain.useCase.presentUseCase.PresentProductUseCase
 import org.don.onlineTrade.ui.home.PresentProductState
@@ -18,6 +19,7 @@ import javax.inject.Inject
 class PresentViewModel @Inject constructor(
     private val presentProductUseCase: PresentProductUseCase,
     private val likeDislikeUseCase: LikeDislikeUseCase,
+    private val deleteProductUseCase: DeletePostUseCase,
 ): ViewModel() {
 
     private val _state = mutableStateOf(PresentProductState())
@@ -70,6 +72,30 @@ class PresentViewModel @Inject constructor(
 
                 is Resource.Loading -> {
                     _state.value = _state.value.copy(isLoading = true)
+                }
+            }
+        }.launchIn(viewModelScope)
+    }
+
+
+    fun deletePost(it: Int) {
+        deleteProductUseCase(
+            id = it,
+            token = SharedPref.deviceToken
+        ).onEach { result ->
+            when (result) {
+                is Resource.Success -> {
+                    _state.value = PresentProductState(delete = result.data)
+                }
+
+                is Resource.Error -> {
+                    _state.value = PresentProductState(
+                        error = result.message ?: "An unexpected error occured"
+                    )
+                }
+
+                is Resource.Loading -> {
+                    _state.value = PresentProductState(isLoading = true)
                 }
             }
         }.launchIn(viewModelScope)

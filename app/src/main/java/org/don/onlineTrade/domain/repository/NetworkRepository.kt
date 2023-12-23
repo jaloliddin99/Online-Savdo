@@ -93,6 +93,11 @@ interface NetworkRepository {
         language: String
     ): PostDetailsModel
 
+    suspend fun deletePost(
+        id: Int,
+        token: String,
+    ): ModelSuccess
+
     suspend fun likePost(
         id: Int,
         token: String,

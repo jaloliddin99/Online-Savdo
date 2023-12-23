@@ -15,7 +15,7 @@ object SharedPref: KotprefModel() {
 
     var language by stringPref("uz")
 
-    var userId by intPref()
+    var userId by intPref(-1)
 
 
 }

@@ -112,6 +112,10 @@ class NetworkRepositoryImpl @Inject constructor(
         return apiInterface.showProductModel( token, id, language)
     }
 
+    override suspend fun deletePost(id: Int, token: String): ModelSuccess {
+        return apiInterface.deletePost(token, id)
+    }
+
     override suspend fun likePost(id: Int, token: String, language: String): PostDetailsModel {
         return apiInterface.likePost( token, id, language)
     }

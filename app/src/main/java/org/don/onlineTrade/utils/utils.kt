@@ -1,5 +1,8 @@
 package org.don.onlineTrade.utils
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
 import java.time.LocalDateTime
@@ -7,9 +10,21 @@ import java.time.Year
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
+fun openSmsApp(context: Context, phoneNumber: String) {
+    val smsUri = Uri.parse("smsto:$phoneNumber")
+    val smsIntent = Intent(Intent.ACTION_SENDTO, smsUri)
+    smsIntent.putExtra("sms_body", "Hello, this is a pre-filled message.")
+    context.startActivity(smsIntent)
+}
+
+fun callTo(phone: String = "", context: Context?) {
+    val intent = Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phone, null))
+    context?.startActivity(intent)
+}
+
 
 val appLanguageName: (String) -> String = {
-    when(it){
+    when (it) {
         "uz" -> "O'zbekcha"
         "en" -> "English"
         "ru" -> "Русский"
@@ -18,7 +33,7 @@ val appLanguageName: (String) -> String = {
 }
 
 val reverseAppLanguageName: (String) -> String = {
-    when(it){
+    when (it) {
         "O'zbekcha" -> "uz"
         "English" -> "uz"
         "Русский" -> "uz"
@@ -27,7 +42,7 @@ val reverseAppLanguageName: (String) -> String = {
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-val convertDate: (String) -> String = { date: String->
+val convertDate: (String) -> String = { date: String ->
     val dateTime = LocalDateTime.parse(date)
     val day = dateTime.dayOfMonth
     val month = dateTime.monthValue

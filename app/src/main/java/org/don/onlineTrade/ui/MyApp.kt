@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import org.don.onlineTrade.ui.add.AddProductScreenViewModel
@@ -107,7 +108,6 @@ fun MainScreenView(
             currentBackStackEntry?.destination?.route ?: "home"
         }
     }
-
     var toNotificationPage by rememberSaveable {
         mutableStateOf(false)
     }
@@ -311,7 +311,9 @@ fun NavigationGraph(
         productDetailsScreen(
             onSimilarItemClicked = {
                 navController.navigate("productDetails/$it")
-            }
+            },
+            onEditClicked = {},
+            navigateBack = navController::popBackStack
         )
         filterCategoryScreen(
             onItemClicked = {

@@ -1,5 +1,6 @@
 package org.don.onlineTrade.ui.detailsPage
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -20,18 +21,28 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddLocation
+import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.HeartBroken
 import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Sms
 import androidx.compose.material3.Divider
+import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -40,18 +51,28 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
+import androidx.core.view.ViewCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.getPublicProducts.Content
 import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsModel
+import org.don.onlineTrade.data.remote.models.showProducts.User
 import org.don.onlineTrade.ui.add.ProductTitle
 import org.don.onlineTrade.ui.add.TextBold
 import org.don.onlineTrade.ui.add.TextThin
@@ -63,15 +84,20 @@ import org.don.onlineTrade.ui.home.ProductItemForDetailsPage
 import org.don.onlineTrade.ui.home.ScreenState
 import org.don.onlineTrade.ui.home.TOKEN
 import org.don.onlineTrade.ui.home.getCurrency
+import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.FreeLoading
 import org.don.onlineTrade.utils.SharedPref
+import org.don.onlineTrade.utils.callTo
+import org.don.onlineTrade.utils.openSmsApp
 
 
 @Composable
 fun ProductDetailsRoute(
     productId: Int,
-    onSimilarItemClicked: (Int) -> Unit
+    onSimilarItemClicked: (Int) -> Unit,
+    onEditClicked: (Int) -> Unit,
+    navigateBack: () -> Unit
 ) {
     val detailsViewModel = hiltViewModel<PresentViewModel>()
     val homeViewMode = hiltViewModel<HomeViewModel>()
@@ -87,6 +113,10 @@ fun ProductDetailsRoute(
     }
 
     val state = detailsViewModel.state.value
+    if (state.delete != null) {
+        navigateBack.invoke()
+    }
+
     ProductDetailsScreen(
         pagerState,
         state = state,
@@ -96,7 +126,11 @@ fun ProductDetailsRoute(
         },
         loadItems = {
             homeViewMode.loadNextItems()
-        }
+        },
+        onDeleteClicked = {
+            detailsViewModel.deletePost(it)
+        },
+        onEditClicked = onEditClicked
     )
 }
 
@@ -108,29 +142,41 @@ fun ProductDetailsScreen(
     state: PresentProductState,
     onSimilarItemClicked: (Int) -> Unit,
     onItemClicked: (Int) -> Unit,
-    loadItems: () -> Unit
+    loadItems: () -> Unit,
+    onDeleteClicked: (Int) -> Unit,
+    onEditClicked: (Int) -> Unit
 ) {
-
     val isFeedLoading = state.isLoading
 
     val pagerState = rememberPagerState(pageCount = {
         state.registerMain?.data?.images?.size ?: 0
     })
 
+    val context = LocalContext.current
     var loadedData by remember {
         mutableStateOf(PresentProductState())
     }
     loadedData = state
     val scrollState = rememberLazyGridState()
 
-    Box(
+
+    ConstraintLayout(
         modifier = modifier
             .fillMaxSize()
     ) {
+        val (column, optionsScreen) = createRefs()
 
         Column(
             modifier = modifier
                 .fillMaxWidth()
+                .constrainAs(column) {
+                    top.linkTo(parent.top)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                    bottom.linkTo(optionsScreen.top)
+                    width = Dimension.fillToConstraints
+                    height = Dimension.fillToConstraints
+                }
                 .verticalScroll(
                     rememberScrollState()
                 )
@@ -150,7 +196,7 @@ fun ProductDetailsScreen(
             )
 
 
-            LazyRow(modifier = Modifier.wrapContentHeight()){
+            LazyRow(modifier = Modifier.wrapContentHeight()) {
                 items(count = mPagerState.items.size) { i ->
                     val item = mPagerState.items[i]
                     LaunchedEffect(scrollState) {
@@ -162,19 +208,105 @@ fun ProductDetailsScreen(
                         data = item,
                         onItemClicked = onItemClicked
                     )
-                    if (mPagerState.items.lastIndex == i){
+                    if (mPagerState.items.lastIndex == i) {
                         Spacer(modifier = modifier.width(16.dp))
                     }
                 }
             }
 
             Spacer(modifier = modifier.height(24.dp))
+            Spacer(modifier = Modifier.weight(1f))
         }
-
+        val user = state.registerMain?.data
+        OptionsScreen(
+            modifier = Modifier
+                .constrainAs(optionsScreen) {
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                    bottom.linkTo(parent.bottom)
+                },
+            onDeleteClicked = onDeleteClicked,
+            onEditClicked = onEditClicked,
+            onCallClicked = {
+                callTo((user?.user?.phoneNumber?:""), context)
+            },
+            onSmsClicked = {
+                openSmsApp(context, (user?.user?.phoneNumber?:""))
+            },
+            user = user?.user
+        )
     }
     FreeLoading(isFeedLoading = isFeedLoading)
+
 }
 
+
+@Composable
+fun OptionsScreen(
+    modifier: Modifier,
+    onDeleteClicked: (Int) -> Unit,
+    onEditClicked: (Int) -> Unit,
+    onCallClicked: () -> Unit,
+    onSmsClicked: () -> Unit,
+    user: User?
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(150.dp)
+            .shadow(elevation = 6.dp)
+            .background(
+                color = MaterialTheme.colorScheme.onPrimary,
+                shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+            )
+            .padding(top = 16.dp, start = 16.dp, end = 16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.Top
+    ) {
+        if (user?.id == SharedPref.userId) {
+            CircularImage(
+                icon = Icons.Filled.Delete,
+                title = R.string.delete_post,
+                onClicked = { onDeleteClicked.invoke(user.id) }
+            )
+            CircularImage(
+                icon = Icons.Filled.Edit,
+                title = R.string.edit_post,
+                onClicked = { onEditClicked.invoke(user.id) }
+            )
+        }
+        CircularImage(icon = Icons.Filled.Call, title = R.string.call, onClicked = onCallClicked)
+        CircularImage(icon = Icons.Filled.Sms, title = R.string.send_msg, onClicked = onSmsClicked)
+    }
+}
+
+
+@Composable
+fun CircularImage(
+    icon: ImageVector = Icons.Filled.Delete,
+    @StringRes title: Int,
+    onClicked: () -> Unit
+) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        FilledIconButton(
+            modifier = Modifier
+                .width(56.dp)
+                .height(56.dp)
+                .background(color = MaterialTheme.colorScheme.primary, shape = CircleShape),
+            onClick = onClicked
+        ) {
+            Icon(imageVector = icon, contentDescription = null)
+        }
+
+        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
+        Text(
+            text = stringResource(id = title),
+            fontWeight = FontWeight.Normal,
+            fontFamily = robotoFontFamily,
+            fontSize = MaterialTheme.spacing.dimen12Sp
+        )
+    }
+}
 
 
 @Composable

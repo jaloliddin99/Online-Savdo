@@ -32,6 +32,7 @@ data class AddProductScreenState(
 data class PresentProductState(
     val isLoading: Boolean = false,
     val registerMain: PostDetailsModel?= null,
+    val delete: ModelSuccess?= null,
     val error: String = ""
 )
 

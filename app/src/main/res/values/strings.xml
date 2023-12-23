@@ -90,6 +90,10 @@
     <string name="forgot_password">Forgot password?</string>
     <string name="reset_password">Reset password</string>
     <string name="all_liked_products">All liked posts</string>
+    <string name="delete_post">Delete</string>
+    <string name="edit_post">Edit</string>
+    <string name="call">Call</string>
+    <string name="send_msg">Send message</string>
 
 
 </resources>

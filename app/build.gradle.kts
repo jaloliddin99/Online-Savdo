@@ -86,8 +86,6 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:$nav_version")
     implementation("androidx.compose.runtime:runtime-tracing:1.0.0-beta01")
 
-    implementation("com.google.accompanist:accompanist-systemuicontroller:0.30.1")
-
     implementation("com.google.dagger:hilt-android:2.48")
     kapt("com.google.dagger:hilt-android-compiler:2.47")
     kapt("androidx.hilt:hilt-compiler:1.1.0")
@@ -109,7 +107,10 @@ dependencies {
     implementation("androidx.paging:paging-compose:3.2.1")
     implementation("io.coil-kt:coil-compose:2.4.0")
 
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.30.1")
+    implementation("com.google.accompanist:accompanist-insets:0.31.5-beta")
     implementation("com.google.accompanist:accompanist-flowlayout:0.20.0")
+
     implementation("id.zelory:compressor:3.0.1")
     implementation("com.airbnb.android:lottie-compose:6.0.1")
 

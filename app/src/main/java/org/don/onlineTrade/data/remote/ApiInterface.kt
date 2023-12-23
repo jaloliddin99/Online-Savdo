@@ -17,6 +17,7 @@ import org.don.onlineTrade.data.remote.models.region.ModelGetDistricts
 import org.don.onlineTrade.data.remote.models.region.ModelGetRegions
 import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsModel
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
@@ -113,6 +114,12 @@ interface ApiInterface {
         @Path("id") id: Int,
         @Query("lang") language: String
     ): PostDetailsModel
+
+    @DELETE("post/{id}")
+    suspend fun deletePost(
+        @Header("Authorization") token: String,
+        @Path("id") id: Int,
+    ): ModelSuccess
 
     @POST("post/{id}/like")
     suspend fun likePost(

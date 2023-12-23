@@ -15,7 +15,9 @@ fun NavController.navigateToPresent(navOptions: NavOptions? = null) {
 }
 
 fun NavGraphBuilder.productDetailsScreen(
-    onSimilarItemClicked: (Int) -> Unit
+    onSimilarItemClicked: (Int) -> Unit,
+    onEditClicked: (Int) -> Unit,
+    navigateBack: () -> Unit
 ) {
     composable(
         route = pDetailsNavigationRoute,
@@ -27,7 +29,11 @@ fun NavGraphBuilder.productDetailsScreen(
         )
     ) { backStackEntry ->
         val param = backStackEntry.arguments?.getInt("param")
-        ProductDetailsRoute(param?:0,
-            onSimilarItemClicked = onSimilarItemClicked)
+        ProductDetailsRoute(
+            param ?: 0,
+            onSimilarItemClicked = onSimilarItemClicked,
+            onEditClicked,
+            navigateBack
+        )
     }
 }
