@@ -91,22 +91,13 @@ fun VerificationScreen(
                 modifier = modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Box(
-                    modifier = modifier
-                        .fillMaxWidth()
-                        .height(56.dp)
-                ) {
-                    IconButton(onClick = onBackPressed) {
-                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
-                    }
-                    Text(
-                        text = stringResource(id = R.string.verification),
-                        modifier = Modifier.align(Alignment.Center),
-                        fontWeight = FontWeight.Medium,
-                        fontFamily = robotoFontFamily,
-                        fontSize = MaterialTheme.spacing.dimen16Sp
-                    )
-                }
+
+                Spacer(
+                    modifier = Modifier
+                        .weight(1f, fill = showBranding)
+                        .animateContentSize()
+                )
+
 
                 AnimatedVisibility(
                     visible = showBranding,
@@ -120,6 +111,12 @@ fun VerificationScreen(
                             .height(100.dp)
                     )
                 }
+
+                Spacer(
+                    modifier = Modifier
+                        .weight(1f, fill = showBranding)
+                        .animateContentSize()
+                )
 
                 Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen20Dp))
 
