@@ -121,6 +121,10 @@ interface NetworkRepository {
         body: UpdateProfileModel
     ): ModelSuccess
 
+    suspend fun updateProfileImage(
+        token: String,
+        body: RequestBody
+    ): ModelSuccess
 
     suspend fun getProductsPager(
         token: String,

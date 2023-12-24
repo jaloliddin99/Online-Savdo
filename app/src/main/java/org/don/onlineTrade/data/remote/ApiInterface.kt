@@ -151,6 +151,12 @@ interface ApiInterface {
         @Body body: UpdateProfileModel
     ): ModelSuccess
 
+    @POST("user/update-profile-image")
+    suspend fun updateProfileImage(
+        @Header("Authorization") token: String,
+        @Body requestBody: RequestBody
+    ): ModelSuccess
+
     @POST("user/update-password")
     suspend fun updatePassword(
         @Header("Authorization") token: String,

@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.onEach
 import org.don.onlineTrade.data.remote.models.RegistrationBody
 import org.don.onlineTrade.domain.state.Resource
 import org.don.onlineTrade.domain.useCase.auth.registrationUseCase.RegistrationUseCase
-import org.don.onlineTrade.ui.auth.login.assignDate
 import javax.inject.Inject
 
 @HiltViewModel

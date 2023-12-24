@@ -1,5 +1,7 @@
 package org.don.onlineTrade
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.ViewGroup
 import android.view.WindowInsets
@@ -31,11 +33,13 @@ import androidx.core.view.updateLayoutParams
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.google.accompanist.insets.ProvideWindowInsets
+import org.don.onlineTrade.app.App
 import org.don.onlineTrade.domain.model.ThemeBrand
 import org.don.onlineTrade.ui.add.AddProductScreenViewModel
 import org.don.onlineTrade.ui.dialogs.settings.SETTINGS_UI_STATE
 import org.don.onlineTrade.ui.navigation.myProductsNavigationRoute
 import org.don.onlineTrade.ui.navigation.pDetailsNavigationRoute
+import org.don.onlineTrade.utils.LocaleManager
 import org.don.onlineTrade.utils.ModelPref
 import org.don.onlineTrade.utils.SharedPref
 import org.don.onlineTrade.utils.runTimePermission.OnRunTimePermissionListener
@@ -46,8 +50,14 @@ import org.don.onlineTrade.utils.runTimePermission.RunTimePermission
 class MainActivity : ComponentActivity(), OnRunTimePermissionListener {
     val addProductViewModel: AddProductScreenViewModel by viewModels()
 
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(
+            LocaleManager.setLocale(newBase, SharedPref.language)
+        )
+    }
     private val viewModel: SettingsDialogViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
+        //LocaleManager.setLocale(this, SharedPref.language)
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
@@ -82,7 +92,11 @@ class MainActivity : ComponentActivity(), OnRunTimePermissionListener {
                 androidTheme = shouldUseAndroidTheme(state.brand),
                 disableDynamicTheming = shouldDisableDynamicTheming(state.useDynamicColor)
             ) {
-                MainScreenView(state,addProductViewModel = addProductViewModel)
+                MainScreenView(state,addProductViewModel = addProductViewModel,
+                    restartApp = {
+                        finish()
+                        startActivity(Intent(this, MainActivity::class.java))
+                    })
             }
         }
     }

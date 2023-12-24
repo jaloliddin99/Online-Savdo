@@ -338,10 +338,10 @@ fun SignUpCreateAccount(
                 style = MaterialTheme.typography.titleSmall
             )
         }
-        OrSignInAsGuest(
-            onSignInAsGuest = onSignInAsGuest,
-            modifier = Modifier.fillMaxWidth()
-        )
+//        OrSignInAsGuest(
+//            onSignInAsGuest = onSignInAsGuest,
+//            modifier = Modifier.fillMaxWidth()
+//        )
 
     }
 }

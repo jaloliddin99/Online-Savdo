@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
+import org.don.onlineTrade.R
 import java.time.LocalDateTime
 import java.time.Year
 import java.time.format.DateTimeFormatter
@@ -32,11 +33,20 @@ val appLanguageName: (String) -> String = {
     }
 }
 
+val appLanguageNameRes: (String) -> Int = {
+    when (it) {
+        "uz" -> R.drawable.ic_flag_uzb
+        "en" -> R.drawable.ic_flag_gb
+        "ru" -> R.drawable.ic_flag_russsian
+        else -> R.drawable.ic_flag_uzb
+    }
+}
+
 val reverseAppLanguageName: (String) -> String = {
     when (it) {
         "O'zbekcha" -> "uz"
-        "English" -> "uz"
-        "Русский" -> "uz"
+        "English" -> "en"
+        "Русский" -> "ru"
         else -> "uz"
     }
 }

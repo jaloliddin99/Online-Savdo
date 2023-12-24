@@ -83,9 +83,12 @@ fun SavedScreen(
                         viewModel.loadNextItems()
                     }
                 }
-                ProductItem(item, onItemClicked = {
-                    navigateToProduct.invoke(it)
-                }, isLiked = true)
+                ProductItem(
+                    item, onItemClicked = {
+                        navigateToProduct.invoke(it)
+                    }, isLiked = true,
+                    isMainScreenOrProfile = false
+                )
             }
             item(span = { GridItemSpan(2) }) {
                 if (pagerState.isLoading && pagerState.page != 0) {

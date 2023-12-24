@@ -1,5 +1,10 @@
 package org.don.onlineTrade.ui.profile
 
+import android.content.Intent
+import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -56,28 +61,41 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import kotlinx.coroutines.launch
+import org.don.onlineTrade.MainActivity
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.getProfile.User
+import org.don.onlineTrade.ui.add.DialogCameraOrGallery
+import org.don.onlineTrade.ui.add.ImageUrl
 import org.don.onlineTrade.ui.add.ProductTitle
 import org.don.onlineTrade.ui.add.TextBold
 import org.don.onlineTrade.ui.add.TextThin
+import org.don.onlineTrade.ui.add.toImageUrl
 import org.don.onlineTrade.ui.dialogs.settings.SettingsDialog
 import org.don.onlineTrade.ui.dialogs.settings.UserEditableSettings
 import org.don.onlineTrade.ui.home.GetProfileState
+import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.spacing
+import org.don.onlineTrade.utils.ComposeFileProvider
 import org.don.onlineTrade.utils.FreeLoading
+import org.don.onlineTrade.utils.LocaleManager
 import org.don.onlineTrade.utils.SharedPref
 import org.don.onlineTrade.utils.appLanguageName
+import org.don.onlineTrade.utils.appLanguageNameRes
 import org.don.onlineTrade.utils.reverseAppLanguageName
+import org.don.onlineTrade.utils.runTimePermission.RunTimePermission
 
 @Composable
 fun ProfileRoute(
@@ -86,14 +104,28 @@ fun ProfileRoute(
     toUpdateProfile: () -> Unit,
     toUpdatePassword: () -> Unit,
     refreshProfile: Boolean = false,
-    toForgotPassword: (Boolean) -> Unit
+    toForgotPassword: (Boolean) -> Unit,
+    goToRegistration: () -> Unit,
+    restartApp: () -> Unit
 ) {
     val viewModel = hiltViewModel<ProfileViewModel>()
     val state = viewModel.state.value
-    if (refreshProfile){
+    if (refreshProfile) {
         viewModel.refresh()
     }
-    ProfileScreen(modifier, state, toMyProducts, toUpdateProfile, toUpdatePassword, toForgotPassword)
+    ProfileScreen(
+        modifier,
+        state,
+        toMyProducts,
+        toUpdateProfile,
+        toUpdatePassword,
+        toForgotPassword,
+        goToRegistration,
+        uploadImage = {
+            viewModel.updateProfileImage(it)
+        },
+        restartApp
+    )
 }
 
 @Composable
@@ -103,9 +135,60 @@ fun ProfileScreen(
     toMyProducts: () -> Unit,
     toUpdateProfile: () -> Unit,
     toUpdatePassword: () -> Unit,
-    toForgotPassword: (Boolean) -> Unit
+    toForgotPassword: (Boolean) -> Unit,
+    goToRegistration: () -> Unit,
+    uploadImage: (ImageUrl) -> Unit,
+    restartApp: () -> Unit
 ) {
+    val context = LocalContext.current
 
+    var showGalleryOrCameraDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    var capturedImageUri by remember {
+        mutableStateOf<Uri>(Uri.EMPTY)
+    }
+
+
+    val galleryLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            uri?.let { uploadImage(ImageUrl(isFromCamera = true, uri, uri)) }
+        }
+
+
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture(),
+        onResult = { success ->
+            uploadImage(ImageUrl(isFromCamera = true, capturedImageUri, capturedImageUri))
+        }
+    )
+
+    if (showGalleryOrCameraDialog) {
+        DialogCameraOrGallery(onDismiss = {
+            showGalleryOrCameraDialog = false
+        }, onCameraSelected = {
+            RunTimePermission().permissionListForCamera(
+                cameraPermission = {
+                    if (it) {
+                        val uri = ComposeFileProvider.getImageUri(context)
+                        capturedImageUri = uri
+                        cameraLauncher.launch(uri)
+                    }
+                }, context
+            )
+            showGalleryOrCameraDialog = false
+        }, onGallerySelected = {
+            RunTimePermission().permissionForGallery(
+                galleryPermission = {
+                    if (it) {
+                        galleryLauncher.launch("image/*")
+                    }
+                }, context
+            )
+            showGalleryOrCameraDialog = false
+        })
+    }
 
     Box(modifier = modifier.fillMaxSize()) {
         Column(
@@ -116,37 +199,42 @@ fun ProfileScreen(
         ) {
 
             Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen24Dp))
-            RoundImage(user = state.getProfile?.data)
+            RoundImage(user = state.getProfile?.data,
+                onImageClicked = {
+                    showGalleryOrCameraDialog = true
+                })
+
             Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen12Dp))
 
             if (state.getProfile != null) {
                 val user = state.getProfile.data
                 TextBold(title = "${user.firstName}, ${user.lastName}")
                 user.phoneNumber?.let { ProductTitle(title = it) }
-                Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen24Dp))
-                AppLanguage()
-                Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen8Dp))
-                ProfileSettingsAndPosts(
-                    toMyProducts
-                )
-                Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen8Dp))
-
-                ProfileUpdatePasswordAndProfile(
-                    updateProfile = toUpdateProfile,
-                    updatePassword = toUpdatePassword
-                )
-                Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen8Dp))
-                AboutAppAndContactWithUs()
-                Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen8Dp))
-                LogOut(
-                    logOut = {
-
-                    },
-                    forgotPassword = { toForgotPassword(false) }
-                )
-                Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen24Dp))
-
             }
+
+            Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen24Dp))
+            AppLanguage(restartApp)
+            Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen8Dp))
+            ProfileSettingsAndPosts(
+                toMyProducts
+            )
+            Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen8Dp))
+
+            ProfileUpdatePasswordAndProfile(
+                updateProfile = toUpdateProfile,
+                updatePassword = toUpdatePassword
+            )
+            Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen8Dp))
+            AboutAppAndContactWithUs()
+            Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen8Dp))
+            LogOut(
+                logOut = {
+                    SharedPref.clear()
+                    goToRegistration.invoke()
+                },
+                forgotPassword = { toForgotPassword(false) }
+            )
+            Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen24Dp))
 
         }
         FreeLoading(state.isLoading)
@@ -157,7 +245,8 @@ fun ProfileScreen(
 @Composable
 fun RoundImage(
     modifier: Modifier = Modifier,
-    user: User?
+    user: User?,
+    onImageClicked: () -> Unit
 ) {
     var isLoading by remember {
         mutableStateOf(true)
@@ -174,7 +263,10 @@ fun RoundImage(
     Box(
         modifier = modifier
             .width(100.dp)
-            .height(100.dp),
+            .height(100.dp)
+            .clickable {
+                onImageClicked.invoke()
+            },
     ) {
 
         if (isLoading) {
@@ -276,6 +368,7 @@ fun ProfileUpdatePasswordAndProfile(
         )
     }
 }
+
 @Composable
 fun ProfileSettingsAndPosts(
     toMyProducts: () -> Unit,
@@ -306,11 +399,15 @@ fun ProfileSettingsAndPosts(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LogOut(
     logOut: () -> Unit,
     forgotPassword: () -> Unit
 ) {
+    val sheetState = rememberModalBottomSheetState()
+    val scope = rememberCoroutineScope()
+    var showBottomSheet by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -331,21 +428,67 @@ fun LogOut(
         ProfileColumnItem(
             imageVector = Icons.Filled.Logout,
             title = stringResource(id = R.string.logout),
-            onItemClicked = logOut
+            onItemClicked = {
+                showBottomSheet = true
+            }
         )
+
+    }
+
+    if (showBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = {
+                showBottomSheet = false
+            },
+            sheetState = sheetState
+        ) {
+            Text(
+                text = stringResource(id = R.string.log_out),
+                fontWeight = FontWeight.Normal,
+                fontFamily = robotoFontFamily,
+                fontSize = 18.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+            )
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
+
+            Button(
+                onClick = {
+                    scope.launch { sheetState.hide() }.invokeOnCompletion {
+                        if (!sheetState.isVisible) {
+                            showBottomSheet = false
+                            logOut.invoke()
+                        }
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .padding(horizontal = MaterialTheme.spacing.dimen16Dp)
+            ) {
+                Text(
+                    text = stringResource(id = R.string.logout),
+                    style = MaterialTheme.typography.titleSmall
+                )
+            }
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen24Dp))
+        }
     }
 }
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppLanguage() {
+fun AppLanguage(
+    restartApp: () -> Unit
+) {
 
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
 
     ProfileColumnItem(
-        imageVector = ImageVector.vectorResource(id = R.drawable.ic_flag_uzb),
+        imageVector = ImageVector.vectorResource(id = appLanguageNameRes(SharedPref.language)),
         title = stringResource(id = R.string.app_language),
         desc = appLanguageName(SharedPref.language),
         onItemClicked = {
@@ -353,6 +496,10 @@ fun AppLanguage() {
         }
     )
 
+    val context = LocalContext.current
+    val languageSelectListener = remember {
+        mutableStateOf(SharedPref.language)
+    }
     if (showBottomSheet) {
         ModalBottomSheet(
             onDismissRequest = {
@@ -362,7 +509,7 @@ fun AppLanguage() {
         ) {
             RadioGroupExample(
                 onLanguageSelected = {
-
+                    languageSelectListener.value = it
                 }
             )
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
@@ -371,6 +518,11 @@ fun AppLanguage() {
                     scope.launch { sheetState.hide() }.invokeOnCompletion {
                         if (!sheetState.isVisible) {
                             showBottomSheet = false
+                            if (SharedPref.language != languageSelectListener.value){
+                                SharedPref.language = languageSelectListener.value
+                                LocaleManager.setLocale(context, languageSelectListener.value)
+                                restartApp.invoke()
+                            }
                         }
                     }
                 },
@@ -394,9 +546,9 @@ fun RadioGroupExample(
     onLanguageSelected: (String) -> Unit
 ) {
     val options = listOf("O'zbekcha", "Русский", "English")
-    val selectedOption = remember { mutableStateOf(options.first()) }
+    val selectedOption = remember { mutableStateOf(appLanguageName(SharedPref.language)) }
 
-    Column() {
+    Column {
         options.forEach { option ->
             Row(
                 Modifier
@@ -404,7 +556,11 @@ fun RadioGroupExample(
                     .height(56.dp)
                     .selectable(
                         selected = (option == selectedOption.value),
-                        onClick = { selectedOption.value = option }
+                        onClick = {
+                            selectedOption.value = option
+                            onLanguageSelected(reverseAppLanguageName(selectedOption.value))
+                        }
+
                     )
                     .padding(8.dp)
                     .padding(horizontal = 16.dp),
@@ -412,10 +568,7 @@ fun RadioGroupExample(
             ) {
                 RadioButton(
                     selected = (option == selectedOption.value),
-                    onClick = {
-                        SharedPref.language = reverseAppLanguageName(selectedOption.value)
-                        onLanguageSelected(SharedPref.language)
-                    }
+                    onClick = {}
                 )
                 Text(
                     text = option,
@@ -439,8 +592,7 @@ fun ProfileColumnItem(
             .fillMaxWidth()
             .height(56.dp)
             .background(color = MaterialTheme.colorScheme.surface)
-            .padding(horizontal = MaterialTheme.spacing.dimen16Dp)
-        ,
+            .padding(horizontal = MaterialTheme.spacing.dimen16Dp),
         verticalAlignment = Alignment.CenterVertically) {
         Image(
             modifier = Modifier

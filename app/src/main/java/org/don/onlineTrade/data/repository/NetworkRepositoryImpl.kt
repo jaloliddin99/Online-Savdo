@@ -141,6 +141,10 @@ class NetworkRepositoryImpl @Inject constructor(
         return apiInterface.updateProfile(token, body)
     }
 
+    override suspend fun updateProfileImage(token: String, body: RequestBody): ModelSuccess {
+        return apiInterface.updateProfileImage(token, body)
+    }
+
     override suspend fun getProductsPager(
         token: String,
         page: Int,

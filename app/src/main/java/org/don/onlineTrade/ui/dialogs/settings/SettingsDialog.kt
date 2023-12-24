@@ -88,8 +88,8 @@ fun SettingsDialog(
                     onChangeDynamicColorPreference = onChangeDynamicColorPreference,
                     onChangeDarkThemeConfig = onChangeDarkThemeConfig,
                 )
-                Divider(Modifier.padding(top = 8.dp))
-                LinksPanel()
+//                Divider(Modifier.padding(top = 8.dp))
+//                LinksPanel()
             }
         },
         onDismissRequest = {

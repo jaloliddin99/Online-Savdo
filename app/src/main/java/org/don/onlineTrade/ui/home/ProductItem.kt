@@ -63,7 +63,8 @@ fun ProductItem(
         top = MaterialTheme.spacing.dimen16Dp,
         end = MaterialTheme.spacing.dimen8Dp
     ),
-    isLiked: Boolean = false
+    isLiked: Boolean = false,
+    isMainScreenOrProfile: Boolean = true
 ) {
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -75,7 +76,7 @@ fun ProductItem(
             onItemClicked(data.id)
         }
     ) {
-        ProductItemDetails(data, isLiked)
+        ProductItemDetails(data, isLiked, isMainScreenOrProfile)
     }
 }
 
@@ -125,7 +126,8 @@ fun ProductItemForDetailsPage(
 @Composable
 fun ProductItemDetails(
     data: Content,
-    isLiked: Boolean = false
+    isLiked: Boolean = false,
+    isMainScreenOrProfile : Boolean = true
 ) {
     Column(
         verticalArrangement = Arrangement.Top,
@@ -204,24 +206,27 @@ fun ProductItemDetails(
 
                 val shape = RoundedCornerShape(8.dp)
 
-                Icon(
-                    painter = painterResource(id = if (isLiked) R.drawable.ph_heart_fill else R.drawable.solar_heart_outline),
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier
-                        .width(MaterialTheme.spacing.dimen32Dp)
-                        .height(MaterialTheme.spacing.dimen32Dp)
-                        .padding(MaterialTheme.spacing.dimen4Dp)
-                        .clip(shape)
-                        .constrainAs(icon) {
-                            end.linkTo(parent.end)
-                            top.linkTo(parent.top)
-                            bottom.linkTo(parent.bottom)
-                        }
-                        .clickable {
+                if (!isMainScreenOrProfile) {
+                    Icon(
+                        painter = painterResource(id = if (isLiked) R.drawable.ph_heart_fill else R.drawable.solar_heart_outline),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .width(MaterialTheme.spacing.dimen32Dp)
+                            .height(MaterialTheme.spacing.dimen32Dp)
+                            .padding(MaterialTheme.spacing.dimen4Dp)
+                            .clip(shape)
+                            .constrainAs(icon) {
+                                end.linkTo(parent.end)
+                                top.linkTo(parent.top)
+                                bottom.linkTo(parent.bottom)
+                            }
+                            .clickable {
 
-                        }
-                )
+                            }
+                    )
+                }
+
             }
 
             Text(

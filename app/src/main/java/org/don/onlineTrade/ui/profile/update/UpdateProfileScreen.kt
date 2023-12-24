@@ -53,7 +53,7 @@ fun UpdateProfileScreen(
     modifier: Modifier,
     state: UpdateProfileState,
     requestToUpdate: (UpdateProfileModel) -> Unit,
-    goBackAndRefresh: () -> Unit
+    goBackAndRefresh: () -> Unit,
 
 ) {
 

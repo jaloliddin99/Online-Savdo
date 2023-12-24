@@ -120,7 +120,7 @@ class AddProductScreenViewModel @Inject constructor(
         viewModelScope.launch {
             for (photoUri in images) {
                 if (!photoUri.isFromCamera) {
-                    getRealPathFromURI(photoUri.uri)?.let { photoPath ->
+                    getRealPathFromURI(photoUri.uri, application)?.let { photoPath ->
                         val file = File(photoPath)
                         val compressedImageFile = Compressor.compress(application, file)
                         if (compressedImageFile.sizeInKb > 1000) {
@@ -212,22 +212,21 @@ class AddProductScreenViewModel @Inject constructor(
         _state.value = _state.value.copy(showSuccessDialog = show)
     }
 
-
-    private fun getRealPathFromURI(contentURI: Uri): String? {
-        val filePath: String?
-        val cursor = application.contentResolver.query(contentURI, null, null, null, null)
-        if (cursor == null) {
-            filePath = contentURI.path
-        } else {
-            cursor.moveToFirst()
-            val idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA)
-            filePath = cursor.getString(idx)
-            cursor.close()
-        }
-        return filePath
-    }
-
-    val File.size get() = if (!exists()) 0.0 else length().toDouble()
-    private val File.sizeInKb get() = size / 1024
 }
 
+ fun getRealPathFromURI(contentURI: Uri, application: Application): String? {
+    val filePath: String?
+    val cursor = application.contentResolver.query(contentURI, null, null, null, null)
+    if (cursor == null) {
+        filePath = contentURI.path
+    } else {
+        cursor.moveToFirst()
+        val idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA)
+        filePath = cursor.getString(idx)
+        cursor.close()
+    }
+    return filePath
+}
+
+val File.size get() = if (!exists()) 0.0 else length().toDouble()
+val File.sizeInKb get() = size / 1024

@@ -52,10 +52,3 @@ class LoginViewModel @Inject constructor(
 
 
 }
-
-fun assignDate(data: RegisterMain){
-    SharedPref.expirationTime = data.expired_at?:0
-    SharedPref.deviceToken = "Bearer ${data.token ?: ""}"
-    SharedPref.loginTime = Date().time
-    SharedPref.deviceLoggedIn = true
-}

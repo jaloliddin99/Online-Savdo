@@ -1,9 +1,12 @@
 package org.don.onlineTrade.app
 
 import android.app.Application
+import android.content.Context
 import com.chibatching.kotpref.Kotpref
 import dagger.hilt.android.HiltAndroidApp
+import org.don.onlineTrade.utils.LocaleManager
 import org.don.onlineTrade.utils.ModelPref
+import org.don.onlineTrade.utils.SharedPref
 
 @HiltAndroidApp
 class App: Application() {
@@ -14,8 +17,7 @@ class App: Application() {
         ModelPref.with(this)
     }
 
-    companion object{
-        val app = App()
-    }
+
+
 
 }

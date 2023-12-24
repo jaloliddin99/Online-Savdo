@@ -98,9 +98,11 @@ import org.don.onlineTrade.utils.SharedPref
 fun MainScreenView(
     state: UserEditableSettings,
     appState: ApplicationState = rememberNiaAppState(),
-    addProductViewModel: AddProductScreenViewModel
+    addProductViewModel: AddProductScreenViewModel,
+    restartApp: () -> Unit
 
 ) {
+
     val rememberNavController = appState.navController
     val currentBackStackEntry by rememberNavController.currentBackStackEntryAsState()
     val currentRoute by remember {
@@ -213,7 +215,7 @@ fun MainScreenView(
                             }
                         )
                     }
-                    NavigationGraph(appState, addProductViewModel)
+                    NavigationGraph(appState, addProductViewModel, restartApp )
                 }
             }
         }
@@ -256,13 +258,13 @@ fun BottomNavigation(
 
                 icon = {
                     BadgedBox(badge = {
-                        if (item.badgeCount != null) {
-                            Badge {
-                                Text(text = item.badgeCount.toString())
-                            }
-                        } else if (item.hasNews) {
-                            //Badge()
-                        }
+//                        if (item.badgeCount != null) {
+//                            Badge {
+//                                Text(text = item.badgeCount.toString())
+//                            }
+//                        } else if (item.hasNews) {
+//                            //Badge()
+//                        }
                     }) {
                         Icon(
                             imageVector = if (index == selectedItemIndex)
@@ -287,7 +289,8 @@ fun BottomNavigation(
 @Composable
 fun NavigationGraph(
     appState: ApplicationState,
-    addProductViewModel: AddProductScreenViewModel
+    addProductViewModel: AddProductScreenViewModel,
+    restartApp: () -> Unit
 ) {
     val navController = appState.navController
 
@@ -349,6 +352,16 @@ fun NavigationGraph(
             },
             toForgotPassword = {
                 navController.navigate("forgotPasswordRoute/$it")
+            },
+            goToRegistration = {
+                navController.navigate(welcomeScreen) {
+                    popUpTo(navController.graph.id) {
+                        inclusive = true
+                    }
+                }
+            },
+            restartApp = {
+                restartApp.invoke()
             }
         )
 
@@ -460,5 +473,9 @@ fun NavigationGraph(
 
 fun isUserHasRightToAccessToMainPart(
 ): Boolean {
-    return SharedPref.deviceToken.isNotEmpty() && SharedPref.deviceLoggedIn
+    return if (SharedPref.deviceToken.isNotEmpty()){
+        System.currentTimeMillis() < (SharedPref.loginTime  + 1000L *60*60*24*30)
+    }else{
+        false
+    }
 }

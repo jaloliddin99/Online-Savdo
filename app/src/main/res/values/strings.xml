@@ -97,6 +97,8 @@
     <string name="are_you_really_sure">Are you sure that you want to delete this post? it cannot be undone.</string>
     <string name="success">Success</string>
     <string name="your_post_has_been_successfully_created">Your post has been successfully created. You can see it on the main screen. You can either update or delete or even promote it from details page.</string>
+    <string name="log_out">Are you really sure that you want to log out from your profile</string>
+    <string name="invalid_password">Invalid password</string>
 
 
 </resources>

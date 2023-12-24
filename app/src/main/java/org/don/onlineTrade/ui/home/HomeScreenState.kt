@@ -42,6 +42,7 @@ data class PresentProductState(
 data class GetProfileState(
     val isLoading: Boolean = false,
     val getProfile: ModelGetProfile?= null,
+    val updateProfileImage: ModelSuccess?= null,
     val error: String = ""
 )
 

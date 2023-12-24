@@ -191,13 +191,18 @@ fun VerificationScreen(
                 )
             }
         }
-        if (state.registerMain != null) {
-            SharedPref.deviceLoggedIn = true
-            SharedPref.deviceToken = "Bearer ${state.registerMain.token}"
-            onMainScreen.invoke()
-        }
 
         val context = LocalContext.current
+
+        if (state.registerMain != null) {
+            if (state.registerMain.status){
+                SharedPref.loginTime = System.currentTimeMillis()
+                SharedPref.deviceToken = "Bearer ${state.registerMain.token}"
+                onMainScreen.invoke()
+            }else{
+                Toast.makeText(context, stringResource(id = R.string.invalid_password), Toast.LENGTH_SHORT).show()
+            }
+        }
         val rememberedContext = remember { { context } }
         SideEffect {
             if (state.error.isNotBlank()) {
