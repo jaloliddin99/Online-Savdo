@@ -46,8 +46,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -71,6 +73,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.getPublicProducts.Content
+import org.don.onlineTrade.data.remote.models.showProducts.Data
 import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsModel
 import org.don.onlineTrade.data.remote.models.showProducts.User
 import org.don.onlineTrade.ui.add.ProductTitle
@@ -102,6 +105,7 @@ fun ProductDetailsRoute(
     val detailsViewModel = hiltViewModel<PresentViewModel>()
     val homeViewMode = hiltViewModel<HomeViewModel>()
     val pagerState = homeViewMode.pagerState
+
 
     LaunchedEffect(key1 = "hello") {
         homeViewMode.loadNextItems()
@@ -158,6 +162,12 @@ fun ProductDetailsScreen(
     }
     loadedData = state
     val scrollState = rememberLazyGridState()
+    var showDeleteDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
+    var deletePostId by rememberSaveable {
+        mutableIntStateOf(-1)
+    }
 
 
     ConstraintLayout(
@@ -225,18 +235,33 @@ fun ProductDetailsScreen(
                     end.linkTo(parent.end)
                     bottom.linkTo(parent.bottom)
                 },
-            onDeleteClicked = onDeleteClicked,
+            onDeleteClicked = {
+                showDeleteDialog = true
+                deletePostId = it
+            },
             onEditClicked = onEditClicked,
             onCallClicked = {
-                callTo((user?.user?.phoneNumber?:""), context)
+                callTo((user?.user?.phoneNumber ?: ""), context)
             },
             onSmsClicked = {
-                openSmsApp(context, (user?.user?.phoneNumber?:""))
+                openSmsApp(context, (user?.user?.phoneNumber ?: ""))
             },
-            user = user?.user
+            data = user
         )
     }
     FreeLoading(isFeedLoading = isFeedLoading)
+
+    if (showDeleteDialog) {
+        DeletePostAlert(
+            onDismiss = {
+                showDeleteDialog = false
+            },
+            onDeleteConfirm = {
+                showDeleteDialog = false
+                onDeleteClicked.invoke(deletePostId)
+            }
+        )
+    }
 
 }
 
@@ -248,7 +273,7 @@ fun OptionsScreen(
     onEditClicked: (Int) -> Unit,
     onCallClicked: () -> Unit,
     onSmsClicked: () -> Unit,
-    user: User?
+    data: Data?
 ) {
     Row(
         modifier = modifier
@@ -263,16 +288,16 @@ fun OptionsScreen(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.Top
     ) {
-        if (user?.id == SharedPref.userId) {
+        if (data?.user?.id == SharedPref.userId) {
             CircularImage(
                 icon = Icons.Filled.Delete,
                 title = R.string.delete_post,
-                onClicked = { onDeleteClicked.invoke(user.id) }
+                onClicked = { onDeleteClicked.invoke(data.id) }
             )
             CircularImage(
                 icon = Icons.Filled.Edit,
                 title = R.string.edit_post,
-                onClicked = { onEditClicked.invoke(user.id) }
+                onClicked = { onEditClicked.invoke(data.id) }
             )
         }
         CircularImage(icon = Icons.Filled.Call, title = R.string.call, onClicked = onCallClicked)

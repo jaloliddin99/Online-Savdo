@@ -180,7 +180,8 @@ class AddProductScreenViewModel @Inject constructor(
                         _state.value = AddProductScreenState(
                             postNewProduct = result.data,
                             isLoading = false,
-                            error = ""
+                            error = "",
+                            showSuccessDialog = true
                         )
                     }
 
@@ -205,6 +206,10 @@ class AddProductScreenViewModel @Inject constructor(
         }
 
 
+    }
+
+    fun updateShowSuccessDialog(show: Boolean) {
+        _state.value = _state.value.copy(showSuccessDialog = show)
     }
 
 

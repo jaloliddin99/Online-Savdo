@@ -24,6 +24,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -65,7 +66,6 @@ fun AddProductRoute(
     navigateToSelectRegions: () -> Unit,
     modifier: Modifier = Modifier,
     item: CompactedCategoryItem? = null,
-    popBack: () -> Unit,
     regName: String? = null,
     disName: String? = null,
     regId: Int? = null,
@@ -99,7 +99,6 @@ fun AddProductRoute(
             )
 
         },
-        popBack = popBack,
         regName,
         disName,
         regId,
@@ -128,7 +127,6 @@ fun AddProductScreen(
         lon: Double,
         images: List<ImageUrl>,
     ) -> Unit,
-    popBack: () -> Unit,
     regName: String? = null,
     disName: String? = null,
     regId: Int? = null,
@@ -136,7 +134,19 @@ fun AddProductScreen(
     viewModel: AddProductScreenViewModel
 ) {
 
-    val state = viewModel.state
+    val context = LocalContext.current
+
+    val state = viewModel.state.value
+    val isLoading = state.isLoading
+    if (state.error.isNotEmpty()) {
+        Toast.makeText(context, state.error, Toast.LENGTH_SHORT).show()
+    }
+    if (state.showSuccessDialog) {
+        NotifyDialog(onDismiss = {
+            viewModel.updateShowSuccessDialog(false)
+        })
+    }
+
     if (item != null) {
         viewModel.categoryValue(item)
     }
@@ -163,8 +173,6 @@ fun AddProductScreen(
         mutableStateOf(ModelCurrencyListsItem())
     }
 
-    val context = LocalContext.current
-
     var galleryImageUri by remember {
         mutableStateOf(viewModel.imageList)
     }
@@ -184,7 +192,8 @@ fun AddProductScreen(
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture(),
         onResult = { success ->
-            galleryImageUri = galleryImageUri + listOf(ImageUrl(true, capturedImageUri, capturedImageUri))
+            galleryImageUri =
+                galleryImageUri + listOf(ImageUrl(true, capturedImageUri, capturedImageUri))
         }
     )
 
@@ -372,15 +381,9 @@ fun AddProductScreen(
             }
 
         }
-        FreeLoading(isFeedLoading = state.value.isLoading)
+        FreeLoading(isFeedLoading = isLoading)
     }
 
-    if (state.value.error.isNotEmpty()) {
-        Toast.makeText(context, state.value.error, Toast.LENGTH_SHORT).show()
-    }
-    if (state.value.postNewProduct != null){
-        popBack.invoke()
-    }
 }
 
 

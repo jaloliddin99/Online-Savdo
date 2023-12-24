@@ -26,7 +26,8 @@ data class RegionsScreenState(
 data class AddProductScreenState(
     val isLoading: Boolean = false,
     val postNewProduct: PostModel ?= null,
-    val error: String = ""
+    val error: String = "",
+    val showSuccessDialog: Boolean= false
 )
 
 data class PresentProductState(

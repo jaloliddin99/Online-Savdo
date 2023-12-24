@@ -21,7 +21,6 @@ fun NavController.navigateToPosts(navOptions: NavOptions? = null) {
 fun NavGraphBuilder.addProductScreen(
     navigateToCategories: () -> Unit,
     navigateToSelectRegions: () -> Unit,
-    popBack: () -> Unit,
     addProductViewModel: AddProductScreenViewModel
 ) {
     composable(
@@ -50,7 +49,6 @@ fun NavGraphBuilder.addProductScreen(
             navigateToCategories = navigateToCategories,
             navigateToSelectRegions = navigateToSelectRegions,
             item = item,
-            popBack = popBack,
             regName = reg_name,
             disName = dis_name,
             regId = reg_id,
