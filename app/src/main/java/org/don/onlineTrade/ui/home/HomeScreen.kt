@@ -112,7 +112,10 @@ fun HomeScreen(
                     fontSize = MaterialTheme.spacing.dimen16Sp
                 )
             }
-            items(count = pagerState.items.size) { i ->
+            items(count = pagerState.items.size,
+                key = {
+                    pagerState.items[it].image.imagePath
+                }) { i ->
                 val item = pagerState.items[i]
                 LaunchedEffect(scrollState) {
                     if (i >= pagerState.items.size - 1 && !pagerState.endReached && !pagerState.isLoading) {

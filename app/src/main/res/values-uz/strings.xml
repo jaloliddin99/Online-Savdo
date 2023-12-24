@@ -32,9 +32,9 @@
     <string name="password">Parol</string>
     <string name="confirm_password">Parolni tasdiqlang</string>
     <string name="login_account">Hisobga kirish</string>
-    <string name="please_login">Iltimos, hisobingizga kirish</string>
-    <string name="do_you_already_have_account">Sizda allaqachon akkaunt bormi?</string>
-    <string name="for_you_loading">Yuklanmoqda...</string>
+    <string name="please_login">hisobingizga kirish</string>
+    <string name="do_you_already_have_account">Sizda akkaunt bormi?</string>
+    <string name="for_you_loading">Yuklanmoqda…</string>
     <string name="profile">Profil</string>
     <string name="saved_page">Saqlangan sahifa</string>
     <string name="enter_title">Sarlavhani kiriting*</string>
@@ -75,7 +75,7 @@
     <string name="lastName">Familiyangiz</string>
     <string name="phone_number">Telefon raqamingiz</string>
     <string name="verification">Tasdiqlash</string>
-    <string name="enter_code_that_we_send">Bizning yuborgan %s elektron pochtangizga yuborilgan kodi kiriting.</string>
+    <string name="enter_code_that_we_send">Bizning yuborgan kod, %s elektron pochtangizga yuborilgan uni kiriting.</string>
     <string name="send">Yuborish</string>
     <string name="ruble">ruble</string>
     <string name="usd">USD</string>

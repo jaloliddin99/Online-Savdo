@@ -1,8 +1,5 @@
 package org.don.onlineTrade.domain.repository
 
-import androidx.paging.PagingConfig
-import androidx.paging.PagingData
-import kotlinx.coroutines.flow.Flow
 import okhttp3.RequestBody
 import org.don.onlineTrade.data.remote.models.LoginBody
 import org.don.onlineTrade.data.remote.models.ModelSuccess
@@ -13,13 +10,11 @@ import org.don.onlineTrade.data.remote.models.currencies.ModelCurrencyLists
 import org.don.onlineTrade.data.remote.models.getProfile.ModelGetProfile
 import org.don.onlineTrade.data.remote.models.getProfile.UpdatePasswordModel
 import org.don.onlineTrade.data.remote.models.getProfile.UpdateProfileModel
-import org.don.onlineTrade.data.remote.models.getPublicProducts.Content
 import org.don.onlineTrade.data.remote.models.getPublicProducts.ModelPosts
 import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.ModelGetDistricts
 import org.don.onlineTrade.data.remote.models.region.ModelGetRegions
 import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsModel
-import org.don.onlineTrade.utils.DEFAULT_PAGE_SIZE
 
 interface NetworkRepository {
 
@@ -48,17 +43,7 @@ interface NetworkRepository {
         password: String
     ): ModelSuccess
 
-    fun getPublicProducts(
-        token: String,
-        pagingConfig: PagingConfig = getDefaultPageConfig()
-    ): Flow<PagingData<Content>>
 
-    /**
-     * let's define page size, page size is the only required param, rest is optional
-     */
-    private fun getDefaultPageConfig(): PagingConfig {
-        return PagingConfig(pageSize = DEFAULT_PAGE_SIZE, enablePlaceholders = true)
-    }
 
     suspend fun getAllCategories(
         token: String,

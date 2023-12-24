@@ -47,6 +47,11 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.4.3"
     }
+    bundle {
+        language {
+            enableSplit = false
+        }
+    }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -67,12 +72,12 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material:material-icons-extended")
-    implementation("androidx.compose.material:material-icons-core")
-    implementation("androidx.compose.material3:material3-window-size-class")
+//    implementation("androidx.compose.material:material-icons-core")
+//    implementation("androidx.compose.material3:material3-window-size-class")
 
     implementation("androidx.activity:activity-compose:1.8.2")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
-    implementation("androidx.compose.runtime:runtime-livedata")
+//    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
+//    implementation("androidx.compose.runtime:runtime-livedata")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0-rc02")
 
 
@@ -103,27 +108,22 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
-    debugImplementation("com.github.chuckerteam.chucker:library:4.0.0")
-    releaseImplementation("com.github.chuckerteam.chucker:library-no-op:3.5.2")
+//    debugImplementation("com.github.chuckerteam.chucker:library:4.0.0")
+//    releaseImplementation("com.github.chuckerteam.chucker:library-no-op:3.5.2")
     implementation("com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.2")
 
     implementation("com.karumi:dexter:6.2.3")
 
-    implementation("androidx.paging:paging-runtime-ktx:3.2.1")
-    implementation("androidx.paging:paging-compose:3.2.1")
-    implementation("io.coil-kt:coil-compose:2.4.0")
+//    implementation("androidx.paging:paging-runtime-ktx:3.2.1")
+//    implementation("androidx.paging:paging-compose:3.2.1")
 
-    implementation("com.google.accompanist:accompanist-systemuicontroller:0.30.1")
-    implementation("com.google.accompanist:accompanist-insets:0.31.5-beta")
-    implementation("com.google.accompanist:accompanist-flowlayout:0.20.0")
+    implementation("io.coil-kt:coil-compose:2.4.0")
 
     implementation("id.zelory:compressor:3.0.1")
     implementation("com.airbnb.android:lottie-compose:6.0.1")
-
-    //PinView
     implementation("com.github.ozcanalasalvar:otpview:2.0.1")
-
     implementation("com.googlecode.libphonenumber:libphonenumber:8.12.32")
+    implementation("com.google.android.play:app-update-ktx:2.1.0")
 
 
 
