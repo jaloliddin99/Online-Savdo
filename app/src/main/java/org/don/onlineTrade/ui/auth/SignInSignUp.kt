@@ -1,5 +1,6 @@
 package org.don.onlineTrade.ui.auth
 
+import android.util.Log
 import androidx.annotation.IntegerRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
@@ -42,6 +43,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import org.don.onlineTrade.R
 import org.don.onlineTrade.ui.theme.spacing
+import org.don.onlineTrade.utils.phone.PhoneNumberVisualTransformation
 
 
 @Composable
@@ -57,8 +59,12 @@ fun PhoneNumber(
     OutlinedTextField(
         value = phoneState.text,
         onValueChange = {
-            phoneState.text = it
+            Log.d("TAG", "PhoneNumberdwadawdawdawdawdawd $it , ${it.length}")
+            if (it.length <= 13){
+                phoneState.text = it
+            }
         },
+        singleLine = true,
         label = {
             Text(
                 text = stringResource(id = resId),
@@ -90,7 +96,8 @@ fun PhoneNumber(
                 onImeAction()
             }
         ),
-    )
+        visualTransformation = PhoneNumberVisualTransformation(),
+        )
 
     phoneState.getError()?.let { error -> TextFieldError(textError = error) }
 }

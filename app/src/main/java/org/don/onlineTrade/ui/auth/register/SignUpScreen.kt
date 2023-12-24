@@ -67,6 +67,7 @@ import org.don.onlineTrade.ui.auth.PasswordState
 import org.don.onlineTrade.ui.auth.PhoneNumber
 import org.don.onlineTrade.ui.auth.PhoneNumberState
 import org.don.onlineTrade.ui.auth.TextFieldState
+import org.don.onlineTrade.ui.auth.removeFirstCharacterAndAllSpaces
 import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.spacing
 
@@ -247,7 +248,7 @@ fun SignUpCreateAccount(
                     lastNameState.text,
                     emailState.text,
                     passwordState.text,
-                    phoneState.text
+                    removeFirstCharacterAndAllSpaces(phoneState.text)
                 )
             }
         }

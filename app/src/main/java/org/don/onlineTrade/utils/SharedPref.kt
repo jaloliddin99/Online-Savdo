@@ -14,19 +14,4 @@ object SharedPref: KotprefModel() {
     var userId by intPref(-1)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

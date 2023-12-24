@@ -123,6 +123,7 @@ dependencies {
     //PinView
     implementation("com.github.ozcanalasalvar:otpview:2.0.1")
 
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.32")
 
 
 

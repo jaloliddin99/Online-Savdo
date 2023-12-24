@@ -49,7 +49,13 @@ fun TextFieldForProduct(
     OutlinedTextField(
         value = productState.text,
         onValueChange = {
-            productState.text = it
+            if (keyboardType == KeyboardType.Number){
+                if (it.length <=10){
+                    productState.text = it
+                }
+            }else{
+                productState.text = it
+            }
         },
         label = {
             Text(

@@ -493,7 +493,8 @@ fun AppLanguage(
         desc = appLanguageName(SharedPref.language),
         onItemClicked = {
             showBottomSheet = true
-        }
+        },
+        language = true
     )
 
     val context = LocalContext.current
@@ -584,7 +585,8 @@ fun ProfileColumnItem(
     imageVector: ImageVector,
     title: String,
     desc: String = "",
-    onItemClicked: () -> Unit
+    onItemClicked: () -> Unit,
+    language: Boolean = false
 ) {
     Row(
         modifier = Modifier
@@ -594,18 +596,32 @@ fun ProfileColumnItem(
             .background(color = MaterialTheme.colorScheme.surface)
             .padding(horizontal = MaterialTheme.spacing.dimen16Dp),
         verticalAlignment = Alignment.CenterVertically) {
-        Image(
-            modifier = Modifier
-                .width(20.dp)
-                .height(20.dp)
-                .clip(CircleShape),
-            imageVector = imageVector, contentDescription = null,
-        )
+        if (language){
+            Image(
+                modifier = Modifier
+                    .width(20.dp)
+                    .height(20.dp)
+                    .clip(CircleShape),
+                imageVector = imageVector, contentDescription = null,
+            )
+        }else{
+            Image(
+                modifier = Modifier
+                    .width(20.dp)
+                    .height(20.dp)
+                    .clip(CircleShape),
+                imageVector = imageVector, contentDescription = null,
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
+            )
+        }
         Spacer(modifier = Modifier.width(MaterialTheme.spacing.dimen12Dp))
         TextThin(title = title)
         Spacer(modifier = Modifier.weight(1f))
         ProductTitle(title = desc)
         Spacer(modifier = Modifier.width(MaterialTheme.spacing.dimen12Dp))
-        Image(imageVector = Icons.Filled.KeyboardArrowRight, contentDescription = null)
+        Image(imageVector = Icons.Filled.KeyboardArrowRight, contentDescription = null,
+            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
+
+        )
     }
 }

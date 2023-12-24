@@ -29,6 +29,7 @@ import org.don.onlineTrade.ui.auth.NameField
 import org.don.onlineTrade.ui.auth.PhoneNumber
 import org.don.onlineTrade.ui.auth.PhoneNumberState
 import org.don.onlineTrade.ui.auth.TextFieldState
+import org.don.onlineTrade.ui.auth.removeFirstCharacterAndAllSpaces
 import org.don.onlineTrade.ui.home.UpdateProfileState
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.FreeLoading
@@ -40,10 +41,12 @@ fun UpdateProfileRoute(
 ) {
     val viewModel = hiltViewModel<UpdateProfileViewModel>()
     val state = viewModel.state.value
-    UpdateProfileScreen(modifier, state, requestToUpdate = {
-        viewModel.updateProfile(body = it)
-    },
-        goBackAndRefresh)
+    UpdateProfileScreen(
+        modifier, state, requestToUpdate = {
+            viewModel.updateProfile(body = it)
+        },
+        goBackAndRefresh
+    )
 }
 
 
@@ -55,7 +58,7 @@ fun UpdateProfileScreen(
     requestToUpdate: (UpdateProfileModel) -> Unit,
     goBackAndRefresh: () -> Unit,
 
-) {
+    ) {
 
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
@@ -64,8 +67,16 @@ fun UpdateProfileScreen(
     val lastNameFocus = remember { FocusRequester() }
     val phoneNumberRequester = remember { FocusRequester() }
 
-    val nameState = remember { TextFieldState() }
-    val lastNameState = remember { TextFieldState() }
+    val nameState = remember {
+        TextFieldState(validator = {
+            it.length > 3
+        })
+    }
+    val lastNameState = remember {
+        TextFieldState(validator = {
+            it.length > 3
+        })
+    }
     val phoneState = remember { PhoneNumberState() }
 
     Column(
@@ -80,7 +91,8 @@ fun UpdateProfileScreen(
                 UpdateProfileModel(
                     firstName = nameState.text,
                     lastName = lastNameState.text,
-                    phoneNumber = phoneState.text
+                    phoneNumber = removeFirstCharacterAndAllSpaces(phoneState.text)
+
                 )
             )
         }
@@ -132,10 +144,10 @@ fun UpdateProfileScreen(
 
     val context = LocalContext.current
     val rememberedContext = remember { { context } }
-    if (state.getProfile != null){
+    if (state.getProfile != null) {
         goBackAndRefresh.invoke()
     }
-    if (state.error.isNotEmpty()){
+    if (state.error.isNotEmpty()) {
         Toast.makeText(rememberedContext(), state.error, Toast.LENGTH_SHORT).show()
     }
     FreeLoading(state.isLoading, paddingTop = 64.dp)

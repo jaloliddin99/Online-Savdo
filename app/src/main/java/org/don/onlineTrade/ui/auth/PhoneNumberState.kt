@@ -1,9 +1,9 @@
 package org.don.onlineTrade.ui.auth
 
 
-import androidx.core.text.isDigitsOnly
+import android.util.Log
 
-class PhoneNumberState(val phone: String? = null) :
+class PhoneNumberState(val phone: String? = "+998") :
     TextFieldState(validator = ::isPhoneValid, errorFor = ::phoneNumberValidationError) {
     init {
         phone?.let {
@@ -16,9 +16,13 @@ private fun phoneNumberValidationError(phone: String): String {
 }
 
 private fun isPhoneValid(phone: String): Boolean {
-    return phone.isDigitsOnly() && phone.length == 12
+    Log.d("TAG", "PhoneNumberdwadawdawdawdawdawd 000 $phone , ${phone.length}")
+    return  phone.length == 13
 }
 
+fun removeFirstCharacterAndAllSpaces(input: String): String {
+    return input.substring(1).replace("\\s".toRegex(), "")
+}
 
 
 
