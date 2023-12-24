@@ -28,6 +28,4 @@ object SharedPref: KotprefModel() {
 
 
 
-
-
 }
