@@ -58,6 +58,7 @@ import org.don.onlineTrade.ui.profile.ProfileViewModel
 import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.FreeLoading
+import org.don.onlineTrade.utils.LocaleManager.FLAG_HAS_DATA
 import org.don.onlineTrade.utils.hasPermissionForLocation
 import org.don.onlineTrade.utils.runTimePermission.RunTimePermission
 
@@ -146,6 +147,11 @@ fun HomeScreen(
                 if (hasNotPermission || gpsNotEnabled) {
                     GPSEnableView(
                         onPermissionClicked = {
+                            if (!hasNotPermission){
+                                GpsCheckHelper(activity).turnOnGpsDialogRequest()
+                                viewModel.locationObserve()
+                                viewModel.startLocationUpdates()
+                            }
                             RunTimePermission().locationPermission(
                                 onPermissionEnabled = {
                                     GpsCheckHelper(activity).turnOnGpsDialogRequest()

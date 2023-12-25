@@ -331,7 +331,10 @@ fun NavigationGraph(
             navigateToSelectRegions = {
                 navController.navigate(regionsNavigationRoute)
             },
-            addProductViewModel = addProductViewModel
+            addProductViewModel = addProductViewModel,
+            goToDetailsPage = {
+                navController.navigate("productDetails/$it")
+            }
         )
 
         notificationsScreen()
@@ -391,7 +394,9 @@ fun NavigationGraph(
 
         searchScreen(
             onBackClick = navController::popBackStack,
-            onSettingsClick = { appState.navigateToTopLevelDestination(NavItems.Saved) },
+            onItemClick = {
+                navController.navigate("productDetails/$it")
+            },
         )
 
         registrationScreen(

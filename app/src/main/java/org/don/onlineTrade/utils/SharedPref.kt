@@ -13,5 +13,7 @@ object SharedPref: KotprefModel() {
 
     var userId by intPref(-1)
 
+    var permissionCounter by intPref(0)
+
 
 }

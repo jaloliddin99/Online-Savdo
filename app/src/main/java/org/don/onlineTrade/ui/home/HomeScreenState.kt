@@ -16,7 +16,6 @@ data class HomeScreenState(
     val error: String = ""
 )
 
-var FLAG_HAS_DATA = false
 data class HomeScreenState2(
     val isLoading: Boolean = false,
     var getNearPost: NeaPostModel?= null,

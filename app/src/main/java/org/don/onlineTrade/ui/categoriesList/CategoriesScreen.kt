@@ -61,7 +61,6 @@ fun CategoriesScreen(
             .fillMaxSize()
     ) {
         LazyColumn {
-            Log.d("TAG", "CategoriesScreendawdawdawdawdwad ${state.registerMain}")
             if (state.registerMain != null) {
                 itemsIndexed(state.registerMain) { index, item ->
                     CategoryItemInVertical(

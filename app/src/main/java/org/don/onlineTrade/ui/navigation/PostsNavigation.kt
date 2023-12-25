@@ -21,7 +21,8 @@ fun NavController.navigateToPosts(navOptions: NavOptions? = null) {
 fun NavGraphBuilder.addProductScreen(
     navigateToCategories: () -> Unit,
     navigateToSelectRegions: () -> Unit,
-    addProductViewModel: AddProductScreenViewModel
+    addProductViewModel: AddProductScreenViewModel,
+    goToDetailsPage: (Int) -> Unit
 ) {
     composable(
         route = chatNavigationRoute,
@@ -53,8 +54,8 @@ fun NavGraphBuilder.addProductScreen(
             disName = dis_name,
             regId = reg_id,
             disId = dis_id,
-            addProductViewModel = addProductViewModel
-
+            addProductViewModel = addProductViewModel,
+            goToDetailsPage = goToDetailsPage
         )
     }
 }

@@ -10,6 +10,7 @@ import java.util.*
 
 object LocaleManager {
 
+    var FLAG_HAS_DATA = false
     fun setLocale(base: Context, language: String): Context? {
         SharedPref.language = language
         val locale = Locale(language)

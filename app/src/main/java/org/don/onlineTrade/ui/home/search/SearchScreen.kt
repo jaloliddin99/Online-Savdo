@@ -2,6 +2,7 @@ package org.don.onlineTrade.ui.home.search
 
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -50,6 +51,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.don.onlineTrade.ui.filterCategory.ComposeLottieAnimation
 import org.don.onlineTrade.ui.home.HomeViewModel
 import org.don.onlineTrade.ui.home.ProductItem
 import org.don.onlineTrade.ui.theme.spacing
@@ -59,7 +61,7 @@ import org.don.onlineTrade.ui.theme.spacing
 fun SearchRoute(
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit,
-    onSettingsClick: () -> Unit,
+    onItemClick: (Int) -> Unit,
     searchViewModel: SearchViewModel = hiltViewModel()
 ) {
     val searchQuery by searchViewModel.searchQuery.collectAsStateWithLifecycle()
@@ -67,7 +69,7 @@ fun SearchRoute(
     SearchScreen(
         modifier = modifier,
         onBackClick = onBackClick,
-        onSettingsClick = onSettingsClick,
+        onItemClick = onItemClick,
         searchQuery = searchQuery,
         onSearchQueryChanged = searchViewModel::onSearchQueryChanged,
         onSearchTriggered = searchViewModel::onSearchTriggered,
@@ -79,7 +81,7 @@ fun SearchRoute(
 fun SearchScreen(
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit,
-    onSettingsClick: () -> Unit = {},
+    onItemClick: (Int) -> Unit = {},
     onSearchQueryChanged: (String) -> Unit = {},
     onSearchTriggered: (String) -> Unit = {},
     searchQuery: String,
@@ -95,61 +97,63 @@ fun SearchScreen(
 
     val scrollState = rememberLazyGridState()
 
-    Column(modifier = modifier) {
-        Spacer(modifier = Modifier.windowInsetsTopHeight(WindowInsets.safeDrawing))
-        SearchToolbar(
-            onBackClick = onBackClick,
-            onSearchQueryChanged = onSearchQueryChanged,
-            onSearchTriggered = {
-                onSearchTriggered(it)
-                searchTextListener = it
-                homeViewModel.resetPager()
-                homeViewModel.loadNextItems(
-                    query = searchTextListener
-                )
-            },
-            searchQuery = searchQuery,
-        )
+    Box {
+        Column(modifier = modifier) {
+            Spacer(modifier = Modifier.windowInsetsTopHeight(WindowInsets.safeDrawing))
+            SearchToolbar(
+                onBackClick = onBackClick,
+                onSearchQueryChanged = onSearchQueryChanged,
+                onSearchTriggered = {
+                    onSearchTriggered(it)
+                    searchTextListener = it
+                    homeViewModel.resetPager()
+                    homeViewModel.loadNextItems(
+                        query = searchTextListener
+                    )
+                },
+                searchQuery = searchQuery,
+            )
 
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            modifier = modifier
-                .padding(end = MaterialTheme.spacing.dimen16Dp)
-                .fillMaxSize(),
-        ) {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                modifier = modifier
+                    .padding(end = MaterialTheme.spacing.dimen16Dp)
+                    .fillMaxSize(),
+            ) {
 
-            items(pagerState.items.size) { i ->
-                val item = pagerState.items[i]
-                LaunchedEffect(scrollState) {
-                    if (i >= pagerState.items.size - 1 && !pagerState.endReached && !pagerState.isLoading) {
-                        homeViewModel.loadNextItems(
-                            query = searchTextListener
-                        )
+                items(pagerState.items.size) { i ->
+                    val item = pagerState.items[i]
+                    LaunchedEffect(scrollState) {
+                        if (i >= pagerState.items.size - 1 && !pagerState.endReached && !pagerState.isLoading) {
+                            homeViewModel.loadNextItems(
+                                query = searchTextListener
+                            )
+                        }
+                    }
+                    ProductItem(
+                        item,
+                        onItemClicked = onItemClick
+                    )
+                }
+                item(span = { GridItemSpan(2) }) {
+                    if (pagerState.isLoading && pagerState.page != 0) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
                     }
                 }
-                ProductItem(
-                    item,
-                    onItemClicked = {
 
-                })
-            }
-            item(span = { GridItemSpan(2) }) {
-                if (pagerState.isLoading && pagerState.page != 0) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                }
             }
 
         }
-//        FreeLoading(list.isEmpty())
-
-
+        if (!pagerState.isLoading && pagerState.endReached && pagerState.items.isEmpty()){
+            ComposeLottieAnimation(Modifier)
+        }
     }
 }
 

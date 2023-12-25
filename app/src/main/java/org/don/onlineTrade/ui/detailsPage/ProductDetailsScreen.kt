@@ -267,7 +267,7 @@ fun OptionsScreen(
                 shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
             )
             .padding(top = 16.dp, start = 16.dp, end = 16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.Top
     ) {
         if (data?.user?.id == SharedPref.userId) {
