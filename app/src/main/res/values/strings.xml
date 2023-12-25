@@ -99,6 +99,12 @@
     <string name="your_post_has_been_successfully_created">Your post has been successfully created. You can see it on the main screen. You can either update or delete or even promote it from details page.</string>
     <string name="log_out">Are you really sure that you want to log out from your profile</string>
     <string name="invalid_password">Invalid password</string>
+    <string name="near_you">Posts near you</string>
+    <string name="gps_description">For this feature to work, you must allow the phone\'s location system to be used</string>
+    <string name="allow">Allow</string>
+    <string name="gps_turn_on_desc">For this feature to work, you must turn on the phone\'s location system to be used</string>
+    <string name="turn_on">Turn on</string>
+    <string name="m">m</string>
 
 
 </resources>

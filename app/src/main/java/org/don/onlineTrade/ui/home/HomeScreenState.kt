@@ -3,6 +3,7 @@ package org.don.onlineTrade.ui.home
 import org.don.onlineTrade.data.remote.models.ModelSuccess
 import org.don.onlineTrade.data.remote.models.category.CompactedCategoryItem
 import org.don.onlineTrade.data.remote.models.getProfile.ModelGetProfile
+import org.don.onlineTrade.data.remote.models.nearPost.NeaPostModel
 import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.Data
 import org.don.onlineTrade.data.remote.models.region.DataDistrict
@@ -11,9 +12,16 @@ import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsModel
 data class HomeScreenState(
     val isLoading: Boolean = false,
     val registerMain: List<CompactedCategoryItem>?= null,
+    val getLocation: Boolean = false,
     val error: String = ""
 )
 
+var FLAG_HAS_DATA = false
+data class HomeScreenState2(
+    val isLoading: Boolean = false,
+    var getNearPost: NeaPostModel?= null,
+    val error: String = ""
+)
 
 data class RegionsScreenState(
     val isLoading: Boolean = false,

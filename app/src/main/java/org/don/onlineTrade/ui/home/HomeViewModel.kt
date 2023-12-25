@@ -1,5 +1,8 @@
 package org.don.onlineTrade.ui.home
 
+import android.location.Location
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -7,16 +10,20 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.don.onlineTrade.data.remote.models.getPublicProducts.Content
+import org.don.onlineTrade.domain.repository.LocationTracker
 import org.don.onlineTrade.domain.state.Resource
 import org.don.onlineTrade.domain.useCase.GetLikedProductUseCase
 import org.don.onlineTrade.domain.useCase.MyPostsUseCase
+import org.don.onlineTrade.domain.useCase.NearPostsUseCase
 import org.don.onlineTrade.domain.useCase.ProductsPagerUseCase
 import org.don.onlineTrade.domain.useCase.allCategoriesUseCase.AllCategoriesUseCase
 import org.don.onlineTrade.utils.SharedPref
+import org.don.onlineTrade.utils.openSmsApp
 import org.don.onlineTrade.utils.pager.DefaultPaginator
 import javax.inject.Inject
 
@@ -25,10 +32,11 @@ class HomeViewModel @Inject constructor(
     private val categoryUseCase: AllCategoriesUseCase,
     private val productsPagerUseCase: ProductsPagerUseCase,
     private val myPostsUseCase: MyPostsUseCase,
-    private val myLikedPostsUseCase: GetLikedProductUseCase
+    private val myLikedPostsUseCase: GetLikedProductUseCase,
+    private val locationTrackerRepository: LocationTracker,
+    private val nearPostsUseCase: NearPostsUseCase
 ) :
     ViewModel() {
-
 
 
     private val _state = mutableStateOf(HomeScreenState())
@@ -61,7 +69,7 @@ class HomeViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-    fun resetPager(){
+    fun resetPager() {
         paginator.reset()
         pagerState = ScreenState()
     }
@@ -78,14 +86,14 @@ class HomeViewModel @Inject constructor(
                       categoryId: Int?,
                       minPrice: Int?,
                       maxPrice: Int?,
-                      isMyPosts: Boolean->
+                      isMyPosts: Boolean ->
 
-            if (isMyPosts){
+            if (isMyPosts) {
                 myPostsUseCase.getItems(
                     page = nextPage,
                     pageSize = 20,
                 )
-            }else{
+            } else {
                 productsPagerUseCase.getItems(
                     page = nextPage,
                     pageSize = 20,
@@ -130,8 +138,57 @@ class HomeViewModel @Inject constructor(
     }
 
 
+    fun locationObserve() = viewModelScope.launch {
+        locationTrackerRepository.getCurrentLocation().collectLatest {
+            stopLocationUpdates()
+            location = it
+            getNearPosts(lat = it.latitude, lon = it.longitude)
+            //_state.value = _state.value.copy(getLocation = true)
+        }
+    }
+
+    fun startLocationUpdates() {
+        locationTrackerRepository.startLocationUpdate()
+    }
+
+    private fun stopLocationUpdates() {
+        locationTrackerRepository.stopLocationUpdate()
+    }
+
+    private val _stateNear = mutableStateOf(HomeScreenState2())
+    val stateNear: State<HomeScreenState2> = _stateNear
+    private fun getNearPosts(
+        token: String = SharedPref.deviceToken,
+        language: String = SharedPref.language,
+        lat: Double,
+        lon: Double
+    ) {
+        nearPostsUseCase(
+            token,
+            lat,
+            lon,
+            language,
+        ).onEach { result ->
+            when (result) {
+                is Resource.Success -> {
+                    _stateNear.value = HomeScreenState2(getNearPost = result.data)
+                }
+
+                is Resource.Error -> {
+                    _stateNear.value = HomeScreenState2(error = result.message.toString())
+                }
+
+                is Resource.Loading -> {
+                    _stateNear.value = HomeScreenState2(isLoading = true)
+                }
+            }
+        }.launchIn(viewModelScope)
+    }
+
 
 }
+
+var location: Location? = null
 
 data class ScreenState(
     val isLoading: Boolean = false,

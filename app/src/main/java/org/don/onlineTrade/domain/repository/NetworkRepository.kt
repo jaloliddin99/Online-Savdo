@@ -11,6 +11,7 @@ import org.don.onlineTrade.data.remote.models.getProfile.ModelGetProfile
 import org.don.onlineTrade.data.remote.models.getProfile.UpdatePasswordModel
 import org.don.onlineTrade.data.remote.models.getProfile.UpdateProfileModel
 import org.don.onlineTrade.data.remote.models.getPublicProducts.ModelPosts
+import org.don.onlineTrade.data.remote.models.nearPost.NeaPostModel
 import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.ModelGetDistricts
 import org.don.onlineTrade.data.remote.models.region.ModelGetRegions
@@ -119,6 +120,13 @@ interface NetworkRepository {
         categoryId: Int?,
         query: String?
     ): ModelPosts
+
+    suspend fun getNearPosts(
+        token: String,
+        lat: Double,
+        lon: Double,
+        lang: String
+    ): NeaPostModel
 
     suspend fun getMyPostsPager(
         token: String,

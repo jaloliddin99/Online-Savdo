@@ -108,8 +108,8 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
-//    debugImplementation("com.github.chuckerteam.chucker:library:4.0.0")
-//    releaseImplementation("com.github.chuckerteam.chucker:library-no-op:3.5.2")
+    debugImplementation("com.github.chuckerteam.chucker:library:4.0.0")
+    releaseImplementation("com.github.chuckerteam.chucker:library-no-op:3.5.2")
     implementation("com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.2")
 
     implementation("com.karumi:dexter:6.2.3")
@@ -123,7 +123,8 @@ dependencies {
     implementation("com.airbnb.android:lottie-compose:6.0.1")
     implementation("com.github.ozcanalasalvar:otpview:2.0.1")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.12.32")
-    implementation("com.google.android.play:app-update-ktx:2.1.0")
+//    implementation("com.google.android.play:app-update-ktx:2.1.0")
+    implementation("com.google.android.gms:play-services-location:21.0.1")
 
 
 

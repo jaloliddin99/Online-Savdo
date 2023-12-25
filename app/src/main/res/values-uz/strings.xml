@@ -98,4 +98,9 @@
     <string name="your_post_has_been_successfully_created">Sizning e\'loningiz muvaffaqiyatli yaratildi. Siz unga asosiy sahifadan o\'zgartirish, o\'chirish yoki To\'pga ko\'tarishingiz mumkin.</string>
     <string name="log_out">Haqiqatan ham profilingizdan chiqmoqchi ekanligingizga ishonchingiz komilmi?</string>
     <string name="invalid_password">Noto\'g\'ri parol</string>
+    <string name="near_you">Sizga yaqin e\'lonlar</string>
+    <string name="gps_description">Ushbu funksiya ishlashi uchun, siz telefonning joylashuv tizimidan foydalaanishga ruxsat berishingiz kerak</string>
+    <string name="allow">Ruhsat berish</string>
+    <string name="gps_turn_on_desc">Bu funksiya ishlashi uchun siz telefonning joylashuvni aniqlash tizimini yoqishingiz kerak</string>
+    <string name="turn_on">Yoqish</string>
 </resources>

@@ -12,6 +12,28 @@ import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 class RunTimePermission {
 
 
+    fun locationPermission(
+        onPermissionEnabled: () -> Unit,
+        onPermissionNotEnabled: () -> Unit, context: Context
+    ) {
+        Dexter.withContext(context)
+            .withPermissions(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+            ).withListener(object : MultiplePermissionsListener {
+                override fun onPermissionsChecked(report: MultiplePermissionsReport) {
+                    onPermissionEnabled.invoke()
+                }
+
+                override fun onPermissionRationaleShouldBeShown(
+                    permissions: List<PermissionRequest?>?,
+                    token: PermissionToken?
+                ) {
+                    onPermissionNotEnabled.invoke()
+                }
+            }).check()
+    }
+
 
     fun permissionForGallery(galleryPermission: (Boolean) -> Unit, context: Context) {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
@@ -20,10 +42,11 @@ class RunTimePermission {
                     Manifest.permission.WRITE_EXTERNAL_STORAGE,
                     Manifest.permission.READ_MEDIA_IMAGES,
 
-                ).withListener(object : MultiplePermissionsListener {
+                    ).withListener(object : MultiplePermissionsListener {
                     override fun onPermissionsChecked(report: MultiplePermissionsReport) {
                         galleryPermission(true)
                     }
+
                     override fun onPermissionRationaleShouldBeShown(
                         permissions: List<PermissionRequest?>?,
                         token: PermissionToken?
@@ -31,7 +54,7 @@ class RunTimePermission {
                         galleryPermission(false)
                     }
                 }).check()
-        }else{
+        } else {
             Dexter.withContext(context)
                 .withPermissions(
                     Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -40,6 +63,7 @@ class RunTimePermission {
                     override fun onPermissionsChecked(report: MultiplePermissionsReport) {
                         galleryPermission(true)
                     }
+
                     override fun onPermissionRationaleShouldBeShown(
                         permissions: List<PermissionRequest?>?,
                         token: PermissionToken?
@@ -49,8 +73,6 @@ class RunTimePermission {
                 }).check()
         }
     }
-
-
 
 
     fun permissionListForCamera(cameraPermission: (Boolean) -> Unit, context: Context) {
