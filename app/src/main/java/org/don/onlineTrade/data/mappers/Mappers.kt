@@ -8,6 +8,7 @@ fun CategoryModelItem.toCompactedCategoryItem(): CompactedCategoryItem {
     return CompactedCategoryItem(
         id = this.id,
         title = this.title,
-        image = this.image
+        image = this.image,
+        parentId = this.parentId
     )
 }

@@ -24,7 +24,7 @@ data class Data(
 
 @Keep
 data class DataDistrict(
-    val id: Int,
-    val name: String,
-    val regionId: Int
+    val id: Int = -1,
+    val name: String = "",
+    val regionId: Int = -1
 ):Serializable

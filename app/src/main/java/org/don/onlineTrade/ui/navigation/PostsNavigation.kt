@@ -11,9 +11,9 @@ import org.don.onlineTrade.data.remote.models.category.CompactedCategoryItem
 import org.don.onlineTrade.ui.add.AddProductRoute
 import org.don.onlineTrade.ui.add.AddProductScreenViewModel
 
-const val chatNavigationRoute = "add/{reg_id}/{reg_name}/{dis_id}/{dis_name}"
+const val chatNavigationRoute = "add/{reg_id}/{reg_name}/{dis_id}/{dis_name}/{lat}/{lon}"
 fun NavController.navigateToPosts(navOptions: NavOptions? = null) {
-    this.navigate("add/${-1}/${"e"}/${-1}/${"e"}", navOptions)
+    this.navigate("add/${-1}/${"e"}/${-1}/${"e"}/${"0.0"}/${"0.0"}", navOptions)
 
 
 }
@@ -38,6 +38,12 @@ fun NavGraphBuilder.addProductScreen(
             },
             navArgument("dis_id") {
                 type = NavType.IntType
+            },
+            navArgument("lat") {
+                type = NavType.StringType
+            },
+            navArgument("lon") {
+                type = NavType.StringType
             }
         )
     ) { entry ->
@@ -45,6 +51,10 @@ fun NavGraphBuilder.addProductScreen(
         val dis_name = entry.arguments?.getString("dis_name")
         val reg_id = entry.arguments?.getInt("reg_id")
         val dis_id = entry.arguments?.getInt("dis_id")
+
+        val lat = entry.arguments?.getString("lat")
+        val lon = entry.arguments?.getString("lon")
+
         val item = entry.savedStateHandle.get<CompactedCategoryItem>("category_item")
         AddProductRoute(
             navigateToCategories = navigateToCategories,
@@ -54,6 +64,8 @@ fun NavGraphBuilder.addProductScreen(
             disName = dis_name,
             regId = reg_id,
             disId = dis_id,
+            lat = lat,
+            lon = lon,
             addProductViewModel = addProductViewModel,
             goToDetailsPage = goToDetailsPage
         )

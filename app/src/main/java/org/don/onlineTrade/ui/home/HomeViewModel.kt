@@ -141,7 +141,6 @@ class HomeViewModel @Inject constructor(
     fun locationObserve() = viewModelScope.launch {
         locationTrackerRepository.getCurrentLocation().collectLatest {
             stopLocationUpdates()
-            location = it
             getNearPosts(lat = it.latitude, lon = it.longitude)
             //_state.value = _state.value.copy(getLocation = true)
         }
@@ -187,8 +186,6 @@ class HomeViewModel @Inject constructor(
 
 
 }
-
-var location: Location? = null
 
 data class ScreenState(
     val isLoading: Boolean = false,

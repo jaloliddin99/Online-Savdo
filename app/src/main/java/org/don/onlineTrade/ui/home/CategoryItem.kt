@@ -1,9 +1,7 @@
 package org.don.onlineTrade.ui.home
 
-import android.util.Log
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,16 +12,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -34,7 +35,7 @@ import org.don.onlineTrade.ui.theme.spacing
 
 @Composable
 fun Categories(
-    state: List<CompactedCategoryItem>,
+    state: Map<Int, List<CompactedCategoryItem>>,
     navigateToCategory: (Int) -> Unit,
     modifier: Modifier = Modifier
 
@@ -46,7 +47,7 @@ fun Categories(
                 rememberScrollState()
             )
     ) {
-        state.forEachIndexed { index, item ->
+        state[-1]!!.forEachIndexed { index, item ->
             Spacer(modifier = modifier.width(MaterialTheme.spacing.dimen8Dp))
             CategoryItem(
                 item = item,
@@ -55,7 +56,7 @@ fun Categories(
                     .height(MaterialTheme.spacing.dimen120Dp),
                 navigateToCategory = navigateToCategory
             )
-            if (index == state.lastIndex) {
+            if (index == state[-1]!!.lastIndex) {
                 Spacer(modifier = modifier.width(MaterialTheme.spacing.dimen8Dp))
             }
         }
@@ -89,8 +90,8 @@ fun CategoryItem(
             val url = "http://91.227.40.169:8080/api/v1/categories/image/${item.image}"
             AsyncImage(
                 modifier = Modifier
-                    .width(MaterialTheme.spacing.dimen80Dp)
-                    .height(MaterialTheme.spacing.dimen80Dp),
+                    .width(60.dp)
+                    .height(60.dp),
                 model = url, contentDescription = null
             )
 
@@ -108,10 +109,15 @@ fun CategoryItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryItemInVertical(
+    modifier: Modifier = Modifier,
     item: CompactedCategoryItem,
     onCategoryItemClick: (CompactedCategoryItem) -> Unit,
+    isExpanded: Boolean,
+    displayArrow: Boolean = true
 ) {
-    Column {
+    Column(
+        modifier = modifier
+    ) {
         Card(
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surface
@@ -125,6 +131,7 @@ fun CategoryItemInVertical(
             shape = RoundedCornerShape(0.dp),
 
             ) {
+
             Row(
                 modifier = Modifier
                     .fillMaxHeight()
@@ -132,27 +139,39 @@ fun CategoryItemInVertical(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
 
-            ) {
-                val url = "http://91.227.40.169:8080/api/v1/categories/image/${item.image}"
-                AsyncImage(
-                    modifier = Modifier
-                        .width(MaterialTheme.spacing.dimen20Dp)
-                        .height(MaterialTheme.spacing.dimen20Dp),
-                    model = url, contentDescription = null
-                )
-                Spacer(modifier = Modifier.width(12.dp))
-                item.title?.let {
-                    Text(
-                        text = it,
-                        textAlign = TextAlign.Center,
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 12.sp,
-                        maxLines = 1
+                ) {
+
+                if (item.image != null){
+                    val url = "http://91.227.40.169:8080/api/v1/categories/image/${item.image}"
+                    AsyncImage(
+                        modifier = Modifier
+                            .width(MaterialTheme.spacing.dimen20Dp)
+                            .height(MaterialTheme.spacing.dimen20Dp),
+                        model = url, contentDescription = null
                     )
                 }
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    text = item.title,
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 12.sp,
+                    maxLines = 1
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                if (displayArrow){
+                    if (isExpanded) {
+                        Icon(imageVector = Icons.Default.ExpandLess, contentDescription = null)
+                    } else {
+                        Icon(imageVector = Icons.Default.ExpandMore, contentDescription = null)
+                    }
+                }
+
             }
+
         }
-        Divider(modifier = Modifier.fillMaxWidth()
+        Divider(modifier = Modifier
+            .fillMaxWidth()
             .padding(horizontal = 12.dp)
             .height(0.3.dp))
     }

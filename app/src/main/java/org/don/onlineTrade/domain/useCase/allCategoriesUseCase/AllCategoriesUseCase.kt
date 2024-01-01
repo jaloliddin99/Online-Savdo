@@ -16,7 +16,7 @@ class AllCategoriesUseCase @Inject constructor(
     operator fun invoke(
         token: String,
         language: String
-    ): Flow<Resource<List<CompactedCategoryItem>>> = flow {
+    ): Flow<Resource<Map<Int, List<CompactedCategoryItem>>>> = flow {
         try {
             emit(Resource.Loading())
             emit(
@@ -24,7 +24,9 @@ class AllCategoriesUseCase @Inject constructor(
                     repository.getAllCategories(
                         token,
                         language,
-                    ).map { it.toCompactedCategoryItem() }
+                    ).map { it.toCompactedCategoryItem() }.groupBy {
+                        it.parentId
+                    }
                 )
             )
         } catch (e: HttpException) {

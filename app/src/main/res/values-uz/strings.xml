@@ -103,4 +103,9 @@
     <string name="allow">Ruhsat berish</string>
     <string name="gps_turn_on_desc">Bu funksiya ishlashi uchun siz telefonning joylashuvni aniqlash tizimini yoqishingiz kerak</string>
     <string name="turn_on">Yoqish</string>
+    <string name="give_your_location">Postingizni sizga yaqinroq mijozlarga ko\'rinishi  uchun joylashuvdan foydalanishga ruhsat bering.</string>
+    <string name="notice">Eslatma</string>
+    <string name="txt_new">Yangi</string>
+    <string name="txt_old">Ishlatilgan</string>
+    <string name="upload">Yuklash</string>
 </resources>

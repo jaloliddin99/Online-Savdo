@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -70,6 +71,8 @@ fun AddProductRoute(
     disName: String? = null,
     regId: Int? = null,
     disId: Int? = null,
+    lat: String? = null,
+    lon: String? = null,
     addProductViewModel: AddProductScreenViewModel = hiltViewModel(),
     goToDetailsPage: (Int) -> Unit
 
@@ -86,7 +89,8 @@ fun AddProductRoute(
                           priceText, currencyId,
                           region, district,
                           categoryId,
-                          lat, lon, images ->
+                          images,
+                          selectedOption->
             addProductViewModel.postNewProduct(
                 titleProduct = titleProduct,
                 descriptionProduct = descriptionProduct,
@@ -97,7 +101,8 @@ fun AddProductRoute(
                 categoryId = categoryId,
                 lat = lat,
                 lon = lon,
-                images = images
+                images = images,
+                selectedOption = selectedOption
             )
 
         },
@@ -126,9 +131,8 @@ fun AddProductScreen(
         region: Int,
         district: Int,
         categoryId: Int,
-        lat: Double,
-        lon: Double,
         images: List<ImageUrl>,
+        selectedOption: Int
     ) -> Unit,
     regName: String? = null,
     disName: String? = null,
@@ -180,6 +184,10 @@ fun AddProductScreen(
 
     var galleryImageUri by remember {
         mutableStateOf(viewModel.imageList)
+    }
+
+    var selectedOption by remember {
+        mutableIntStateOf(1)
     }
 
 
@@ -306,7 +314,7 @@ fun AddProductScreen(
                 galleryImageUri = list
             })
 
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen16Dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
 
             val categoryIsAdded = viewModel.categoryValue.id != -1
             val regionIsAdded = disId != null
@@ -339,11 +347,17 @@ fun AddProductScreen(
                     regId!!,
                     disId!!,
                     viewModel.categoryValue.id,
-                    41.35495013247074,
-                    69.3628400419868,
-                    galleryImageUri
+                    galleryImageUri,
+                    selectedOption
                 )
             }
+
+
+            HorizontalRadioGroup {
+                selectedOption = it
+            }
+
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen16Dp))
 
             Button(
                 onClick = onSubmit,
@@ -354,7 +368,7 @@ fun AddProductScreen(
                     .height(56.dp)
             ) {
                 Text(
-                    text = stringResource(id = R.string.continuee),
+                    text = stringResource(id = R.string.upload),
                     style = MaterialTheme.typography.titleSmall
                 )
             }

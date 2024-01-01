@@ -17,7 +17,7 @@ fun NavController.navigateToDistricts(navOptions: NavOptions? = null) {
 }
 
 fun NavGraphBuilder.districtsScreen(
-    onBackPressed: (DataDistrict, Data) -> Unit
+    onBackPressed: (DataDistrict, Data, String, String) -> Unit
 ) {
     composable(
         route = districtsNavigationRoute,

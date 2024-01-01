@@ -464,8 +464,8 @@ fun NavigationGraph(
             }
         )
         districtsScreen(
-            onBackPressed = { district, region ->
-                navController.navigate("add/${region.id}/${region.name}/${district.id}/${district.name}") {
+            onBackPressed = { district, region, lat, lon ->
+                navController.navigate("add/${region.id}/${region.name}/${district.id}/${district.name}/$lat/$lon") {
                     popUpTo(navController.graph.id) {
                         inclusive = true
                     }

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -54,6 +55,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
@@ -75,6 +77,7 @@ import org.don.onlineTrade.utils.FreeLoading
 import org.don.onlineTrade.utils.SharedPref
 import org.don.onlineTrade.utils.callTo
 import org.don.onlineTrade.utils.openSmsApp
+import kotlin.io.path.fileVisitor
 
 
 @Composable
@@ -272,29 +275,45 @@ fun OptionsScreen(
     ) {
         if (data?.user?.id == SharedPref.userId) {
             CircularImage(
+                modifier = Modifier.weight(1f),
                 icon = Icons.Filled.Delete,
                 title = R.string.delete_post,
                 onClicked = { onDeleteClicked.invoke(data.id) }
             )
             CircularImage(
+                modifier = Modifier.weight(1f),
                 icon = Icons.Filled.Edit,
                 title = R.string.edit_post,
                 onClicked = { onEditClicked.invoke(data.id) }
             )
         }
-        CircularImage(icon = Icons.Filled.Call, title = R.string.call, onClicked = onCallClicked)
-        CircularImage(icon = Icons.Filled.Sms, title = R.string.send_msg, onClicked = onSmsClicked)
+        CircularImage(
+            modifier = Modifier.weight(1f),
+            icon = Icons.Filled.Call,
+            title = R.string.call,
+            onClicked = onCallClicked
+        )
+        CircularImage(
+            modifier = Modifier.weight(1f),
+            icon = Icons.Filled.Sms,
+            title = R.string.send_msg,
+            onClicked = onSmsClicked
+        )
     }
 }
 
 
 @Composable
 fun CircularImage(
+    modifier: Modifier = Modifier,
     icon: ImageVector = Icons.Filled.Delete,
     @StringRes title: Int,
     onClicked: () -> Unit
 ) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+    ) {
         FilledIconButton(
             modifier = Modifier
                 .width(56.dp)
@@ -306,11 +325,14 @@ fun CircularImage(
         }
 
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
+
         Text(
             text = stringResource(id = title),
             fontWeight = FontWeight.Normal,
             fontFamily = robotoFontFamily,
-            fontSize = MaterialTheme.spacing.dimen12Sp
+            fontSize = MaterialTheme.spacing.dimen12Sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }

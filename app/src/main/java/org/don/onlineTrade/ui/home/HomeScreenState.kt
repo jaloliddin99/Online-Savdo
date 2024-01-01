@@ -8,10 +8,11 @@ import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.Data
 import org.don.onlineTrade.data.remote.models.region.DataDistrict
 import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsModel
+import org.don.onlineTrade.ui.region.MyLocation
 
 data class HomeScreenState(
     val isLoading: Boolean = false,
-    val registerMain: List<CompactedCategoryItem>?= null,
+    val registerMain: Map<Int, List<CompactedCategoryItem>>?= null,
     val getLocation: Boolean = false,
     val error: String = ""
 )
@@ -26,7 +27,10 @@ data class RegionsScreenState(
     val isLoading: Boolean = false,
     val regions: List<Data>?= null,
     val districts: List<DataDistrict> ?=null,
-    val error: String = ""
+    val error: String = "",
+    val showAlertDialog: Boolean = false,
+    val myLocation: MyLocation ?= null,
+    val district: DataDistrict ?= null
 )
 
 

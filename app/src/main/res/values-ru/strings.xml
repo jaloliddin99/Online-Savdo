@@ -103,5 +103,10 @@
     <string name="allow">Позволять</string>
     <string name="gps_turn_on_desc">Чтобы эта функция работала, необходимо включить систему определения местоположения телефона, которая будет использоваться.</string>
     <string name="turn_on">Включать</string>
+    <string name="give_your_location">Разрешите нам использовать ваше местоположение, чтобы сделать вашу публикацию видимой для клиентов, находящихся ближе к вам.</string>
+    <string name="notice">Уведомление</string>
+    <string name="txt_new">Новый</string>
+    <string name="txt_old">Б/у</string>
+    <string name="upload">Загрузить</string>
 
 </resources>

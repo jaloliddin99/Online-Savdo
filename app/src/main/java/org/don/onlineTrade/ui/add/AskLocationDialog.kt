@@ -18,34 +18,34 @@ import org.don.onlineTrade.R
 import org.don.onlineTrade.ui.theme.robotoFontFamily
 
 @Composable
-fun NotifyDialog(
-    onDismiss: () -> Unit,
+fun AskLocationDialog(
+    allowed:  (Boolean) -> Unit,
 ) {
     val configuration = LocalConfiguration.current
 
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = { allowed(false) },
         properties = DialogProperties(usePlatformDefaultWidth = false),
         modifier = Modifier.widthIn(max = configuration.screenWidthDp.dp - 80.dp),
         confirmButton = {
-            Text(text = stringResource(id = R.string.continuee),
+            Text(text = stringResource(id = R.string.allow),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .padding(horizontal = 8.dp)
                     .clickable {
-                        onDismiss()
+                        allowed(true)
                     })
         },
         title = {
             Text(
-                text = stringResource(id = R.string.success),
+                text = stringResource(id = R.string.notice),
                 style = MaterialTheme.typography.titleLarge,
             )
         },
         text = {
             Text(
-                text = stringResource(id = R.string.your_post_has_been_successfully_created),
+                text = stringResource(id = R.string.give_your_location),
                 fontSize = 16.sp,
                 fontFamily = robotoFontFamily,
                 fontWeight = FontWeight.Normal
