@@ -110,6 +110,8 @@
     <string name="txt_new">New</string>
     <string name="txt_old">Used</string>
     <string name="upload">Upload</string>
+    <string name="select_currency">Select currency type</string>
+    <string name="status">Status</string>
 
 
 </resources>

@@ -272,7 +272,6 @@ fun AddProductScreen(
             Row(
                 modifier = Modifier.wrapContentHeight(), verticalAlignment = Alignment.Bottom
             ) {
-                currencyItem = getCurrencyList()[0]
                 Column(
                     modifier = Modifier.weight(1f)
                 ) {
@@ -338,6 +337,9 @@ fun AddProductScreen(
                 if (!productPriceState.isValid) {
                     productPriceState.enableShowErrors()
                 }
+                if (currencyItem.id == -1){
+                    Toast.makeText(context, context.getString(R.string.select_currency), Toast.LENGTH_SHORT).show()
+                }
 
                 submitProduct(
                     productTitleState.text,
@@ -352,7 +354,7 @@ fun AddProductScreen(
                 )
             }
 
-
+            DividerTextAndSpace(R.string.status)
             HorizontalRadioGroup {
                 selectedOption = it
             }

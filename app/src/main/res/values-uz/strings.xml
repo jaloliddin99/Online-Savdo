@@ -108,4 +108,6 @@
     <string name="txt_new">Yangi</string>
     <string name="txt_old">Ishlatilgan</string>
     <string name="upload">Yuklash</string>
+    <string name="select_currency">Valyuta turini tanlang</string>
+    <string name="status">Holati*</string>
 </resources>

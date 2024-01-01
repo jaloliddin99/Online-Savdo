@@ -15,5 +15,6 @@ data class Data(
     val region: Region,
     val title: String,
     val user: User,
-    val isLiked: Boolean
+    val isLiked: Boolean,
+    val status: Int
 )

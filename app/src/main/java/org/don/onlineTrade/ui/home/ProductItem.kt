@@ -127,7 +127,7 @@ fun ProductItemForDetailsPage(
 fun ProductItemDetails(
     data: Content,
     isLiked: Boolean = false,
-    isMainScreenOrProfile : Boolean = true
+    isMainScreenOrProfile: Boolean = true
 ) {
     Column(
         verticalArrangement = Arrangement.Top,
@@ -228,6 +228,16 @@ fun ProductItemDetails(
                 }
 
             }
+
+            Text(
+                text = if (data.status == 1) stringResource(id = R.string.txt_new) else stringResource(
+                    id = R.string.txt_old
+                ),
+                fontSize = 14.sp,
+                fontFamily = robotoFontFamily,
+                fontWeight = FontWeight.Medium,
+            )
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen4Dp))
 
             Text(
                 text = "${data.price} ${getCurrency(currencyId = data.currency_id)}",
