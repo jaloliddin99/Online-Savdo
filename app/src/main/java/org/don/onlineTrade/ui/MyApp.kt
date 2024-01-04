@@ -119,7 +119,8 @@ fun MainScreenView(
     }
 
     if (toNotificationPage) {
-        rememberNavController.navigate("notifications")
+        rememberNavController.navigate(notificationsNavigationRoute)
+        toNotificationPage = false
     }
 
     if (showSettingsDialog) {

@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Sms
@@ -417,7 +418,7 @@ fun ProductDescription(
 
 @Composable
 fun DescriptionItems(
-    imageVector: ImageVector = Icons.Filled.AddLocation,
+    imageVector: ImageVector = Icons.Filled.LocationOn,
     title: String = stringResource(id = R.string.location),
     desc: String
 ) {
