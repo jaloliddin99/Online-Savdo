@@ -1,8 +1,5 @@
 package org.don.onlineTrade.ui.add
 
-import android.app.Application
-import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -24,7 +21,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -42,23 +38,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.core.content.FileProvider
-import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import org.don.onlineTrade.R
-import org.don.onlineTrade.app.App
-import org.don.onlineTrade.data.remote.models.category.CompactedCategoryItem
 import org.don.onlineTrade.data.remote.models.currencies.ModelCurrencyListsItem
 import org.don.onlineTrade.ui.home.getCurrencyList
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.ComposeFileProvider
 import org.don.onlineTrade.utils.FreeLoading
 import org.don.onlineTrade.utils.runTimePermission.RunTimePermission
-import java.io.File
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import java.util.Objects
 
 
 @Composable

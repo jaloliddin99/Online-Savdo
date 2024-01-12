@@ -7,7 +7,7 @@ import org.don.onlineTrade.data.remote.models.LoginBody
 import org.don.onlineTrade.data.remote.models.ModelSuccess
 import org.don.onlineTrade.data.remote.models.RegistrationBody
 import org.don.onlineTrade.data.remote.models.VerificationRes
-import org.don.onlineTrade.data.remote.models.category.CategoryModel
+import org.don.onlineTrade.data.remote.models.category.Category
 import org.don.onlineTrade.data.remote.models.currencies.ModelCurrencyLists
 import org.don.onlineTrade.data.remote.models.getProfile.ModelGetProfile
 import org.don.onlineTrade.data.remote.models.getProfile.UpdatePasswordModel
@@ -75,7 +75,7 @@ class NetworkRepositoryImpl @Inject constructor(
 //        ).flow
 //    }
 
-    override suspend fun getAllCategories(token: String, language: String): CategoryModel {
+    override suspend fun getAllCategories(token: String, language: String): Category {
         return apiInterface.getAllCategories(token, language)
     }
 

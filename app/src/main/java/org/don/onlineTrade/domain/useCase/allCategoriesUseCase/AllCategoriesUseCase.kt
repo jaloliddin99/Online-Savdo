@@ -2,8 +2,7 @@ package org.don.onlineTrade.domain.useCase.allCategoriesUseCase
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import org.don.onlineTrade.data.mappers.toCompactedCategoryItem
-import org.don.onlineTrade.data.remote.models.category.CompactedCategoryItem
+import org.don.onlineTrade.data.remote.models.category.Category
 import org.don.onlineTrade.domain.repository.NetworkRepository
 import org.don.onlineTrade.domain.state.Resource
 import retrofit2.HttpException
@@ -16,7 +15,7 @@ class AllCategoriesUseCase @Inject constructor(
     operator fun invoke(
         token: String,
         language: String
-    ): Flow<Resource<Map<Int, List<CompactedCategoryItem>>>> = flow {
+    ): Flow<Resource<Category>> = flow {
         try {
             emit(Resource.Loading())
             emit(
@@ -24,9 +23,7 @@ class AllCategoriesUseCase @Inject constructor(
                     repository.getAllCategories(
                         token,
                         language,
-                    ).map { it.toCompactedCategoryItem() }.groupBy {
-                        it.parentId
-                    }
+                    )
                 )
             )
         } catch (e: HttpException) {

@@ -9,7 +9,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -22,8 +21,6 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import org.don.onlineTrade.R
-import org.don.onlineTrade.data.remote.models.category.CompactedCategoryItem
-import org.don.onlineTrade.data.remote.models.showProducts.User
 import org.don.onlineTrade.domain.state.Resource
 import org.don.onlineTrade.domain.useCase.postNewProduct.PostNewProductUseCase
 import org.don.onlineTrade.ui.auth.TextFieldState

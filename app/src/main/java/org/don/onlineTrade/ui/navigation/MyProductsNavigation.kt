@@ -1,10 +1,7 @@
 package org.don.onlineTrade.ui.navigation
 
-import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
-import org.don.onlineTrade.data.remote.models.category.CompactedCategoryItem
 import org.don.onlineTrade.ui.profile.myPosts.MyPostsScreenRoute
 
 const val myProductsNavigationRoute = "myProducts"

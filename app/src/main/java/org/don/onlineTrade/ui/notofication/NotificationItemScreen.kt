@@ -58,7 +58,7 @@ fun NotificationItemScreen(
         modifier = Modifier
             .padding(paddingValues)
             .wrapContentWidth()
-    ) {
+    ){
         NotificationItemView(data)
     }
 

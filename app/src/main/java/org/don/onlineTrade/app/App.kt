@@ -17,7 +17,4 @@ class App: Application() {
         ModelPref.with(this)
     }
 
-
-
-
 }

@@ -162,6 +162,7 @@ fun MainScreenView(
                         && destination.screenRoute != myProductsNavigationRoute
                         && destination.screenRoute != pDetailsNavigationRoute
                         && destination.screenRoute != filterCategoryNavigationRoute
+                        && destination.screenRoute != NavItems.AddProduct.screenRoute
                     ) {
                         BottomNavigation(rememberNavController, appState)
                     }
@@ -188,6 +189,7 @@ fun MainScreenView(
                                 || destination.screenRoute == notificationsNavigationRoute
                                 || destination.screenRoute == myProductsNavigationRoute
                                 || destination.screenRoute == filterCategoryNavigationRoute
+                                || destination.screenRoute == NavItems.AddProduct.screenRoute
 
                         TopAppBar(
                             title = stringResource(id = destination.titleRes),

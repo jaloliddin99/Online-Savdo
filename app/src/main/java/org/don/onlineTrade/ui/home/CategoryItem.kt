@@ -30,12 +30,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import org.don.onlineTrade.data.remote.models.category.CompactedCategoryItem
+import org.don.onlineTrade.data.remote.models.category.Category
+import org.don.onlineTrade.data.remote.models.category.CategoryItem
 import org.don.onlineTrade.ui.theme.spacing
 
 @Composable
 fun Categories(
-    state: Map<Int, List<CompactedCategoryItem>>,
+    state: Category,
     navigateToCategory: (Int) -> Unit,
     modifier: Modifier = Modifier
 
@@ -47,7 +48,7 @@ fun Categories(
                 rememberScrollState()
             )
     ) {
-        state[-1]!!.forEachIndexed { index, item ->
+        state.forEachIndexed { index, item ->
             Spacer(modifier = modifier.width(MaterialTheme.spacing.dimen8Dp))
             CategoryItem(
                 item = item,
@@ -56,7 +57,7 @@ fun Categories(
                     .height(MaterialTheme.spacing.dimen120Dp),
                 navigateToCategory = navigateToCategory
             )
-            if (index == state[-1]!!.lastIndex) {
+            if (index == state.lastIndex) {
                 Spacer(modifier = modifier.width(MaterialTheme.spacing.dimen8Dp))
             }
         }
@@ -67,7 +68,7 @@ fun Categories(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryItem(
-    item: CompactedCategoryItem,
+    item: CategoryItem,
     modifier: Modifier = Modifier,
     navigateToCategory: (Int) -> Unit
 ) {
@@ -110,10 +111,10 @@ fun CategoryItem(
 @Composable
 fun CategoryItemInVertical(
     modifier: Modifier = Modifier,
-    item: CompactedCategoryItem,
-    onCategoryItemClick: (CompactedCategoryItem) -> Unit,
+    item: CategoryItem,
+    onCategoryItemClick: (CategoryItem) -> Unit,
     isExpanded: Boolean,
-    displayArrow: Boolean = true
+    displayArrow: Boolean
 ) {
     Column(
         modifier = modifier

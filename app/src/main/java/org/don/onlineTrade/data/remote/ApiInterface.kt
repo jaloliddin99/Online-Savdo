@@ -6,12 +6,13 @@ import org.don.onlineTrade.data.remote.models.LoginBody
 import org.don.onlineTrade.data.remote.models.ModelSuccess
 import org.don.onlineTrade.data.remote.models.RegistrationBody
 import org.don.onlineTrade.data.remote.models.VerificationRes
-import org.don.onlineTrade.data.remote.models.category.CategoryModel
+import org.don.onlineTrade.data.remote.models.category.Category
 import org.don.onlineTrade.data.remote.models.currencies.ModelCurrencyLists
 import org.don.onlineTrade.data.remote.models.getProfile.ModelGetProfile
 import org.don.onlineTrade.data.remote.models.getProfile.UpdatePasswordModel
 import org.don.onlineTrade.data.remote.models.getProfile.UpdateProfileModel
 import org.don.onlineTrade.data.remote.models.getPublicProducts.ModelPosts
+import org.don.onlineTrade.data.remote.models.leak.ModelLeak
 import org.don.onlineTrade.data.remote.models.nearPost.NeaPostModel
 import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.ModelGetDistricts
@@ -86,7 +87,13 @@ interface ApiInterface {
     suspend fun getAllCategories(
         @Header("Authorization") token: String,
         @Query("lang") language: String,
-    ): CategoryModel
+    ): Category
+
+
+    @GET("categories-main")
+    suspend fun getCategories(
+        @Header("Authorization") token: String
+    ): ModelLeak
 
 
     @GET("getRegions")
@@ -137,9 +144,6 @@ interface ApiInterface {
         @Query("lang") language: String
     ): PostDetailsModel
 
-
-
-
     @GET("post/user/liked-posts")
     suspend fun getLikedProducts(
         @Header("Authorization") token: String,
@@ -171,6 +175,8 @@ interface ApiInterface {
         @Header("Authorization") token: String,
         @Body body: UpdatePasswordModel
     ): ModelSuccess
+
+
 
 
 }
