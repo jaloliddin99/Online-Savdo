@@ -21,6 +21,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import org.don.onlineTrade.R
+import org.don.onlineTrade.data.remote.models.category.CategoryItem
 import org.don.onlineTrade.domain.state.Resource
 import org.don.onlineTrade.domain.useCase.postNewProduct.PostNewProductUseCase
 import org.don.onlineTrade.ui.auth.TextFieldState
@@ -37,9 +38,9 @@ class AddProductScreenViewModel @Inject constructor(
 ) : AndroidViewModel(application) {
 
 
-    var categoryValue: CompactedCategoryItem by mutableStateOf(CompactedCategoryItem())
+    var categoryValue: CategoryItem by mutableStateOf(CategoryItem())
 
-    fun categoryValue(newValue: CompactedCategoryItem) {
+    fun categoryValue(newValue: CategoryItem) {
         categoryValue = newValue
     }
 
@@ -71,7 +72,7 @@ class AddProductScreenViewModel @Inject constructor(
 
 
     fun clearStoredValues(){
-        categoryValue(CompactedCategoryItem())
+        categoryValue(CategoryItem())
         setTitle(ProductTitleState())
         setDescription(ProductDescriptionState())
         setPrice(ProductPriceState())

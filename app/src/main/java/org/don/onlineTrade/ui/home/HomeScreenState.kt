@@ -12,7 +12,7 @@ import org.don.onlineTrade.data.remote.models.category.Category
 
 data class HomeScreenState(
     val isLoading: Boolean = false,
-    val registerMain: Category?= null,
+    val categoryList: Category?= null,
     val getLocation: Boolean = false,
     val error: String = ""
 )

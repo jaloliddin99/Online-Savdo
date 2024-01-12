@@ -1,15 +1,22 @@
 package org.don.onlineTrade.ui.home
 
+import android.util.Log
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -23,8 +30,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -110,71 +123,81 @@ fun CategoryItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryItemInVertical(
-    modifier: Modifier = Modifier,
-    item: CategoryItem,
-    onCategoryItemClick: (CategoryItem) -> Unit,
-    isExpanded: Boolean,
-    displayArrow: Boolean
+    item: CategoryItem
 ) {
+    var isExpanded by remember { mutableStateOf(false) }
     Column(
-        modifier = modifier
+        modifier = Modifier
     ) {
-        Card(
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface
-            ),
+
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp),
-            onClick = {
-                onCategoryItemClick(item)
-            },
-            shape = RoundedCornerShape(0.dp),
-
-            ) {
-
-            Row(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .padding(horizontal = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
-
-                ) {
-
-                if (item.image != null){
-                    val url = "http://91.227.40.169:8080/api/v1/categories/image/${item.image}"
-                    AsyncImage(
-                        modifier = Modifier
-                            .width(MaterialTheme.spacing.dimen20Dp)
-                            .height(MaterialTheme.spacing.dimen20Dp),
-                        model = url, contentDescription = null
-                    )
+                .height(56.dp)
+                .clickable {
+                    isExpanded = !isExpanded
                 }
-                Spacer(modifier = Modifier.width(12.dp))
-                Text(
-                    text = item.title,
-                    textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 12.sp,
-                    maxLines = 1
+                .background(color = MaterialTheme.colorScheme.surface)
+                .padding(horizontal = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            if (item.image != null) {
+                val url = "http://91.227.40.169:8080/api/v1/categories/image/${item.image}"
+                AsyncImage(
+                    modifier = Modifier
+                        .width(MaterialTheme.spacing.dimen20Dp)
+                        .height(MaterialTheme.spacing.dimen20Dp),
+                    model = url, contentDescription = null
                 )
-                Spacer(modifier = Modifier.weight(1f))
-                if (displayArrow){
-                    if (isExpanded) {
-                        Icon(imageVector = Icons.Default.ExpandLess, contentDescription = null)
-                    } else {
-                        Icon(imageVector = Icons.Default.ExpandMore, contentDescription = null)
-                    }
-                }
-
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(
+                text = item.title,
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Medium,
+                fontSize = 12.sp,
+                maxLines = 1
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            if (item.children.isNotEmpty()) {
+                Icon(
+                    imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                    contentDescription = null,
+                    tint = Color.Gray,
+                    modifier = Modifier.size(24.dp)
+                )
             }
 
         }
-        Divider(modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 12.dp)
-            .height(0.3.dp))
+        if (isExpanded) {
+            Divider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp)
+                    .height(0.5.dp)
+            )
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .height((item.children.size * 56.5).dp)
+                    .padding(start = 24.dp)
+            ) {
+                items(item.children) { childItem ->
+                    CategoryItemInVertical(
+                        item = childItem
+                    )
+                }
+            }
+        }
+        Divider(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp)
+                .height(0.5.dp)
+        )
     }
 
 }
+
+

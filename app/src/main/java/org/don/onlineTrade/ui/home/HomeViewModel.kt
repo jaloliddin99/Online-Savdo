@@ -1,8 +1,5 @@
 package org.don.onlineTrade.ui.home
 
-import android.location.Location
-import android.util.Log
-import android.widget.Toast
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,7 +20,6 @@ import org.don.onlineTrade.domain.useCase.NearPostsUseCase
 import org.don.onlineTrade.domain.useCase.ProductsPagerUseCase
 import org.don.onlineTrade.domain.useCase.allCategoriesUseCase.AllCategoriesUseCase
 import org.don.onlineTrade.utils.SharedPref
-import org.don.onlineTrade.utils.openSmsApp
 import org.don.onlineTrade.utils.pager.DefaultPaginator
 import javax.inject.Inject
 
@@ -53,7 +49,7 @@ class HomeViewModel @Inject constructor(
         ).onEach { result ->
             when (result) {
                 is Resource.Success -> {
-                    _state.value = HomeScreenState(registerMain = result.data)
+                    _state.value = HomeScreenState(categoryList = result.data)
                 }
 
                 is Resource.Error -> {

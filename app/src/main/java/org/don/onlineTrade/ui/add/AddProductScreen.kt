@@ -40,6 +40,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import org.don.onlineTrade.R
+import org.don.onlineTrade.data.remote.models.category.CategoryItem
 import org.don.onlineTrade.data.remote.models.currencies.ModelCurrencyListsItem
 import org.don.onlineTrade.ui.home.getCurrencyList
 import org.don.onlineTrade.ui.theme.spacing
@@ -53,7 +54,7 @@ fun AddProductRoute(
     navigateToCategories: () -> Unit,
     navigateToSelectRegions: () -> Unit,
     modifier: Modifier = Modifier,
-    item: CompactedCategoryItem? = null,
+    item: CategoryItem? = null,
     regName: String? = null,
     disName: String? = null,
     regId: Int? = null,
@@ -109,7 +110,7 @@ fun AddProductScreen(
     modifier: Modifier = Modifier,
     navigateToCategories: () -> Unit,
     navigateToSelectRegions: () -> Unit,
-    item: CompactedCategoryItem? = null,
+    item: CategoryItem? = null,
     submitProduct: (
         titleProduct: String,
         descriptionProduct: String,

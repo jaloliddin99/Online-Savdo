@@ -14,6 +14,7 @@ import org.don.onlineTrade.data.remote.models.nearPost.NeaPostModel
 import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.ModelGetDistricts
 import org.don.onlineTrade.data.remote.models.region.ModelGetRegions
+import org.don.onlineTrade.data.remote.models.showProducts.Category
 import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsModel
 
 interface NetworkRepository {
@@ -48,7 +49,7 @@ interface NetworkRepository {
     suspend fun getAllCategories(
         token: String,
         language: String
-    ): CategoryModel
+    ): org.don.onlineTrade.data.remote.models.category.Category
 
 
     suspend fun getAllRegions(

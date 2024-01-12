@@ -6,6 +6,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import org.don.onlineTrade.data.remote.models.category.CategoryItem
 import org.don.onlineTrade.ui.add.AddProductRoute
 import org.don.onlineTrade.ui.add.AddProductScreenViewModel
 
@@ -53,7 +54,7 @@ fun NavGraphBuilder.addProductScreen(
         val lat = entry.arguments?.getString("lat")
         val lon = entry.arguments?.getString("lon")
 
-        val item = entry.savedStateHandle.get<CompactedCategoryItem>("category_item")
+        val item = entry.savedStateHandle.get<CategoryItem>("category_item")
         AddProductRoute(
             navigateToCategories = navigateToCategories,
             navigateToSelectRegions = navigateToSelectRegions,

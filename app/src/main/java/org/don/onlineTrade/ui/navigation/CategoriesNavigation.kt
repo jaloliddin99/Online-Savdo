@@ -4,6 +4,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
+import org.don.onlineTrade.data.remote.models.category.CategoryItem
 import org.don.onlineTrade.ui.categoriesList.CategoriesRoute
 
 const val categoriesNavigationRoute = "categories"
@@ -12,7 +13,7 @@ fun NavController.navigateToCategories(navOptions: NavOptions? = null) {
 }
 
 fun NavGraphBuilder.categoriesScreen(
-    onBackPressed: (CompactedCategoryItem) -> Unit
+    onBackPressed: (CategoryItem) -> Unit
 ) {
     composable(
         route = categoriesNavigationRoute,
