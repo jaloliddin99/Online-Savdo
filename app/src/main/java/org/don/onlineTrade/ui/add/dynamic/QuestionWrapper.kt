@@ -57,6 +57,7 @@ fun QuestionWrapper(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
+            .verticalScroll(rememberScrollState())
     ) {
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
         Text(

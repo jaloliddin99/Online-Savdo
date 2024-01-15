@@ -16,6 +16,7 @@
 
 package org.don.onlineTrade.ui.add.dynamic
 
+import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -23,11 +24,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -44,6 +49,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -58,6 +64,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -78,23 +87,19 @@ import org.don.onlineTrade.ui.theme.spacing
 fun MultipleChoiceDialog(
     parameter: Parameter,
     onDismiss: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    val sheetState = rememberModalBottomSheetState()
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true,
+    )
     val scope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
     var selectedItemList by remember {
         mutableStateOf(listOf<Values>())
     }
 
-    Column {
-        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
-        Text(
-            text = "${parameter.label}${if (parameter.validation.is_required) "*" else ""}",
-            fontSize = MaterialTheme.spacing.dimen16Sp,
-            fontFamily = robotoFontFamily,
-            fontWeight = FontWeight.Normal
-        )
-        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen4Dp))
+
+    ContentWrapper(parameter = parameter) {
         OutlinedCard(
             modifier = Modifier
                 .fillMaxWidth()
@@ -111,6 +116,7 @@ fun MultipleChoiceDialog(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 items(selectedItemList) {
+                    Spacer(modifier = Modifier.width(MaterialTheme.spacing.dimen6Dp))
                     FilterChip(
                         onClick = {  },
                         label = {
@@ -136,7 +142,8 @@ fun MultipleChoiceDialog(
             onDismissRequest = {
                 showBottomSheet = false
             },
-            sheetState = sheetState
+            sheetState = sheetState,
+            modifier = modifier.fillMaxHeight()
         ) {
             MultipleChoiceQuestion(
                 parameter = parameter,
@@ -150,27 +157,15 @@ fun MultipleChoiceDialog(
                         list.remove(answer)
                         selectedItemList = list
                     }
-                }
-            )
-            Button(
-                onClick = {
+                },
+                onButtonClicked = {
                     scope.launch { sheetState.hide() }.invokeOnCompletion {
                         if (!sheetState.isVisible) {
                             showBottomSheet = false
                         }
                     }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp)
-                    .padding(horizontal = MaterialTheme.spacing.dimen16Dp)
-            ) {
-                Text(
-                    text = stringResource(id = R.string.select),
-                    style = MaterialTheme.typography.titleSmall
-                )
-            }
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen24Dp))
+                }
+            )
         }
     }
 }
@@ -184,6 +179,7 @@ fun MultipleChoiceQuestion(
     selectedAnswers: List<Values>,
     onOptionSelected: (selected: Boolean, answer: Values) -> Unit,
     modifier: Modifier = Modifier,
+    onButtonClicked: () -> Unit
 ) {
     QuestionWrapper(
         modifier = modifier,
@@ -198,6 +194,20 @@ fun MultipleChoiceQuestion(
                 onOptionSelected = { onOptionSelected(!selected, it) }
             )
         }
+        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
+        Button(
+            onClick = onButtonClicked,
+            modifier = modifier
+                .fillMaxWidth()
+                .height(56.dp)
+        ) {
+            Text(
+                text = stringResource(id = R.string.select),
+                style = MaterialTheme.typography.titleSmall
+            )
+        }
+        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen24Dp))
+
     }
 }
 
