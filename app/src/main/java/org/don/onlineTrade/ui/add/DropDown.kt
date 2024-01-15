@@ -1,5 +1,4 @@
 package org.don.onlineTrade.ui.add
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowDropDown
@@ -15,10 +14,10 @@ import org.don.onlineTrade.ui.theme.spacing
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SpinnerSample(
-    list: List<ModelCurrencyListsItem>,
-    preselected: ModelCurrencyListsItem,
-    onSelectionChanged: (myData: ModelCurrencyListsItem) -> Unit,
+fun UnitDropdownSelector(
+    list: List<org.don.onlineTrade.data.remote.models.leak.Unit>,
+    preselected: org.don.onlineTrade.data.remote.models.leak.Unit,
+    onSelectionChanged: (myData: org.don.onlineTrade.data.remote.models.leak.Unit) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -40,7 +39,7 @@ fun SpinnerSample(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = selected.name,
+                text = selected.label,
                 modifier = Modifier.weight(1f)
                     .padding(horizontal = 16.dp, vertical = 8.dp)
             )
@@ -63,7 +62,7 @@ fun SpinnerSample(
                             .padding(horizontal = MaterialTheme.spacing.dimen16Dp),
                         text = {
                             Text(
-                                text = listEntry.name,
+                                text = listEntry.label,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .align(Alignment.Start)
@@ -83,12 +82,12 @@ fun SpinnerSample(
 fun SpinnerSample_Preview() {
     MaterialTheme {
         val myData = listOf(ModelCurrencyListsItem(0, "Apples"), ModelCurrencyListsItem(1, "Bananas"), ModelCurrencyListsItem(2, "Kiwis"))
-
-        SpinnerSample(
-            myData,
-            preselected = myData.first(),
-            onSelectionChanged = { },
-            modifier = Modifier.fillMaxWidth()
-        )
+//
+//        SpinnerSample(
+//            myData,
+//            preselected = myData.first(),
+//            onSelectionChanged = { },
+//            modifier = Modifier.fillMaxWidth()
+//        )
     }
 }

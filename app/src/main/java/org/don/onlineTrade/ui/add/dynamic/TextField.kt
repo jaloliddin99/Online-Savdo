@@ -37,6 +37,8 @@ fun DynamicTextView(
 
     Log.d("TAG", "DynamicTextViewdawdawjdnakwjd ${parameter.validation.is_required}, ${parameter.label}")
     Column {
+        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
+
         Text(
             text = "${parameter.label}${if (parameter.validation.is_required) "*" else ""}",
             fontSize = MaterialTheme.spacing.dimen16Sp,

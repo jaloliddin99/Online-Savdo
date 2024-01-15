@@ -262,41 +262,6 @@ fun AddProductScreen(
                     viewModel.setImageList(galleryImageUri)
                     navigateToSelectRegions()
                 })
-            DividerTextAndSpace(R.string.enter_amount)
-
-
-            Row(
-                modifier = Modifier.wrapContentHeight(), verticalAlignment = Alignment.Bottom
-            ) {
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    SpinnerSample(
-                        list = getCurrencyList(),
-                        preselected = getCurrencyList()[0],
-                        onSelectionChanged = {
-                            descriptionFocusRequester.requestFocus()
-                            currencyItem = it
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-                Spacer(modifier = Modifier.width(MaterialTheme.spacing.dimen12Dp))
-                TextFieldForProduct(
-                    productState = productPriceState,
-                    onImeAction = {
-                        keyboardController?.hide()
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(2f)
-                        .focusRequester(descriptionFocusRequester),
-                    title = R.string.price_5000,
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Done
-                )
-            }
 
 
             DividerTextAndSpace(R.string.select_image_for_your_product)
@@ -350,14 +315,9 @@ fun AddProductScreen(
                 )
             }
 
-            DividerTextAndSpace(R.string.status)
-            HorizontalRadioGroup {
-                selectedOption = it
-            }
 
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen16Dp))
 
-            Log.d("TAG", "AddProductScreendawdakwjdawd2 ${state.categoryDetail}")
             if (state.categoryDetail != null){
                 DynamicView(state.categoryDetail.parameters)
             }
