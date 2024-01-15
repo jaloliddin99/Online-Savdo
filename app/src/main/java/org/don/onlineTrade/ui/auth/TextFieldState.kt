@@ -20,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.setValue
+import kotlin.reflect.KFunction2
 
 open class TextFieldState(
     private val validator: (String) -> Boolean = { true },

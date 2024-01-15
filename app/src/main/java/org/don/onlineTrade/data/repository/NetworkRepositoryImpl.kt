@@ -13,6 +13,7 @@ import org.don.onlineTrade.data.remote.models.getProfile.ModelGetProfile
 import org.don.onlineTrade.data.remote.models.getProfile.UpdatePasswordModel
 import org.don.onlineTrade.data.remote.models.getProfile.UpdateProfileModel
 import org.don.onlineTrade.data.remote.models.getPublicProducts.ModelPosts
+import org.don.onlineTrade.data.remote.models.leak.ModelLeak
 import org.don.onlineTrade.data.remote.models.nearPost.NeaPostModel
 import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.ModelGetDistricts
@@ -77,6 +78,10 @@ class NetworkRepositoryImpl @Inject constructor(
 
     override suspend fun getAllCategories(token: String, language: String): Category {
         return apiInterface.getAllCategories(token, language)
+    }
+
+    override suspend fun getCategoryDetails(token: String, language: String, categoryId: Int): ModelLeak {
+        return apiInterface.getCategories(token, categoryId, language)
     }
 
     override suspend fun getAllRegions(token: String, language: String): ModelGetRegions {

@@ -23,6 +23,7 @@ import okhttp3.RequestBody
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.category.CategoryItem
 import org.don.onlineTrade.domain.state.Resource
+import org.don.onlineTrade.domain.useCase.CategoryMainUseCase
 import org.don.onlineTrade.domain.useCase.postNewProduct.PostNewProductUseCase
 import org.don.onlineTrade.ui.auth.TextFieldState
 import org.don.onlineTrade.ui.home.AddProductScreenState
@@ -34,7 +35,8 @@ import javax.inject.Inject
 @HiltViewModel
 class AddProductScreenViewModel @Inject constructor(
     private val postNewProductUseCase: PostNewProductUseCase,
-    private val application: Application
+    private val application: Application,
+    private val categoryMainUseCase: CategoryMainUseCase
 ) : AndroidViewModel(application) {
 
 
@@ -84,6 +86,33 @@ class AddProductScreenViewModel @Inject constructor(
 
     private val _state = mutableStateOf(AddProductScreenState())
     val state: State<AddProductScreenState> = _state
+
+    fun getCategoryDerails(categoryId: Int){
+        categoryMainUseCase.invoke(
+            token = SharedPref.deviceToken,
+            language = SharedPref.language,
+            categoryId = categoryId
+        ).onEach { result ->
+            when (result) {
+                is Resource.Success -> {
+                    _state.value = AddProductScreenState(
+                        categoryDetail = result.data,
+                    )
+                }
+
+                is Resource.Error -> {
+                    _state.value =
+                        AddProductScreenState(
+                            error = result.message ?: "An unexpected error occured"
+                        )
+                }
+
+                is Resource.Loading -> {
+                    _state.value = AddProductScreenState(isLoading = true,)
+                }
+            }
+        }.launchIn(viewModelScope)
+    }
 
 
     fun postNewProduct(
@@ -180,26 +209,19 @@ class AddProductScreenViewModel @Inject constructor(
                         clearStoredValues()
                         _state.value = AddProductScreenState(
                             postNewProduct = result.data,
-                            isLoading = false,
-                            error = "",
-                            showSuccessDialog = true
                         )
                     }
 
                     is Resource.Error -> {
                         _state.value =
                             AddProductScreenState(
-                                postNewProduct = null,
-                                isLoading = false,
                                 error = result.message ?: "An unexpected error occured"
                             )
                     }
 
                     is Resource.Loading -> {
                         _state.value = AddProductScreenState(
-                            postNewProduct = null,
                             isLoading = true,
-                            error = ""
                         )
                     }
                 }

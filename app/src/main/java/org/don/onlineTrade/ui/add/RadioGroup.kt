@@ -27,7 +27,6 @@ fun HorizontalRadioGroup(
     selectedItem: (Int) -> Unit
 ) {
     var option by remember { mutableIntStateOf(1) }
-
     OutlinedCard {
         Row(modifier = Modifier.fillMaxWidth()) {
             Row(

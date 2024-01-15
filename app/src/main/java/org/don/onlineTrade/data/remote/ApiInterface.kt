@@ -90,9 +90,11 @@ interface ApiInterface {
     ): Category
 
 
-    @GET("categories-main")
+    @GET("categories/{categoryId}")
     suspend fun getCategories(
-        @Header("Authorization") token: String
+        @Header("Authorization") token: String,
+        @Path("categoryId") categoryId: Int,
+        @Query("lang") language: String,
     ): ModelLeak
 
 

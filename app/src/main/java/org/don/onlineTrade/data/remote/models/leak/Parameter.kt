@@ -8,5 +8,5 @@ data class Parameter(
     val type: String,
     val units: List<Unit>,
     val validation: Validation,
-    val values: List<Any>
+    val values: List<Values>
 )

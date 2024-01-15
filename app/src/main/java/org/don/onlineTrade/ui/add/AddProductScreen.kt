@@ -1,6 +1,7 @@
 package org.don.onlineTrade.ui.add
 
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -21,6 +22,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -42,6 +44,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.category.CategoryItem
 import org.don.onlineTrade.data.remote.models.currencies.ModelCurrencyListsItem
+import org.don.onlineTrade.ui.add.dynamic.DynamicView
 import org.don.onlineTrade.ui.home.getCurrencyList
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.ComposeFileProvider
@@ -146,6 +149,11 @@ fun AddProductScreen(
 
     if (item != null) {
         viewModel.categoryValue(item)
+        LaunchedEffect(key1 =Unit){
+            Log.d("TAG", "AddProductScreendawdakwjdawd1 ${state.categoryDetail}")
+
+            viewModel.getCategoryDerails(item.id)
+        }
     }
 
 
@@ -348,6 +356,12 @@ fun AddProductScreen(
             }
 
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen16Dp))
+
+            Log.d("TAG", "AddProductScreendawdakwjdawd2 ${state.categoryDetail}")
+            if (state.categoryDetail != null){
+                DynamicView(state.categoryDetail.parameters)
+            }
+
 
             Button(
                 onClick = onSubmit,

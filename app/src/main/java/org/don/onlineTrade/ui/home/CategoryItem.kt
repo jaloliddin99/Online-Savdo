@@ -120,10 +120,10 @@ fun CategoryItem(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryItemInVertical(
-    item: CategoryItem
+    item: CategoryItem,
+    onItemSelected: (CategoryItem) -> Unit
 ) {
     var isExpanded by remember { mutableStateOf(false) }
     Column(
@@ -135,7 +135,11 @@ fun CategoryItemInVertical(
                 .fillMaxWidth()
                 .height(56.dp)
                 .clickable {
-                    isExpanded = !isExpanded
+                    if (item.children.isNotEmpty()) {
+                        isExpanded = !isExpanded
+                    } else {
+                        onItemSelected(item)
+                    }
                 }
                 .background(color = MaterialTheme.colorScheme.surface)
                 .padding(horizontal = 12.dp),
@@ -185,7 +189,8 @@ fun CategoryItemInVertical(
             ) {
                 items(item.children) { childItem ->
                     CategoryItemInVertical(
-                        item = childItem
+                        item = childItem,
+                        onItemSelected = onItemSelected
                     )
                 }
             }

@@ -65,6 +65,7 @@ fun CategoriesScreen(
             items(mainMapItem) { item ->
                 CategoryItemInVertical(
                     item = item,
+                    onBackPressed
                 )
             }
         }

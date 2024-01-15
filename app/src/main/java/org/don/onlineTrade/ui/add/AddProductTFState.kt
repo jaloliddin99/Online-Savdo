@@ -64,6 +64,7 @@ class ProductPriceState(val price: String? = null) :
 }
 
 
+
 /**
  * Returns an error to be displayed or null if no error was found
  */

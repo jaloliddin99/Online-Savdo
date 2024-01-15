@@ -9,6 +9,7 @@ import org.don.onlineTrade.data.remote.models.region.DataDistrict
 import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsModel
 import org.don.onlineTrade.ui.region.MyLocation
 import org.don.onlineTrade.data.remote.models.category.Category
+import org.don.onlineTrade.data.remote.models.leak.ModelLeak
 
 data class HomeScreenState(
     val isLoading: Boolean = false,
@@ -38,7 +39,8 @@ data class AddProductScreenState(
     val isLoading: Boolean = false,
     val postNewProduct: PostModel ?= null,
     val error: String = "",
-    val showSuccessDialog: Boolean= false
+    val showSuccessDialog: Boolean= false,
+    val categoryDetail: ModelLeak ?= null
 )
 
 data class PresentProductState(
