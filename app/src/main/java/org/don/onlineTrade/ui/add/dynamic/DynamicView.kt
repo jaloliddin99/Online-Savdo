@@ -37,7 +37,7 @@ fun DynamicView(
 
             DynamicView.TYPE_NUMBER.type, DynamicView.TYPE_DIGIT.type -> {
                 val textFieldState by remember {
-                    mutableStateOf(DynamicViewState(regex = it.validation.pattern))
+                    mutableStateOf(DynamicViewState(regex = it.validation))
                 }
                 DynamicTextView(
                     textState = textFieldState,
@@ -61,7 +61,7 @@ fun DynamicView(
 
             DynamicView.TYPE_PRICE.type -> {
                 val textFieldState by remember {
-                    mutableStateOf(DynamicViewState(regex = it.validation.pattern))
+                    mutableStateOf(DynamicViewState(regex = it.validation))
                 }
                 var units by remember {
                     mutableStateOf(

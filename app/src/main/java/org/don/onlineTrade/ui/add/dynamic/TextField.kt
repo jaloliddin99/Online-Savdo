@@ -33,20 +33,7 @@ fun DynamicTextView(
     parameter: Parameter,
 ) {
     val hintText = if (parameter.units.isNotEmpty()) parameter.units[0].label else ""
-
-
-    Log.d("TAG", "DynamicTextViewdawdawjdnakwjd ${parameter.validation.is_required}, ${parameter.label}")
-    Column {
-        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
-
-        Text(
-            text = "${parameter.label}${if (parameter.validation.is_required) "*" else ""}",
-            fontSize = MaterialTheme.spacing.dimen16Sp,
-            fontFamily = robotoFontFamily,
-            fontWeight = FontWeight.Normal
-        )
-        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen4Dp))
-
+    ContentWrapper(parameter = parameter) {
         OutlinedTextField(
             value = textState.text,
             onValueChange = {
