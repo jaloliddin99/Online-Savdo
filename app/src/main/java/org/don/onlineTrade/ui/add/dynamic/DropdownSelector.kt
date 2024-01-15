@@ -44,15 +44,7 @@ fun DropDownSample(
 ) {
     var selected by remember { mutableStateOf<Values?>(null) }
     var expanded by remember { mutableStateOf(false) } // initial value
-    Column {
-        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
-        Text(
-            text = "${param.label}${if (param.validation.is_required) "*" else ""}",
-            fontSize = MaterialTheme.spacing.dimen16Sp,
-            fontFamily = robotoFontFamily,
-            fontWeight = FontWeight.Normal
-        )
-        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
+    ContentWrapper(parameter = param) {
         OutlinedCard(
             modifier = Modifier
                 .height(56.dp)

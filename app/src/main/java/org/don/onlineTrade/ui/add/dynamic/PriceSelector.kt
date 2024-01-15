@@ -38,17 +38,8 @@ fun PriceSelector(
     onUnitSelected: (org.don.onlineTrade.data.remote.models.leak.Unit) -> Unit
 ) {
 
-    Column(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
-        Text(
-            text = "${parameter.label}${if (parameter.validation.is_required) "*" else ""}",
-            fontSize = MaterialTheme.spacing.dimen16Sp,
-            fontFamily = robotoFontFamily,
-            fontWeight = FontWeight.Normal
-        )
-        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen4Dp))
+
+    ContentWrapper(parameter = parameter) {
         Row(
             modifier = Modifier.wrapContentHeight(), verticalAlignment = Alignment.Bottom
         ) {
@@ -102,4 +93,5 @@ fun PriceSelector(
             )
         }
     }
+
 }

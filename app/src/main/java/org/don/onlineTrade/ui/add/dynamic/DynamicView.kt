@@ -51,6 +51,12 @@ fun DynamicView(
 
             DynamicView.TYPE_MULTIPLE_CHOICE.type -> {
 
+                MultipleChoiceDialog(
+                    parameter = it,
+                    onDismiss = {
+
+                    }
+                )
             }
 
             DynamicView.TYPE_PRICE.type -> {

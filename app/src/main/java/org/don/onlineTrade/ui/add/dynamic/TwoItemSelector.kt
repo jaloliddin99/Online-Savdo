@@ -34,15 +34,7 @@ fun HorizontalRadioGroup(
 ) {
     var option by remember { mutableIntStateOf(0) }
 
-    Column {
-        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
-        Text(
-            text = "${param.label}${if (param.validation.is_required) "*" else ""}",
-            fontSize = MaterialTheme.spacing.dimen16Sp,
-            fontFamily = robotoFontFamily,
-            fontWeight = FontWeight.Normal
-        )
-        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
+    ContentWrapper(parameter = param) {
         OutlinedCard {
             Row(modifier = Modifier.fillMaxWidth()) {
                 Row(
