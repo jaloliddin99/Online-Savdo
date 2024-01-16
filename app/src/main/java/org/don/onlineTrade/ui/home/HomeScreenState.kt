@@ -40,7 +40,8 @@ data class AddProductScreenState(
     val postNewProduct: PostModel ?= null,
     val error: String = "",
     val showSuccessDialog: Boolean= false,
-    val categoryDetail: ModelLeak ?= null
+    val categoryDetail: ModelLeak ?= null,
+    val showCameraOrGalleryDialog: Boolean = false
 )
 
 data class PresentProductState(

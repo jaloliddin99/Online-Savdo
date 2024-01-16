@@ -52,36 +52,5 @@ fun countWords(input: String): Int {
     return words.size
 }
 
-
-
-class ProductPriceState(val price: String? = null) :
-    TextFieldState(validator = ::isValidPrice, errorFor = ::priceValidationError) {
-    init {
-        price?.let {
-            text = it
-        }
-    }
-}
-
-
-
-/**
- * Returns an error to be displayed or null if no error was found
- */
-private fun priceValidationError(price: String): String {
-    return "Enter the price"
-}
-
-private fun isValidPrice(title: String): Boolean {
-    return title.isNotEmpty()
-}
-
-
-
-
-
-
-
 val ProductTitleStateSaver = textFieldStateSaver(ProductTitleState())
 val ProductDescriptionStateSaver = textFieldStateSaver(ProductDescriptionState())
-val ProductPriceStateSaver = textFieldStateSaver(ProductPriceState())

@@ -47,6 +47,8 @@ private fun isValidText(input: String, validation: Validation): Boolean {
         if (validation.max != null && validation.min != null) {
             if (!input.isDigitsOnly())
                 return false
+            if (input.isEmpty())
+                return false
             if (input.toInt() >= validation.min && input.toInt() <= validation.max)
                 return true
         }else

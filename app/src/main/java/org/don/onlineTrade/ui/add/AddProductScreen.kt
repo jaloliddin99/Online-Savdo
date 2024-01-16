@@ -58,7 +58,6 @@ fun AddProductRoute(
     lon: String? = null,
     addProductViewModel: AddProductScreenViewModel = hiltViewModel(),
     goToDetailsPage: () -> Unit
-
 ) {
 
 
@@ -69,7 +68,6 @@ fun AddProductRoute(
         item,
         submitProduct = { titleProduct,
                           descriptionProduct,
-                          priceText,
                           region,
                           district,
                           categoryId,
@@ -77,7 +75,6 @@ fun AddProductRoute(
             addProductViewModel.postNewProduct(
                 titleProduct = titleProduct,
                 descriptionProduct = descriptionProduct,
-                priceText = priceText,
                 region = region,
                 districtId = district,
                 categoryId = categoryId,
@@ -97,7 +94,6 @@ fun AddProductRoute(
 }
 
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun AddProductScreen(
     modifier: Modifier = Modifier,
@@ -107,7 +103,6 @@ fun AddProductScreen(
     submitProduct: (
         titleProduct: String,
         descriptionProduct: String,
-        priceText: String,
         region: Int,
         district: Int,
         categoryId: Int,
@@ -129,7 +124,6 @@ fun AddProductScreen(
         val resourceId = com.google.android.material.R.dimen.design_bottom_navigation_height
         resources.getDimensionPixelSize(resourceId)
     }
-
     val peekHeight = remember(bottomBarHeight) {
         (bottomBarHeight / density).dp
     }
@@ -156,22 +150,12 @@ fun AddProductScreen(
         }
     }
 
-
-    var showGalleryOrCameraDialog by rememberSaveable {
-        mutableStateOf(false)
-    }
-
     val productTitleState by rememberSaveable(stateSaver = ProductTitleStateSaver) {
         mutableStateOf(viewModel.titleValue)
     }
 
     val productDescriptionState by rememberSaveable(stateSaver = ProductDescriptionStateSaver) {
         mutableStateOf(viewModel.descriptionVM)
-    }
-
-
-    val productPriceState by rememberSaveable(stateSaver = ProductPriceStateSaver) {
-        mutableStateOf(viewModel.priceVM)
     }
 
 
@@ -251,7 +235,6 @@ fun AddProductScreen(
                 isFocusedOrClicked = {
                     viewModel.setTitle(productTitleState)
                     viewModel.setDescription(productDescriptionState)
-                    viewModel.setPrice(productPriceState as ProductPriceState)
                     viewModel.setImageList(galleryImageUri)
                     navigateToSelectRegions()
                 })
@@ -260,7 +243,7 @@ fun AddProductScreen(
             DividerTextAndSpace(R.string.select_image_for_your_product)
 
             ShowSelectedImages(imagesList = galleryImageUri, onAddButtonClicked = {
-                showGalleryOrCameraDialog = true
+                viewModel.updateSHowCameraOrGallery(true)
             }, cancelClicked = {
                 val list = galleryImageUri.toMutableList()
                 list.remove(it)
@@ -277,7 +260,6 @@ fun AddProductScreen(
                         && productDescriptionState.isValid
                         && categoryIsAdded
                         && regionIsAdded
-                        && productPriceState.isValid
                         && (galleryImageUri.isNotEmpty() && galleryImageUri.size < 5)
 
             val onSubmit = {
@@ -287,14 +269,10 @@ fun AddProductScreen(
                 if (!productDescriptionState.isValid) {
                     productDescriptionState.enableShowErrors()
                 }
-                if (!productPriceState.isValid) {
-                    productPriceState.enableShowErrors()
-                }
 
                 submitProduct(
                     productTitleState.text,
                     productDescriptionState.text,
-                    productPriceState.text,
                     regId!!,
                     disId!!,
                     viewModel.categoryValue.id,
@@ -324,9 +302,9 @@ fun AddProductScreen(
                 )
             }
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen24Dp))
-            if (showGalleryOrCameraDialog) {
+            if (state.showCameraOrGalleryDialog) {
                 DialogCameraOrGallery(onDismiss = {
-                    showGalleryOrCameraDialog = false
+                    viewModel.updateSHowCameraOrGallery(false)
                 }, onCameraSelected = {
                     RunTimePermission().permissionListForCamera(
                         cameraPermission = {
@@ -337,7 +315,7 @@ fun AddProductScreen(
                             }
                         }, context
                     )
-                    showGalleryOrCameraDialog = false
+                    viewModel.updateSHowCameraOrGallery(false)
                 }, onGallerySelected = {
                     RunTimePermission().permissionForGallery(
                         galleryPermission = {
@@ -346,7 +324,7 @@ fun AddProductScreen(
                             }
                         }, context
                     )
-                    showGalleryOrCameraDialog = false
+                    viewModel.updateSHowCameraOrGallery(false)
                 })
             }
 

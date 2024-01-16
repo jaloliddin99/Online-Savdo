@@ -51,16 +51,9 @@ class AddProductScreenViewModel @Inject constructor(
         titleValue = newValue
     }
 
-
     var descriptionVM: TextFieldState by mutableStateOf(ProductDescriptionState())
     fun setDescription(newValue: TextFieldState){
         descriptionVM = newValue
-    }
-
-
-    var priceVM: ProductPriceState by mutableStateOf(ProductPriceState())
-    fun setPrice(newValue: ProductPriceState){
-        priceVM = newValue
     }
 
     private var _imageList = mutableStateListOf<ImageUrl>()
@@ -77,7 +70,6 @@ class AddProductScreenViewModel @Inject constructor(
         categoryValue(CategoryItem())
         setTitle(ProductTitleState())
         setDescription(ProductDescriptionState())
-        setPrice(ProductPriceState())
         setImageList(listOf())
     }
 
@@ -119,7 +111,6 @@ class AddProductScreenViewModel @Inject constructor(
         token: String = SharedPref.deviceToken,
         titleProduct: String,
         descriptionProduct: String,
-        priceText: String,
         region: Int,
         districtId: Int,
         categoryId: Int,
@@ -132,7 +123,6 @@ class AddProductScreenViewModel @Inject constructor(
         builder.addFormDataPart("userId", SharedPref.userId.toString())
         builder.addFormDataPart("title", titleProduct)
         builder.addFormDataPart("description", descriptionProduct)
-        builder.addFormDataPart("price", priceText)
         builder.addFormDataPart("category_id", categoryId.toString())
         builder.addFormDataPart("region_id", region.toString())
         builder.addFormDataPart("district_id", districtId.toString())
@@ -227,6 +217,10 @@ class AddProductScreenViewModel @Inject constructor(
 
     fun updateShowSuccessDialog(show: Boolean) {
         _state.value = _state.value.copy(showSuccessDialog = show)
+    }
+
+    fun updateSHowCameraOrGallery(show: Boolean){
+        _state.value = _state.value.copy(showCameraOrGalleryDialog = show)
     }
 
 }
