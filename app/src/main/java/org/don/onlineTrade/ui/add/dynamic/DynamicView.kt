@@ -5,15 +5,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import org.don.onlineTrade.data.remote.models.leak.Parameter
 
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun DynamicView(
     list: List<Parameter>
 ) {
 
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     list.forEach {
         when (it.type) {
@@ -43,7 +47,7 @@ fun DynamicView(
                     textState = textFieldState,
                     modifier = Modifier,
                     onImeAction = {
-
+                        keyboardController?.hide()
                     },
                     parameter = it,
                 )
@@ -75,7 +79,7 @@ fun DynamicView(
                     textState = textFieldState,
                     modifier = Modifier,
                     onImeAction = {
-
+                        keyboardController?.hide()
                     },
                     parameter = it,
                     unit = units,

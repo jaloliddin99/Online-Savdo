@@ -120,16 +120,12 @@ class AddProductScreenViewModel @Inject constructor(
         titleProduct: String,
         descriptionProduct: String,
         priceText: String,
-        currencyId: Int,
         region: Int,
         districtId: Int,
         categoryId: Int,
         lat: String?,
         lon: String?,
         images: List<ImageUrl>,
-        isPost: Boolean = false,
-        productId: Int? = null,
-        selectedOption: Int
     ) {
         val builder: MultipartBody.Builder =
             MultipartBody.Builder().setType(MultipartBody.FORM)
@@ -142,8 +138,6 @@ class AddProductScreenViewModel @Inject constructor(
         builder.addFormDataPart("district_id", districtId.toString())
         builder.addFormDataPart("lat", lat?:"0.0")
         builder.addFormDataPart("lon", lon?:"0.0")
-        builder.addFormDataPart("currency_id", currencyId.toString())
-        builder.addFormDataPart("status", selectedOption.toString())
 
         val contentResolver = application.contentResolver
 

@@ -5,7 +5,6 @@ import org.don.onlineTrade.data.remote.models.LoginBody
 import org.don.onlineTrade.data.remote.models.ModelSuccess
 import org.don.onlineTrade.data.remote.models.RegistrationBody
 import org.don.onlineTrade.data.remote.models.VerificationRes
-import org.don.onlineTrade.data.remote.models.currencies.ModelCurrencyLists
 import org.don.onlineTrade.data.remote.models.getProfile.ModelGetProfile
 import org.don.onlineTrade.data.remote.models.getProfile.UpdatePasswordModel
 import org.don.onlineTrade.data.remote.models.getProfile.UpdateProfileModel
@@ -15,7 +14,6 @@ import org.don.onlineTrade.data.remote.models.nearPost.NeaPostModel
 import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.ModelGetDistricts
 import org.don.onlineTrade.data.remote.models.region.ModelGetRegions
-import org.don.onlineTrade.data.remote.models.showProducts.Category
 import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsModel
 
 interface NetworkRepository {
@@ -69,11 +67,6 @@ interface NetworkRepository {
         language: String,
         regionId: Int
     ): ModelGetDistricts
-
-    suspend fun getAllCurrencies(
-        token: String,
-        language: String
-    ): ModelCurrencyLists
 
     suspend fun newProduct(
         token: String,

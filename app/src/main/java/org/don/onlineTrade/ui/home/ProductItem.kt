@@ -273,12 +273,3 @@ fun getCurrency(currencyId: Int): String {
         else -> stringResource(id = R.string.sum)
     }
 }
-
-@Composable
-fun getCurrencyList(): List<ModelCurrencyListsItem> {
-    return listOf(
-        ModelCurrencyListsItem(1, stringResource(id = R.string.sum)),
-        ModelCurrencyListsItem(2, stringResource(id = R.string.usd)),
-        ModelCurrencyListsItem(3, stringResource(id = R.string.ruble))
-    )
-}

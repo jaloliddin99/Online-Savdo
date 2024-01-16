@@ -1,21 +1,17 @@
 package org.don.onlineTrade.ui.add
 
 import android.net.Uri
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -24,7 +20,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -35,18 +30,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.category.CategoryItem
-import org.don.onlineTrade.data.remote.models.currencies.ModelCurrencyListsItem
 import org.don.onlineTrade.ui.add.dynamic.DynamicView
-import org.don.onlineTrade.ui.home.getCurrencyList
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.ComposeFileProvider
 import org.don.onlineTrade.utils.FreeLoading
@@ -78,23 +69,21 @@ fun AddProductRoute(
         item,
         submitProduct = { titleProduct,
                           descriptionProduct,
-                          priceText, currencyId,
-                          region, district,
+                          priceText,
+                          region,
+                          district,
                           categoryId,
-                          images,
-                          selectedOption->
+                          images->
             addProductViewModel.postNewProduct(
                 titleProduct = titleProduct,
                 descriptionProduct = descriptionProduct,
                 priceText = priceText,
-                currencyId = currencyId,
                 region = region,
                 districtId = district,
                 categoryId = categoryId,
                 lat = lat,
                 lon = lon,
                 images = images,
-                selectedOption = selectedOption
             )
 
         },
@@ -119,12 +108,10 @@ fun AddProductScreen(
         titleProduct: String,
         descriptionProduct: String,
         priceText: String,
-        currencyId: Int,
         region: Int,
         district: Int,
         categoryId: Int,
         images: List<ImageUrl>,
-        selectedOption: Int
     ) -> Unit,
     regName: String? = null,
     disName: String? = null,
@@ -135,6 +122,18 @@ fun AddProductScreen(
 ) {
 
     val context = LocalContext.current
+
+    val density = LocalDensity.current.density
+    val resources = context.resources
+    val bottomBarHeight = with(LocalView.current) {
+        val resourceId = com.google.android.material.R.dimen.design_bottom_navigation_height
+        resources.getDimensionPixelSize(resourceId)
+    }
+
+    val peekHeight = remember(bottomBarHeight) {
+        (bottomBarHeight / density).dp
+    }
+
 
     val state = viewModel.state.value
     val isLoading = state.isLoading
@@ -151,8 +150,6 @@ fun AddProductScreen(
     if (item != null) {
         viewModel.categoryValue(item)
         LaunchedEffect(key1 =Unit){
-            Log.d("TAG", "AddProductScreendawdakwjdawd1 ${state.categoryDetail}")
-
             viewModel.getCategoryDerails(item.id)
         }
     }
@@ -175,17 +172,11 @@ fun AddProductScreen(
         mutableStateOf(viewModel.priceVM)
     }
 
-    var currencyItem by remember {
-        mutableStateOf(ModelCurrencyListsItem())
-    }
 
     var galleryImageUri by remember {
         mutableStateOf(viewModel.imageList)
     }
 
-    var selectedOption by remember {
-        mutableIntStateOf(1)
-    }
 
 
     val galleryLauncher =
@@ -201,7 +192,7 @@ fun AddProductScreen(
 
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture(),
-        onResult = { success ->
+        onResult = { _ ->
             galleryImageUri =
                 galleryImageUri + listOf(ImageUrl(true, capturedImageUri, capturedImageUri))
         }
@@ -211,9 +202,8 @@ fun AddProductScreen(
     val descriptionFocusRequester = remember {
         FocusRequester()
     }
-    val keyboardController = LocalSoftwareKeyboardController.current
-
-    Box(modifier = modifier.fillMaxSize()) {
+    Box(modifier = modifier.fillMaxSize()
+        .padding(bottom = peekHeight)) {
         Column(
             modifier = modifier
                 .fillMaxSize()
@@ -286,7 +276,6 @@ fun AddProductScreen(
                         && categoryIsAdded
                         && regionIsAdded
                         && productPriceState.isValid
-                        && currencyItem.id != -1
                         && (galleryImageUri.isNotEmpty() && galleryImageUri.size < 5)
 
             val onSubmit = {
@@ -299,20 +288,15 @@ fun AddProductScreen(
                 if (!productPriceState.isValid) {
                     productPriceState.enableShowErrors()
                 }
-                if (currencyItem.id == -1){
-                    Toast.makeText(context, context.getString(R.string.select_currency), Toast.LENGTH_SHORT).show()
-                }
 
                 submitProduct(
                     productTitleState.text,
                     productDescriptionState.text,
                     productPriceState.text,
-                    currencyItem.id,
                     regId!!,
                     disId!!,
                     viewModel.categoryValue.id,
-                    galleryImageUri,
-                    selectedOption
+                    galleryImageUri
                 )
             }
 

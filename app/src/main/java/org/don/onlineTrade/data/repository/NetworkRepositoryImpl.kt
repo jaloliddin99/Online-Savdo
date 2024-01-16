@@ -8,7 +8,6 @@ import org.don.onlineTrade.data.remote.models.ModelSuccess
 import org.don.onlineTrade.data.remote.models.RegistrationBody
 import org.don.onlineTrade.data.remote.models.VerificationRes
 import org.don.onlineTrade.data.remote.models.category.Category
-import org.don.onlineTrade.data.remote.models.currencies.ModelCurrencyLists
 import org.don.onlineTrade.data.remote.models.getProfile.ModelGetProfile
 import org.don.onlineTrade.data.remote.models.getProfile.UpdatePasswordModel
 import org.don.onlineTrade.data.remote.models.getProfile.UpdateProfileModel
@@ -96,9 +95,7 @@ class NetworkRepositoryImpl @Inject constructor(
         return apiInterface.getDistricts(token, regionId, language)
     }
 
-    override suspend fun getAllCurrencies(token: String, language: String): ModelCurrencyLists {
-        return apiInterface.getAllCurrencies(token, language)
-    }
+
 
     override suspend fun newProduct(token: String, requestBody: RequestBody): PostModel {
         return apiInterface.newProduct(token, requestBody)

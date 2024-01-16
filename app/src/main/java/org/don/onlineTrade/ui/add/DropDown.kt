@@ -8,7 +8,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import org.don.onlineTrade.data.remote.models.currencies.ModelCurrencyListsItem
 import org.don.onlineTrade.ui.theme.spacing
 
 
@@ -81,7 +80,6 @@ fun UnitDropdownSelector(
 @Composable
 fun SpinnerSample_Preview() {
     MaterialTheme {
-        val myData = listOf(ModelCurrencyListsItem(0, "Apples"), ModelCurrencyListsItem(1, "Bananas"), ModelCurrencyListsItem(2, "Kiwis"))
 //
 //        SpinnerSample(
 //            myData,
