@@ -38,6 +38,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.category.CategoryItem
 import org.don.onlineTrade.ui.add.dynamic.DynamicView
+import org.don.onlineTrade.ui.add.dynamic.DynamicViewData
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.ComposeFileProvider
 import org.don.onlineTrade.utils.FreeLoading
@@ -71,7 +72,7 @@ fun AddProductRoute(
                           region,
                           district,
                           categoryId,
-                          images->
+                          images ->
             addProductViewModel.postNewProduct(
                 titleProduct = titleProduct,
                 descriptionProduct = descriptionProduct,
@@ -82,7 +83,6 @@ fun AddProductRoute(
                 lon = lon,
                 images = images,
             )
-
         },
         regName,
         disName,
@@ -137,7 +137,7 @@ fun AddProductScreen(
     if (state.showSuccessDialog) {
         NotifyDialog(onDismiss = {
             viewModel.updateShowSuccessDialog(false)
-            state.postNewProduct?.let{
+            state.postNewProduct?.let {
                 goToDetailsPage.invoke()
             }
         })
@@ -145,7 +145,7 @@ fun AddProductScreen(
 
     if (item != null) {
         viewModel.categoryValue(item)
-        LaunchedEffect(key1 =Unit){
+        LaunchedEffect(key1 = Unit) {
             viewModel.getCategoryDerails(item.id)
         }
     }
@@ -158,12 +158,13 @@ fun AddProductScreen(
         mutableStateOf(viewModel.descriptionVM)
     }
 
-
     var galleryImageUri by remember {
         mutableStateOf(viewModel.imageList)
     }
 
-
+    var dynamicViewData by remember {
+        mutableStateOf(mapOf<String, DynamicViewData>())
+    }
 
     val galleryLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { it ->
@@ -188,8 +189,11 @@ fun AddProductScreen(
     val descriptionFocusRequester = remember {
         FocusRequester()
     }
-    Box(modifier = modifier.fillMaxSize()
-        .padding(bottom = peekHeight)) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(bottom = peekHeight)
+    ) {
         Column(
             modifier = modifier
                 .fillMaxSize()
@@ -229,7 +233,8 @@ fun AddProductScreen(
             DividerTextAndSpace(R.string.select_region)
 
 
-            TextFieldUnEditable(productTitle = if (regId != -1) "$regName, $disName" else "",
+            TextFieldUnEditable(
+                productTitle = if (regId != -1) "$regName, $disName" else "",
                 modifier = Modifier.fillMaxWidth(),
                 title = R.string.please_select_region,
                 isFocusedOrClicked = {
@@ -283,8 +288,22 @@ fun AddProductScreen(
 
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen16Dp))
 
-            if (state.categoryDetail != null){
-                DynamicView(state.categoryDetail.parameters)
+            if (state.categoryDetail != null) {
+                val params = state.categoryDetail.parameters
+                if (dynamicViewData.isNotEmpty()) {
+                    dynamicViewData = params.associateBy(
+                        keySelector = { it.code },
+                        valueTransform = {
+                            DynamicViewData(
+                                paramId = it.id,
+                                isRequired = it.validation.is_required,
+                            )
+                        }
+                    )
+                }
+                DynamicView(params, dynamicViewData) {
+
+                }
             }
 
 
