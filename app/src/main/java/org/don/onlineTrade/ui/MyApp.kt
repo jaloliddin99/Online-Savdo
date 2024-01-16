@@ -336,7 +336,7 @@ fun NavigationGraph(
             },
             addProductViewModel = addProductViewModel,
             goToDetailsPage = {
-                navController.navigate("productDetails/$it")
+                navController.popBackStack()
             }
         )
 

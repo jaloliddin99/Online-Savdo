@@ -23,7 +23,7 @@ fun DynamicTextView(
     textState: TextFieldState,
     modifier: Modifier,
     onImeAction: () -> Unit,
-    parameter: Parameter,
+    parameter: Parameter
 ) {
     val hintText = if (parameter.units.isNotEmpty()) parameter.units[0].label else ""
     ContentWrapper(parameter = parameter) {

@@ -57,7 +57,7 @@ fun AddProductRoute(
     lat: String? = null,
     lon: String? = null,
     addProductViewModel: AddProductScreenViewModel = hiltViewModel(),
-    goToDetailsPage: (Int) -> Unit
+    goToDetailsPage: () -> Unit
 
 ) {
 
@@ -118,7 +118,7 @@ fun AddProductScreen(
     regId: Int? = null,
     disId: Int? = null,
     viewModel: AddProductScreenViewModel,
-    goToDetailsPage: (Int) -> Unit
+    goToDetailsPage: () -> Unit
 ) {
 
     val context = LocalContext.current
@@ -143,7 +143,9 @@ fun AddProductScreen(
     if (state.showSuccessDialog) {
         NotifyDialog(onDismiss = {
             viewModel.updateShowSuccessDialog(false)
-            state.postNewProduct?.data?.id?.let(goToDetailsPage)
+            state.postNewProduct?.let{
+                goToDetailsPage.invoke()
+            }
         })
     }
 

@@ -21,7 +21,7 @@ fun NavGraphBuilder.addProductScreen(
     navigateToCategories: () -> Unit,
     navigateToSelectRegions: () -> Unit,
     addProductViewModel: AddProductScreenViewModel,
-    goToDetailsPage: (Int) -> Unit
+    goToDetailsPage: () -> Unit
 ) {
     composable(
         route = chatNavigationRoute,
