@@ -45,7 +45,6 @@ import androidx.constraintlayout.compose.Dimension
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import org.don.onlineTrade.R
-import org.don.onlineTrade.data.remote.models.currencies.ModelCurrencyListsItem
 import org.don.onlineTrade.data.remote.models.getPublicProducts.Content
 import org.don.onlineTrade.data.remote.models.getPublicProducts.Region
 import org.don.onlineTrade.ui.theme.robotoFontFamily

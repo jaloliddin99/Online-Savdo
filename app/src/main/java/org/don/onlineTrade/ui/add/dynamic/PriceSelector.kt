@@ -17,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -25,7 +24,6 @@ import org.don.onlineTrade.data.remote.models.leak.Parameter
 import org.don.onlineTrade.ui.add.UnitDropdownSelector
 import org.don.onlineTrade.ui.auth.TextFieldError
 import org.don.onlineTrade.ui.auth.TextFieldState
-import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.spacing
 
 @Composable

@@ -73,7 +73,7 @@ class AddProductScreenViewModel @Inject constructor(
 
 
 
-    fun clearStoredValues(){
+    private fun clearStoredValues(){
         categoryValue(CategoryItem())
         setTitle(ProductTitleState())
         setDescription(ProductDescriptionState())
@@ -103,12 +103,12 @@ class AddProductScreenViewModel @Inject constructor(
                 is Resource.Error -> {
                     _state.value =
                         AddProductScreenState(
-                            error = result.message ?: "An unexpected error occured"
+                            error = result.message ?: "An unexpected error occurred"
                         )
                 }
 
                 is Resource.Loading -> {
-                    _state.value = AddProductScreenState(isLoading = true,)
+                    _state.value = AddProductScreenState(isLoading = true)
                 }
             }
         }.launchIn(viewModelScope)
@@ -209,7 +209,7 @@ class AddProductScreenViewModel @Inject constructor(
                     is Resource.Error -> {
                         _state.value =
                             AddProductScreenState(
-                                error = result.message ?: "An unexpected error occured"
+                                error = result.message ?: "An unexpected error occurred"
                             )
                     }
 
