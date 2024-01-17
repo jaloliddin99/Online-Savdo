@@ -3,6 +3,7 @@ package org.don.onlineTrade.ui.add
 import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -75,6 +76,52 @@ fun TextFieldForProduct(
         keyboardOptions = KeyboardOptions.Default.copy(
             imeAction = imeAction,
             keyboardType = keyboardType,
+        ),
+        keyboardActions = KeyboardActions(
+            onDone = {
+                onImeAction()
+            }
+        ),
+        shape = RoundedCornerShape(MaterialTheme.spacing.dimen12Dp),
+        supportingText = {
+            productState.getError()?.let { error -> TextFieldError(textError = error) }
+        },
+    )
+}
+
+
+
+@Composable
+fun SearchField(
+    modifier: Modifier = Modifier,
+    onImeAction: () -> Unit = {},
+    productState: TextFieldState = remember { ProductTitleState() },
+    @StringRes title: Int,
+) {
+
+    OutlinedTextField(
+        value = productState.text,
+        onValueChange = {
+            productState.text = it
+        },
+        label = {
+            Text(
+                text = stringResource(id = title),
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        },
+        isError = productState.showErrors(),
+        modifier = modifier
+            .onFocusChanged { focusState ->
+                productState.onFocusChange(focusState.isFocused)
+                if (!focusState.isFocused) {
+                    productState.enableShowErrors()
+                }
+            },
+        textStyle = MaterialTheme.typography.bodyMedium,
+        keyboardOptions = KeyboardOptions.Default.copy(
+            keyboardType = KeyboardType.Text,
+            imeAction = ImeAction.Search
         ),
         keyboardActions = KeyboardActions(
             onDone = {

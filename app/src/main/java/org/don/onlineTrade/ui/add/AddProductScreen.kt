@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
@@ -38,8 +40,11 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.category.CategoryItem
@@ -48,6 +53,7 @@ import org.don.onlineTrade.ui.add.dynamic.DynamicViewData
 import org.don.onlineTrade.ui.add.dynamic.PostUnit
 import org.don.onlineTrade.ui.add.dynamic.PostValuesDTO
 import org.don.onlineTrade.ui.add.dynamic.TitleWrapper
+import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.ComposeFileProvider
 import org.don.onlineTrade.utils.FreeLoading
@@ -143,7 +149,14 @@ fun AddProductScreen(
         mutableStateOf(PostAddressState())
     }
 
-    LaunchedEffect(key1 = postAddressState){
+    var expanded by remember {
+        mutableStateOf(false)
+    }
+
+    LaunchedEffect(key1 = postAddressState.text) {
+        if (postAddressState.isFocused) {
+            expanded = true
+        }
         viewModel.listenRevereTyping(postAddressState.text)
     }
 
@@ -157,10 +170,6 @@ fun AddProductScreen(
 
     var dynamicViewData by remember {
         mutableStateOf(mapOf<String, DynamicViewData>())
-    }
-
-    var expanded by remember {
-        mutableStateOf(false)
     }
 
     val galleryLauncher =
@@ -187,18 +196,18 @@ fun AddProductScreen(
         FocusRequester()
     }
 
-    val keyboard = LocalSoftwareKeyboardController.current
     Box(
         modifier = modifier
             .fillMaxSize()
-            .padding(bottom = peekHeight)
+            .padding(
+                start = MaterialTheme.spacing.dimen16Dp,
+                end = MaterialTheme.spacing.dimen16Dp,
+                bottom = peekHeight
+            )
     ) {
         Column(
             modifier = modifier
                 .fillMaxSize()
-                .padding(
-                    horizontal = MaterialTheme.spacing.dimen16Dp
-                )
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.Start,
         ) {
@@ -239,42 +248,54 @@ fun AddProductScreen(
             }
 
             TitleWrapper(titleRes = R.string.enter_address) {
-                TextFieldForProduct(
+                SearchField(
                     productState = postAddressState,
                     onImeAction = {
-                        keyboard?.hide()
+                        //keyboard?.hide()
                     },
                     modifier = Modifier.fillMaxWidth(),
                     title = R.string.enter_address,
-                    imeAction = ImeAction.Search
                 )
                 DropdownMenu(
                     expanded = expanded,
-                    onDismissRequest = { expanded = false },
-                    modifier = Modifier.wrapContentWidth()
+                    onDismissRequest = {
+                        expanded = false
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = MaterialTheme.spacing.dimen16Dp)
                 ) {
                     state.featureMember?.forEach { entry ->
                         DropdownMenuItem(
                             onClick = {
                                 expanded = false
                             },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = MaterialTheme.spacing.dimen16Dp),
                             text = {
-                                Column {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 16.dp),
+                                    verticalArrangement = Arrangement.SpaceEvenly
+                                ) {
+                                    Spacer(modifier = Modifier.height(6.dp))
                                     Text(
                                         text = entry.GeoObject.name,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .align(Alignment.Start)
+                                        overflow = TextOverflow.Ellipsis,
+                                        maxLines = 1,
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Medium,
+                                        fontFamily = robotoFontFamily
                                     )
                                     Text(
                                         text = entry.GeoObject.description,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .align(Alignment.Start)
+                                        overflow = TextOverflow.Ellipsis,
+                                        maxLines = 1,
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        fontFamily = robotoFontFamily
                                     )
+                                    Spacer(modifier = Modifier.height(6.dp))
+                                    Divider(modifier = Modifier.height(0.4.dp))
                                 }
                             },
                         )

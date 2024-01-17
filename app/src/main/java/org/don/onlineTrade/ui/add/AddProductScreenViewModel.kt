@@ -3,6 +3,7 @@ package org.don.onlineTrade.ui.add
 import android.app.Application
 import android.net.Uri
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
@@ -95,8 +96,15 @@ class AddProductScreenViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            _query.debounce(1000)
-                .collectLatest { getLocationReverse(it) }
+            _query
+                .filter {
+                    it.length > 3
+                }.debounce(1000)
+                .collectLatest {
+                    Log.d("TAG", "AddProductScreedawdawkdjawkdjn2 ${it},")
+
+                    getLocationReverse(it)
+                }
         }
     }
 
