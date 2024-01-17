@@ -1,9 +1,7 @@
 package org.don.onlineTrade.ui.add.dynamic
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,14 +24,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.leak.Parameter
-import org.don.onlineTrade.data.remote.models.leak.Validation
 import org.don.onlineTrade.data.remote.models.leak.Values
-import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.spacing
 
 @OptIn(ExperimentalMaterial3Api::class)

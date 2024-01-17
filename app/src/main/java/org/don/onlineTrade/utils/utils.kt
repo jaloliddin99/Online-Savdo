@@ -63,3 +63,5 @@ val convertDate: (String) -> String = { date: String ->
     val formattedDate = dateTime.format(formatter)
     formattedDate
 }
+
+val LOCATION_REVERSE_URL = "https://geocode-maps.yandex.ru/1.x/?apikey=867ef81c-359f-4363-b8f5-c77949de3dbd&geocode="

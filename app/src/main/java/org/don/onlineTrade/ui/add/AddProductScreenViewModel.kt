@@ -14,6 +14,12 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import id.zelory.compressor.Compressor
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -24,19 +30,23 @@ import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.category.CategoryItem
 import org.don.onlineTrade.domain.state.Resource
 import org.don.onlineTrade.domain.useCase.CategoryMainUseCase
+import org.don.onlineTrade.domain.useCase.LocationReverseUseCase
 import org.don.onlineTrade.domain.useCase.postNewProduct.PostNewProductUseCase
 import org.don.onlineTrade.ui.auth.TextFieldState
 import org.don.onlineTrade.ui.home.AddProductScreenState
 import org.don.onlineTrade.utils.FileManager.getFileFromUri
+import org.don.onlineTrade.utils.LOCATION_REVERSE_URL
 import org.don.onlineTrade.utils.SharedPref
 import java.io.File
 import javax.inject.Inject
 
+@OptIn(FlowPreview::class)
 @HiltViewModel
 class AddProductScreenViewModel @Inject constructor(
     private val postNewProductUseCase: PostNewProductUseCase,
     private val application: Application,
-    private val categoryMainUseCase: CategoryMainUseCase
+    private val categoryMainUseCase: CategoryMainUseCase,
+    private val locationReverseUseCase: LocationReverseUseCase
 ) : AndroidViewModel(application) {
 
 
@@ -47,12 +57,12 @@ class AddProductScreenViewModel @Inject constructor(
     }
 
     var titleValue: TextFieldState by mutableStateOf(ProductTitleState())
-    fun setTitle(newValue: TextFieldState){
+    fun setTitle(newValue: TextFieldState) {
         titleValue = newValue
     }
 
     var descriptionVM: TextFieldState by mutableStateOf(ProductDescriptionState())
-    fun setDescription(newValue: TextFieldState){
+    fun setDescription(newValue: TextFieldState) {
         descriptionVM = newValue
     }
 
@@ -64,16 +74,8 @@ class AddProductScreenViewModel @Inject constructor(
         }
     }
 
-//    fun isButtonEnabled(): Boolean{
-//        val isAdded = categoryValue.id != -1
-//                && titleValue.isValid
-//                && descriptionVM.isValid
-//                &&
-//    }
 
-
-
-    private fun clearStoredValues(){
+    private fun clearStoredValues() {
         categoryValue(CategoryItem())
         setTitle(ProductTitleState())
         setDescription(ProductDescriptionState())
@@ -81,12 +83,50 @@ class AddProductScreenViewModel @Inject constructor(
     }
 
 
-
-
     private val _state = mutableStateOf(AddProductScreenState())
     val state: State<AddProductScreenState> = _state
 
-    fun getCategoryDerails(categoryId: Int){
+    private val _query: MutableStateFlow<String> = MutableStateFlow("")
+    val query: StateFlow<String> get() = _query
+
+    fun listenRevereTyping(s: String) {
+        _query.value = s
+    }
+
+    init {
+        viewModelScope.launch {
+            _query.debounce(1000)
+                .collectLatest { getLocationReverse(it) }
+        }
+    }
+
+    private fun getLocationReverse(
+        addressName: String
+    ) {
+        val url = "$LOCATION_REVERSE_URL${addressName}&lang=${SharedPref.language}&format=json"
+        locationReverseUseCase
+            .invoke(url)
+            .onEach { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        _state.value = AddProductScreenState(featureMember = result.data)
+                    }
+
+                    is Resource.Error -> {
+                        _state.value =
+                            AddProductScreenState(
+                                error = result.message ?: "An unexpected error occurred"
+                            )
+                    }
+
+                    is Resource.Loading -> {
+                        _state.value = AddProductScreenState(isLoading = true)
+                    }
+                }
+            }.launchIn(viewModelScope)
+    }
+
+    fun getCategoryDerails(categoryId: Int) {
         categoryMainUseCase.invoke(
             token = SharedPref.deviceToken,
             language = SharedPref.language,
@@ -222,13 +262,13 @@ class AddProductScreenViewModel @Inject constructor(
         _state.value = _state.value.copy(showSuccessDialog = show)
     }
 
-    fun updateSHowCameraOrGallery(show: Boolean){
+    fun updateSHowCameraOrGallery(show: Boolean) {
         _state.value = _state.value.copy(showCameraOrGalleryDialog = show)
     }
 
 }
 
- fun getRealPathFromURI(contentURI: Uri, application: Application): String? {
+fun getRealPathFromURI(contentURI: Uri, application: Application): String? {
     val filePath: String?
     val cursor = application.contentResolver.query(contentURI, null, null, null, null)
     if (cursor == null) {

@@ -16,6 +16,7 @@ import org.don.onlineTrade.data.remote.models.nearPost.NeaPostModel
 import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.ModelGetDistricts
 import org.don.onlineTrade.data.remote.models.region.ModelGetRegions
+import org.don.onlineTrade.data.remote.models.reverse.ModelAddressReverse
 import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsModel
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -24,6 +25,7 @@ import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
+import retrofit2.http.Url
 
 @Keep
 interface ApiInterface {
@@ -169,6 +171,11 @@ interface ApiInterface {
         @Header("Authorization") token: String,
         @Body body: UpdatePasswordModel
     ): ModelSuccess
+
+    @GET
+    suspend fun getLocationList(
+        @Url url: String
+    ): ModelAddressReverse
 
 
 

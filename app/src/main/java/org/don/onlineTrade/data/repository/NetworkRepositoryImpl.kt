@@ -17,6 +17,7 @@ import org.don.onlineTrade.data.remote.models.nearPost.NeaPostModel
 import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.ModelGetDistricts
 import org.don.onlineTrade.data.remote.models.region.ModelGetRegions
+import org.don.onlineTrade.data.remote.models.reverse.ModelAddressReverse
 import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsModel
 import org.don.onlineTrade.domain.repository.NetworkRepository
 import javax.inject.Inject
@@ -188,6 +189,10 @@ class NetworkRepositoryImpl @Inject constructor(
 
     override suspend fun updatePassword(token: String, body: UpdatePasswordModel): ModelSuccess {
         return apiInterface.updatePassword(token, body)
+    }
+
+    override suspend fun addressReverse(url: String): ModelAddressReverse {
+        return apiInterface.getLocationList(url)
     }
 
 }

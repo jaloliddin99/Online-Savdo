@@ -13,9 +13,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -140,6 +143,10 @@ fun AddProductScreen(
         mutableStateOf(PostAddressState())
     }
 
+    LaunchedEffect(key1 = postAddressState){
+        viewModel.listenRevereTyping(postAddressState.text)
+    }
+
     val productDescriptionState by rememberSaveable(stateSaver = ProductDescriptionStateSaver) {
         mutableStateOf(viewModel.descriptionVM)
     }
@@ -150,6 +157,10 @@ fun AddProductScreen(
 
     var dynamicViewData by remember {
         mutableStateOf(mapOf<String, DynamicViewData>())
+    }
+
+    var expanded by remember {
+        mutableStateOf(false)
     }
 
     val galleryLauncher =
@@ -237,6 +248,38 @@ fun AddProductScreen(
                     title = R.string.enter_address,
                     imeAction = ImeAction.Search
                 )
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier.wrapContentWidth()
+                ) {
+                    state.featureMember?.forEach { entry ->
+                        DropdownMenuItem(
+                            onClick = {
+                                expanded = false
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = MaterialTheme.spacing.dimen16Dp),
+                            text = {
+                                Column {
+                                    Text(
+                                        text = entry.GeoObject.name,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .align(Alignment.Start)
+                                    )
+                                    Text(
+                                        text = entry.GeoObject.description,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .align(Alignment.Start)
+                                    )
+                                }
+                            },
+                        )
+                    }
+                }
             }
 
 

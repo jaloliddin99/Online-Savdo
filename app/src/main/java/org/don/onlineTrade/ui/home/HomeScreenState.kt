@@ -10,6 +10,7 @@ import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsModel
 import org.don.onlineTrade.ui.region.MyLocation
 import org.don.onlineTrade.data.remote.models.category.Category
 import org.don.onlineTrade.data.remote.models.leak.ModelLeak
+import org.don.onlineTrade.data.remote.models.reverse.FeatureMember
 
 data class HomeScreenState(
     val isLoading: Boolean = false,
@@ -41,7 +42,8 @@ data class AddProductScreenState(
     val error: String = "",
     val showSuccessDialog: Boolean= false,
     val categoryDetail: ModelLeak ?= null,
-    val showCameraOrGalleryDialog: Boolean = false
+    val showCameraOrGalleryDialog: Boolean = false,
+    val featureMember: List<FeatureMember> ?= null
 )
 
 data class PresentProductState(
