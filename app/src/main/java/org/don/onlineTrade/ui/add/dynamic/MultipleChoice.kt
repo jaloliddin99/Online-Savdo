@@ -64,7 +64,7 @@ import org.don.onlineTrade.ui.theme.spacing
 @Composable
 fun MultipleChoiceDialog(
     parameter: Parameter,
-    onDismiss: () -> Unit,
+    onDismiss: (List<Values>) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val sheetState = rememberModalBottomSheetState(
@@ -119,6 +119,7 @@ fun MultipleChoiceDialog(
         ModalBottomSheet(
             onDismissRequest = {
                 showBottomSheet = false
+                onDismiss(selectedItemList)
             },
             sheetState = sheetState,
             modifier = modifier.fillMaxHeight()
@@ -140,6 +141,7 @@ fun MultipleChoiceDialog(
                     scope.launch { sheetState.hide() }.invokeOnCompletion {
                         if (!sheetState.isVisible) {
                             showBottomSheet = false
+                            onDismiss(selectedItemList)
                         }
                     }
                 }

@@ -64,6 +64,13 @@ class AddProductScreenViewModel @Inject constructor(
         }
     }
 
+//    fun isButtonEnabled(): Boolean{
+//        val isAdded = categoryValue.id != -1
+//                && titleValue.isValid
+//                && descriptionVM.isValid
+//                &&
+//    }
+
 
 
     private fun clearStoredValues(){

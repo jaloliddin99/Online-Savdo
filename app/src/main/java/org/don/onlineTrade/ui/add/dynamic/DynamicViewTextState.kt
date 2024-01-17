@@ -55,6 +55,9 @@ private fun isValidText(input: String, validation: Validation): Boolean {
             return true
 
     }
+    if (validation.pattern == null){
+        return true
+    }
 
     return false
 

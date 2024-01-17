@@ -27,21 +27,18 @@ fun DynamicView(
                 if (param.values.size > 2) {
                     DropDownSample(
                         param,
-                        onSelectionChanged = {
-                            val params = localParams.toMutableMap()
-                            params[param.code] = DynamicViewData(
-                                param.id,
-                                param.validation.is_required,
-                                isValid = true,
-                                value = it.label
-                            )
-                            paramListener.invoke(params)
+                        onSelectionChanged = { value ->
+                            sendData(localParams, param, value.label, isValid = true) {
+                                paramListener.invoke(it)
+                            }
                         }
                     )
                 } else if (param.values.size == 2) {
                     HorizontalRadioGroup(
-                        selectedItem = {
-
+                        selectedItem = { value ->
+                            sendData(localParams, param, value.label, isValid = true) {
+                                paramListener.invoke(it)
+                            }
                         },
                         param = param
                     )
@@ -52,7 +49,16 @@ fun DynamicView(
                 val textFieldState by remember {
                     mutableStateOf(DynamicViewState(regex = param.validation))
                 }
-                Log.d("TAG", "DynamicViewdawdnawkjdawkjd ${param.code} ${textFieldState.text}")
+                localParams.forEach { (s, dynamicViewData) ->
+                    if (param.code == s) {
+                        if (dynamicViewData.postValues[0].label != textFieldState.text) {
+                            Log.d("TAG", "DynamicViewdawdawdddnakwjd ${textFieldState.text}, ${textFieldState.isValid}")
+                            sendData(localParams, param, textFieldState.text, isValid = textFieldState.isValid) {
+                                paramListener.invoke(it)
+                            }
+                        }
+                    }
+                }
                 DynamicTextView(
                     textState = textFieldState,
                     modifier = Modifier,
@@ -64,11 +70,15 @@ fun DynamicView(
             }
 
             DynamicView.TYPE_MULTIPLE_CHOICE.type -> {
-
                 MultipleChoiceDialog(
                     parameter = param,
-                    onDismiss = {
-
+                    onDismiss = { it ->
+                        val valueList = it.map { values ->
+                            PostValuesDTO(label = values.label)
+                        }
+                        sendData(localParams, param, values = valueList, isValid = true) {
+                            paramListener.invoke(it)
+                        }
                     }
                 )
             }
@@ -84,6 +94,23 @@ fun DynamicView(
                             label = param.units[0].label
                         )
                     )
+                }
+                localParams.forEach { (s, dynamicViewData) ->
+                    if (param.code == s) {
+                        if (dynamicViewData.postValues[0].label != textFieldState.text) {
+                            Log.d("TAG", "DynamicViewdawdawdddnakwjd modey ${textFieldState.text}, ${textFieldState.isValid}")
+
+                            sendData(
+                                localParams,
+                                param,
+                                label = textFieldState.text,
+                                unit = PostUnit(units.label),
+                                isValid = textFieldState.isValid
+                            ) {
+                                paramListener.invoke(it)
+                            }
+                        }
+                    }
                 }
                 PriceSelector(
                     textState = textFieldState,
@@ -103,10 +130,49 @@ fun DynamicView(
 }
 
 data class DynamicViewData(
-    val paramId: Int,
     val isRequired: Boolean,
     val isValid: Boolean = false,
-    val value: String = ""
+    val code: String,
+    val label: String,
+    val type: String,
+    val postValues: List<PostValuesDTO>,
+    val unit: PostUnit? = null
+)
+
+private inline fun sendData(
+    localParams: Map<String, DynamicViewData>,
+    param: Parameter,
+    label: String? = null,
+    values: List<PostValuesDTO>? = null,
+    unit: PostUnit? = null,
+    isValid: Boolean,
+    block: (Map<String, DynamicViewData>) -> Unit
+) {
+    val params = localParams.toMutableMap()
+    params[param.code] = DynamicViewData(
+        param.validation.is_required,
+        isValid = isValid,
+        code = param.code,
+        label = param.label,
+        type = param.type,
+        postValues = if (label != null) listOf(
+            PostValuesDTO(label = label)
+        ) else values!!,
+        unit = unit
+            ?: if (param.units.isNotEmpty()) PostUnit(
+                label = param.units[0].label
+            ) else
+                null
+    )
+    block(params)
+}
+
+data class PostUnit(
+    val label: String = ""
+)
+
+data class PostValuesDTO(
+    val label: String
 )
 
 enum class DynamicView(val type: String) {

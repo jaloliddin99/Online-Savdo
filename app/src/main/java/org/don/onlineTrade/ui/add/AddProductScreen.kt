@@ -1,6 +1,7 @@
 package org.don.onlineTrade.ui.add
 
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -39,6 +40,8 @@ import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.category.CategoryItem
 import org.don.onlineTrade.ui.add.dynamic.DynamicView
 import org.don.onlineTrade.ui.add.dynamic.DynamicViewData
+import org.don.onlineTrade.ui.add.dynamic.PostUnit
+import org.don.onlineTrade.ui.add.dynamic.PostValuesDTO
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.ComposeFileProvider
 import org.don.onlineTrade.utils.FreeLoading
@@ -263,18 +266,12 @@ fun AddProductScreen(
             val isEnabled =
                 productTitleState.isValid
                         && productDescriptionState.isValid
-                        && categoryIsAdded
-                        && regionIsAdded
-                        && (galleryImageUri.isNotEmpty() && galleryImageUri.size < 5)
+                        && dynamicDataCorrect(dynamicViewData)
+//                        && categoryIsAdded
+//                        && (galleryImageUri.isNotEmpty() && galleryImageUri.size < 5)
+
 
             val onSubmit = {
-                if (!productTitleState.isValid) {
-                    productTitleState.enableShowErrors()
-                }
-                if (!productDescriptionState.isValid) {
-                    productDescriptionState.enableShowErrors()
-                }
-
                 submitProduct(
                     productTitleState.text,
                     productDescriptionState.text,
@@ -290,19 +287,24 @@ fun AddProductScreen(
 
             if (state.categoryDetail != null) {
                 val params = state.categoryDetail.parameters
-                if (dynamicViewData.isNotEmpty()) {
+                if (dynamicViewData.isEmpty()) {
                     dynamicViewData = params.associateBy(
                         keySelector = { it.code },
                         valueTransform = {
                             DynamicViewData(
-                                paramId = it.id,
                                 isRequired = it.validation.is_required,
+                                isValid = false,
+                                code = it.code,
+                                label = it.label,
+                                type = it.type,
+                                postValues = listOf(PostValuesDTO(label = "")),
+                                unit = PostUnit()
                             )
                         }
                     )
                 }
                 DynamicView(params, dynamicViewData) {
-
+                    dynamicViewData = it
                 }
             }
 
@@ -350,7 +352,18 @@ fun AddProductScreen(
         }
         FreeLoading(isFeedLoading = isLoading)
     }
+}
 
+private fun dynamicDataCorrect(map: Map<String, DynamicViewData>): Boolean{
+    map.forEach { (s, dynamicViewData) ->
+        if (dynamicViewData.isRequired){
+            if (!dynamicViewData.isValid){
+                Log.d("TAG", "dynamicDataCorrecdawdawdkjjanwd, $s, ${dynamicViewData.label}, ${dynamicViewData.postValues}")
+                return false
+            }
+        }
+    }
+    return true
 }
 
 

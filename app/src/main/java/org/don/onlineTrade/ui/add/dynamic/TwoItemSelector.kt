@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -32,7 +33,7 @@ fun HorizontalRadioGroup(
     selectedItem: (Values) -> Unit,
     param: Parameter,
 ) {
-    var option by remember { mutableIntStateOf(0) }
+    var option by remember { mutableStateOf<Int?>(null) }
 
     ContentWrapper(parameter = param) {
         OutlinedCard {
@@ -45,7 +46,7 @@ fun HorizontalRadioGroup(
                             selected = (option == 0),
                             onClick = {
                                 option = 0
-                                selectedItem.invoke(param.values[option])
+                                selectedItem.invoke(param.values[option!!])
                             }
 
                         ),
@@ -55,7 +56,7 @@ fun HorizontalRadioGroup(
                         selected = (option == 0),
                         onClick = {
                             option = 0
-                            selectedItem.invoke(param.values[option])
+                            selectedItem.invoke(param.values[option!!])
                         }
                     )
                     Text(
@@ -72,7 +73,7 @@ fun HorizontalRadioGroup(
                             selected = (option == 1),
                             onClick = {
                                 option = 1
-                                selectedItem.invoke(param.values[option])
+                                selectedItem.invoke(param.values[option!!])
                             }
 
                         ),
@@ -82,7 +83,7 @@ fun HorizontalRadioGroup(
                         selected = (option == 1),
                         onClick = {
                             option = 1
-                            selectedItem.invoke(param.values[option])
+                            selectedItem.invoke(param.values[option!!])
                         }
                     )
                     Text(
