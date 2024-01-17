@@ -51,15 +51,8 @@ import org.don.onlineTrade.utils.runTimePermission.RunTimePermission
 @Composable
 fun AddProductRoute(
     navigateToCategories: () -> Unit,
-    navigateToSelectRegions: () -> Unit,
     modifier: Modifier = Modifier,
     item: CategoryItem? = null,
-    regName: String? = null,
-    disName: String? = null,
-    regId: Int? = null,
-    disId: Int? = null,
-    lat: String? = null,
-    lon: String? = null,
     addProductViewModel: AddProductScreenViewModel = hiltViewModel(),
     goToDetailsPage: () -> Unit
 ) {
@@ -68,29 +61,18 @@ fun AddProductRoute(
     AddProductScreen(
         modifier = modifier,
         navigateToCategories,
-        navigateToSelectRegions,
         item,
         submitProduct = { titleProduct,
                           descriptionProduct,
-                          region,
-                          district,
                           categoryId,
                           images ->
             addProductViewModel.postNewProduct(
                 titleProduct = titleProduct,
                 descriptionProduct = descriptionProduct,
-                region = region,
-                districtId = district,
                 categoryId = categoryId,
-                lat = lat,
-                lon = lon,
                 images = images,
             )
         },
-        regName,
-        disName,
-        regId,
-        disId,
         addProductViewModel,
         goToDetailsPage
     )
@@ -101,20 +83,13 @@ fun AddProductRoute(
 fun AddProductScreen(
     modifier: Modifier = Modifier,
     navigateToCategories: () -> Unit,
-    navigateToSelectRegions: () -> Unit,
     item: CategoryItem? = null,
     submitProduct: (
         titleProduct: String,
         descriptionProduct: String,
-        region: Int,
-        district: Int,
         categoryId: Int,
         images: List<ImageUrl>,
     ) -> Unit,
-    regName: String? = null,
-    disName: String? = null,
-    regId: Int? = null,
-    disId: Int? = null,
     viewModel: AddProductScreenViewModel,
     goToDetailsPage: () -> Unit
 ) {
@@ -233,19 +208,6 @@ fun AddProductScreen(
                 isFocusedOrClicked = {
                     navigateToCategories()
                 })
-            DividerTextAndSpace(R.string.select_region)
-
-
-            TextFieldUnEditable(
-                productTitle = if (regId != -1) "$regName, $disName" else "",
-                modifier = Modifier.fillMaxWidth(),
-                title = R.string.please_select_region,
-                isFocusedOrClicked = {
-                    viewModel.setTitle(productTitleState)
-                    viewModel.setDescription(productDescriptionState)
-                    viewModel.setImageList(galleryImageUri)
-                    navigateToSelectRegions()
-                })
 
 
             DividerTextAndSpace(R.string.select_image_for_your_product)
@@ -260,9 +222,6 @@ fun AddProductScreen(
 
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
 
-            val categoryIsAdded = viewModel.categoryValue.id != -1
-            val regionIsAdded = disId != null
-
             val isEnabled =
                 productTitleState.isValid
                         && productDescriptionState.isValid
@@ -275,8 +234,6 @@ fun AddProductScreen(
                 submitProduct(
                     productTitleState.text,
                     productDescriptionState.text,
-                    regId!!,
-                    disId!!,
                     viewModel.categoryValue.id,
                     galleryImageUri
                 )

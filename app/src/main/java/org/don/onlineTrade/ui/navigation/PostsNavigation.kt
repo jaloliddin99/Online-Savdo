@@ -10,62 +10,24 @@ import org.don.onlineTrade.data.remote.models.category.CategoryItem
 import org.don.onlineTrade.ui.add.AddProductRoute
 import org.don.onlineTrade.ui.add.AddProductScreenViewModel
 
-const val chatNavigationRoute = "add/{reg_id}/{reg_name}/{dis_id}/{dis_name}/{lat}/{lon}"
+const val chatNavigationRoute = "add"
 fun NavController.navigateToPosts(navOptions: NavOptions? = null) {
-    this.navigate("add/${-1}/${"e"}/${-1}/${"e"}/${"0.0"}/${"0.0"}", navOptions)
+    this.navigate(chatNavigationRoute, navOptions)
 
 
 }
 
 fun NavGraphBuilder.addProductScreen(
     navigateToCategories: () -> Unit,
-    navigateToSelectRegions: () -> Unit,
-    addProductViewModel: AddProductScreenViewModel,
     goToDetailsPage: () -> Unit
 ) {
     composable(
-        route = chatNavigationRoute,
-        arguments = listOf(
-            navArgument("reg_name") {
-                type = NavType.StringType
-            },
-            navArgument("reg_id") {
-                type = NavType.IntType
-            },
-            navArgument("dis_name") {
-                type = NavType.StringType
-            },
-            navArgument("dis_id") {
-                type = NavType.IntType
-            },
-            navArgument("lat") {
-                type = NavType.StringType
-            },
-            navArgument("lon") {
-                type = NavType.StringType
-            }
-        )
+        route = chatNavigationRoute
     ) { entry ->
-        val reg_name = entry.arguments?.getString("reg_name")
-        val dis_name = entry.arguments?.getString("dis_name")
-        val reg_id = entry.arguments?.getInt("reg_id")
-        val dis_id = entry.arguments?.getInt("dis_id")
-
-        val lat = entry.arguments?.getString("lat")
-        val lon = entry.arguments?.getString("lon")
-
         val item = entry.savedStateHandle.get<CategoryItem>("category_item")
         AddProductRoute(
             navigateToCategories = navigateToCategories,
-            navigateToSelectRegions = navigateToSelectRegions,
             item = item,
-            regName = reg_name,
-            disName = dis_name,
-            regId = reg_id,
-            disId = dis_id,
-            lat = lat,
-            lon = lon,
-            addProductViewModel = addProductViewModel,
             goToDetailsPage = goToDetailsPage
         )
     }

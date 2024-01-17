@@ -98,7 +98,6 @@ import org.don.onlineTrade.utils.SharedPref
 fun MainScreenView(
     state: UserEditableSettings,
     appState: ApplicationState = rememberNiaAppState(),
-    addProductViewModel: AddProductScreenViewModel,
     restartApp: () -> Unit
 
 ) {
@@ -218,7 +217,7 @@ fun MainScreenView(
                             }
                         )
                     }
-                    NavigationGraph(appState, addProductViewModel, restartApp )
+                    NavigationGraph(appState, restartApp )
                 }
             }
         }
@@ -292,7 +291,6 @@ fun BottomNavigation(
 @Composable
 fun NavigationGraph(
     appState: ApplicationState,
-    addProductViewModel: AddProductScreenViewModel,
     restartApp: () -> Unit
 ) {
     val navController = appState.navController
@@ -331,10 +329,6 @@ fun NavigationGraph(
             navigateToCategories = {
                 navController.navigate(categoriesNavigationRoute)
             },
-            navigateToSelectRegions = {
-                navController.navigate(regionsNavigationRoute)
-            },
-            addProductViewModel = addProductViewModel,
             goToDetailsPage = {
                 navController.popBackStack()
             }

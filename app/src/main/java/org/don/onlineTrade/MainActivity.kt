@@ -35,8 +35,6 @@ import org.don.onlineTrade.utils.runTimePermission.RunTimePermission
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity(), OnRunTimePermissionListener {
-    val addProductViewModel: AddProductScreenViewModel by viewModels()
-
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(
             LocaleManager.setLocale(newBase, SharedPref.language)
@@ -79,7 +77,7 @@ class MainActivity : ComponentActivity(), OnRunTimePermissionListener {
                 androidTheme = shouldUseAndroidTheme(state.brand),
                 disableDynamicTheming = shouldDisableDynamicTheming(state.useDynamicColor)
             ) {
-                MainScreenView(state,addProductViewModel = addProductViewModel,
+                MainScreenView(state,
                     restartApp = {
                         finish()
                         startActivity(Intent(this, MainActivity::class.java))

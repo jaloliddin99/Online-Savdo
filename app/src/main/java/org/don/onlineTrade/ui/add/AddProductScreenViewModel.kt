@@ -118,11 +118,7 @@ class AddProductScreenViewModel @Inject constructor(
         token: String = SharedPref.deviceToken,
         titleProduct: String,
         descriptionProduct: String,
-        region: Int,
-        districtId: Int,
         categoryId: Int,
-        lat: String?,
-        lon: String?,
         images: List<ImageUrl>,
     ) {
         val builder: MultipartBody.Builder =
@@ -131,10 +127,10 @@ class AddProductScreenViewModel @Inject constructor(
         builder.addFormDataPart("title", titleProduct)
         builder.addFormDataPart("description", descriptionProduct)
         builder.addFormDataPart("category_id", categoryId.toString())
-        builder.addFormDataPart("region_id", region.toString())
-        builder.addFormDataPart("district_id", districtId.toString())
-        builder.addFormDataPart("lat", lat?:"0.0")
-        builder.addFormDataPart("lon", lon?:"0.0")
+//        builder.addFormDataPart("region_id", region.toString())
+//        builder.addFormDataPart("district_id", districtId.toString())
+//        builder.addFormDataPart("lat", lat?:"0.0")
+//        builder.addFormDataPart("lon", lon?:"0.0")
 
         val contentResolver = application.contentResolver
 
