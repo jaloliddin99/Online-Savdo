@@ -43,7 +43,7 @@ fun DropDownSample(
     onSelectionChanged: (myData: Values) -> Unit,
 ) {
     var selected by remember { mutableStateOf<Values?>(null) }
-    var expanded by remember { mutableStateOf(false) } // initial value
+    var expanded by remember { mutableStateOf(false) }
     ContentWrapper(parameter = param) {
         OutlinedCard(
             modifier = Modifier

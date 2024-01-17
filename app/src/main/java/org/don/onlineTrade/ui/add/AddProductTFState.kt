@@ -52,5 +52,29 @@ fun countWords(input: String): Int {
     return words.size
 }
 
+
+class PostAddressState(val address: String? = null) :
+    TextFieldState(validator = ::isValidLocation, errorFor = ::addressValidationError) {
+    init {
+        address?.let {
+            text = it
+        }
+    }
+}
+
+
+/**
+ * Returns an error to be displayed or null if no error was found
+ */
+private fun addressValidationError(title: String): String {
+    return "Location length must be greater than 3"
+}
+
+private fun isValidLocation(title: String): Boolean {
+    return title.length > 3
+}
+
+
 val ProductTitleStateSaver = textFieldStateSaver(ProductTitleState())
+val PostAddressStateSaver = textFieldStateSaver(PostAddressState())
 val ProductDescriptionStateSaver = textFieldStateSaver(ProductDescriptionState())

@@ -94,3 +94,26 @@ fun ContentWrapper(
         content()
     }
 }
+
+
+@Composable
+fun TitleWrapper(
+    @StringRes titleRes: Int,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+    ) {
+        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
+        Text(
+            text = stringResource(id = titleRes),
+            fontSize = MaterialTheme.spacing.dimen16Sp,
+            fontFamily = robotoFontFamily,
+            fontWeight = FontWeight.Normal
+        )
+        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen4Dp))
+        content()
+    }
+}

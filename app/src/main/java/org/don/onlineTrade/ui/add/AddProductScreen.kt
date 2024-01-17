@@ -32,8 +32,10 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import org.don.onlineTrade.R
@@ -42,6 +44,7 @@ import org.don.onlineTrade.ui.add.dynamic.DynamicView
 import org.don.onlineTrade.ui.add.dynamic.DynamicViewData
 import org.don.onlineTrade.ui.add.dynamic.PostUnit
 import org.don.onlineTrade.ui.add.dynamic.PostValuesDTO
+import org.don.onlineTrade.ui.add.dynamic.TitleWrapper
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.ComposeFileProvider
 import org.don.onlineTrade.utils.FreeLoading
@@ -79,6 +82,7 @@ fun AddProductRoute(
 }
 
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun AddProductScreen(
     modifier: Modifier = Modifier,
@@ -132,6 +136,10 @@ fun AddProductScreen(
         mutableStateOf(viewModel.titleValue)
     }
 
+    val postAddressState by remember {
+        mutableStateOf(PostAddressState())
+    }
+
     val productDescriptionState by rememberSaveable(stateSaver = ProductDescriptionStateSaver) {
         mutableStateOf(viewModel.descriptionVM)
     }
@@ -167,6 +175,8 @@ fun AddProductScreen(
     val descriptionFocusRequester = remember {
         FocusRequester()
     }
+
+    val keyboard = LocalSoftwareKeyboardController.current
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -181,45 +191,64 @@ fun AddProductScreen(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.Start,
         ) {
-            ProductTitle(title = R.string.enter_title)
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen2Dp))
-            TextFieldForProduct(
-                productState = productTitleState, onImeAction = {
-                    focusRequester.requestFocus()
-                }, modifier = Modifier.fillMaxWidth()
-            )
 
-            DividerTextAndSpace(R.string.add_description)
-            TextFieldForProduct(
-                productState = productDescriptionState,
-                onImeAction = {
-                    descriptionFocusRequester.requestFocus()
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(focusRequester)
-                    .height(200.dp),
-                title = R.string.please_enter_description
-            )
-            DividerTextAndSpace(R.string.select_category)
-            TextFieldUnEditable(productTitle = viewModel.categoryValue.title,
-                modifier = Modifier.fillMaxWidth(),
-                title = R.string.please_select_category,
-                isFocusedOrClicked = {
-                    navigateToCategories()
+            TitleWrapper(titleRes = R.string.enter_title) {
+                TextFieldForProduct(
+                    productState = productTitleState,
+                    onImeAction = {
+                        focusRequester.requestFocus()
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            TitleWrapper(titleRes = R.string.add_description) {
+                TextFieldForProduct(
+                    productState = productDescriptionState,
+                    onImeAction = {
+                        descriptionFocusRequester.requestFocus()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester)
+                        .height(200.dp),
+                    title = R.string.please_enter_description
+                )
+            }
+
+            TitleWrapper(titleRes = R.string.select_category) {
+                TextFieldUnEditable(
+                    productTitle = viewModel.categoryValue.title,
+                    modifier = Modifier.fillMaxWidth(),
+                    title = R.string.please_select_category,
+                    isFocusedOrClicked = {
+                        navigateToCategories()
+                    }
+                )
+            }
+
+            TitleWrapper(titleRes = R.string.enter_address) {
+                TextFieldForProduct(
+                    productState = postAddressState,
+                    onImeAction = {
+                        keyboard?.hide()
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    title = R.string.enter_address,
+                    imeAction = ImeAction.Search
+                )
+            }
+
+
+            TitleWrapper(titleRes = R.string.select_image_for_your_product) {
+                ShowSelectedImages(imagesList = galleryImageUri, onAddButtonClicked = {
+                    viewModel.updateSHowCameraOrGallery(true)
+                }, cancelClicked = {
+                    val list = galleryImageUri.toMutableList()
+                    list.remove(it)
+                    galleryImageUri = list
                 })
-
-
-            DividerTextAndSpace(R.string.select_image_for_your_product)
-
-            ShowSelectedImages(imagesList = galleryImageUri, onAddButtonClicked = {
-                viewModel.updateSHowCameraOrGallery(true)
-            }, cancelClicked = {
-                val list = galleryImageUri.toMutableList()
-                list.remove(it)
-                galleryImageUri = list
-            })
-
+            }
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
 
             val isEnabled =
@@ -311,23 +340,17 @@ fun AddProductScreen(
     }
 }
 
-private fun dynamicDataCorrect(map: Map<String, DynamicViewData>): Boolean{
+private fun dynamicDataCorrect(map: Map<String, DynamicViewData>): Boolean {
     map.forEach { (s, dynamicViewData) ->
-        if (dynamicViewData.isRequired){
-            if (!dynamicViewData.isValid){
-                Log.d("TAG", "dynamicDataCorrecdawdawdkjjanwd, $s, ${dynamicViewData.label}, ${dynamicViewData.postValues}")
+        if (dynamicViewData.isRequired) {
+            if (!dynamicViewData.isValid) {
+                Log.d(
+                    "TAG",
+                    "dynamicDataCorrecdawdawdkjjanwd, $s, ${dynamicViewData.label}, ${dynamicViewData.postValues}"
+                )
                 return false
             }
         }
     }
     return true
-}
-
-
-@Composable
-fun DividerTextAndSpace(@StringRes title: Int) {
-    Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
-    ProductTitle(title = title)
-    Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen2Dp))
-
 }

@@ -113,6 +113,7 @@
     <string name="select_currency">Select currency type</string>
     <string name="status">Status</string>
     <string name="select">Select</string>
+    <string name="enter_address">Enter Address</string>
 
 
 </resources>
