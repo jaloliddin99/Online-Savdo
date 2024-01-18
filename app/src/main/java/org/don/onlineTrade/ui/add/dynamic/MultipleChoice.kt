@@ -98,7 +98,7 @@ fun MultipleChoiceDialog(
                     FilterChip(
                         onClick = {  },
                         label = {
-                            Text(it.label)
+                            Text(it.label_uz)
                         },
                         selected = true,
                         leadingIcon = {
@@ -169,7 +169,7 @@ fun MultipleChoiceQuestion(
             val selected = selectedAnswers.contains(it)
             CheckboxRow(
                 modifier = Modifier.padding(vertical = 8.dp),
-                text = it.label,
+                text = it.label_uz,
                 selected = selected,
                 onOptionSelected = { onOptionSelected(!selected, it) }
             )

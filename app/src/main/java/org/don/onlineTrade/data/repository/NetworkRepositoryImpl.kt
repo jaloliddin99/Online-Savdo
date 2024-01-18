@@ -80,8 +80,8 @@ class NetworkRepositoryImpl @Inject constructor(
         return apiInterface.getAllCategories(token, language)
     }
 
-    override suspend fun getCategoryDetails(token: String, language: String, categoryId: Int): ModelLeak {
-        return apiInterface.getCategories(token, categoryId, language)
+    override suspend fun getCategoryDetails(token: String, categoryId: Int): ModelLeak {
+        return apiInterface.getCategories(token, categoryId)
     }
 
     override suspend fun getAllRegions(token: String, language: String): ModelGetRegions {

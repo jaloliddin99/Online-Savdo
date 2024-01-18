@@ -37,6 +37,7 @@ import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.slightlyDeemphasizedAlpha
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.ui.theme.stronglyDeemphasizedAlpha
+import org.don.onlineTrade.utils.SharedPref
 
 /**
  * A scrollable container with the question's title, direction, and dynamic content.
@@ -61,7 +62,7 @@ fun QuestionWrapper(
     ) {
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
         Text(
-            text = "${parameter.label}${if (parameter.validation.is_required) "*" else ""}",
+            text = "${translator(parameter.label_uz, parameter.label_ru)}${if (parameter.validation.is_required) "*" else ""}",
             fontSize = MaterialTheme.spacing.dimen16Sp,
             fontFamily = robotoFontFamily,
             fontWeight = FontWeight.Normal
@@ -84,7 +85,7 @@ fun ContentWrapper(
     ) {
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
         Text(
-            text = "${parameter.label}${if (parameter.validation.is_required) "*" else ""}",
+            text = "${translator(parameter.label_uz, parameter.label_ru)}${if (parameter.validation.is_required) "*" else ""}",
             fontSize = MaterialTheme.spacing.dimen16Sp,
             fontFamily = robotoFontFamily,
             fontWeight = FontWeight.Normal
@@ -116,4 +117,12 @@ fun TitleWrapper(
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen4Dp))
         content()
     }
+}
+
+
+val translator: (uz: String, ru: String?) -> String = { uz, ru ->
+    if (SharedPref.language == "ru"){
+        ru?:""
+    }else
+        uz
 }

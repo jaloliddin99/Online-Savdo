@@ -3,7 +3,8 @@ package org.don.onlineTrade.data.remote.models.leak
 data class Parameter(
     val code: String,
     val id: Int,
-    val label: String,
+    val label_uz: String,
+    val label_ru: String?,
     val range: Boolean,
     val type: String,
     val units: List<Unit>,

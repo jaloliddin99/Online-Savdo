@@ -60,7 +60,7 @@ fun HorizontalRadioGroup(
                         }
                     )
                     Text(
-                        text = param.values[0].label,
+                        text = translator(param.values[0].label_uz, param.values[0].label_ru),
                         modifier = Modifier.padding(start = 8.dp)
                     )
                 }
@@ -87,7 +87,7 @@ fun HorizontalRadioGroup(
                         }
                     )
                     Text(
-                        text = param.values[1].label,
+                        text = translator(param.values[1].label_uz, param.values[1].label_ru),
                         modifier = Modifier.padding(start = 8.dp)
                     )
                 }

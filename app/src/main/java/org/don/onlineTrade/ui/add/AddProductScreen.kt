@@ -134,14 +134,13 @@ fun AddProductScreen(
         }
     }
 
-    if (map != null){
+    if (map != null) {
         viewModel.mapScreenValue(map)
     }
 
     val productTitleState by rememberSaveable(stateSaver = ProductTitleStateSaver) {
         mutableStateOf(viewModel.titleValue)
     }
-
 
 
     val productDescriptionState by rememberSaveable(stateSaver = ProductDescriptionStateSaver) {
@@ -283,9 +282,15 @@ fun AddProductScreen(
                                 isRequired = it.validation.is_required,
                                 isValid = false,
                                 code = it.code,
-                                label = it.label,
+                                label_ru = it.label_ru?:"",
+                                label_uz = it.label_uz,
                                 type = it.type,
-                                postValues = listOf(PostValuesDTO(label = "")),
+                                postValues = listOf(
+                                    PostValuesDTO(
+                                        label_uz = "",
+                                        label_ru = ""
+                                    )
+                                ),
                                 unit = PostUnit()
                             )
                         }
@@ -348,7 +353,7 @@ private fun dynamicDataCorrect(map: Map<String, DynamicViewData>): Boolean {
             if (!dynamicViewData.isValid) {
                 Log.d(
                     "TAG",
-                    "dynamicDataCorrecdawdawdkjjanwd, $s, ${dynamicViewData.label}, ${dynamicViewData.postValues}"
+                    "dynamicDataCorrecdawdawdkjjanwd, $s, ${dynamicViewData.label_uz}, ${dynamicViewData.postValues}"
                 )
                 return false
             }

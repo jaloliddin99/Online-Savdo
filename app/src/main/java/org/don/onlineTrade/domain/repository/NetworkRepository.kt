@@ -53,7 +53,6 @@ interface NetworkRepository {
 
     suspend fun getCategoryDetails(
         token: String,
-        language: String,
         categoryId: Int
     ): ModelLeak
 

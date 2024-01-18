@@ -28,7 +28,7 @@ fun DynamicView(
                     DropDownSample(
                         param,
                         onSelectionChanged = { value ->
-                            sendData(localParams, param, value.label, isValid = true) {
+                            sendData(localParams, param, value.label_uz, value.label_ru, isValid = true) {
                                 paramListener.invoke(it)
                             }
                         }
@@ -36,7 +36,7 @@ fun DynamicView(
                 } else if (param.values.size == 2) {
                     HorizontalRadioGroup(
                         selectedItem = { value ->
-                            sendData(localParams, param, value.label, isValid = true) {
+                            sendData(localParams, param, value.label_uz, value.label_ru, isValid = true) {
                                 paramListener.invoke(it)
                             }
                         },
@@ -51,9 +51,14 @@ fun DynamicView(
                 }
                 localParams.forEach { (s, dynamicViewData) ->
                     if (param.code == s) {
-                        if (dynamicViewData.postValues[0].label != textFieldState.text) {
-                            Log.d("TAG", "DynamicViewdawdawdddnakwjd ${textFieldState.text}, ${textFieldState.isValid}")
-                            sendData(localParams, param, textFieldState.text, isValid = textFieldState.isValid) {
+                        if (dynamicViewData.postValues[0].label_uz != textFieldState.text) {
+                            sendData(
+                                localParams,
+                                param,
+                                textFieldState.text,
+                                textFieldState.text,
+                                isValid = textFieldState.isValid
+                            ) {
                                 paramListener.invoke(it)
                             }
                         }
@@ -74,7 +79,10 @@ fun DynamicView(
                     parameter = param,
                     onDismiss = { it ->
                         val valueList = it.map { values ->
-                            PostValuesDTO(label = values.label)
+                            PostValuesDTO(
+                                label_uz = values.label_uz,
+                                label_ru = values.label_ru ?: ""
+                            )
                         }
                         sendData(localParams, param, values = valueList, isValid = true) {
                             paramListener.invoke(it)
@@ -97,13 +105,12 @@ fun DynamicView(
                 }
                 localParams.forEach { (s, dynamicViewData) ->
                     if (param.code == s) {
-                        if (dynamicViewData.postValues[0].label != textFieldState.text) {
-                            Log.d("TAG", "DynamicViewdawdawdddnakwjd modey ${textFieldState.text}, ${textFieldState.isValid}")
-
+                        if (dynamicViewData.postValues[0].label_uz != textFieldState.text) {
                             sendData(
                                 localParams,
                                 param,
-                                label = textFieldState.text,
+                                label_uz = textFieldState.text,
+                                label_ru = textFieldState.text,
                                 unit = PostUnit(units.label),
                                 isValid = textFieldState.isValid
                             ) {
@@ -133,7 +140,8 @@ data class DynamicViewData(
     val isRequired: Boolean,
     val isValid: Boolean = false,
     val code: String,
-    val label: String,
+    val label_uz: String,
+    val label_ru: String,
     val type: String,
     val postValues: List<PostValuesDTO>,
     val unit: PostUnit? = null
@@ -142,7 +150,8 @@ data class DynamicViewData(
 private inline fun sendData(
     localParams: Map<String, DynamicViewData>,
     param: Parameter,
-    label: String? = null,
+    label_uz: String? = null,
+    label_ru: String? = null,
     values: List<PostValuesDTO>? = null,
     unit: PostUnit? = null,
     isValid: Boolean,
@@ -153,10 +162,14 @@ private inline fun sendData(
         param.validation.is_required,
         isValid = isValid,
         code = param.code,
-        label = param.label,
+        label_uz = param.label_uz,
+        label_ru = param.label_ru?:"",
         type = param.type,
-        postValues = if (label != null) listOf(
-            PostValuesDTO(label = label)
+        postValues = if (label_uz != null) listOf(
+            PostValuesDTO(
+                label_uz = label_uz,
+                label_ru = label_ru?:""
+            )
         ) else values!!,
         unit = unit
             ?: if (param.units.isNotEmpty()) PostUnit(
@@ -168,11 +181,12 @@ private inline fun sendData(
 }
 
 data class PostUnit(
-    val label: String = ""
+    val label: String = "",
 )
 
 data class PostValuesDTO(
-    val label: String
+    val label_uz: String,
+    val label_ru: String,
 )
 
 enum class DynamicView(val type: String) {

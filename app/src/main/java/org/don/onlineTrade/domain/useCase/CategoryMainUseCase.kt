@@ -15,7 +15,6 @@ class CategoryMainUseCase @Inject constructor(
 ) {
     operator fun invoke(
         token: String,
-        language: String,
         categoryId: Int
     ): Flow<Resource<ModelLeak>> = flow {
         try {
@@ -24,7 +23,6 @@ class CategoryMainUseCase @Inject constructor(
                 Resource.Success(
                     repository.getCategoryDetails(
                         token,
-                        language,
                         categoryId
                     )
                 )

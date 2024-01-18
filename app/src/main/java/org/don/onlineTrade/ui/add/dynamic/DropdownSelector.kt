@@ -55,7 +55,10 @@ fun DropDownSample(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = selected?.label ?: stringResource(id = R.string.select_options),
+                    text = if (selected != null) {
+                        translator(selected!!.label_uz, selected!!.label_ru)
+                    } else
+                        stringResource(id = R.string.select_options),
                     modifier = Modifier
                         .weight(1f)
                         .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -80,7 +83,7 @@ fun DropDownSample(
                                 .padding(horizontal = MaterialTheme.spacing.dimen16Dp),
                             text = {
                                 Text(
-                                    text = listEntry.label,
+                                    text = translator(listEntry.label_uz, listEntry.label_ru),
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .align(Alignment.Start)
@@ -100,13 +103,6 @@ fun DropDownSample(
 @Composable
 fun SpinnerSample_Preview() {
     MaterialTheme {
-
-        val myData = listOf(
-            Values(1, "code", "hello", false),
-            Values(1, "code", "hello", false),
-            Values(1, "code", "hello", false),
-            Values(1, "code", "hello", false),
-        )
 //        DropDownSample(
 //            myData,
 //            "Select",

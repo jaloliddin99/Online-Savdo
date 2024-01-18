@@ -95,7 +95,6 @@ interface ApiInterface {
     suspend fun getCategories(
         @Header("Authorization") token: String,
         @Path("categoryId") categoryId: Int,
-        @Query("lang") language: String,
     ): ModelLeak
 
 
