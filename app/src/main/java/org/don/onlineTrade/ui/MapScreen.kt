@@ -5,23 +5,28 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsTopHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.GpsFixed
@@ -40,18 +45,31 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
+import androidx.constraintlayout.widget.Guideline
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
@@ -169,8 +187,6 @@ fun MapsScreen(
 
 
     Box {
-
-
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
             properties = MapProperties(
@@ -178,7 +194,6 @@ fun MapsScreen(
             ),
             cameraPositionState = cameraPositionState,
         ) {
-
             singleLocation?.let {
                 Marker(
                     state = MarkerState(position = destinationLatLng),
@@ -187,6 +202,8 @@ fun MapsScreen(
                 )
             }
         }
+
+        ConstraintLayoutContent()
 
         Column(
             modifier = Modifier.fillMaxWidth()
@@ -252,10 +269,98 @@ fun MapsScreen(
         if (state.error.isNotBlank()) {
             Toast.makeText(LocalContext.current, state.error, Toast.LENGTH_SHORT).show()
         }
-
-
     }
 }
+
+@Preview
+@Composable
+fun ConstraintLayoutContent() {
+    ConstraintLayout(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = Color.Transparent)
+    ) {
+        val (markerImage) = createRefs()
+        Box(
+            modifier = Modifier
+                .constrainAs(markerImage) {
+                    bottom.linkTo(parent.bottom)
+                    top.linkTo(parent.top)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                },
+            contentAlignment = Alignment.BottomCenter
+        ) {
+            MarkerContent()
+        }
+    }
+}
+
+
+@Composable
+fun MarkerContent() {
+    Column(
+        modifier = Modifier
+            .wrapContentWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        MarkerMainBox()
+        Box(
+            modifier = Modifier
+                .height(24.dp)
+                .width(2.dp)
+                .background(Color.Black)
+        )
+    }
+}
+
+
+@Composable
+fun MarkerMainBox() {
+    Box(
+        modifier = Modifier
+            .wrapContentWidth()
+            .background(
+                MaterialTheme.colorScheme.surface,
+                shape = RoundedCornerShape(MaterialTheme.spacing.dimen8Dp)
+            )
+            .padding(MaterialTheme.spacing.dimen4Dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .background(Color.White)
+                .padding(4.dp)
+        ) {
+            val composition by
+            rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.marker_location))
+            LottieAnimation(
+                modifier = Modifier.fillMaxSize(),
+                composition = composition,
+                iterations = LottieConstants.IterateForever,
+            )
+        }
+
+        Column(
+            modifier = Modifier
+                .padding(horizontal = 48.dp)
+                .align(Alignment.CenterStart)
+        ) {
+            Text(
+                text = "This is an address",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                maxLines = 1
+            )
+            Text(
+                text = "This is an address",
+                fontSize = 11.sp
+            )
+        }
+    }
+}
+
 
 private fun turnOnGps(
     viewModel: MapViewModel,
@@ -283,8 +388,10 @@ private fun turnOnGps(
 
 
 @Composable
-fun DisplayLocations(featureMember: List<FeatureMember>?,
-                     onBackClick: (MapScreenData?) -> Unit) {
+fun DisplayLocations(
+    featureMember: List<FeatureMember>?,
+    onBackClick: (MapScreenData?) -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
