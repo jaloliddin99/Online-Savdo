@@ -53,16 +53,15 @@ class MapViewModel @Inject constructor(
                     it.length > 3
                 }.debounce(1000)
                 .collectLatest {
-                    Log.d("TAG", "AddProductScreedawdawkdjawkdjn2 ${it},")
-
-                    getLocationReverse(it)
+                    getLocationReverse(it, isMapMoved = false)
                 }
         }
     }
 
-    private fun getLocationReverse(
+    fun getLocationReverse(
         addressName: String? = null,
-        location: Location? = null
+        location: LatLng? = null,
+        isMapMoved: Boolean
     ) {
         val url =
             if (addressName != null)
@@ -77,7 +76,10 @@ class MapViewModel @Inject constructor(
                     is Resource.Success -> {
                         _state.value = if (addressName != null)
                             MapScreenScreenState(featureMember = result.data)
-                        else MapScreenScreenState(singleFutureMember = result.data)
+                        else MapScreenScreenState(
+                            singleFutureMember = result.data,
+                            isMapMoved = isMapMoved
+                        )
                     }
 
                     is Resource.Error -> {
@@ -98,7 +100,7 @@ class MapViewModel @Inject constructor(
     fun locationObserve() = viewModelScope.launch {
         locationTrackerRepository.getCurrentLocation().collectLatest {
             stopLocationUpdates()
-            getLocationReverse(location = it)
+            getLocationReverse(location = LatLng(it.latitude, it.longitude), isMapMoved = false)
             _state.value = _state.value.copy(
                 latLng = LatLng(it.latitude, it.longitude),
                 isLoading = false

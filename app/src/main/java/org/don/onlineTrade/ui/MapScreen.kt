@@ -30,8 +30,12 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.GpsFixed
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -99,6 +103,13 @@ fun NavGraphBuilder.mapScreen(
     }
 }
 
+const val LATITUDE = 41.33261529612184
+const val LONGITUDE = 69.25163862724608
+const val ZOOM_LEVEL = 15f
+const val ANIM_DURATION = 1000
+const val TILT = 0f
+const val BEARING = 0f
+
 @Composable
 fun MapsScreen(
     onBackClick: (MapScreenData?) -> Unit,
@@ -152,22 +163,32 @@ fun MapsScreen(
         val lat = obj.split(" ")[1].toDouble()
         LatLng(lat, lng)
     } else
-        LatLng(41.33261529612184, 69.25163862724608)
+        LatLng(LATITUDE, LONGITUDE)
 
-    val initialZoom = 15f
-    val finalZoom = 15f
+    val initialZoom = ZOOM_LEVEL
+    val finalZoom = ZOOM_LEVEL
 
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(destinationLatLng, initialZoom)
     }
 
     LaunchedEffect(key1 = destinationLatLng) {
-        cameraPositionState.animate(
-            update = CameraUpdateFactory.newCameraPosition(
-                CameraPosition(destinationLatLng, finalZoom, 0f, 0f)
-            ),
-            durationMs = 1000
-        )
+        if (destinationLatLng.latitude != LATITUDE) {
+            cameraPositionState.animate(
+                update = CameraUpdateFactory.newCameraPosition(
+                    CameraPosition(destinationLatLng, finalZoom, TILT, BEARING)
+                ),
+                durationMs = ANIM_DURATION
+            )
+        } else {
+            cameraPositionState.position = CameraPosition.fromLatLngZoom(
+                LatLng(
+                    destinationLatLng.latitude,
+                    destinationLatLng.longitude
+                ),
+                ZOOM_LEVEL
+            )
+        }
     }
 
 
@@ -182,14 +203,17 @@ fun MapsScreen(
         liftUpListener = true
         initialCameraPosition = it
     }
-    val onMapCameraIdle: (cameraPosition: CameraPosition) -> Unit = { newCameraPosition ->
+    val onMapCameraIdle: (cameraPosition: CameraPosition) -> Unit = { it ->
         liftUpListener = false
-        initialCameraPosition = newCameraPosition
+        viewModel.getLocationReverse(location = it.target, isMapMoved = true)
+        initialCameraPosition = it
     }
 
     LaunchedEffect(key1 = cameraPositionState.isMoving) {
-        if (cameraPositionState.isMoving) onMapCameraMoveStart(cameraPositionState.position)
-        else onMapCameraIdle(cameraPositionState.position)
+        if (cameraPositionState.isMoving)
+            onMapCameraMoveStart(cameraPositionState.position)
+        else
+            onMapCameraIdle(cameraPositionState.position)
     }
 
 
@@ -199,13 +223,10 @@ fun MapsScreen(
             properties = MapProperties(
                 mapType = MapType.NORMAL,
             ),
-            cameraPositionState = cameraPositionState,
-            onMapLongClick = {
-
-            }
+            cameraPositionState = cameraPositionState
         )
 
-        ConstraintLayoutContent(singleLocation, liftUpListener)
+        ConstraintLayoutContent(singleLocation, liftUpListener, state.isMapMoved)
 
         Column(
             modifier = Modifier.fillMaxWidth()
@@ -227,23 +248,30 @@ fun MapsScreen(
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
             DisplayLocations(featureMember = state.featureMember, onBackClick = onBackClick)
             Spacer(modifier = Modifier.weight(1f))
-            Button(
-                onClick = {
-                    if (singleLocation == null)
-                        turnOnGps(viewModel, hasNotPermission, activity, gpsNotEnabled)
-                    else {
-                        val lat = singleLocation.Point.pos.split(" ")[0].toDouble()
-                        val lon = singleLocation.Point.pos.split(" ")[1].toDouble()
-                        onBackClick(
-                            MapScreenData(
-                                lat = lon,
-                                lon = lat,
-                                addressName = singleLocation.name,
-                                addressDescription = singleLocation.description
-                            )
-                        )
-                    }
 
+            FloatingActionButton(
+                onClick = {
+                    turnOnGps(viewModel, hasNotPermission, activity, gpsNotEnabled)
+                },
+                modifier = Modifier.align(Alignment.End)
+            ) {
+                Icon(imageVector = Icons.Default.GpsFixed, contentDescription = null)
+            }
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
+
+            Button(
+                enabled = singleLocation != null,
+                onClick = {
+                    val lat = singleLocation!!.Point.pos.split(" ")[0].toDouble()
+                    val lon = singleLocation.Point.pos.split(" ")[1].toDouble()
+                    onBackClick(
+                        MapScreenData(
+                            lat = lon,
+                            lon = lat,
+                            addressName = singleLocation.name,
+                            addressDescription = singleLocation.description
+                        )
+                    )
                 },
                 modifier = Modifier
                     .padding(
@@ -257,8 +285,7 @@ fun MapsScreen(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = stringResource(
-                            id =
-                            if (singleLocation == null) R.string.use_gps else R.string.select_this_location
+                            id = R.string.select_this_location
                         )
                     )
                 }
@@ -266,7 +293,9 @@ fun MapsScreen(
 
 
         }
-        FreeLoading(isFeedLoading = state.isLoading)
+        FreeLoading(
+            isFeedLoading = state.isLoading, paddingTop = 56.dp
+        )
 
         if (state.error.isNotBlank()) {
             Toast.makeText(LocalContext.current, state.error, Toast.LENGTH_SHORT).show()
@@ -276,7 +305,11 @@ fun MapsScreen(
 
 
 @Composable
-fun ConstraintLayoutContent(singleLocation: GeoObject?, liftUpListener: Boolean) {
+fun ConstraintLayoutContent(
+    singleLocation: GeoObject?,
+    liftUpListener: Boolean,
+    isMapMoved: Boolean
+) {
     ConstraintLayout(
         modifier = Modifier
             .fillMaxSize()
