@@ -2,6 +2,8 @@ package org.don.onlineTrade.ui
 
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,13 +12,17 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsTopHeight
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Shapes
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,6 +31,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -94,15 +101,20 @@ fun MapsScreen(
         mutableStateOf(false)
     }
 
+    var showAlertDialog by remember {
+        mutableStateOf(true)
+    }
 
-    AskLocationDialog(
-        allowed = { granted ->
-            viewModel.hideAlertDialog()
-            if (granted) {
-                showAskPermissionDialog = true
+    if (showAlertDialog){
+        AskLocationDialog(
+            allowed = { granted ->
+                showAlertDialog = false
+                if (granted) {
+                    showAskPermissionDialog = true
+                }
             }
-        }
-    )
+        )
+    }
     if (state.latLng != null) {
         showAskPermissionDialog = false
     }
@@ -174,39 +186,64 @@ fun MapsScreen(
 
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
 
-            LazyRow {
-                state.featureMember?.let {
-                    itemsIndexed(state.featureMember) { index, item ->
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            verticalArrangement = Arrangement.SpaceEvenly
-                        ) {
-                            Spacer(modifier = Modifier.height(6.dp))
-                            Text(
-                                text = item.GeoObject.name,
-                                overflow = TextOverflow.Ellipsis,
-                                maxLines = 1,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Medium,
-                                fontFamily = robotoFontFamily
-                            )
-                            Text(
-                                text = item.GeoObject.description,
-                                overflow = TextOverflow.Ellipsis,
-                                maxLines = 1,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Normal,
-                                fontFamily = robotoFontFamily
-                            )
-                            Spacer(modifier = Modifier.height(6.dp))
-                            if (index != it.lastIndex)
-                                Divider(modifier = Modifier.height(0.4.dp))
+
+            Box(
+                modifier = Modifier.fillMaxWidth()
+                    .padding(horizontal = MaterialTheme.spacing.dimen16Dp)
+
+            ) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth()
+                        .background(color = MaterialTheme.colorScheme.background,
+                            shape = RoundedCornerShape(MaterialTheme.spacing.dimen16Dp)
+                        )
+                        .padding(horizontal = MaterialTheme.spacing.dimen16Dp)
+                ) {
+                    state.featureMember?.let {
+                        itemsIndexed(state.featureMember) { index, item ->
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        val lat = item.GeoObject.Point.pos.split(" ")[0].toDouble()
+                                        val lon = item.GeoObject.Point.pos.split(" ")[1].toDouble()
+                                        onBackClick(
+                                            MapScreenData(
+                                                lat = lat,
+                                                lon = lon,
+                                                addressName = item.GeoObject.name,
+                                                addressDescription = item.GeoObject.description
+                                            )
+                                        )
+                                    },
+                                verticalArrangement = Arrangement.SpaceEvenly
+                            ) {
+                                Spacer(modifier = Modifier.height(6.dp))
+                                Text(
+                                    text = item.GeoObject.name,
+                                    overflow = TextOverflow.Ellipsis,
+                                    maxLines = 1,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    fontFamily = robotoFontFamily
+                                )
+                                Text(
+                                    text = item.GeoObject.description,
+                                    overflow = TextOverflow.Ellipsis,
+                                    maxLines = 1,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Normal,
+                                    fontFamily = robotoFontFamily
+                                )
+                                Spacer(modifier = Modifier.height(6.dp))
+                                if (index != it.lastIndex)
+                                    Divider(modifier = Modifier.height(0.4.dp))
+                            }
                         }
+
                     }
 
                 }
-
             }
 
 

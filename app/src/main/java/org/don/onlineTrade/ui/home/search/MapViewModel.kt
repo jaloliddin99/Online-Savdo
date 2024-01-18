@@ -85,11 +85,6 @@ class MapViewModel @Inject constructor(private val locationReverseUseCase: Locat
 
 
 
-    fun hideAlertDialog() {
-        _state.value = _state.value.copy(showAlertDialog = false)
-    }
-
-
     fun locationObserve() = viewModelScope.launch {
         locationTrackerRepository.getCurrentLocation().collectLatest {
             stopLocationUpdates()
