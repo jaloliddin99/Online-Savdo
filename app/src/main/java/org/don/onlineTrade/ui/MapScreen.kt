@@ -1,16 +1,12 @@
 package org.don.onlineTrade.ui
 
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsTopHeight
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -20,14 +16,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.MapProperties
-import com.google.maps.android.compose.MapType
-import com.google.maps.android.compose.Marker
-import com.google.maps.android.compose.MarkerState
-import com.google.maps.android.compose.rememberCameraPositionState
+import androidx.navigation.NavController
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavOptions
+import androidx.navigation.compose.composable
 import org.don.onlineTrade.data.location.GpsCheckHelper
 import org.don.onlineTrade.data.location.checkGpsEnabled
 import org.don.onlineTrade.ui.add.AskLocationDialog
@@ -35,11 +27,29 @@ import org.don.onlineTrade.ui.home.search.MapViewModel
 import org.don.onlineTrade.ui.home.search.SearchToolbar
 import org.don.onlineTrade.utils.hasPermissionForLocation
 import org.don.onlineTrade.utils.runTimePermission.RunTimePermission
+import java.io.Serializable
 
+
+const val mapNavigationRoute = "mapNavigationRoute"
+fun NavController.navigateToNotifications(navOptions: NavOptions? = null) {
+    this.navigate(mapNavigationRoute, navOptions)
+}
+
+fun NavGraphBuilder.mapScreen(
+    onBackClick: (MapScreenData?) -> Unit,
+) {
+    composable(
+        route = mapNavigationRoute,
+    ) {
+        MapsScreen(
+            onBackClick = onBackClick
+        )
+    }
+}
 
 @Composable
 fun MapsScreen(
-    onBackClick: () -> Unit,
+    onBackClick: (MapScreenData?) -> Unit,
     viewModel: MapViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.value
@@ -104,16 +114,14 @@ fun MapsScreen(
 
     }
 
-    val singapore = LatLng(1.35, 103.87)
-    val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(singapore, 10f)
-    }
 
     Box {
         Column {
             Spacer(modifier = Modifier.windowInsetsTopHeight(WindowInsets.safeDrawing))
             SearchToolbar(
-                onBackClick = onBackClick,
+                onBackClick = {
+                    onBackClick(null)
+                },
                 onSearchQueryChanged = {
                     searchTextListener = it
                 },
@@ -125,22 +133,28 @@ fun MapsScreen(
 
         }
 
-        GoogleMap(
-            modifier = Modifier.fillMaxSize(),
-            cameraPositionState = cameraPositionState,
-            properties = MapProperties(
-                isMyLocationEnabled = true,
-                mapType = MapType.HYBRID,
-                isTrafficEnabled = true
-            )
-        ) {
-            Marker(
-                state = MarkerState(position = LatLng(41.33261529612184, 69.25163862724608)),
-                title = "MyPosition",
-                snippet = "This is a description of this Marker",
-                draggable = true
-            )
-        }
+//        GoogleMap(
+//            modifier = Modifier.fillMaxSize(),
+//            properties = MapProperties(
+//                isMyLocationEnabled = true,
+//                mapType = MapType.NORMAL,
+//                isTrafficEnabled = true
+//            )
+//        ) {
+//            Marker(
+//                state = MarkerState(position = LatLng(41.33261529612184, 69.25163862724608)),
+//                title = "MyPosition",
+//                snippet = "This is a description of this Marker",
+//                draggable = true
+//            )
+//        }
 
     }
 }
+
+data class MapScreenData(
+    val lat: Double? = null,
+    val lon: Double? = null,
+    val addressName: String = "",
+    val addressDescription: String = ""
+):Serializable

@@ -162,6 +162,7 @@ fun MainScreenView(
                         && destination.screenRoute != pDetailsNavigationRoute
                         && destination.screenRoute != filterCategoryNavigationRoute
                         && destination.screenRoute != NavItems.AddProduct.screenRoute
+                        && destination.screenRoute != NavItems.MapScreen.screenRoute
                     ) {
                         BottomNavigation(rememberNavController, appState)
                     }
@@ -189,6 +190,7 @@ fun MainScreenView(
                                 || destination.screenRoute == myProductsNavigationRoute
                                 || destination.screenRoute == filterCategoryNavigationRoute
                                 || destination.screenRoute == NavItems.AddProduct.screenRoute
+                                || destination.screenRoute == mapNavigationRoute
 
                         TopAppBar(
                             title = stringResource(id = destination.titleRes),
@@ -331,6 +333,18 @@ fun NavigationGraph(
             },
             goToDetailsPage = {
                 navController.popBackStack()
+            },
+            goToMapScreen = {
+                navController.navigate(mapNavigationRoute)
+            }
+        )
+
+        mapScreen(
+            onBackClick = {
+                navController.previousBackStackEntry
+                    ?.savedStateHandle
+                    ?.set("map_item", it)
+                navController.popBackStack()
             }
         )
 
@@ -451,6 +465,7 @@ fun NavigationGraph(
                 navController.previousBackStackEntry
                     ?.savedStateHandle
                     ?.set("category_item", it)
+
                 navController.popBackStack()
             }
 

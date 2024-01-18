@@ -33,6 +33,7 @@ import org.don.onlineTrade.domain.state.Resource
 import org.don.onlineTrade.domain.useCase.CategoryMainUseCase
 import org.don.onlineTrade.domain.useCase.LocationReverseUseCase
 import org.don.onlineTrade.domain.useCase.postNewProduct.PostNewProductUseCase
+import org.don.onlineTrade.ui.MapScreenData
 import org.don.onlineTrade.ui.auth.TextFieldState
 import org.don.onlineTrade.ui.home.AddProductScreenState
 import org.don.onlineTrade.utils.FileManager.getFileFromUri
@@ -54,6 +55,12 @@ class AddProductScreenViewModel @Inject constructor(
 
     fun categoryValue(newValue: CategoryItem) {
         categoryValue = newValue
+    }
+
+    var mapValue: MapScreenData by mutableStateOf(MapScreenData())
+
+    fun mapScreenValue(mapScreenData: MapScreenData){
+        mapValue = mapScreenData
     }
 
     var titleValue: TextFieldState by mutableStateOf(ProductTitleState())

@@ -7,6 +7,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import org.don.onlineTrade.data.remote.models.category.CategoryItem
+import org.don.onlineTrade.ui.MapScreenData
 import org.don.onlineTrade.ui.add.AddProductRoute
 import org.don.onlineTrade.ui.add.AddProductScreenViewModel
 
@@ -19,16 +20,19 @@ fun NavController.navigateToPosts(navOptions: NavOptions? = null) {
 
 fun NavGraphBuilder.addProductScreen(
     navigateToCategories: () -> Unit,
-    goToDetailsPage: () -> Unit
+    goToDetailsPage: () -> Unit,
+    goToMapScreen: () -> Unit
 ) {
     composable(
         route = chatNavigationRoute
     ) { entry ->
         val item = entry.savedStateHandle.get<CategoryItem>("category_item")
+        val map = entry.savedStateHandle.get<MapScreenData>("map_item")
         AddProductRoute(
             navigateToCategories = navigateToCategories,
             item = item,
-            goToDetailsPage = goToDetailsPage
+            goToDetailsPage = goToDetailsPage,
+            goToMapScreen = goToMapScreen
         )
     }
 }

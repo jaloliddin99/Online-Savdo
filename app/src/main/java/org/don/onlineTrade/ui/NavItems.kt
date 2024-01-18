@@ -7,6 +7,7 @@ import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Details
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LibraryAdd
+import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Save
@@ -15,6 +16,7 @@ import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.Details
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.LibraryAdd
+import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Save
@@ -56,6 +58,15 @@ sealed class NavItems(
         hasNews = false,
         badgeCount = 45,
         "add",
+        titleRes = R.string.chat_page
+    )
+    object MapScreen: NavItems(
+        title = "Map",
+        selectedIcon = Icons.Filled.Map,
+        unselectedIcon = Icons.Outlined.Map,
+        hasNews = false,
+        badgeCount = 45,
+        mapNavigationRoute,
         titleRes = R.string.chat_page
     )
     object Saved: NavItems(

@@ -53,6 +53,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.category.CategoryItem
+import org.don.onlineTrade.ui.MapScreenData
 import org.don.onlineTrade.ui.add.dynamic.DynamicView
 import org.don.onlineTrade.ui.add.dynamic.DynamicViewData
 import org.don.onlineTrade.ui.add.dynamic.PostUnit
@@ -71,8 +72,10 @@ fun AddProductRoute(
     navigateToCategories: () -> Unit,
     modifier: Modifier = Modifier,
     item: CategoryItem? = null,
+    map: MapScreenData? = null,
     addProductViewModel: AddProductScreenViewModel = hiltViewModel(),
-    goToDetailsPage: () -> Unit
+    goToDetailsPage: () -> Unit,
+    goToMapScreen: () -> Unit
 ) {
 
 
@@ -80,6 +83,7 @@ fun AddProductRoute(
         modifier = modifier,
         navigateToCategories,
         item,
+        map,
         submitProduct = { titleProduct,
                           descriptionProduct,
                           categoryId,
@@ -92,17 +96,18 @@ fun AddProductRoute(
             )
         },
         addProductViewModel,
-        goToDetailsPage
+        goToDetailsPage,
+        goToMapScreen
     )
 }
 
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun AddProductScreen(
     modifier: Modifier = Modifier,
     navigateToCategories: () -> Unit,
     item: CategoryItem? = null,
+    map: MapScreenData? = null,
     submitProduct: (
         titleProduct: String,
         descriptionProduct: String,
@@ -110,7 +115,8 @@ fun AddProductScreen(
         images: List<ImageUrl>,
     ) -> Unit,
     viewModel: AddProductScreenViewModel,
-    goToDetailsPage: () -> Unit
+    goToDetailsPage: () -> Unit,
+    goToMapScreen: () -> Unit
 ) {
 
     val context = LocalContext.current
@@ -147,13 +153,14 @@ fun AddProductScreen(
         }
     }
 
+    if (map != null){
+        viewModel.mapScreenValue(map)
+    }
+
     val productTitleState by rememberSaveable(stateSaver = ProductTitleStateSaver) {
         mutableStateOf(viewModel.titleValue)
     }
 
-    val postAddressState by remember {
-        mutableStateOf(PostAddressState())
-    }
 
 
     val productDescriptionState by rememberSaveable(stateSaver = ProductDescriptionStateSaver) {
@@ -240,6 +247,16 @@ fun AddProductScreen(
                     title = R.string.please_select_category,
                     isFocusedOrClicked = {
                         navigateToCategories()
+                    }
+                )
+            }
+            TitleWrapper(titleRes = R.string.enter_your_address) {
+                TextFieldUnEditable(
+                    productTitle = viewModel.mapValue.addressName,
+                    modifier = Modifier.fillMaxWidth(),
+                    title = R.string.enter_your_address,
+                    isFocusedOrClicked = {
+                        goToMapScreen()
                     }
                 )
             }
