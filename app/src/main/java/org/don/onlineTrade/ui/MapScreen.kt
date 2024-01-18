@@ -3,19 +3,24 @@ package org.don.onlineTrade.ui
 import android.app.Activity
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
@@ -23,19 +28,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.GpsFixed
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedIconButton
-import androidx.compose.material3.Shapes
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -45,22 +42,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.constraintlayout.compose.Dimension
-import androidx.constraintlayout.widget.Guideline
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -71,21 +60,17 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
-import com.google.maps.android.compose.Marker
-import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.location.GpsCheckHelper
 import org.don.onlineTrade.data.location.checkGpsEnabled
 import org.don.onlineTrade.data.remote.models.reverse.FeatureMember
+import org.don.onlineTrade.data.remote.models.reverse.GeoObject
 import org.don.onlineTrade.ui.add.AskLocationDialog
 import org.don.onlineTrade.ui.home.search.MapViewModel
 import org.don.onlineTrade.ui.home.search.SearchToolbar
@@ -186,6 +171,28 @@ fun MapsScreen(
     }
 
 
+    var liftUpListener by remember {
+        mutableStateOf(false)
+    }
+
+
+    var initialCameraPosition by remember { mutableStateOf(cameraPositionState.position) }
+
+    val onMapCameraMoveStart: (cameraPosition: CameraPosition) -> Unit = {
+        liftUpListener = true
+        initialCameraPosition = it
+    }
+    val onMapCameraIdle: (cameraPosition: CameraPosition) -> Unit = { newCameraPosition ->
+        liftUpListener = false
+        initialCameraPosition = newCameraPosition
+    }
+
+    LaunchedEffect(key1 = cameraPositionState.isMoving) {
+        if (cameraPositionState.isMoving) onMapCameraMoveStart(cameraPositionState.position)
+        else onMapCameraIdle(cameraPositionState.position)
+    }
+
+
     Box {
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
@@ -193,17 +200,12 @@ fun MapsScreen(
                 mapType = MapType.NORMAL,
             ),
             cameraPositionState = cameraPositionState,
-        ) {
-            singleLocation?.let {
-                Marker(
-                    state = MarkerState(position = destinationLatLng),
-                    title = it.name,
-                    snippet = it.description,
-                )
-            }
-        }
+            onMapLongClick = {
 
-        ConstraintLayoutContent()
+            }
+        )
+
+        ConstraintLayoutContent(singleLocation, liftUpListener)
 
         Column(
             modifier = Modifier.fillMaxWidth()
@@ -272,9 +274,9 @@ fun MapsScreen(
     }
 }
 
-@Preview
+
 @Composable
-fun ConstraintLayoutContent() {
+fun ConstraintLayoutContent(singleLocation: GeoObject?, liftUpListener: Boolean) {
     ConstraintLayout(
         modifier = Modifier
             .fillMaxSize()
@@ -291,20 +293,22 @@ fun ConstraintLayoutContent() {
                 },
             contentAlignment = Alignment.BottomCenter
         ) {
-            MarkerContent()
+            MarkerContent(singleLocation, liftUpListener)
         }
     }
 }
 
 
 @Composable
-fun MarkerContent() {
+fun MarkerContent(singleLocation: GeoObject?, liftUpListener: Boolean) {
+    val yOffset by animateDpAsState(if (liftUpListener) (-20).dp else 0.dp, label = "")
     Column(
         modifier = Modifier
-            .wrapContentWidth(),
+            .wrapContentWidth()
+            .offset(y = yOffset),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        MarkerMainBox()
+        MarkerMainBox(singleLocation)
         Box(
             modifier = Modifier
                 .height(24.dp)
@@ -316,7 +320,7 @@ fun MarkerContent() {
 
 
 @Composable
-fun MarkerMainBox() {
+fun MarkerMainBox(singleLocation: GeoObject?) {
     Box(
         modifier = Modifier
             .wrapContentWidth()
@@ -329,8 +333,10 @@ fun MarkerMainBox() {
         Box(
             modifier = Modifier
                 .size(40.dp)
-                .clip(CircleShape)
-                .background(Color.White)
+                .background(
+                    Color.White,
+                    shape = RoundedCornerShape(MaterialTheme.spacing.dimen8Dp)
+                )
                 .padding(4.dp)
         ) {
             val composition by
@@ -342,21 +348,25 @@ fun MarkerMainBox() {
             )
         }
 
-        Column(
-            modifier = Modifier
-                .padding(horizontal = 48.dp)
-                .align(Alignment.CenterStart)
-        ) {
-            Text(
-                text = "This is an address",
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
-                maxLines = 1
-            )
-            Text(
-                text = "This is an address",
-                fontSize = 11.sp
-            )
+        singleLocation?.let {
+            AnimatedVisibility(visible = true) {
+                Column(
+                    modifier = Modifier
+                        .padding(horizontal = 48.dp)
+                        .align(Alignment.CenterStart)
+                ) {
+                    Text(
+                        text = it.name,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                        maxLines = 1
+                    )
+                    Text(
+                        text = it.description,
+                        fontSize = 11.sp
+                    )
+                }
+            }
         }
     }
 }
@@ -469,3 +479,4 @@ data class MapScreenData(
     val addressName: String = "",
     val addressDescription: String = ""
 ) : Serializable
+
