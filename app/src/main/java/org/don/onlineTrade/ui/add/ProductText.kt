@@ -117,7 +117,8 @@ fun SearchField(
                 if (!focusState.isFocused) {
                     productState.enableShowErrors()
                 }
-            },
+            }
+            .fillMaxWidth(),
         textStyle = MaterialTheme.typography.bodyMedium,
         keyboardOptions = KeyboardOptions.Default.copy(
             keyboardType = KeyboardType.Text,

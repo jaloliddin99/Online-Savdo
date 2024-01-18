@@ -4,6 +4,7 @@ plugins {
     id("kotlin-android")
     id("kotlin-kapt")
     id("dagger.hilt.android.plugin")
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
 
 android {
@@ -123,9 +124,9 @@ dependencies {
     implementation("com.airbnb.android:lottie-compose:6.0.1")
     implementation("com.github.ozcanalasalvar:otpview:2.0.1")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.12.32")
-//    implementation("com.google.android.play:app-update-ktx:2.1.0")
     implementation("com.google.android.gms:play-services-location:21.0.1")
-
+    implementation("com.google.maps.android:maps-compose:4.3.0")
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
 
 
 

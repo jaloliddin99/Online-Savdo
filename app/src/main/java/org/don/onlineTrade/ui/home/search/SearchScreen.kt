@@ -62,17 +62,12 @@ fun SearchRoute(
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit,
     onItemClick: (Int) -> Unit,
-    searchViewModel: SearchViewModel = hiltViewModel()
 ) {
-    val searchQuery by searchViewModel.searchQuery.collectAsStateWithLifecycle()
 
     SearchScreen(
         modifier = modifier,
         onBackClick = onBackClick,
         onItemClick = onItemClick,
-        searchQuery = searchQuery,
-        onSearchQueryChanged = searchViewModel::onSearchQueryChanged,
-        onSearchTriggered = searchViewModel::onSearchTriggered,
     )
 }
 
@@ -82,10 +77,6 @@ fun SearchScreen(
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit,
     onItemClick: (Int) -> Unit = {},
-    onSearchQueryChanged: (String) -> Unit = {},
-    onSearchTriggered: (String) -> Unit = {},
-    searchQuery: String,
-    onClearRecentSearches: () -> Unit = {},
 ) {
 
     var searchTextListener by remember {
@@ -102,16 +93,17 @@ fun SearchScreen(
             Spacer(modifier = Modifier.windowInsetsTopHeight(WindowInsets.safeDrawing))
             SearchToolbar(
                 onBackClick = onBackClick,
-                onSearchQueryChanged = onSearchQueryChanged,
+                onSearchQueryChanged = {
+                    searchTextListener = it
+                },
                 onSearchTriggered = {
-                    onSearchTriggered(it)
                     searchTextListener = it
                     homeViewModel.resetPager()
                     homeViewModel.loadNextItems(
                         query = searchTextListener
                     )
                 },
-                searchQuery = searchQuery,
+                searchQuery = searchTextListener,
             )
 
             LazyVerticalGrid(

@@ -10,10 +10,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -35,6 +38,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -43,6 +47,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -52,6 +57,7 @@ import org.don.onlineTrade.ui.add.dynamic.DynamicView
 import org.don.onlineTrade.ui.add.dynamic.DynamicViewData
 import org.don.onlineTrade.ui.add.dynamic.PostUnit
 import org.don.onlineTrade.ui.add.dynamic.PostValuesDTO
+import org.don.onlineTrade.ui.add.dynamic.SearchFieldWithDropdown
 import org.don.onlineTrade.ui.add.dynamic.TitleWrapper
 import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.spacing
@@ -149,16 +155,6 @@ fun AddProductScreen(
         mutableStateOf(PostAddressState())
     }
 
-    var expanded by remember {
-        mutableStateOf(false)
-    }
-
-    LaunchedEffect(key1 = postAddressState.text) {
-        if (postAddressState.isFocused) {
-            expanded = true
-        }
-        viewModel.listenRevereTyping(postAddressState.text)
-    }
 
     val productDescriptionState by rememberSaveable(stateSaver = ProductDescriptionStateSaver) {
         mutableStateOf(viewModel.descriptionVM)
@@ -205,6 +201,7 @@ fun AddProductScreen(
                 bottom = peekHeight
             )
     ) {
+
         Column(
             modifier = modifier
                 .fillMaxSize()
@@ -246,63 +243,6 @@ fun AddProductScreen(
                     }
                 )
             }
-
-            TitleWrapper(titleRes = R.string.enter_address) {
-                SearchField(
-                    productState = postAddressState,
-                    onImeAction = {
-                        //keyboard?.hide()
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    title = R.string.enter_address,
-                )
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = {
-                        expanded = false
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = MaterialTheme.spacing.dimen16Dp)
-                ) {
-                    state.featureMember?.forEach { entry ->
-                        DropdownMenuItem(
-                            onClick = {
-                                expanded = false
-                            },
-                            text = {
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 16.dp),
-                                    verticalArrangement = Arrangement.SpaceEvenly
-                                ) {
-                                    Spacer(modifier = Modifier.height(6.dp))
-                                    Text(
-                                        text = entry.GeoObject.name,
-                                        overflow = TextOverflow.Ellipsis,
-                                        maxLines = 1,
-                                        fontSize = 16.sp,
-                                        fontWeight = FontWeight.Medium,
-                                        fontFamily = robotoFontFamily
-                                    )
-                                    Text(
-                                        text = entry.GeoObject.description,
-                                        overflow = TextOverflow.Ellipsis,
-                                        maxLines = 1,
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.Normal,
-                                        fontFamily = robotoFontFamily
-                                    )
-                                    Spacer(modifier = Modifier.height(6.dp))
-                                    Divider(modifier = Modifier.height(0.4.dp))
-                                }
-                            },
-                        )
-                    }
-                }
-            }
-
 
             TitleWrapper(titleRes = R.string.select_image_for_your_product) {
                 ShowSelectedImages(imagesList = galleryImageUri, onAddButtonClicked = {

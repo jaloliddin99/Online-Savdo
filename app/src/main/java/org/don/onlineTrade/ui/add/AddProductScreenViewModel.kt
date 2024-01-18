@@ -47,7 +47,6 @@ class AddProductScreenViewModel @Inject constructor(
     private val postNewProductUseCase: PostNewProductUseCase,
     private val application: Application,
     private val categoryMainUseCase: CategoryMainUseCase,
-    private val locationReverseUseCase: LocationReverseUseCase
 ) : AndroidViewModel(application) {
 
 
@@ -87,52 +86,6 @@ class AddProductScreenViewModel @Inject constructor(
     private val _state = mutableStateOf(AddProductScreenState())
     val state: State<AddProductScreenState> = _state
 
-    private val _query: MutableStateFlow<String> = MutableStateFlow("")
-    val query: StateFlow<String> get() = _query
-
-    fun listenRevereTyping(s: String) {
-        _query.value = s
-    }
-
-    init {
-        viewModelScope.launch {
-            _query
-                .filter {
-                    it.length > 3
-                }.debounce(1000)
-                .collectLatest {
-                    Log.d("TAG", "AddProductScreedawdawkdjawkdjn2 ${it},")
-
-                    getLocationReverse(it)
-                }
-        }
-    }
-
-    private fun getLocationReverse(
-        addressName: String
-    ) {
-        val url = "$LOCATION_REVERSE_URL${addressName}&lang=${SharedPref.language}&format=json"
-        locationReverseUseCase
-            .invoke(url)
-            .onEach { result ->
-                when (result) {
-                    is Resource.Success -> {
-                        _state.value = AddProductScreenState(featureMember = result.data)
-                    }
-
-                    is Resource.Error -> {
-                        _state.value =
-                            AddProductScreenState(
-                                error = result.message ?: "An unexpected error occurred"
-                            )
-                    }
-
-                    is Resource.Loading -> {
-                        _state.value = AddProductScreenState(isLoading = true)
-                    }
-                }
-            }.launchIn(viewModelScope)
-    }
 
     fun getCategoryDerails(categoryId: Int) {
         categoryMainUseCase.invoke(

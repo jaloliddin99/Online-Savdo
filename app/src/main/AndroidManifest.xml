@@ -41,8 +41,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCM1QAkSklw2PQ6XnPZwq3-pIr21a5_mzg" />
 
-<!--        <provider-->
+
+        <!--        <provider-->
 <!--            android:name="androidx.core.content.FileProvider"-->
 <!--            android:authorities="org.don.onlineTrade.provider"-->
 <!--            android:exported="false"-->
