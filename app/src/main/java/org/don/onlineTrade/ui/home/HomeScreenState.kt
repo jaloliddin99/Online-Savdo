@@ -50,6 +50,7 @@ data class MapScreenScreenState(
     val isLoading: Boolean = false,
     val error: String = "",
     val featureMember: List<FeatureMember>? = null,
+    val singleFutureMember: List<FeatureMember>? = null,
     val latLng: LatLng? = null
 )
 

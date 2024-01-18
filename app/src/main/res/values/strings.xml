@@ -115,6 +115,7 @@
     <string name="select">Select</string>
     <string name="enter_address">Enter Address</string>
     <string name="enter_your_address">Enter Address*</string>
+    <string name="use_gps">Use GPS</string>
 
 
 </resources>

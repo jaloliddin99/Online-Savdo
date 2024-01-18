@@ -1,5 +1,6 @@
 package org.don.onlineTrade.ui.home.search
 
+import android.location.Location
 import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -28,8 +29,10 @@ import javax.inject.Inject
 
 @OptIn(FlowPreview::class)
 @HiltViewModel
-class MapViewModel @Inject constructor(private val locationReverseUseCase: LocationReverseUseCase,
-                                       private val locationTrackerRepository: LocationTracker,) :
+class MapViewModel @Inject constructor(
+    private val locationReverseUseCase: LocationReverseUseCase,
+    private val locationTrackerRepository: LocationTracker,
+) :
     ViewModel() {
 
     private val _state = mutableStateOf(MapScreenScreenState())
@@ -58,15 +61,23 @@ class MapViewModel @Inject constructor(private val locationReverseUseCase: Locat
     }
 
     private fun getLocationReverse(
-        addressName: String
+        addressName: String? = null,
+        location: Location? = null
     ) {
-        val url = "$LOCATION_REVERSE_URL${addressName}&lang=${SharedPref.language}&format=json"
+        val url =
+            if (addressName != null)
+                "$LOCATION_REVERSE_URL${addressName}&lang=${SharedPref.language}&format=json"
+            else
+                "${LOCATION_REVERSE_URL}${location!!.longitude},${location.latitude}&lang=${SharedPref.language}&format=json"
+
         locationReverseUseCase
             .invoke(url)
             .onEach { result ->
                 when (result) {
                     is Resource.Success -> {
-                        _state.value = MapScreenScreenState(featureMember = result.data)
+                        _state.value = if (addressName != null)
+                            MapScreenScreenState(featureMember = result.data)
+                        else MapScreenScreenState(singleFutureMember = result.data)
                     }
 
                     is Resource.Error -> {
@@ -84,12 +95,14 @@ class MapViewModel @Inject constructor(private val locationReverseUseCase: Locat
     }
 
 
-
     fun locationObserve() = viewModelScope.launch {
         locationTrackerRepository.getCurrentLocation().collectLatest {
             stopLocationUpdates()
-            _state.value = _state.value.copy(latLng = LatLng(it.latitude, it.longitude),
-                isLoading = false)
+            getLocationReverse(location = it)
+            _state.value = _state.value.copy(
+                latLng = LatLng(it.latitude, it.longitude),
+                isLoading = false
+            )
         }
     }
 

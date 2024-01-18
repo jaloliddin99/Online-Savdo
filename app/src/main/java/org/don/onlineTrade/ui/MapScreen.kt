@@ -1,5 +1,6 @@
 package org.don.onlineTrade.ui
 
+import android.app.Activity
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
@@ -7,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,14 +16,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.GpsFixed
+import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,9 +38,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -42,15 +52,18 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
+import org.don.onlineTrade.R
 import org.don.onlineTrade.data.location.GpsCheckHelper
 import org.don.onlineTrade.data.location.checkGpsEnabled
 import org.don.onlineTrade.ui.add.AskLocationDialog
@@ -87,11 +100,15 @@ fun MapsScreen(
     viewModel: MapViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.value
+    val activity = LocalContext.current as ComponentActivity
+    val hasNotPermission = !hasPermissionForLocation(activity)
+    val gpsNotEnabled = !checkGpsEnabled(activity)
 
     var searchTextListener by remember {
         mutableStateOf("")
     }
 
+    val singleLocation = state.singleFutureMember?.get(0)?.GeoObject
     LaunchedEffect(key1 = searchTextListener) {
         viewModel.listenRevereTyping(searchTextListener)
     }
@@ -102,10 +119,10 @@ fun MapsScreen(
     }
 
     var showAlertDialog by remember {
-        mutableStateOf(true)
+        mutableStateOf(false)
     }
 
-    if (showAlertDialog){
+    if (showAlertDialog) {
         AskLocationDialog(
             allowed = { granted ->
                 showAlertDialog = false
@@ -121,55 +138,39 @@ fun MapsScreen(
 
     if (showAskPermissionDialog) {
         showAskPermissionDialog = false
-        val activity = LocalContext.current as ComponentActivity
-        val hasNotPermission = !hasPermissionForLocation(activity)
-        val gpsNotEnabled = !checkGpsEnabled(activity)
-
-        if (hasNotPermission) {
-            RunTimePermission().locationPermission(
-                onPermissionEnabled = {
-                    GpsCheckHelper(activity).turnOnGpsDialogRequest()
-                    viewModel.locationObserve()
-                    viewModel.startLocationUpdates()
-                },
-                onPermissionNotEnabled = {},
-                activity
-            )
-            return
-        }
-        if (gpsNotEnabled) {
-            GpsCheckHelper(activity).turnOnGpsDialogRequest()
-            viewModel.locationObserve()
-            viewModel.startLocationUpdates()
-        } else {
-            viewModel.locationObserve()
-            viewModel.startLocationUpdates()
-        }
+        turnOnGps(viewModel, hasNotPermission, activity, gpsNotEnabled)
     }
 
 
-    val tashkent = LatLng(41.33261529612184, 69.25163862724608)
-    val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(tashkent, 10f)
-    }
+    val tashkent = if (state.singleFutureMember?.isNotEmpty() == true) {
+        val obj = state.singleFutureMember[0].GeoObject.Point.pos
+        val lng = obj.split(" ")[0].toDouble()
+        val lat = obj.split(" ")[1].toDouble()
+        LatLng(lat, lng)
+    } else
+        LatLng(41.33261529612184, 69.25163862724608)
+
     Box {
-
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
             properties = MapProperties(
                 mapType = MapType.NORMAL,
             ),
-            cameraPositionState = cameraPositionState
+            cameraPositionState = CameraPositionState(CameraPosition.fromLatLngZoom(tashkent, 15f))
         ) {
-            Marker(
-                state = MarkerState(position = tashkent),
-                title = "MyPosition",
-                snippet = "This is a description of this Marker",
-                draggable = true
-            )
+            if (state.singleFutureMember?.isNotEmpty() == true) {
+                Marker(
+                    state = MarkerState(position = tashkent),
+                    title = state.singleFutureMember[0].GeoObject.name,
+                    snippet = state.singleFutureMember[0].GeoObject.description,
+                )
+            }
+
         }
 
-        Column {
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Spacer(modifier = Modifier.windowInsetsTopHeight(WindowInsets.safeDrawing))
             SearchToolbar(
                 onBackClick = {
@@ -186,15 +187,17 @@ fun MapsScreen(
 
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
 
-
             Box(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .padding(horizontal = MaterialTheme.spacing.dimen16Dp)
 
             ) {
                 LazyColumn(
-                    modifier = Modifier.fillMaxWidth()
-                        .background(color = MaterialTheme.colorScheme.background,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            color = MaterialTheme.colorScheme.background,
                             shape = RoundedCornerShape(MaterialTheme.spacing.dimen16Dp)
                         )
                         .padding(horizontal = MaterialTheme.spacing.dimen16Dp)
@@ -247,6 +250,29 @@ fun MapsScreen(
             }
 
 
+            Spacer(modifier = Modifier.weight(1f))
+
+            Button(
+                onClick = {
+                    turnOnGps(viewModel, hasNotPermission, activity, gpsNotEnabled)
+                },
+                modifier = Modifier
+                    .padding(
+                        start = MaterialTheme.spacing.dimen16Dp,
+                        end = MaterialTheme.spacing.dimen16Dp,
+                        bottom = 60.dp,
+                    )
+                    .height(48.dp)
+                    .fillMaxWidth()
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(imageVector = Icons.Default.GpsFixed, contentDescription = null)
+                    Spacer(modifier = Modifier.width(MaterialTheme.spacing.dimen12Dp))
+                    Text(text = stringResource(id = R.string.use_gps))
+                }
+            }
+
+
         }
         FreeLoading(isFeedLoading = state.isLoading)
 
@@ -256,6 +282,38 @@ fun MapsScreen(
 
 
     }
+}
+
+private fun turnOnGps(
+    viewModel: MapViewModel,
+    hasNotPermission: Boolean,
+    activity: Activity,
+    gpsNotEnabled: Boolean
+) {
+    if (hasNotPermission) {
+        askPermission(activity) {
+            GpsCheckHelper(activity).turnOnGpsDialogRequest()
+            viewModel.locationObserve()
+            viewModel.startLocationUpdates()
+        }
+        return
+    }
+    if (gpsNotEnabled) {
+        GpsCheckHelper(activity).turnOnGpsDialogRequest()
+        viewModel.locationObserve()
+        viewModel.startLocationUpdates()
+    } else {
+        viewModel.locationObserve()
+        viewModel.startLocationUpdates()
+    }
+}
+
+fun askPermission(activity: Activity, enabled: () -> Unit) {
+    RunTimePermission().locationPermission(
+        onPermissionEnabled = enabled,
+        onPermissionNotEnabled = {},
+        activity
+    )
 }
 
 data class MapScreenData(
