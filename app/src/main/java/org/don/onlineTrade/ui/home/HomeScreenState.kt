@@ -52,7 +52,7 @@ data class MapScreenScreenState(
     val featureMember: List<FeatureMember>? = null,
     val singleFutureMember: List<FeatureMember>? = null,
     val latLng: LatLng? = null,
-    val isMapMoved: Boolean = false
+    val isMapMoved: Boolean = true
 )
 
 data class PresentProductState(

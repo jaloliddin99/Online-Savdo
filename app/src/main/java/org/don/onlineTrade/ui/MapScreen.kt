@@ -1,6 +1,8 @@
 package org.don.onlineTrade.ui
 
 import android.app.Activity
+import android.gesture.Gesture
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.compose.animation.AnimatedVisibility
@@ -11,6 +13,8 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -47,6 +51,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -123,12 +128,9 @@ fun MapsScreen(
     var searchTextListener by remember {
         mutableStateOf("")
     }
-
-    val singleLocation = state.singleFutureMember?.get(0)?.GeoObject
-    LaunchedEffect(key1 = searchTextListener) {
-        viewModel.listenRevereTyping(searchTextListener)
+    var moveByUser by remember {
+        mutableStateOf(false)
     }
-
 
     var showAskPermissionDialog by remember {
         mutableStateOf(false)
@@ -136,6 +138,15 @@ fun MapsScreen(
 
     var showAlertDialog by remember {
         mutableStateOf(false)
+    }
+
+    var liftUpListener by remember {
+        mutableStateOf(false)
+    }
+
+    val singleLocation = state.singleFutureMember?.get(0)?.GeoObject
+    LaunchedEffect(key1 = searchTextListener) {
+        viewModel.listenRevereTyping(searchTextListener)
     }
 
     if (showAlertDialog) {
@@ -173,27 +184,12 @@ fun MapsScreen(
     }
 
     LaunchedEffect(key1 = destinationLatLng) {
-        if (destinationLatLng.latitude != LATITUDE) {
-            cameraPositionState.animate(
-                update = CameraUpdateFactory.newCameraPosition(
-                    CameraPosition(destinationLatLng, finalZoom, TILT, BEARING)
-                ),
-                durationMs = ANIM_DURATION
-            )
-        } else {
-            cameraPositionState.position = CameraPosition.fromLatLngZoom(
-                LatLng(
-                    destinationLatLng.latitude,
-                    destinationLatLng.longitude
-                ),
-                ZOOM_LEVEL
-            )
-        }
-    }
-
-
-    var liftUpListener by remember {
-        mutableStateOf(false)
+        cameraPositionState.animate(
+            update = CameraUpdateFactory.newCameraPosition(
+                CameraPosition(destinationLatLng, finalZoom, TILT, BEARING)
+            ),
+            durationMs = ANIM_DURATION
+        )
     }
 
 
@@ -205,7 +201,6 @@ fun MapsScreen(
     }
     val onMapCameraIdle: (cameraPosition: CameraPosition) -> Unit = { it ->
         liftUpListener = false
-        viewModel.getLocationReverse(location = it.target, isMapMoved = true)
         initialCameraPosition = it
     }
 
@@ -214,12 +209,28 @@ fun MapsScreen(
             onMapCameraMoveStart(cameraPositionState.position)
         else
             onMapCameraIdle(cameraPositionState.position)
+
     }
 
 
-    Box {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
         GoogleMap(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .pointerInput(Unit) {
+                    detectDragGestures(
+                        onDragStart = {
+                            liftUpListener = true
+                        },
+                        onDragEnd = {
+                            Log.d("TAG", "MapsScreendawdnawkjdnawkjdn end")
+                            liftUpListener = false
+                        }
+                    ) { _, _ -> }
+                },
             properties = MapProperties(
                 mapType = MapType.NORMAL,
             ),
@@ -251,14 +262,16 @@ fun MapsScreen(
 
             FloatingActionButton(
                 onClick = {
+                    moveByUser = true
                     turnOnGps(viewModel, hasNotPermission, activity, gpsNotEnabled)
                 },
-                modifier = Modifier.align(Alignment.End)
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .padding(end = MaterialTheme.spacing.dimen16Dp)
             ) {
                 Icon(imageVector = Icons.Default.GpsFixed, contentDescription = null)
             }
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
-
             Button(
                 enabled = singleLocation != null,
                 onClick = {
