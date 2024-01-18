@@ -131,7 +131,6 @@ fun MapsScreen(
     var moveByUser by remember {
         mutableStateOf(false)
     }
-
     var showAskPermissionDialog by remember {
         mutableStateOf(false)
     }
@@ -168,13 +167,14 @@ fun MapsScreen(
         turnOnGps(viewModel, hasNotPermission, activity, gpsNotEnabled)
     }
 
-    val destinationLatLng = if (state.singleFutureMember?.isNotEmpty() == true) {
-        val obj = state.singleFutureMember[0].GeoObject.Point.pos
-        val lng = obj.split(" ")[0].toDouble()
-        val lat = obj.split(" ")[1].toDouble()
-        LatLng(lat, lng)
-    } else
-        LatLng(LATITUDE, LONGITUDE)
+    val destinationLatLng =
+        if (state.singleFutureMember?.isNotEmpty() == true) {
+            val obj = state.singleFutureMember[0].GeoObject.Point.pos
+            val lng = obj.split(" ")[0].toDouble()
+            val lat = obj.split(" ")[1].toDouble()
+            LatLng(lat, lng)
+        } else
+            LatLng(LATITUDE, LONGITUDE)
 
     val initialZoom = ZOOM_LEVEL
     val finalZoom = ZOOM_LEVEL
@@ -219,20 +219,10 @@ fun MapsScreen(
     ) {
         GoogleMap(
             modifier = Modifier
-                .fillMaxSize()
-                .pointerInput(Unit) {
-                    detectDragGestures(
-                        onDragStart = {
-                            liftUpListener = true
-                        },
-                        onDragEnd = {
-                            Log.d("TAG", "MapsScreendawdnawkjdnawkjdn end")
-                            liftUpListener = false
-                        }
-                    ) { _, _ -> }
-                },
+                .fillMaxSize(),
             properties = MapProperties(
                 mapType = MapType.NORMAL,
+                isBuildingEnabled = true
             ),
             cameraPositionState = cameraPositionState
         )
