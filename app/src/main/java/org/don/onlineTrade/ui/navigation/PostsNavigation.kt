@@ -31,6 +31,7 @@ fun NavGraphBuilder.addProductScreen(
         AddProductRoute(
             navigateToCategories = navigateToCategories,
             item = item,
+            map = map,
             goToDetailsPage = goToDetailsPage,
             goToMapScreen = goToMapScreen
         )

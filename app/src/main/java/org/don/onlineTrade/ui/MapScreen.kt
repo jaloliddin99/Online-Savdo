@@ -54,6 +54,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
@@ -66,6 +67,7 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.location.GpsCheckHelper
 import org.don.onlineTrade.data.location.checkGpsEnabled
+import org.don.onlineTrade.data.remote.models.reverse.FeatureMember
 import org.don.onlineTrade.ui.add.AskLocationDialog
 import org.don.onlineTrade.ui.home.search.MapViewModel
 import org.don.onlineTrade.ui.home.search.SearchToolbar
@@ -141,8 +143,7 @@ fun MapsScreen(
         turnOnGps(viewModel, hasNotPermission, activity, gpsNotEnabled)
     }
 
-
-    val tashkent = if (state.singleFutureMember?.isNotEmpty() == true) {
+    val destinationLatLng = if (state.singleFutureMember?.isNotEmpty() == true) {
         val obj = state.singleFutureMember[0].GeoObject.Point.pos
         val lng = obj.split(" ")[0].toDouble()
         val lat = obj.split(" ")[1].toDouble()
@@ -150,22 +151,41 @@ fun MapsScreen(
     } else
         LatLng(41.33261529612184, 69.25163862724608)
 
+    val initialZoom = 15f
+    val finalZoom = 15f
+
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(destinationLatLng, initialZoom)
+    }
+
+    LaunchedEffect(key1 = destinationLatLng) {
+        cameraPositionState.animate(
+            update = CameraUpdateFactory.newCameraPosition(
+                CameraPosition(destinationLatLng, finalZoom, 0f, 0f)
+            ),
+            durationMs = 1000
+        )
+    }
+
+
     Box {
+
+
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
             properties = MapProperties(
                 mapType = MapType.NORMAL,
             ),
-            cameraPositionState = CameraPositionState(CameraPosition.fromLatLngZoom(tashkent, 15f))
+            cameraPositionState = cameraPositionState,
         ) {
-            if (state.singleFutureMember?.isNotEmpty() == true) {
+
+            singleLocation?.let {
                 Marker(
-                    state = MarkerState(position = tashkent),
-                    title = state.singleFutureMember[0].GeoObject.name,
-                    snippet = state.singleFutureMember[0].GeoObject.description,
+                    state = MarkerState(position = destinationLatLng),
+                    title = it.name,
+                    snippet = it.description,
                 )
             }
-
         }
 
         Column(
@@ -186,75 +206,25 @@ fun MapsScreen(
             )
 
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = MaterialTheme.spacing.dimen16Dp)
-
-            ) {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(
-                            color = MaterialTheme.colorScheme.background,
-                            shape = RoundedCornerShape(MaterialTheme.spacing.dimen16Dp)
-                        )
-                        .padding(horizontal = MaterialTheme.spacing.dimen16Dp)
-                ) {
-                    state.featureMember?.let {
-                        itemsIndexed(state.featureMember) { index, item ->
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        val lat = item.GeoObject.Point.pos.split(" ")[0].toDouble()
-                                        val lon = item.GeoObject.Point.pos.split(" ")[1].toDouble()
-                                        onBackClick(
-                                            MapScreenData(
-                                                lat = lat,
-                                                lon = lon,
-                                                addressName = item.GeoObject.name,
-                                                addressDescription = item.GeoObject.description
-                                            )
-                                        )
-                                    },
-                                verticalArrangement = Arrangement.SpaceEvenly
-                            ) {
-                                Spacer(modifier = Modifier.height(6.dp))
-                                Text(
-                                    text = item.GeoObject.name,
-                                    overflow = TextOverflow.Ellipsis,
-                                    maxLines = 1,
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    fontFamily = robotoFontFamily
-                                )
-                                Text(
-                                    text = item.GeoObject.description,
-                                    overflow = TextOverflow.Ellipsis,
-                                    maxLines = 1,
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Normal,
-                                    fontFamily = robotoFontFamily
-                                )
-                                Spacer(modifier = Modifier.height(6.dp))
-                                if (index != it.lastIndex)
-                                    Divider(modifier = Modifier.height(0.4.dp))
-                            }
-                        }
-
-                    }
-
-                }
-            }
-
-
+            DisplayLocations(featureMember = state.featureMember, onBackClick = onBackClick)
             Spacer(modifier = Modifier.weight(1f))
-
             Button(
                 onClick = {
-                    turnOnGps(viewModel, hasNotPermission, activity, gpsNotEnabled)
+                    if (singleLocation == null)
+                        turnOnGps(viewModel, hasNotPermission, activity, gpsNotEnabled)
+                    else {
+                        val lat = singleLocation.Point.pos.split(" ")[0].toDouble()
+                        val lon = singleLocation.Point.pos.split(" ")[1].toDouble()
+                        onBackClick(
+                            MapScreenData(
+                                lat = lon,
+                                lon = lat,
+                                addressName = singleLocation.name,
+                                addressDescription = singleLocation.description
+                            )
+                        )
+                    }
+
                 },
                 modifier = Modifier
                     .padding(
@@ -266,9 +236,12 @@ fun MapsScreen(
                     .fillMaxWidth()
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(imageVector = Icons.Default.GpsFixed, contentDescription = null)
-                    Spacer(modifier = Modifier.width(MaterialTheme.spacing.dimen12Dp))
-                    Text(text = stringResource(id = R.string.use_gps))
+                    Text(
+                        text = stringResource(
+                            id =
+                            if (singleLocation == null) R.string.use_gps else R.string.select_this_location
+                        )
+                    )
                 }
             }
 
@@ -305,6 +278,73 @@ private fun turnOnGps(
     } else {
         viewModel.locationObserve()
         viewModel.startLocationUpdates()
+    }
+}
+
+
+@Composable
+fun DisplayLocations(featureMember: List<FeatureMember>?,
+                     onBackClick: (MapScreenData?) -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = MaterialTheme.spacing.dimen16Dp)
+
+    ) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    color = MaterialTheme.colorScheme.background,
+                    shape = RoundedCornerShape(MaterialTheme.spacing.dimen16Dp)
+                )
+                .padding(horizontal = MaterialTheme.spacing.dimen16Dp)
+        ) {
+            featureMember?.let {
+                itemsIndexed(featureMember) { index, item ->
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                val lat = item.GeoObject.Point.pos.split(" ")[0].toDouble()
+                                val lon = item.GeoObject.Point.pos.split(" ")[1].toDouble()
+                                onBackClick(
+                                    MapScreenData(
+                                        lat = lon,
+                                        lon = lat,
+                                        addressName = item.GeoObject.name,
+                                        addressDescription = item.GeoObject.description
+                                    )
+                                )
+                            },
+                        verticalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = item.GeoObject.name,
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 1,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium,
+                            fontFamily = robotoFontFamily
+                        )
+                        Text(
+                            text = item.GeoObject.description,
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 1,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Normal,
+                            fontFamily = robotoFontFamily
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        if (index != it.lastIndex)
+                            Divider(modifier = Modifier.height(0.4.dp))
+                    }
+                }
+
+            }
+
+        }
     }
 }
 

@@ -116,6 +116,7 @@
     <string name="enter_address">Enter Address</string>
     <string name="enter_your_address">Enter Address*</string>
     <string name="use_gps">Use GPS</string>
+    <string name="select_this_location">Select this location</string>
 
 
 </resources>
