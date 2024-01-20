@@ -229,9 +229,7 @@ fun ProductItemDetails(
             }
 
             Text(
-                text = if (data.status == 1) stringResource(id = R.string.txt_new) else stringResource(
-                    id = R.string.txt_old
-                ),
+                text = stringResource(id = R.string.txt_new),
                 fontSize = 14.sp,
                 fontFamily = robotoFontFamily,
                 fontWeight = FontWeight.Medium,
@@ -246,7 +244,7 @@ fun ProductItemDetails(
             )
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen4Dp))
             Text(
-                text = data.region.name,
+                text = data.region?.name?:"Hello",
                 fontSize = 12.sp,
                 fontFamily = robotoFontFamily,
                 fontWeight = FontWeight.Normal,

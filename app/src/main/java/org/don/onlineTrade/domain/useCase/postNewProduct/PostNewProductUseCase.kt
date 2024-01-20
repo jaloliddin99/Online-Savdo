@@ -2,23 +2,33 @@ package org.don.onlineTrade.domain.useCase.postNewProduct
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import org.don.onlineTrade.data.remote.models.RegisterMain
 import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.domain.repository.NetworkRepository
 import org.don.onlineTrade.domain.state.Resource
-import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
 
-class PostNewProductUseCase@Inject constructor(
+class PostNewProductUseCase @Inject constructor(
     private val repository: NetworkRepository
 ) {
 
 
     operator fun invoke(
         email: String,
-        requestBody: RequestBody,
+        title: String,
+        description: String,
+        categoryId: Long,
+        regionId: Int,
+        districtId: Int,
+        lat: Double,
+        lon: Double,
+        addressName: String,
+        addressDescription: String,
+        userId: Int,
+        files: List<MultipartBody.Part>,
+        postParams: RequestBody
     ): Flow<Resource<PostModel>> = flow {
         try {
             emit(Resource.Loading())
@@ -26,13 +36,24 @@ class PostNewProductUseCase@Inject constructor(
                 Resource.Success(
                     repository.newProduct(
                         email,
-                        requestBody,
-                    )
+                        title,
+                        description,
+                        categoryId,
+                        regionId,
+                        districtId,
+                        lat,
+                        lon,
+                        addressName,
+                        addressDescription,
+                        userId,
+                        files,
+                        postParams
+                    ),
                 )
             )
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             emit(Resource.Error(e.localizedMessage ?: "An unexpected error occured"))
-        } catch(e: IOException) {
+        } catch (e: IOException) {
             emit(Resource.Error("Couldn't reach server. Check your internet connection."))
         }
     }

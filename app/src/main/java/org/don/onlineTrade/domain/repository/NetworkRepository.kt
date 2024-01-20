@@ -1,5 +1,6 @@
 package org.don.onlineTrade.domain.repository
 
+import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import org.don.onlineTrade.data.remote.models.LoginBody
 import org.don.onlineTrade.data.remote.models.ModelSuccess
@@ -12,6 +13,7 @@ import org.don.onlineTrade.data.remote.models.getPublicProducts.ModelPosts
 import org.don.onlineTrade.data.remote.models.leak.ModelLeak
 import org.don.onlineTrade.data.remote.models.nearPost.NeaPostModel
 import org.don.onlineTrade.data.remote.models.post.PostModel
+import org.don.onlineTrade.data.remote.models.post.PostParamDTO
 import org.don.onlineTrade.data.remote.models.region.ModelGetDistricts
 import org.don.onlineTrade.data.remote.models.region.ModelGetRegionAndDistricts
 import org.don.onlineTrade.data.remote.models.region.ModelGetRegions
@@ -77,7 +79,18 @@ interface NetworkRepository {
 
     suspend fun newProduct(
         token: String,
-        requestBody: RequestBody
+        title: String,
+        description: String,
+        categoryId: Long,
+        regionId: Int,
+        districtId: Int,
+        lat: Double,
+        lon: Double,
+        addressName: String,
+        addressDescription: String,
+        userId: Int,
+        files: List<MultipartBody.Part>,
+        postParams: RequestBody
     ): PostModel
 
     suspend fun showProductModel(

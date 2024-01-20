@@ -1,6 +1,7 @@
 package org.don.onlineTrade.data.repository
 
 
+import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import org.don.onlineTrade.data.remote.ApiInterface
 import org.don.onlineTrade.data.remote.models.LoginBody
@@ -15,12 +16,16 @@ import org.don.onlineTrade.data.remote.models.getPublicProducts.ModelPosts
 import org.don.onlineTrade.data.remote.models.leak.ModelLeak
 import org.don.onlineTrade.data.remote.models.nearPost.NeaPostModel
 import org.don.onlineTrade.data.remote.models.post.PostModel
+import org.don.onlineTrade.data.remote.models.post.PostParamDTO
 import org.don.onlineTrade.data.remote.models.region.ModelGetDistricts
 import org.don.onlineTrade.data.remote.models.region.ModelGetRegionAndDistricts
 import org.don.onlineTrade.data.remote.models.region.ModelGetRegions
 import org.don.onlineTrade.data.remote.models.reverse.ModelAddressReverse
 import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsModel
 import org.don.onlineTrade.domain.repository.NetworkRepository
+import retrofit2.http.Body
+import retrofit2.http.Part
+import retrofit2.http.Query
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -105,8 +110,36 @@ class NetworkRepositoryImpl @Inject constructor(
     }
 
 
-    override suspend fun newProduct(token: String, requestBody: RequestBody): PostModel {
-        return apiInterface.newProduct(token, requestBody)
+    override suspend fun newProduct(
+        token: String,
+        title: String,
+        description: String,
+        categoryId: Long,
+        regionId: Int,
+        districtId: Int,
+        lat: Double,
+        lon: Double,
+        addressName: String,
+        addressDescription: String,
+        userId: Int,
+        files: List<MultipartBody.Part>,
+        postParams: RequestBody
+    ): PostModel {
+        return apiInterface.newProduct(
+            token,
+            title,
+            description,
+            categoryId,
+            regionId,
+            districtId,
+            lat,
+            lon,
+            addressName,
+            addressDescription,
+            userId,
+            files,
+            postParams
+        )
     }
 
     override suspend fun showProductModel(
@@ -114,7 +147,7 @@ class NetworkRepositoryImpl @Inject constructor(
         token: String,
         language: String
     ): PostDetailsModel {
-        return apiInterface.showProductModel( token, id, language)
+        return apiInterface.showProductModel(token, id, language)
     }
 
     override suspend fun deletePost(id: Int, token: String): ModelSuccess {
@@ -122,13 +155,14 @@ class NetworkRepositoryImpl @Inject constructor(
     }
 
     override suspend fun likePost(id: Int, token: String, language: String): PostDetailsModel {
-        return apiInterface.likePost( token, id, language)
+        return apiInterface.likePost(token, id, language)
     }
 
-    override suspend fun getLikedProducts( token: String,
-                                           page: Int,
-                                           count: Int,
-                                           lang: String
+    override suspend fun getLikedProducts(
+        token: String,
+        page: Int,
+        count: Int,
+        lang: String
     ): ModelPosts {
         return apiInterface.getLikedProducts(
             token = token,

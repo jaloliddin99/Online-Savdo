@@ -37,12 +37,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.category.CategoryItem
 import org.don.onlineTrade.data.remote.models.post.PostParamDTO
-import org.don.onlineTrade.ui.map.MapScreenData
+import org.don.onlineTrade.data.remote.models.post.PostValueDTO
+import org.don.onlineTrade.data.remote.models.post.toPostDto
 import org.don.onlineTrade.ui.add.dynamic.DynamicView
 import org.don.onlineTrade.ui.add.dynamic.DynamicViewData
-import org.don.onlineTrade.ui.add.dynamic.PostUnit
-import org.don.onlineTrade.ui.add.dynamic.PostValuesDTO
 import org.don.onlineTrade.ui.add.dynamic.TitleWrapper
+import org.don.onlineTrade.ui.map.MapScreenData
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.ComposeFileProvider
 import org.don.onlineTrade.utils.FreeLoading
@@ -100,7 +100,7 @@ fun AddProductScreen(
         categoryId: Int,
         images: List<ImageUrl>,
         mapData: MapScreenData,
-        postParams: List<DynamicViewData>
+        postParams: List<PostParamDTO>
     ) -> Unit,
     viewModel: AddProductScreenViewModel,
     goToDetailsPage: () -> Unit,
@@ -275,7 +275,7 @@ fun AddProductScreen(
                     viewModel.categoryValue.id,
                     galleryImageUri,
                     map!!,
-                    dynamicViewData.values.toList()
+                    getOnlyValidOptions(dynamicViewData).map { it.toPostDto() }
                 )
             }
 
@@ -296,7 +296,7 @@ fun AddProductScreen(
                                 label_uz = it.label_uz,
                                 type = it.type,
                                 post_value = listOf(
-                                    PostValuesDTO(
+                                    PostValueDTO(
                                         label_uz = "",
                                         label_ru = "",
                                         key = ""
@@ -371,4 +371,11 @@ private fun dynamicDataCorrect(map: Map<String, DynamicViewData>): Boolean {
         }
     }
     return true
+}
+
+private fun getOnlyValidOptions(map: Map<String, DynamicViewData>): List<DynamicViewData> {
+   val newList = map.values.toList().filter {
+        it.isValid
+    }
+    return newList
 }

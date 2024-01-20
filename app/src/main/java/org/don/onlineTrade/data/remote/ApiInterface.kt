@@ -1,6 +1,7 @@
 package org.don.onlineTrade.data.remote
 
 import androidx.annotation.Keep
+import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import org.don.onlineTrade.data.remote.models.LoginBody
 import org.don.onlineTrade.data.remote.models.ModelSuccess
@@ -14,6 +15,7 @@ import org.don.onlineTrade.data.remote.models.getPublicProducts.ModelPosts
 import org.don.onlineTrade.data.remote.models.leak.ModelLeak
 import org.don.onlineTrade.data.remote.models.nearPost.NeaPostModel
 import org.don.onlineTrade.data.remote.models.post.PostModel
+import org.don.onlineTrade.data.remote.models.post.PostParamDTO
 import org.don.onlineTrade.data.remote.models.region.ModelGetDistricts
 import org.don.onlineTrade.data.remote.models.region.ModelGetRegionAndDistricts
 import org.don.onlineTrade.data.remote.models.region.ModelGetRegions
@@ -23,7 +25,9 @@ import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 import retrofit2.http.Url
@@ -119,10 +123,23 @@ interface ApiInterface {
     ): ModelGetRegionAndDistricts
 
 
+
+    @Multipart
     @POST("post")
     suspend fun newProduct(
         @Header("Authorization") token: String,
-        @Body requestBody: RequestBody
+        @Query("title") title: String,
+        @Query("description") description: String,
+        @Query("category_id") categoryId: Long,
+        @Query("region_id") regionId: Int,
+        @Query("district_id") districtId: Int,
+        @Query("lat") lat: Double,
+        @Query("lon") lon: Double,
+        @Query("addressName") addressName: String,
+        @Query("addressDescription") addressDescription: String,
+        @Query("userId") userId: Int,
+        @Part files: List<MultipartBody.Part>,
+        @Part("post_params") postParams: RequestBody
     ): PostModel
 
 

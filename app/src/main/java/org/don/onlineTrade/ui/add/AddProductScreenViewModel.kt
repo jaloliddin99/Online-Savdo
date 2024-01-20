@@ -3,7 +3,6 @@ package org.don.onlineTrade.ui.add
 import android.app.Application
 import android.net.Uri
 import android.provider.MediaStore
-import android.widget.Toast
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -21,13 +20,11 @@ import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
-import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.category.CategoryItem
+import org.don.onlineTrade.data.remote.models.post.PostParamDTO
 import org.don.onlineTrade.domain.state.Resource
 import org.don.onlineTrade.domain.useCase.CategoryMainUseCase
 import org.don.onlineTrade.domain.useCase.postNewProduct.PostNewProductUseCase
-import org.don.onlineTrade.ui.add.dynamic.DynamicViewData
 import org.don.onlineTrade.ui.auth.TextFieldState
 import org.don.onlineTrade.ui.home.AddProductScreenState
 import org.don.onlineTrade.ui.map.MapScreenData
@@ -122,80 +119,46 @@ class AddProductScreenViewModel @Inject constructor(
         categoryId: Int,
         images: List<ImageUrl>,
         mapData: MapScreenData,
-        postParams: List<DynamicViewData>
+        postParams: List<PostParamDTO>
     ) {
-        val builder: MultipartBody.Builder =
-            MultipartBody.Builder().setType(MultipartBody.FORM)
-        builder.addFormDataPart("userId", SharedPref.userId.toString())
-        builder.addFormDataPart("title", titleProduct)
-        builder.addFormDataPart("description", descriptionProduct)
-        builder.addFormDataPart("category_id", categoryId.toString())
-        builder.addFormDataPart("region_id", mapData.regionId.toString())
-        builder.addFormDataPart("district_id", mapData.districtId.toString())
-        builder.addFormDataPart("lat", (mapData.lat?:0.0).toString())
-        builder.addFormDataPart("lon", (mapData.lon?:0.0).toString())
-        builder.addFormDataPart("addressName", mapData.addressName)
-        builder.addFormDataPart("addressDescription", mapData.addressDescription)
         val contentResolver = application.contentResolver
-
+        val compressedList = ArrayList<File>()
         viewModelScope.launch {
             for (photoUri in images) {
                 if (!photoUri.isFromCamera) {
                     getRealPathFromURI(photoUri.uri, application)?.let { photoPath ->
                         val file = File(photoPath)
                         val compressedImageFile = Compressor.compress(application, file)
-                        if (compressedImageFile.sizeInKb > 1000) {
-                            Toast.makeText(
-                                application,
-                                application.getString(R.string.selectet_image_size),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            return@launch
-                        }
                         if (compressedImageFile.exists()) {
-                            builder.addFormDataPart(
-                                "files",
-                                compressedImageFile.name,
-                                RequestBody.create(
-                                    "image/*".toMediaTypeOrNull(),
-                                    compressedImageFile
-                                )
-                            )
+                            compressedList.add(compressedImageFile)
                         }
                     }
                 } else {
                     contentResolver.getFileFromUri(photoUri.uri, application)?.let { file ->
                         val compressedImageFile = Compressor.compress(application, file)
-                        if (compressedImageFile.sizeInKb > 1000) {
-                            Toast.makeText(
-                                application,
-                                application.getString(R.string.selectet_image_size),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            return@launch
-                        }
                         if (compressedImageFile.exists()) {
-                            builder.addFormDataPart(
-                                "files",
-                                compressedImageFile.name,
-                                RequestBody.create(
-                                    "image/*".toMediaTypeOrNull(),
-                                    compressedImageFile
-                                )
-                            )
+                            compressedList.add(compressedImageFile)
                         }
                     }
-
                 }
             }
+            val fileParts: List<MultipartBody.Part> = convertFilesToMultipart(compressedList)
             val postParamsRequestBody = createPostParamsRequestBody(postParams)
-            builder.addFormDataPart("post_params", "post_params.json", postParamsRequestBody)
-
-            val requestBody: RequestBody = builder.build()
 
             postNewProductUseCase(
                 token,
-                requestBody,
+                titleProduct,
+                descriptionProduct,
+                categoryId.toLong(),
+                mapData.regionId,
+                mapData.districtId,
+                mapData.lat ?: 0.0,
+                mapData.lon ?: 0.0,
+                mapData.addressName,
+                mapData.addressDescription,
+                SharedPref.userId,
+                fileParts,
+                postParamsRequestBody
             ).onEach { result ->
                 when (result) {
                     is Resource.Success -> {
@@ -222,9 +185,21 @@ class AddProductScreenViewModel @Inject constructor(
         }
     }
 
-    private fun createPostParamsRequestBody(postParams: List<DynamicViewData>): RequestBody {
+    private fun convertFilesToMultipart(files: List<File>): List<MultipartBody.Part> {
+        val fileParts: MutableList<MultipartBody.Part> = mutableListOf()
+
+        for (file in files) {
+            val requestBody = RequestBody.create("image/*".toMediaTypeOrNull(), file)
+            val filePart = MultipartBody.Part.createFormData("files", file.name, requestBody)
+            fileParts.add(filePart)
+        }
+
+        return fileParts
+    }
+
+    private fun createPostParamsRequestBody(postParams: List<PostParamDTO>): RequestBody {
         val json = Gson().toJson(postParams)
-        return json.toRequestBody("application/json".toMediaTypeOrNull())
+        return RequestBody.create("application/json".toMediaTypeOrNull(), json)
     }
 
 //    private fun createAddressParamRequestBody(postParams: MapScreenData): RequestBody {

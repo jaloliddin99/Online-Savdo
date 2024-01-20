@@ -7,7 +7,6 @@ data class Content(
     val image: Image,
     val likes: Int,
     val price: Double,
-    val region: Region,
+    val region: Region?,
     val title: String,
-    val status: Int?=1
 )

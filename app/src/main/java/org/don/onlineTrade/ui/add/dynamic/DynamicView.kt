@@ -9,6 +9,8 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import org.don.onlineTrade.data.remote.models.leak.Parameter
+import org.don.onlineTrade.data.remote.models.post.PostUnitDTO
+import org.don.onlineTrade.data.remote.models.post.PostValueDTO
 
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -90,7 +92,7 @@ fun DynamicView(
                     parameter = param,
                     onDismiss = { it ->
                         val valueList = it.map { values ->
-                            PostValuesDTO(
+                            PostValueDTO(
                                 label_uz = values.label_uz,
                                 label_ru = values.label_ru,
                                 key = values.key
@@ -123,7 +125,7 @@ fun DynamicView(
                                 param,
                                 label_uz = textFieldState.text,
                                 label_ru = textFieldState.text,
-                                unit = PostUnit(units.label, units.code),
+                                unit = PostUnitDTO(units.code, units.label),
                                 isValid = textFieldState.isValid
                             ) {
                                 paramListener.invoke(it)
@@ -155,19 +157,8 @@ data class DynamicViewData(
     val label_uz: String,
     val label_ru: String,
     val type: String,
-    val post_value: List<PostValuesDTO>,
-    val unit: PostUnit? = null
-)
-
-data class PostValuesDTO(
-    val key: String,
-    val label_uz: String,
-    val label_ru: String,
-)
-
-data class PostUnit(
-    val code: String = "",
-    val label: String = "",
+    val post_value: List<PostValueDTO>,
+    val unit: PostUnitDTO? = null
 )
 
 
@@ -176,8 +167,8 @@ private inline fun sendData(
     param: Parameter,
     label_uz: String? = null,
     label_ru: String? = null,
-    values: List<PostValuesDTO>? = null,
-    unit: PostUnit? = null,
+    values: List<PostValueDTO>? = null,
+    unit: PostUnitDTO? = null,
     isValid: Boolean,
     block: (Map<String, DynamicViewData>) -> Unit
 ) {
@@ -190,14 +181,14 @@ private inline fun sendData(
         label_ru = param.label_ru,
         type = param.type,
         post_value = if (label_uz != null && label_ru != null) listOf(
-            PostValuesDTO(
+            PostValueDTO(
                 label_uz = label_uz,
                 label_ru = label_ru,
                 key = label_uz
             )
         ) else values!!,
         unit = unit
-            ?: if (param.units.isNotEmpty()) PostUnit(
+            ?: if (param.units.isNotEmpty()) PostUnitDTO(
                 label = param.units[0].label,
                 code = param.units[0].code
             ) else
