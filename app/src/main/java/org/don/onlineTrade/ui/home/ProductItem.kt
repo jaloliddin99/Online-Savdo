@@ -79,21 +79,6 @@ fun ProductItem(
     }
 }
 
-@Preview
-@Composable
-fun ProductItemPreView() {
-    ProductItem(data = Content(
-        "2023-12-10T21:09:51.895279",
-        1,
-        1,
-        org.don.onlineTrade.data.remote.models.getPublicProducts.Image(1, "awd"),
-        23,
-        2.3,
-        Region(1, "Jizzax"),
-        "This is a description text "
-    ), onItemClicked = {})
-}
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -171,7 +156,8 @@ fun ProductItemDetails(
         val paddingValues = PaddingValues(
             bottom = MaterialTheme.spacing.dimen8Dp,
             start = MaterialTheme.spacing.dimen8Dp,
-            end = MaterialTheme.spacing.dimen8Dp
+            end = MaterialTheme.spacing.dimen8Dp,
+            top = MaterialTheme.spacing.dimen8Dp,
         )
         Column(
             modifier = Modifier
@@ -237,15 +223,23 @@ fun ProductItemDetails(
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen4Dp))
 
             Text(
-                text = "${data.price} ${getCurrency(currencyId = data.currency_id)}",
+                text = "${data.price} ${data.priceUnit}",
                 fontSize = 14.sp,
                 fontFamily = robotoFontFamily,
                 fontWeight = FontWeight.Medium,
             )
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen4Dp))
+            val region = data.region?.name
+            val district = data.district?.name
+            val name = data.addressName
+
+
             Text(
-                text = data.region?.name?:"Hello",
+                text = if (region != null && district != null) "$region, $district"
+                else name,
                 fontSize = 12.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
                 fontFamily = robotoFontFamily,
                 fontWeight = FontWeight.Normal,
             )

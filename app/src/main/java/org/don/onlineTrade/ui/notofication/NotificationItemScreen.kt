@@ -64,20 +64,6 @@ fun NotificationItemScreen(
 
 }
 
-@Preview
-@Composable
-fun NotificationItemViewPreView() {
-    NotificationItemView(data = Content(
-        "2023-12-10T21:09:51.895279",
-        1,
-        1,
-        org.don.onlineTrade.data.remote.models.getPublicProducts.Image(1, "awd"),
-        23,
-        2.3,
-        Region(1, "Jizzax"),
-        "This is a description text "
-    ))
-}
 
 
 @Composable
@@ -137,7 +123,7 @@ fun NotificationItemView(
         ) {
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen4Dp))
             Text(
-                text = "${data.price} ${getCurrency(currencyId = data.currency_id)}",
+                text = "${data.price} ${data.priceUnit}",
                 fontSize = 14.sp,
                 fontFamily = robotoFontFamily,
                 fontWeight = FontWeight.Medium,
