@@ -14,11 +14,10 @@ fun SignUpRoute(
     val welcomeViewModel = hiltViewModel<WelcomeViewModel>()
     val state = welcomeViewModel.state
     SignUpScreen(
-        onSignInSignUp = { firstName, lastName, email, password, phoneNumber ->
+        onSignInSignUp = { firstName, email, password, phoneNumber ->
 
             val body = RegistrationBody(
-                firstName = firstName,
-                lastName = lastName,
+                name = firstName,
                 email = email,
                 password = password,
                 phoneNumber = phoneNumber

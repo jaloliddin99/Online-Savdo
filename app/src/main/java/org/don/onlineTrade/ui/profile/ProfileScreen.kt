@@ -208,7 +208,7 @@ fun ProfileScreen(
 
             if (state.getProfile != null) {
                 val user = state.getProfile.data
-                TextBold(title = "${user.firstName}, ${user.lastName}")
+                TextBold(title = user.name)
                 user.phoneNumber?.let { ProductTitle(title = it) }
             }
 

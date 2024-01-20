@@ -35,7 +35,7 @@ class NearPostsUseCase @Inject constructor(
                     )
                 )
             )
-        } catch(e: HttpException) {
+        } catch(e: Exception) {
             emit(Resource.Error(e.localizedMessage ?: "An unexpected error occured"))
         } catch(e: IOException) {
             emit(Resource.Error("Couldn't reach server. Check your internet connection."))

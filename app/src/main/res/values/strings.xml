@@ -72,7 +72,7 @@
     <string name="logout">Log out</string>
     <string name="nothing_found_for_for_search">Nothing found for your search</string>
     <string name="all_posts">All posts</string>
-    <string name="firstName">First name</string>
+    <string name="firstName">Name</string>
     <string name="lastName">Last name</string>
     <string name="phone_number">Phone Number</string>
     <string name="verification">Verification</string>

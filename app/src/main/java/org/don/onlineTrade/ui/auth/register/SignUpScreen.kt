@@ -70,7 +70,7 @@ import org.don.onlineTrade.ui.theme.spacing
 
 @Composable
 fun SignUpScreen(
-    onSignInSignUp: (firstName: String, lastName: String, email: String, password: String, phoneNumber: String) -> Unit,
+    onSignInSignUp: (firstName: String, email: String, password: String, phoneNumber: String) -> Unit,
     state: RegistrationState,
     registrationSuccess: (email: String) -> Unit,
     onLoginPage: () -> Unit
@@ -191,7 +191,7 @@ fun Logo(
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SignUpCreateAccount(
-    onSignInSignUp: (firstName: String, lastName: String, email: String, password: String, phoneNumber: String) -> Unit,
+    onSignInSignUp: (name: String, email: String, password: String, phoneNumber: String) -> Unit,
     onSignInAsGuest: () -> Unit,
     onFocusChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
@@ -202,13 +202,11 @@ fun SignUpCreateAccount(
     val focusManager = LocalFocusManager.current
 
     val firstNameFocus = remember { FocusRequester() }
-    val lastNameFocus = remember { FocusRequester() }
     val focusRequester = remember { FocusRequester() }
     val confirmationPasswordFocusRequest = remember { FocusRequester() }
     val phoneNumberRequester = remember { FocusRequester() }
 
     val nameState = remember { TextFieldState() }
-    val lastNameState = remember { TextFieldState() }
     val emailState by rememberSaveable(stateSaver = EmailStateSaver) {
         mutableStateOf(EmailState())
     }
@@ -241,7 +239,6 @@ fun SignUpCreateAccount(
             if (emailState.isValid && passwordState.isValid) {
                 onSignInSignUp(
                     nameState.text,
-                    lastNameState.text,
                     emailState.text,
                     passwordState.text,
                     removeFirstCharacterAndAllSpaces(phoneState.text)
@@ -253,7 +250,6 @@ fun SignUpCreateAccount(
                     || passwordState.isFocused
                     || confirmPasswordState.isFocused
                     || nameState.isFocused
-                    || lastNameState.isFocused
                     || phoneState.isFocused
         )
         NameField(
@@ -264,16 +260,7 @@ fun SignUpCreateAccount(
                 firstNameFocus.requestFocus()
             },
         )
-        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
-        NameField(
-            modifier = Modifier.focusRequester(firstNameFocus),
-            nameState = lastNameState,
-            imeAction = ImeAction.Next,
-            onImeAction = {
-                lastNameFocus.requestFocus()
-            },
-            resId = R.string.lastName
-        )
+
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
         Email(
             emailState = emailState,
@@ -281,7 +268,7 @@ fun SignUpCreateAccount(
             onImeAction = {
                 focusRequester.requestFocus()
             },
-            modifier = Modifier.focusRequester(lastNameFocus)
+            modifier = Modifier.focusRequester(firstNameFocus)
         )
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
         Password(
@@ -320,7 +307,6 @@ fun SignUpCreateAccount(
                 passwordState.isValid &&
                 confirmPasswordState.isValid &&
                 nameState.isValid &&
-                lastNameState.isValid &&
                 phoneState.isValid
 
         Button(
@@ -376,7 +362,7 @@ fun DoYouHaveAccount(
 @Preview
 @Composable
 private fun WelcomeScreenPreview() {
-    SignUpScreen(onSignInSignUp = { firstName: String, lastName: String, s: String, s1: String, s2: String -> },
+    SignUpScreen(onSignInSignUp = { firstName: String, s: String, s1: String, s2: String -> },
         state = RegistrationState(),
         registrationSuccess = {},
         onLoginPage = {}

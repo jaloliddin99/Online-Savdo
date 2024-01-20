@@ -19,14 +19,22 @@ class ProductsPagerUseCase @Inject constructor(
         query: String?
     ): Result<List<Content>> {
         val startingIndex = page * pageSize
-        val networkPager = repository.getProductsPager(
-            token = token,
-            page = page,
-            count = pageSize,
-            lang = lang,
-            categoryId = categoryId,
-            query = query
-        ).data.content
+
+        return try {
+            val networkPager = repository.getProductsPager(
+                token = token,
+                page = page,
+                count = pageSize,
+                lang = lang,
+                categoryId = categoryId,
+                query = query
+            ).data.content
+            return Result.success(
+                networkPager
+            )
+        }catch (e: Exception){
+            return Result.failure(Throwable("Error occurred!"))
+        }
 
 //        return if (startingIndex + pageSize <= networkPager.size) {
 //            Result.success(
@@ -35,9 +43,6 @@ class ProductsPagerUseCase @Inject constructor(
 //        } else {
 //            Result.success(emptyList())
 //        }
-        return Result.success(
-                networkPager
-            )
     }
 
 

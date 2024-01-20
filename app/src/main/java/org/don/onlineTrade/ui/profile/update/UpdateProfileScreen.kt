@@ -57,22 +57,15 @@ fun UpdateProfileScreen(
     state: UpdateProfileState,
     requestToUpdate: (UpdateProfileModel) -> Unit,
     goBackAndRefresh: () -> Unit,
-
-    ) {
+) {
 
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
 
     val firstNameFocus = remember { FocusRequester() }
-    val lastNameFocus = remember { FocusRequester() }
     val phoneNumberRequester = remember { FocusRequester() }
 
     val nameState = remember {
-        TextFieldState(validator = {
-            it.length > 3
-        })
-    }
-    val lastNameState = remember {
         TextFieldState(validator = {
             it.length > 3
         })
@@ -89,8 +82,7 @@ fun UpdateProfileScreen(
         val onSubmit = {
             requestToUpdate(
                 UpdateProfileModel(
-                    firstName = nameState.text,
-                    lastName = lastNameState.text,
+                    name = nameState.text,
                     phoneNumber = removeFirstCharacterAndAllSpaces(phoneState.text)
 
                 )
@@ -104,16 +96,7 @@ fun UpdateProfileScreen(
                 firstNameFocus.requestFocus()
             },
         )
-        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
-        NameField(
-            modifier = Modifier.focusRequester(firstNameFocus),
-            nameState = lastNameState,
-            imeAction = ImeAction.Next,
-            onImeAction = {
-                lastNameFocus.requestFocus()
-            },
-            resId = R.string.lastName
-        )
+
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
         PhoneNumber(
             phoneState = phoneState,
@@ -125,7 +108,7 @@ fun UpdateProfileScreen(
         )
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
 
-        val isEnabled = nameState.isValid && lastNameState.isValid && phoneState.isValid
+        val isEnabled = nameState.isValid && phoneState.isValid
 
         Button(
             onClick = onSubmit,

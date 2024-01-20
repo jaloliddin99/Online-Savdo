@@ -17,8 +17,7 @@ data class Errors(
 
 data class RegistrationBody(
     val email: String,
-    val firstName: String,
-    val lastName: String,
+    val name: String,
     val password: String,
     val phoneNumber: String
 )
