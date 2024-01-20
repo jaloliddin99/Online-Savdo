@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.category.CategoryItem
-import org.don.onlineTrade.ui.MapScreenData
+import org.don.onlineTrade.ui.map.MapScreenData
 import org.don.onlineTrade.ui.add.dynamic.DynamicView
 import org.don.onlineTrade.ui.add.dynamic.DynamicViewData
 import org.don.onlineTrade.ui.add.dynamic.PostUnit

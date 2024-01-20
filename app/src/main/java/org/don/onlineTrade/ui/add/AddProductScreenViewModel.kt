@@ -3,7 +3,6 @@ package org.don.onlineTrade.ui.add
 import android.app.Application
 import android.net.Uri
 import android.provider.MediaStore
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
@@ -16,11 +15,6 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import id.zelory.compressor.Compressor
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -31,13 +25,11 @@ import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.category.CategoryItem
 import org.don.onlineTrade.domain.state.Resource
 import org.don.onlineTrade.domain.useCase.CategoryMainUseCase
-import org.don.onlineTrade.domain.useCase.LocationReverseUseCase
 import org.don.onlineTrade.domain.useCase.postNewProduct.PostNewProductUseCase
-import org.don.onlineTrade.ui.MapScreenData
+import org.don.onlineTrade.ui.map.MapScreenData
 import org.don.onlineTrade.ui.auth.TextFieldState
 import org.don.onlineTrade.ui.home.AddProductScreenState
 import org.don.onlineTrade.utils.FileManager.getFileFromUri
-import org.don.onlineTrade.utils.LOCATION_REVERSE_URL
 import org.don.onlineTrade.utils.SharedPref
 import java.io.File
 import javax.inject.Inject

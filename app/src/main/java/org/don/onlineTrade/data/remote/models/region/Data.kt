@@ -28,3 +28,17 @@ data class DataDistrict(
     val name: String = "",
     val regionId: Int = -1
 ):Serializable
+
+@Keep
+data class ModelGetRegionAndDistricts(
+    val `data`: List<RegionDistrict>,
+    val message: String,
+    val success: Boolean
+)
+
+@Keep
+data class RegionDistrict(
+    val id: Int,
+    val name: String,
+    val regionId: Int?=null
+)

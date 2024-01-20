@@ -11,6 +11,7 @@ import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsModel
 import org.don.onlineTrade.ui.region.MyLocation
 import org.don.onlineTrade.data.remote.models.category.Category
 import org.don.onlineTrade.data.remote.models.leak.ModelLeak
+import org.don.onlineTrade.data.remote.models.region.RegionDistrict
 import org.don.onlineTrade.data.remote.models.reverse.FeatureMember
 
 data class HomeScreenState(
@@ -52,7 +53,7 @@ data class MapScreenScreenState(
     val featureMember: List<FeatureMember>? = null,
     val singleFutureMember: List<FeatureMember>? = null,
     val latLng: LatLng? = null,
-    val isMapMoved: Boolean = false
+    val regionDistrictData: List<RegionDistrict> ?= null
 )
 
 data class PresentProductState(

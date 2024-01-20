@@ -16,6 +16,7 @@ import org.don.onlineTrade.data.remote.models.leak.ModelLeak
 import org.don.onlineTrade.data.remote.models.nearPost.NeaPostModel
 import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.ModelGetDistricts
+import org.don.onlineTrade.data.remote.models.region.ModelGetRegionAndDistricts
 import org.don.onlineTrade.data.remote.models.region.ModelGetRegions
 import org.don.onlineTrade.data.remote.models.reverse.ModelAddressReverse
 import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsModel
@@ -96,6 +97,12 @@ class NetworkRepositoryImpl @Inject constructor(
         return apiInterface.getDistricts(token, regionId, language)
     }
 
+    override suspend fun getAllRegionDistrict(
+        token: String,
+        language: String
+    ): ModelGetRegionAndDistricts {
+        return apiInterface.getAllRegionDistrict(token, language)
+    }
 
 
     override suspend fun newProduct(token: String, requestBody: RequestBody): PostModel {

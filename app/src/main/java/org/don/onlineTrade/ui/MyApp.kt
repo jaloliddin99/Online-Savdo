@@ -16,7 +16,6 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -42,13 +41,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
-import org.don.onlineTrade.ui.add.AddProductScreenViewModel
 import org.don.onlineTrade.ui.navigation.NavigationDefaults
 import org.don.onlineTrade.ui.navigation.addProductScreen
 import org.don.onlineTrade.ui.navigation.homeScreen
@@ -59,6 +54,8 @@ import org.don.onlineTrade.ui.navigation.welcomeScreen
 import org.don.onlineTrade.ui.navigation.registrationScreen
 import org.don.onlineTrade.ui.dialogs.settings.SettingsDialog
 import org.don.onlineTrade.ui.dialogs.settings.UserEditableSettings
+import org.don.onlineTrade.ui.map.mapNavigationRoute
+import org.don.onlineTrade.ui.map.mapScreen
 import org.don.onlineTrade.ui.navigation.categoriesNavigationRoute
 import org.don.onlineTrade.ui.navigation.categoriesScreen
 import org.don.onlineTrade.ui.navigation.districtsNavigationRoute
@@ -68,7 +65,6 @@ import org.don.onlineTrade.ui.navigation.filterCategoryScreen
 import org.don.onlineTrade.ui.navigation.forgotPasswordRoute
 import org.don.onlineTrade.ui.navigation.myProductsNavigationRoute
 import org.don.onlineTrade.ui.navigation.myProductsScreen
-import org.don.onlineTrade.ui.navigation.navigateToPresent
 import org.don.onlineTrade.ui.navigation.notificationsNavigationRoute
 import org.don.onlineTrade.ui.navigation.notificationsScreen
 import org.don.onlineTrade.ui.navigation.pDetailsNavigationRoute

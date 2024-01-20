@@ -1,4 +1,4 @@
-package org.don.onlineTrade.ui.home.search
+package org.don.onlineTrade.ui.map
 
 import android.location.Location
 import android.util.Log
@@ -20,6 +20,7 @@ import kotlinx.coroutines.launch
 import org.don.onlineTrade.domain.repository.LocationTracker
 import org.don.onlineTrade.domain.state.Resource
 import org.don.onlineTrade.domain.useCase.LocationReverseUseCase
+import org.don.onlineTrade.domain.useCase.regionUseCase.RegionsDistrictsUseCase
 import org.don.onlineTrade.ui.home.AddProductScreenState
 import org.don.onlineTrade.ui.home.MapScreenScreenState
 import org.don.onlineTrade.ui.region.MyLocation
@@ -32,6 +33,7 @@ import javax.inject.Inject
 class MapViewModel @Inject constructor(
     private val locationReverseUseCase: LocationReverseUseCase,
     private val locationTrackerRepository: LocationTracker,
+    private val regionsDistrictsUseCase: RegionsDistrictsUseCase
 ) :
     ViewModel() {
 
@@ -53,15 +55,14 @@ class MapViewModel @Inject constructor(
                     it.length > 3
                 }.debounce(1000)
                 .collectLatest {
-                    getLocationReverse(it, isMapMoved = false)
+                    getLocationReverse(it)
                 }
         }
     }
 
-    fun getLocationReverse(
+    private fun getLocationReverse(
         addressName: String? = null,
         location: LatLng? = null,
-        isMapMoved: Boolean
     ) {
         val url =
             if (addressName != null)
@@ -75,22 +76,67 @@ class MapViewModel @Inject constructor(
                 when (result) {
                     is Resource.Success -> {
                         _state.value = if (addressName != null)
-                            MapScreenScreenState(featureMember = result.data)
-                        else MapScreenScreenState(
+                            _state.value.copy(
+                                isLoading = false,
+                                error = "",
+                                featureMember = result.data
+                            )
+                        else _state.value.copy(
+                            isLoading = false, error = "",
                             singleFutureMember = result.data,
-                            isMapMoved = isMapMoved
                         )
                     }
 
                     is Resource.Error -> {
                         _state.value =
-                            MapScreenScreenState(
+                            _state.value.copy(
+                                isLoading = false,
                                 error = result.message ?: "An unexpected error occurred"
                             )
                     }
 
                     is Resource.Loading -> {
-                        _state.value = MapScreenScreenState(isLoading = true)
+                        _state.value = _state.value.copy(
+                            isLoading = true,
+                            error = ""
+                        )
+                    }
+                }
+            }.launchIn(viewModelScope)
+    }
+
+
+    private fun getRegionDistricts(
+        lang: String = SharedPref.language,
+    ) {
+
+        regionsDistrictsUseCase
+            .invoke(
+                SharedPref.deviceToken,
+                lang
+            )
+            .onEach { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        _state.value = _state.value.copy(
+                            isLoading = false,
+                            error = "",
+                            regionDistrictData = result.data
+                        )
+                    }
+                    is Resource.Error -> {
+                        _state.value =
+                            _state.value.copy(
+                                isLoading = false,
+                                error = result.message ?: "An unexpected error occurred"
+                            )
+                    }
+
+                    is Resource.Loading -> {
+                        _state.value = _state.value.copy(
+                            isLoading = true,
+                            error = ""
+                        )
                     }
                 }
             }.launchIn(viewModelScope)
@@ -100,7 +146,7 @@ class MapViewModel @Inject constructor(
     fun locationObserve() = viewModelScope.launch {
         locationTrackerRepository.getCurrentLocation().collectLatest {
             stopLocationUpdates()
-            getLocationReverse(location = LatLng(it.latitude, it.longitude), isMapMoved = false)
+            getLocationReverse(location = LatLng(it.latitude, it.longitude))
             _state.value = _state.value.copy(
                 latLng = LatLng(it.latitude, it.longitude),
                 isLoading = false
