@@ -49,6 +49,7 @@ class MapViewModel @Inject constructor(
 
 
     init {
+        getRegionDistricts()
         viewModelScope.launch {
             _query
                 .filter {
