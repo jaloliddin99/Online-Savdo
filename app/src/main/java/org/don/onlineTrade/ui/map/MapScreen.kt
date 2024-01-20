@@ -303,7 +303,7 @@ data class MapScreenData(
     val lon: Double? = null,
     val addressName: String = "",
     val addressDescription: String = "",
-    val regionId: Int? = null,
-    val districtId: Int? = null
+    val regionId: Int = -1,
+    val districtId: Int = -1
 ) : Serializable
 

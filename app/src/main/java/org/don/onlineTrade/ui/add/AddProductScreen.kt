@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.category.CategoryItem
+import org.don.onlineTrade.data.remote.models.post.PostParamDTO
 import org.don.onlineTrade.ui.map.MapScreenData
 import org.don.onlineTrade.ui.add.dynamic.DynamicView
 import org.don.onlineTrade.ui.add.dynamic.DynamicViewData
@@ -68,12 +69,16 @@ fun AddProductRoute(
         submitProduct = { titleProduct,
                           descriptionProduct,
                           categoryId,
-                          images ->
+                          images,
+                          mapData,
+                          postParams ->
             addProductViewModel.postNewProduct(
                 titleProduct = titleProduct,
                 descriptionProduct = descriptionProduct,
                 categoryId = categoryId,
                 images = images,
+                mapData = mapData,
+                postParams = postParams
             )
         },
         addProductViewModel,
@@ -94,6 +99,8 @@ fun AddProductScreen(
         descriptionProduct: String,
         categoryId: Int,
         images: List<ImageUrl>,
+        mapData: MapScreenData,
+        postParams: List<DynamicViewData>
     ) -> Unit,
     viewModel: AddProductScreenViewModel,
     goToDetailsPage: () -> Unit,
@@ -255,9 +262,10 @@ fun AddProductScreen(
             val isEnabled =
                 productTitleState.isValid
                         && productDescriptionState.isValid
+                        && viewModel.categoryValue.id != -1
+                        && (galleryImageUri.isNotEmpty() && galleryImageUri.size < 10)
+                        && map != null
                         && dynamicDataCorrect(dynamicViewData)
-//                        && categoryIsAdded
-//                        && (galleryImageUri.isNotEmpty() && galleryImageUri.size < 5)
 
 
             val onSubmit = {
@@ -265,7 +273,9 @@ fun AddProductScreen(
                     productTitleState.text,
                     productDescriptionState.text,
                     viewModel.categoryValue.id,
-                    galleryImageUri
+                    galleryImageUri,
+                    map!!,
+                    dynamicViewData.values.toList()
                 )
             }
 
@@ -282,13 +292,14 @@ fun AddProductScreen(
                                 isRequired = it.validation.is_required,
                                 isValid = false,
                                 code = it.code,
-                                label_ru = it.label_ru?:"",
+                                label_ru = it.label_ru,
                                 label_uz = it.label_uz,
                                 type = it.type,
-                                postValues = listOf(
+                                post_value = listOf(
                                     PostValuesDTO(
                                         label_uz = "",
-                                        label_ru = ""
+                                        label_ru = "",
+                                        key = ""
                                     )
                                 ),
                                 unit = PostUnit()
@@ -353,7 +364,7 @@ private fun dynamicDataCorrect(map: Map<String, DynamicViewData>): Boolean {
             if (!dynamicViewData.isValid) {
                 Log.d(
                     "TAG",
-                    "dynamicDataCorrecdawdawdkjjanwd, $s, ${dynamicViewData.label_uz}, ${dynamicViewData.postValues}"
+                    "dynamicDataCorrecdawdawdkjjanwd, $s, ${dynamicViewData.label_uz}, ${dynamicViewData.post_value}"
                 )
                 return false
             }

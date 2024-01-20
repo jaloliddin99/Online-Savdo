@@ -12,6 +12,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import id.zelory.compressor.Compressor
 import kotlinx.coroutines.FlowPreview
@@ -21,18 +22,23 @@ import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.category.CategoryItem
+import org.don.onlineTrade.data.remote.models.post.PostParamDTO
 import org.don.onlineTrade.domain.state.Resource
 import org.don.onlineTrade.domain.useCase.CategoryMainUseCase
 import org.don.onlineTrade.domain.useCase.postNewProduct.PostNewProductUseCase
-import org.don.onlineTrade.ui.map.MapScreenData
+import org.don.onlineTrade.ui.add.dynamic.DynamicViewData
 import org.don.onlineTrade.ui.auth.TextFieldState
 import org.don.onlineTrade.ui.home.AddProductScreenState
+import org.don.onlineTrade.ui.map.MapScreenData
 import org.don.onlineTrade.utils.FileManager.getFileFromUri
 import org.don.onlineTrade.utils.SharedPref
+import retrofit2.http.Part
 import java.io.File
 import javax.inject.Inject
+
 
 @OptIn(FlowPreview::class)
 @HiltViewModel
@@ -119,6 +125,8 @@ class AddProductScreenViewModel @Inject constructor(
         descriptionProduct: String,
         categoryId: Int,
         images: List<ImageUrl>,
+        mapData: MapScreenData,
+        postParams: List<DynamicViewData>
     ) {
         val builder: MultipartBody.Builder =
             MultipartBody.Builder().setType(MultipartBody.FORM)
@@ -126,11 +134,12 @@ class AddProductScreenViewModel @Inject constructor(
         builder.addFormDataPart("title", titleProduct)
         builder.addFormDataPart("description", descriptionProduct)
         builder.addFormDataPart("category_id", categoryId.toString())
-//        builder.addFormDataPart("region_id", region.toString())
-//        builder.addFormDataPart("district_id", districtId.toString())
-//        builder.addFormDataPart("lat", lat?:"0.0")
-//        builder.addFormDataPart("lon", lon?:"0.0")
-
+        builder.addFormDataPart("region_id", mapData.regionId.toString())
+        builder.addFormDataPart("district_id", mapData.districtId.toString())
+        builder.addFormDataPart("lat", (mapData.lat?:0.0).toString())
+        builder.addFormDataPart("lon", (mapData.lon?:0.0).toString())
+        builder.addFormDataPart("addressName", mapData.addressName)
+        builder.addFormDataPart("addressDescription", mapData.addressDescription)
         val contentResolver = application.contentResolver
 
         viewModelScope.launch {
@@ -182,8 +191,10 @@ class AddProductScreenViewModel @Inject constructor(
                     }
 
                 }
-
             }
+            val postParamsRequestBody = createPostParamsRequestBody(postParams)
+            builder.addFormDataPart("post_params", "post_params.json", postParamsRequestBody)
+
             val requestBody: RequestBody = builder.build()
 
             postNewProductUseCase(
@@ -213,9 +224,18 @@ class AddProductScreenViewModel @Inject constructor(
                 }
             }.launchIn(viewModelScope)
         }
-
-
     }
+
+    private fun createPostParamsRequestBody(postParams: List<DynamicViewData>): RequestBody {
+        val json = Gson().toJson(postParams)
+        return json.toRequestBody("application/json".toMediaTypeOrNull())
+    }
+
+//    private fun createAddressParamRequestBody(postParams: MapScreenData): RequestBody {
+//        val json = Gson().toJson(postParams)
+//        return json.toRequestBody("application/json".toMediaTypeOrNull())
+//    }
+
 
     fun updateShowSuccessDialog(show: Boolean) {
         _state.value = _state.value.copy(showSuccessDialog = show)
