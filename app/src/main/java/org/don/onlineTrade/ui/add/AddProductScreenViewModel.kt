@@ -15,7 +15,6 @@ import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import id.zelory.compressor.Compressor
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -25,7 +24,6 @@ import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.category.CategoryItem
-import org.don.onlineTrade.data.remote.models.post.PostParamDTO
 import org.don.onlineTrade.domain.state.Resource
 import org.don.onlineTrade.domain.useCase.CategoryMainUseCase
 import org.don.onlineTrade.domain.useCase.postNewProduct.PostNewProductUseCase
@@ -35,12 +33,10 @@ import org.don.onlineTrade.ui.home.AddProductScreenState
 import org.don.onlineTrade.ui.map.MapScreenData
 import org.don.onlineTrade.utils.FileManager.getFileFromUri
 import org.don.onlineTrade.utils.SharedPref
-import retrofit2.http.Part
 import java.io.File
 import javax.inject.Inject
 
 
-@OptIn(FlowPreview::class)
 @HiltViewModel
 class AddProductScreenViewModel @Inject constructor(
     private val postNewProductUseCase: PostNewProductUseCase,

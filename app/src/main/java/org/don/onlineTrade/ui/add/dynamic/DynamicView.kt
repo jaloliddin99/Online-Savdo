@@ -1,6 +1,5 @@
 package org.don.onlineTrade.ui.add.dynamic
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -190,10 +189,10 @@ private inline fun sendData(
         label_uz = param.label_uz,
         label_ru = param.label_ru,
         type = param.type,
-        post_value = if (label_uz != null) listOf(
+        post_value = if (label_uz != null && label_ru != null) listOf(
             PostValuesDTO(
                 label_uz = label_uz,
-                label_ru = label_ru!!,
+                label_ru = label_ru,
                 key = label_uz
             )
         ) else values!!,

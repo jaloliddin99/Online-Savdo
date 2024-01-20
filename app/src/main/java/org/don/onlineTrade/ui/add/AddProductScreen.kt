@@ -302,7 +302,7 @@ fun AddProductScreen(
                                         key = ""
                                     )
                                 ),
-                                unit = PostUnit()
+                                unit = null
                             )
                         }
                     )
