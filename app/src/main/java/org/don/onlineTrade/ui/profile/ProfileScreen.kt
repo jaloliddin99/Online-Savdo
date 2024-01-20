@@ -251,15 +251,7 @@ fun RoundImage(
     var isLoading by remember {
         mutableStateOf(true)
     }
-    var isError by remember {
-        mutableStateOf(false)
-    }
     val url = "http://91.227.40.169:8080/api/v1/user/image/${user?.profileUrl}"
-    val imageLoader = rememberAsyncImagePainter(model = url,
-        onState = { state ->
-            isLoading = state is AsyncImagePainter.State.Loading
-            isError = state is AsyncImagePainter.State.Error
-        })
     Box(
         modifier = modifier
             .width(100.dp)
@@ -277,8 +269,23 @@ fun RoundImage(
                 color = MaterialTheme.colorScheme.tertiary,
             )
         }
+        var isError by remember { mutableStateOf(false) }
+
+        val imageLoader = user?.profileUrl?.takeIf { it.isNotEmpty() }?.let {
+            rememberAsyncImagePainter(
+                model = it,
+                onState = { state ->
+                    isLoading = state is AsyncImagePainter.State.Loading
+                    isError = state is AsyncImagePainter.State.Error
+                }
+            )
+        }
+
+        val painter =
+            imageLoader ?: painterResource(id = if (isError) R.drawable.user else R.drawable.user)
+
         Image(
-            painter = if (isError.not()) imageLoader else painterResource(id = R.drawable.user),
+            painter = painter,
             contentDescription = null,
             modifier = modifier
                 .fillMaxSize()
@@ -519,7 +526,7 @@ fun AppLanguage(
                     scope.launch { sheetState.hide() }.invokeOnCompletion {
                         if (!sheetState.isVisible) {
                             showBottomSheet = false
-                            if (SharedPref.language != languageSelectListener.value){
+                            if (SharedPref.language != languageSelectListener.value) {
                                 SharedPref.language = languageSelectListener.value
                                 LocaleManager.setLocale(context, languageSelectListener.value)
                                 restartApp.invoke()
@@ -596,7 +603,7 @@ fun ProfileColumnItem(
             .background(color = MaterialTheme.colorScheme.surface)
             .padding(horizontal = MaterialTheme.spacing.dimen16Dp),
         verticalAlignment = Alignment.CenterVertically) {
-        if (language){
+        if (language) {
             Image(
                 modifier = Modifier
                     .width(20.dp)
@@ -604,7 +611,7 @@ fun ProfileColumnItem(
                     .clip(CircleShape),
                 imageVector = imageVector, contentDescription = null,
             )
-        }else{
+        } else {
             Image(
                 modifier = Modifier
                     .width(20.dp)
@@ -619,7 +626,8 @@ fun ProfileColumnItem(
         Spacer(modifier = Modifier.weight(1f))
         ProductTitle(title = desc)
         Spacer(modifier = Modifier.width(MaterialTheme.spacing.dimen12Dp))
-        Image(imageVector = Icons.Filled.KeyboardArrowRight, contentDescription = null,
+        Image(
+            imageVector = Icons.Filled.KeyboardArrowRight, contentDescription = null,
             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
 
         )
