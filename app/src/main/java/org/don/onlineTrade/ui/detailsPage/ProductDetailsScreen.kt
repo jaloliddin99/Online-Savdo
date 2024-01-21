@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -23,7 +22,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddLocation
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Delete
@@ -64,6 +62,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.showProducts.Data
 import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsModel
+import org.don.onlineTrade.data.remote.models.showProducts.PostParam
 import org.don.onlineTrade.ui.add.ProductTitle
 import org.don.onlineTrade.ui.add.TextBold
 import org.don.onlineTrade.ui.add.TextThin
@@ -71,14 +70,12 @@ import org.don.onlineTrade.ui.home.HomeViewModel
 import org.don.onlineTrade.ui.home.PresentProductState
 import org.don.onlineTrade.ui.home.ProductItemForDetailsPage
 import org.don.onlineTrade.ui.home.ScreenState
-import org.don.onlineTrade.ui.home.getCurrency
 import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.FreeLoading
 import org.don.onlineTrade.utils.SharedPref
 import org.don.onlineTrade.utils.callTo
 import org.don.onlineTrade.utils.openSmsApp
-import kotlin.io.path.fileVisitor
 
 
 @Composable
@@ -344,6 +341,7 @@ fun ItemDescription(
     state: PresentProductState,
     onLikeClicked: (Int) -> Unit
 ) {
+    val data = state.registerMain?.data
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -358,9 +356,11 @@ fun ItemDescription(
             modifier = Modifier
                 .padding(vertical = MaterialTheme.spacing.dimen10Dp)
         )
-        val region = state.registerMain?.data?.region?.name
-        val district = state.registerMain?.data?.district?.name
-        DescriptionItems(desc = "$region, $district")
+        val region = data?.region?.name
+        val district = data?.district?.name
+        val  address = if (region != null && district != null) "$region, $district"
+        else if (data?.addressName != null) data.addressName else ""
+        DescriptionItems(desc = address)
         Divider(
             modifier = Modifier
                 .padding(vertical = MaterialTheme.spacing.dimen10Dp)
@@ -379,6 +379,9 @@ fun ProductDescription(
     item: PostDetailsModel?,
     onLikeClicked: (Int) -> Unit
 ) {
+    val data = item?.data
+    val category = data?.category
+    val params = category?.post_param
     Column {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -388,17 +391,19 @@ fun ProductDescription(
             Column(
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
-                ProductTitle(title = item?.data?.title ?: "")
-                TextBold(title = "${item?.data?.price} ${getCurrency(currencyId = item?.data?.currency_id ?: 0)}")
+                ProductTitle(title = data?.title ?: "")
+                PriceWrapper(params){
+                    TextBold(title = it)
+                }
             }
 
             IconButton(onClick = {
-                item?.data?.id?.let {
+                data?.id?.let {
                     onLikeClicked(it)
                 }
             }) {
 
-                if (item?.data?.isLiked == true) {
+                if (data?.isLiked == true) {
                     Image(
                         painter = painterResource(id = R.drawable.ph_heart_fill),
                         contentDescription = null
@@ -412,7 +417,23 @@ fun ProductDescription(
             }
         }
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
-        TextThin(title = item?.data?.description ?: "")
+        TextThin(title = data?.description ?: "")
+    }
+}
+
+@Composable
+fun PriceWrapper(
+    params: List<PostParam>?,
+    content: @Composable (label:String) -> Unit
+) {
+    params?.let {param ->
+        val singleParam = param.find { it.code == "price" }
+        singleParam?.let {
+            if (it.post_value.isNotEmpty()){
+                val label = it.post_value[0].label
+                content(label)
+            }
+        }
     }
 }
 
@@ -462,7 +483,7 @@ fun ContactDetails(
         DescriptionItems(
             imageVector = Icons.Filled.Person,
             title = stringResource(id = R.string.name),
-            desc = "${state?.data?.user?.lastName} ${state?.data?.user?.firstName}"
+            desc = "${state?.data?.user?.name}"
         )
         Divider(
             modifier = Modifier

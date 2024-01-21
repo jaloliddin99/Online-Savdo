@@ -254,13 +254,3 @@ fun ProductItemDetails(
         }
     }
 }
-
-@Composable
-fun getCurrency(currencyId: Int): String {
-    return when (currencyId) {
-        1 -> stringResource(id = R.string.sum)
-        2 -> stringResource(id = R.string.usd)
-        3 -> stringResource(id = R.string.ruble)
-        else -> stringResource(id = R.string.sum)
-    }
-}

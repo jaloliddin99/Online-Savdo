@@ -1,6 +1,7 @@
 package org.don.onlineTrade.data.remote.models.showProducts
 
-data class Region(
+data class PostValue(
     val id: Int,
-    val name: String
+    val key: String,
+    val label: String
 )

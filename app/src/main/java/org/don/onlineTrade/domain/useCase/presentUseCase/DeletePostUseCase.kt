@@ -3,10 +3,8 @@ package org.don.onlineTrade.domain.useCase.presentUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import org.don.onlineTrade.data.remote.models.ModelSuccess
-import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsModel
 import org.don.onlineTrade.domain.repository.NetworkRepository
 import org.don.onlineTrade.domain.state.Resource
-import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
 
