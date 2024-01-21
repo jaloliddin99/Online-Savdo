@@ -31,9 +31,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
+import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.spacing
 
 
@@ -103,7 +105,6 @@ fun ImagesDisplayView(
             .width(80.dp)
             .fillMaxHeight()
     ) {
-        Log.d("TAG", "ImagesDisplayViewdwadawdawdwa $imageUrl")
         AsyncImage(
             model = imageUrl.uri, contentDescription = null,
             modifier = Modifier
@@ -126,20 +127,12 @@ fun ImagesDisplayView(
 
 
 @Composable
-fun ProductTitle(@StringRes title: Int) {
-    Text(
-        text = stringResource(id = title),
-        fontWeight = FontWeight.Medium,
-        style = MaterialTheme.typography.titleSmall
-    )
-}
-
-@Composable
 fun ProductTitle(title: String) {
     Text(
         text = title,
-        fontWeight = FontWeight.Medium,
-        style = MaterialTheme.typography.titleSmall
+        fontWeight = FontWeight.Normal,
+        fontFamily = robotoFontFamily,
+        fontSize = MaterialTheme.spacing.dimen16Sp
     )
 }
 
@@ -148,7 +141,8 @@ fun TextThin(title: String) {
     Text(
         text = title,
         fontWeight = FontWeight.Light,
-        style = MaterialTheme.typography.titleSmall
+        fontFamily = robotoFontFamily,
+        fontSize = 14.sp
     )
 }
 
@@ -158,10 +152,10 @@ fun TextBold(
     modifier: Modifier = Modifier
 ) {
     Text(
-        modifier = modifier,
         text = title,
         fontWeight = FontWeight.SemiBold,
-        style = MaterialTheme.typography.titleMedium
+        fontFamily = robotoFontFamily,
+        fontSize = MaterialTheme.spacing.dimen16Sp
     )
 }
 

@@ -148,16 +148,13 @@ fun ProductDetailsScreen(
         }
     }
     val isFeedLoading = state.isLoading
+    val data = state.registerMain?.data
 
     val pagerState = rememberPagerState(pageCount = {
         state.registerMain?.data?.images?.size ?: 0
     })
 
     val context = LocalContext.current
-    var loadedData by remember {
-        mutableStateOf(PresentProductState())
-    }
-    loadedData = state
     val scrollState = rememberLazyGridState()
     var showDeleteDialog by rememberSaveable {
         mutableStateOf(false)
@@ -187,20 +184,16 @@ fun ProductDetailsScreen(
                     rememberScrollState()
                 )
         ) {
-            ImagePager(loadedData, pagerState)
-            ItemDescription(loadedData)
-
+            ImagePager(state, pagerState)
+            ItemDescription(data)
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
-            ContactDetails(loadedData.registerMain)
-
+            ContactDetails(data)
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
             TextBold(
                 title = stringResource(id = R.string.similar_items),
                 modifier = Modifier
                     .padding(start = MaterialTheme.spacing.dimen16Dp)
             )
-
-
             LazyRow(modifier = Modifier.wrapContentHeight()) {
                 items(count = mPagerState.items.size) { i ->
                     val item = mPagerState.items[i]
@@ -222,7 +215,6 @@ fun ProductDetailsScreen(
             Spacer(modifier = modifier.height(24.dp))
             Spacer(modifier = Modifier.weight(1f))
         }
-        val data = state.registerMain?.data
         OptionsScreen(
             modifier = Modifier
                 .constrainAs(optionsScreen) {
@@ -360,9 +352,8 @@ fun CircularImage(
 
 @Composable
 fun ItemDescription(
-    state: PresentProductState,
+    data: Data?,
 ) {
-    val data = state.registerMain?.data
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -372,7 +363,7 @@ fun ItemDescription(
                 horizontal = MaterialTheme.spacing.dimen16Dp
             ),
     ) {
-        ProductDescription(state.registerMain)
+        ProductDescription(data)
         Divider(
             modifier = Modifier
                 .padding(vertical = MaterialTheme.spacing.dimen10Dp)
@@ -389,7 +380,7 @@ fun ItemDescription(
         DescriptionItems(
             imageVector = Icons.Filled.Category,
             title = stringResource(id = R.string.category),
-            desc = state.registerMain?.data?.category?.title ?: ""
+            desc = data?.category?.title ?: ""
         )
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
     }
@@ -397,9 +388,8 @@ fun ItemDescription(
 
 @Composable
 fun ProductDescription(
-    item: PostDetailsModel?,
+    data: Data?,
 ) {
-    val data = item?.data
     val category = data?.category
     val params = category?.post_param
     Column {
@@ -412,11 +402,10 @@ fun ProductDescription(
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
                 ProductTitle(title = data?.title ?: "")
-                PriceWrapper(params) {
-                    TextBold(title = it)
+                PriceWrapper(params) { label, unit ->
+                    TextBold(title = "$label $unit")
                 }
             }
-
         }
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
         TextThin(title = data?.description ?: "")
@@ -426,14 +415,15 @@ fun ProductDescription(
 @Composable
 fun PriceWrapper(
     params: List<PostParam>?,
-    content: @Composable (label: String) -> Unit
+    content: @Composable (label: String, unit: String) -> Unit
 ) {
     params?.let { param ->
         val singleParam = param.find { it.code == "price" }
         singleParam?.let {
             if (it.post_value.isNotEmpty()) {
                 val label = it.post_value[0].label
-                content(label)
+                val unit = it.param_unit?.label?:""
+                content(label, unit)
             }
         }
     }
@@ -469,7 +459,7 @@ fun DescriptionItems(
 
 @Composable
 fun ContactDetails(
-    state: PostDetailsModel?
+    data: Data?
 ) {
     Column(
         modifier = Modifier
@@ -485,7 +475,7 @@ fun ContactDetails(
         DescriptionItems(
             imageVector = Icons.Filled.Person,
             title = stringResource(id = R.string.name),
-            desc = "${state?.data?.user?.name}"
+            desc = "${data?.user?.name}"
         )
         Divider(
             modifier = Modifier
@@ -494,7 +484,7 @@ fun ContactDetails(
         DescriptionItems(
             imageVector = Icons.Filled.Phone,
             title = stringResource(id = R.string.name),
-            desc = state?.data?.user?.phoneNumber ?: ""
+            desc = data?.user?.phoneNumber ?: ""
         )
 
 
