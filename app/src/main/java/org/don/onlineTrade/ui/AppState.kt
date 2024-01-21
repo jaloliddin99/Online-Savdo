@@ -10,7 +10,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
 import org.don.onlineTrade.ui.navigation.categoriesNavigationRoute
-import org.don.onlineTrade.ui.navigation.chatNavigationRoute
+import org.don.onlineTrade.ui.navigation.addNavigationRoute
 import org.don.onlineTrade.ui.navigation.districtsNavigationRoute
 import org.don.onlineTrade.ui.navigation.filterCategoryNavigationRoute
 import org.don.onlineTrade.ui.navigation.homeNavigationRoute
@@ -53,7 +53,7 @@ class ApplicationState(
     val currentTopLevelDestination: NavItems?
         @Composable get() = when (currentDestination?.route) {
             homeNavigationRoute -> NavItems.Home
-            chatNavigationRoute -> NavItems.AddProduct
+            addNavigationRoute -> NavItems.AddProduct
             savedNavigationRoute -> NavItems.Saved
             profileNavigationRoute -> NavItems.Profile
             categoriesNavigationRoute -> NavItems.Categories
@@ -62,7 +62,7 @@ class ApplicationState(
             districtsNavigationRoute -> NavItems.District
             profileUpdateNavigationRoute -> NavItems.ProfileUpdate
             passwordUpdateNavigationRoute -> NavItems.PasswordUpdate
-            pDetailsNavigationRoute -> NavItems.ProductDetails
+            //pDetailsNavigationRoute -> NavItems.ProductDetails
             notificationsNavigationRoute -> NavItems.Notifications
             filterCategoryNavigationRoute -> NavItems.FilterCategories
             else -> null

@@ -8,9 +8,9 @@ import org.don.onlineTrade.data.remote.models.category.CategoryItem
 import org.don.onlineTrade.ui.map.MapScreenData
 import org.don.onlineTrade.ui.add.AddProductRoute
 
-const val chatNavigationRoute = "add"
+const val addNavigationRoute = "add"
 fun NavController.navigateToPosts(navOptions: NavOptions? = null) {
-    this.navigate(chatNavigationRoute, navOptions)
+    this.navigate(addNavigationRoute, navOptions)
 
 
 }
@@ -21,7 +21,7 @@ fun NavGraphBuilder.addProductScreen(
     goToMapScreen: () -> Unit
 ) {
     composable(
-        route = chatNavigationRoute
+        route = addNavigationRoute
     ) { entry ->
         val item = entry.savedStateHandle.get<CategoryItem>("category_item")
         val map = entry.savedStateHandle.get<MapScreenData>("map_item")

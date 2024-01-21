@@ -114,10 +114,6 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.2")
 
     implementation("com.karumi:dexter:6.2.3")
-
-//    implementation("androidx.paging:paging-runtime-ktx:3.2.1")
-//    implementation("androidx.paging:paging-compose:3.2.1")
-
     implementation("io.coil-kt:coil-compose:2.4.0")
 
     implementation("id.zelory:compressor:3.0.1")
@@ -127,6 +123,9 @@ dependencies {
     implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("com.google.maps.android:maps-compose:4.3.0")
     implementation("com.google.android.gms:play-services-maps:18.2.0")
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.30.1")
+
+
 
 
 

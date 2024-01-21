@@ -4,6 +4,7 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -38,6 +39,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -48,6 +50,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -59,6 +62,7 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.showProducts.Data
 import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsModel
@@ -133,6 +137,16 @@ fun ProductDetailsScreen(
     onDeleteClicked: (Int) -> Unit,
     onEditClicked: (Int) -> Unit
 ) {
+
+    val systemUiController = rememberSystemUiController()
+    val isDarkMode = isSystemInDarkTheme()
+
+    DisposableEffect(key1 = true) {
+        systemUiController.setStatusBarColor(Color.Transparent, darkIcons = false)
+        onDispose {
+            systemUiController.setStatusBarColor(Color.Transparent, darkIcons = !isDarkMode)
+        }
+    }
     val isFeedLoading = state.isLoading
 
     val pagerState = rememberPagerState(pageCount = {
@@ -158,7 +172,6 @@ fun ProductDetailsScreen(
             .fillMaxSize()
     ) {
         val (column, optionsScreen) = createRefs()
-
         Column(
             modifier = modifier
                 .fillMaxWidth()
@@ -175,7 +188,6 @@ fun ProductDetailsScreen(
                 )
         ) {
             ImagePager(loadedData, pagerState)
-
             ItemDescription(loadedData, onLikeClicked = onItemClicked)
 
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
@@ -231,6 +243,9 @@ fun ProductDetailsScreen(
             },
             data = user
         )
+        TopShadow()
+
+        DetailsToolbar(onBackClick = {})
     }
     FreeLoading(isFeedLoading = isFeedLoading)
 
@@ -299,6 +314,7 @@ fun OptionsScreen(
         )
     }
 }
+
 
 
 @Composable
@@ -463,6 +479,9 @@ fun DescriptionItems(
         Image(imageVector = Icons.Filled.KeyboardArrowRight, contentDescription = null)
     }
 }
+
+
+
 
 
 @Composable
