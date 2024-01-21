@@ -10,14 +10,10 @@ import org.don.onlineTrade.ui.detailsPage.ProductDetailsRoute
 
 
 const val pDetailsNavigationRoute = "productDetails/{param}"
-fun NavController.navigateToPresent(navOptions: NavOptions? = null) {
-    this.navigate(pDetailsNavigationRoute, navOptions)
-}
-
 fun NavGraphBuilder.productDetailsScreen(
     onSimilarItemClicked: (Int) -> Unit,
     onEditClicked: (Int) -> Unit,
-    navigateBack: () -> Unit
+    navigateBack: () -> Unit,
 ) {
     composable(
         route = pDetailsNavigationRoute,
@@ -33,7 +29,7 @@ fun NavGraphBuilder.productDetailsScreen(
             param ?: 0,
             onSimilarItemClicked = onSimilarItemClicked,
             onEditClicked,
-            navigateBack
+            navigateBack,
         )
     }
 }

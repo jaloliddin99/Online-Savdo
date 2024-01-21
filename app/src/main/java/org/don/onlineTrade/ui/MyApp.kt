@@ -315,7 +315,7 @@ fun NavigationGraph(
                 navController.navigate("productDetails/$it")
             },
             onEditClicked = {},
-            navigateBack = navController::popBackStack
+            navigateBack = navController::popBackStack,
         )
         filterCategoryScreen(
             onItemClicked = {

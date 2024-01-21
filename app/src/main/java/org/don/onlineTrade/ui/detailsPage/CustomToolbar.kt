@@ -1,5 +1,6 @@
 package org.don.onlineTrade.ui.detailsPage
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -23,14 +24,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import org.don.onlineTrade.R
+import org.don.onlineTrade.data.remote.models.showProducts.Data
 import org.don.onlineTrade.ui.theme.spacing
 
 
 @Composable
 fun DetailsToolbar(
     modifier: Modifier = Modifier,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onLikeClicked: (Int) -> Unit,
+    data: Data?
 ) {
     val paddingValues = WindowInsets.systemBars.asPaddingValues()
     Row(
@@ -49,12 +55,22 @@ fun DetailsToolbar(
             )
         }
         Spacer(modifier = modifier.weight(1f))
-        IconButton(onClick = onBackClick) {
-            Icon(
-                imageVector = Icons.Default.Call,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimary
-            )
+        IconButton(onClick = {
+            data?.id?.let {
+                onLikeClicked(it)
+            }
+        }) {
+            if (data?.isLiked == true) {
+                Image(
+                    painter = painterResource(id = R.drawable.ph_heart_fill),
+                    contentDescription = null
+                )
+            } else {
+                Image(
+                    painter = painterResource(id = R.drawable.solar_heart_outline),
+                    contentDescription = null
+                )
+            }
         }
         Spacer(modifier = modifier.width(MaterialTheme.spacing.dimen6Dp))
         IconButton(onClick = onBackClick) {

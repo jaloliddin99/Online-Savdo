@@ -35,7 +35,6 @@ import androidx.compose.material.icons.filled.Sms
 import androidx.compose.material3.Divider
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -54,7 +53,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -87,7 +85,7 @@ fun ProductDetailsRoute(
     productId: Int,
     onSimilarItemClicked: (Int) -> Unit,
     onEditClicked: (Int) -> Unit,
-    navigateBack: () -> Unit
+    navigateBack: () -> Unit,
 ) {
     val detailsViewModel = hiltViewModel<PresentViewModel>()
     val homeViewMode = hiltViewModel<HomeViewModel>()
@@ -121,7 +119,8 @@ fun ProductDetailsRoute(
         onDeleteClicked = {
             detailsViewModel.deletePost(it)
         },
-        onEditClicked = onEditClicked
+        onEditClicked = onEditClicked,
+        onBackPressed = navigateBack
     )
 }
 
@@ -135,7 +134,8 @@ fun ProductDetailsScreen(
     onItemClicked: (Int) -> Unit,
     loadItems: () -> Unit,
     onDeleteClicked: (Int) -> Unit,
-    onEditClicked: (Int) -> Unit
+    onEditClicked: (Int) -> Unit,
+    onBackPressed: () -> Unit
 ) {
 
     val systemUiController = rememberSystemUiController()
@@ -188,7 +188,7 @@ fun ProductDetailsScreen(
                 )
         ) {
             ImagePager(loadedData, pagerState)
-            ItemDescription(loadedData, onLikeClicked = onItemClicked)
+            ItemDescription(loadedData)
 
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
             ContactDetails(loadedData.registerMain)
@@ -222,7 +222,7 @@ fun ProductDetailsScreen(
             Spacer(modifier = modifier.height(24.dp))
             Spacer(modifier = Modifier.weight(1f))
         }
-        val user = state.registerMain?.data
+        val data = state.registerMain?.data
         OptionsScreen(
             modifier = Modifier
                 .constrainAs(optionsScreen) {
@@ -236,18 +236,25 @@ fun ProductDetailsScreen(
             },
             onEditClicked = onEditClicked,
             onCallClicked = {
-                callTo((user?.user?.phoneNumber ?: ""), context)
+                callTo((data?.user?.phoneNumber ?: ""), context)
             },
             onSmsClicked = {
-                openSmsApp(context, (user?.user?.phoneNumber ?: ""))
+                openSmsApp(context, (data?.user?.phoneNumber ?: ""))
             },
-            data = user
+            data = data
         )
         TopShadow()
 
-        DetailsToolbar(onBackClick = {})
+        DetailsToolbar(
+            onBackClick = onBackPressed,
+            onLikeClicked = onItemClicked,
+            data = data
+        )
     }
-    FreeLoading(isFeedLoading = isFeedLoading)
+    FreeLoading(
+        isFeedLoading = isFeedLoading,
+        paddingTop = MaterialTheme.spacing.dimen56Dp
+    )
 
     if (showDeleteDialog) {
         DeletePostAlert(
@@ -316,7 +323,6 @@ fun OptionsScreen(
 }
 
 
-
 @Composable
 fun CircularImage(
     modifier: Modifier = Modifier,
@@ -355,7 +361,6 @@ fun CircularImage(
 @Composable
 fun ItemDescription(
     state: PresentProductState,
-    onLikeClicked: (Int) -> Unit
 ) {
     val data = state.registerMain?.data
     Column(
@@ -367,14 +372,14 @@ fun ItemDescription(
                 horizontal = MaterialTheme.spacing.dimen16Dp
             ),
     ) {
-        ProductDescription(state.registerMain, onLikeClicked)
+        ProductDescription(state.registerMain)
         Divider(
             modifier = Modifier
                 .padding(vertical = MaterialTheme.spacing.dimen10Dp)
         )
         val region = data?.region?.name
         val district = data?.district?.name
-        val  address = if (region != null && district != null) "$region, $district"
+        val address = if (region != null && district != null) "$region, $district"
         else if (data?.addressName != null) data.addressName else ""
         DescriptionItems(desc = address)
         Divider(
@@ -393,7 +398,6 @@ fun ItemDescription(
 @Composable
 fun ProductDescription(
     item: PostDetailsModel?,
-    onLikeClicked: (Int) -> Unit
 ) {
     val data = item?.data
     val category = data?.category
@@ -408,29 +412,11 @@ fun ProductDescription(
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
                 ProductTitle(title = data?.title ?: "")
-                PriceWrapper(params){
+                PriceWrapper(params) {
                     TextBold(title = it)
                 }
             }
 
-            IconButton(onClick = {
-                data?.id?.let {
-                    onLikeClicked(it)
-                }
-            }) {
-
-                if (data?.isLiked == true) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ph_heart_fill),
-                        contentDescription = null
-                    )
-                } else {
-                    Image(
-                        painter = painterResource(id = R.drawable.solar_heart_outline),
-                        contentDescription = null
-                    )
-                }
-            }
         }
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
         TextThin(title = data?.description ?: "")
@@ -440,12 +426,12 @@ fun ProductDescription(
 @Composable
 fun PriceWrapper(
     params: List<PostParam>?,
-    content: @Composable (label:String) -> Unit
+    content: @Composable (label: String) -> Unit
 ) {
-    params?.let {param ->
+    params?.let { param ->
         val singleParam = param.find { it.code == "price" }
         singleParam?.let {
-            if (it.post_value.isNotEmpty()){
+            if (it.post_value.isNotEmpty()) {
                 val label = it.post_value[0].label
                 content(label)
             }
@@ -479,9 +465,6 @@ fun DescriptionItems(
         Image(imageVector = Icons.Filled.KeyboardArrowRight, contentDescription = null)
     }
 }
-
-
-
 
 
 @Composable

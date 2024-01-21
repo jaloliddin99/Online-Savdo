@@ -27,6 +27,7 @@ data class Spacing(
     val dimen80Dp: Dp = 80.dp,
     val dimen100Dp: Dp = 100.dp,
     val dimen120Dp: Dp = 120.dp,
+    val dimen56Dp: Dp = 56.dp,
 
 
     val dimen0Sp: TextUnit = 0.sp,
