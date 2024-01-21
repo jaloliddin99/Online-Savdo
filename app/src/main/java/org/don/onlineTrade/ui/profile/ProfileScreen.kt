@@ -1,8 +1,6 @@
 package org.don.onlineTrade.ui.profile
 
-import android.content.Intent
 import android.net.Uri
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -23,12 +21,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddToPhotos
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.EditNotifications
 import androidx.compose.material.icons.filled.Help
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Logout
@@ -39,7 +35,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.RadioButton
@@ -57,34 +52,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import kotlinx.coroutines.launch
-import org.don.onlineTrade.MainActivity
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.getProfile.User
 import org.don.onlineTrade.ui.add.DialogCameraOrGallery
 import org.don.onlineTrade.ui.add.ImageUrl
-import org.don.onlineTrade.ui.add.ProductTitle
-import org.don.onlineTrade.ui.add.TextBold
+import org.don.onlineTrade.ui.add.TextNormal16
+import org.don.onlineTrade.ui.add.TextBold16
 import org.don.onlineTrade.ui.add.TextThin
-import org.don.onlineTrade.ui.add.toImageUrl
-import org.don.onlineTrade.ui.dialogs.settings.SettingsDialog
-import org.don.onlineTrade.ui.dialogs.settings.UserEditableSettings
 import org.don.onlineTrade.ui.home.GetProfileState
 import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.spacing
@@ -208,8 +196,8 @@ fun ProfileScreen(
 
             if (state.getProfile != null) {
                 val user = state.getProfile.data
-                TextBold(title = user.name)
-                user.phoneNumber?.let { ProductTitle(title = it) }
+                TextBold16(title = user.name)
+                user.phoneNumber?.let { TextNormal16(title = it) }
             }
 
             Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen24Dp))
@@ -624,7 +612,7 @@ fun ProfileColumnItem(
         Spacer(modifier = Modifier.width(MaterialTheme.spacing.dimen12Dp))
         TextThin(title = title)
         Spacer(modifier = Modifier.weight(1f))
-        ProductTitle(title = desc)
+        TextNormal16(title = desc)
         Spacer(modifier = Modifier.width(MaterialTheme.spacing.dimen12Dp))
         Image(
             imageVector = Icons.Filled.KeyboardArrowRight, contentDescription = null,

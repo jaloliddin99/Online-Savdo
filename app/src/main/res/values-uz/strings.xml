@@ -110,4 +110,11 @@
     <string name="upload">Yuklash</string>
     <string name="select_currency">Valyuta turini tanlang</string>
     <string name="status">Holati*</string>
+
+    <string name="select">Tanlash</string>
+    <string name="enter_address">Manzilni kiriting</string>
+    <string name="enter_your_address">Manzilni kiriting*</string>
+    <string name="use_gps">GPSdan foydalanish</string>
+    <string name="select_this_location">Bu joyni tanlang</string>
+    <string name="characteristics">Xususiyatlari</string>
 </resources>

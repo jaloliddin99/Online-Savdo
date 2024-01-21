@@ -43,7 +43,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -63,10 +62,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.showProducts.Data
-import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsModel
 import org.don.onlineTrade.data.remote.models.showProducts.PostParam
-import org.don.onlineTrade.ui.add.ProductTitle
-import org.don.onlineTrade.ui.add.TextBold
+import org.don.onlineTrade.ui.add.TextNormal16
+import org.don.onlineTrade.ui.add.TextBold16
 import org.don.onlineTrade.ui.add.TextThin
 import org.don.onlineTrade.ui.home.HomeViewModel
 import org.don.onlineTrade.ui.home.PresentProductState
@@ -189,10 +187,8 @@ fun ProductDetailsScreen(
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
             ContactDetails(data)
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
-            TextBold(
+            TextBold16(
                 title = stringResource(id = R.string.similar_items),
-                modifier = Modifier
-                    .padding(start = MaterialTheme.spacing.dimen16Dp)
             )
             LazyRow(modifier = Modifier.wrapContentHeight()) {
                 items(count = mPagerState.items.size) { i ->
@@ -393,19 +389,12 @@ fun ProductDescription(
     val category = data?.category
     val params = category?.post_param
     Column {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(
-                verticalArrangement = Arrangement.SpaceEvenly
-            ) {
-                ProductTitle(title = data?.title ?: "")
-                PriceWrapper(params) { label, unit ->
-                    TextBold(title = "$label $unit")
-                }
-            }
+        TextNormal16(title = data?.title ?: "")
+        PriceWrapper(params) { label, unit ->
+            TextBold16(title = "$label $unit")
+        }
+        if (data != null) {
+            PostParams(data)
         }
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
         TextThin(title = data?.description ?: "")
@@ -449,7 +438,7 @@ fun DescriptionItems(
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
             TextThin(title = title)
-            ProductTitle(title = desc)
+            TextNormal16(title = desc)
         }
         Spacer(modifier = Modifier.weight(1f))
         Image(imageVector = Icons.Filled.KeyboardArrowRight, contentDescription = null)
@@ -470,7 +459,7 @@ fun ContactDetails(
                 horizontal = MaterialTheme.spacing.dimen16Dp
             )
     ) {
-        TextBold(title = stringResource(id = R.string.contact_details))
+        TextBold16(title = stringResource(id = R.string.contact_details))
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
         DescriptionItems(
             imageVector = Icons.Filled.Person,
