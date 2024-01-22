@@ -1,22 +1,29 @@
 package org.don.onlineTrade.ui.detailsPage
 
+import android.util.Log
 import androidx.annotation.StringRes
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -43,6 +50,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -51,20 +59,20 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.showProducts.Data
 import org.don.onlineTrade.data.remote.models.showProducts.PostParam
-import org.don.onlineTrade.ui.add.TextNormal16
 import org.don.onlineTrade.ui.add.TextBold16
+import org.don.onlineTrade.ui.add.TextNormal16
 import org.don.onlineTrade.ui.add.TextThin
 import org.don.onlineTrade.ui.home.HomeViewModel
 import org.don.onlineTrade.ui.home.PresentProductState
@@ -135,7 +143,7 @@ fun ProductDetailsScreen(
     onEditClicked: (Int) -> Unit,
     onBackPressed: () -> Unit
 ) {
-
+    val paddingValues = WindowInsets.systemBars.asPaddingValues()
     val systemUiController = rememberSystemUiController()
     val isDarkMode = isSystemInDarkTheme()
 
@@ -152,8 +160,11 @@ fun ProductDetailsScreen(
         state.registerMain?.data?.images?.size ?: 0
     })
 
+    var lastScrollPosition by remember { mutableIntStateOf(0) }
+    val scrollState = rememberScrollState()
+    var isBottomViewVisible by remember { mutableStateOf(true) }
+
     val context = LocalContext.current
-    val scrollState = rememberLazyGridState()
     var showDeleteDialog by rememberSaveable {
         mutableStateOf(false)
     }
@@ -162,26 +173,38 @@ fun ProductDetailsScreen(
     }
 
 
-    ConstraintLayout(
+    Box(
         modifier = modifier
-            .fillMaxSize()
+            .padding(bottom = paddingValues.calculateBottomPadding())
+            .fillMaxSize(),
+        contentAlignment = Alignment.BottomCenter
+
     ) {
-        val (column, optionsScreen) = createRefs()
         Column(
             modifier = modifier
-                .fillMaxWidth()
-                .constrainAs(column) {
-                    top.linkTo(parent.top)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                    bottom.linkTo(optionsScreen.top)
-                    width = Dimension.fillToConstraints
-                    height = Dimension.fillToConstraints
-                }
-                .verticalScroll(
-                    rememberScrollState()
-                )
+                .fillMaxSize()
+                .verticalScroll(state = scrollState)
+
         ) {
+
+            val currentScrollPosition = scrollState.value
+            if (currentScrollPosition > lastScrollPosition) {
+                if (isBottomViewVisible){
+                    Log.d("tag", "ProductDetailsScreendawdawdawd1 $isBottomViewVisible")
+                    isBottomViewVisible = false
+                    Log.d("tag", "ProductDetailsScreendawdawdawd2 $isBottomViewVisible")
+
+                }
+            } else {
+                if (!isBottomViewVisible){
+                    Log.d("tag", "ProductDetailsScreendawdawdawd3 $isBottomViewVisible")
+                    isBottomViewVisible = true
+                    Log.d("tag", "ProductDetailsScreendawdawdawd4 $isBottomViewVisible")
+
+                }
+            }
+            lastScrollPosition = currentScrollPosition
+
             ImagePager(state, pagerState)
             ItemDescription(data)
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
@@ -209,15 +232,20 @@ fun ProductDetailsScreen(
             }
 
             Spacer(modifier = modifier.height(24.dp))
-            Spacer(modifier = Modifier.weight(1f))
         }
+
+        TopShadow(modifier = Modifier.align(Alignment.TopCenter))
+
+        DetailsToolbar(
+            modifier = Modifier.align(Alignment.TopCenter),
+            onBackClick = onBackPressed,
+            onLikeClicked = onItemClicked,
+            data = data
+        )
         OptionsScreen(
             modifier = Modifier
-                .constrainAs(optionsScreen) {
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                    bottom.linkTo(parent.bottom)
-                },
+                .offset(y = with(LocalDensity.current) { if (isBottomViewVisible) 0.dp else 150.dp })
+                .animateContentSize(),
             onDeleteClicked = {
                 showDeleteDialog = true
                 deletePostId = it
@@ -229,13 +257,6 @@ fun ProductDetailsScreen(
             onSmsClicked = {
                 openSmsApp(context, (data?.user?.phoneNumber ?: ""))
             },
-            data = data
-        )
-        TopShadow()
-
-        DetailsToolbar(
-            onBackClick = onBackPressed,
-            onLikeClicked = onItemClicked,
             data = data
         )
     }
@@ -258,7 +279,6 @@ fun ProductDetailsScreen(
 
 }
 
-
 @Composable
 fun OptionsScreen(
     modifier: Modifier,
@@ -268,16 +288,18 @@ fun OptionsScreen(
     onSmsClicked: () -> Unit,
     data: Data?
 ) {
+
+
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .height(150.dp)
+            .wrapContentHeight()
             .shadow(elevation = 6.dp)
             .background(
                 color = MaterialTheme.colorScheme.onPrimary,
                 shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
             )
-            .padding(top = 16.dp, start = 16.dp, end = 16.dp),
+            .padding(top = 8.dp, start = 16.dp, end = 16.dp, bottom = 8.dp),
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.Top
     ) {
@@ -332,7 +354,7 @@ fun CircularImage(
             Icon(imageVector = icon, contentDescription = null)
         }
 
-        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
+        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen4Dp))
 
         Text(
             text = stringResource(id = title),
@@ -411,7 +433,7 @@ fun PriceWrapper(
         singleParam?.let {
             if (it.post_value.isNotEmpty()) {
                 val label = it.post_value[0].label
-                val unit = it.param_unit?.label?:""
+                val unit = it.param_unit?.label ?: ""
                 content(label, unit)
             }
         }

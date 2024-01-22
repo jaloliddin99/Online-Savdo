@@ -85,14 +85,16 @@ fun DetailsToolbar(
 }
 
 @Composable
-fun TopShadow() {
+fun TopShadow(
+    modifier: Modifier
+) {
     val black = Color.Black.copy(alpha = 0.5f)
     val transparentBlack = Color.Black.copy(alpha = 0f)
 
     val gradientColors = listOf(black, transparentBlack)
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(120.dp)
             .background(
