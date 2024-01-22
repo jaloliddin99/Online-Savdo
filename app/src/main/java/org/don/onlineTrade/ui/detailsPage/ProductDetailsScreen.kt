@@ -1,12 +1,14 @@
 package org.don.onlineTrade.ui.detailsPage
 
+import android.util.Log
 import androidx.annotation.StringRes
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,11 +17,14 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -46,6 +51,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -54,16 +60,21 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.showProducts.Data
 import org.don.onlineTrade.data.remote.models.showProducts.PostParam
+import org.don.onlineTrade.ui.add.TextNormal16
 import org.don.onlineTrade.ui.add.TextBold16
 import org.don.onlineTrade.ui.add.TextNormal16
 import org.don.onlineTrade.ui.add.TextThin
@@ -136,7 +147,7 @@ fun ProductDetailsScreen(
     onEditClicked: (Int) -> Unit,
     onBackPressed: () -> Unit
 ) {
-    val paddingValues = WindowInsets.systemBars.asPaddingValues()
+
     val systemUiController = rememberSystemUiController()
     val isDarkMode = isSystemInDarkTheme()
 
@@ -153,9 +164,8 @@ fun ProductDetailsScreen(
         state.registerMain?.data?.images?.size ?: 0
     })
 
-    val scrollState = rememberScrollState()
-
     val context = LocalContext.current
+    val scrollState = rememberLazyGridState()
     var showDeleteDialog by rememberSaveable {
         mutableStateOf(false)
     }
@@ -164,57 +174,60 @@ fun ProductDetailsScreen(
     }
 
 
-    Box(
+    ConstraintLayout(
         modifier = modifier
-            .padding(bottom = paddingValues.calculateBottomPadding())
-            .fillMaxSize(),
-        contentAlignment = Alignment.BottomCenter
-
+            .fillMaxSize()
     ) {
-        Column(
+        val (column, optionsScreen) = createRefs()
+        LazyColumn(
             modifier = modifier
-                .fillMaxSize()
-                .verticalScroll(state = scrollState)
+                .constrainAs(column) {
+                    top.linkTo(parent.top)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                    bottom.linkTo(optionsScreen.top)
+                }
+
 
         ) {
-            ImagePager(state, pagerState)
-            ItemDescription(data)
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
-            ContactDetails(data)
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
-            TextBold16(
-                title = stringResource(id = R.string.similar_items),
-            )
-            LazyRow(modifier = Modifier.wrapContentHeight()) {
-                items(count = mPagerState.items.size) { i ->
-                    val item = mPagerState.items[i]
-                    LaunchedEffect(scrollState) {
-                        if (i >= mPagerState.items.size - 1 && !mPagerState.endReached && !mPagerState.isLoading) {
-                            loadItems.invoke()
-                        }
-                    }
-                    ProductItemForDetailsPage(
-                        data = item,
-                        onItemClicked = onItemClicked
-                    )
-                    if (mPagerState.items.lastIndex == i) {
-                        Spacer(modifier = modifier.width(16.dp))
-                    }
-                }
-            }
+           item {
+               ImagePager(state, pagerState)
+               ItemDescription(data)
+               Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
+               ContactDetails(data)
+               Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
+               TextBold16(
+                   title = stringResource(id = R.string.similar_items),
+               )
+               LazyRow(modifier = Modifier.wrapContentHeight()) {
+                   items(count = mPagerState.items.size) { i ->
+                       val item = mPagerState.items[i]
+                       LaunchedEffect(scrollState) {
+                           if (i >= mPagerState.items.size - 1 && !mPagerState.endReached && !mPagerState.isLoading) {
+                               loadItems.invoke()
+                           }
+                       }
+                       ProductItemForDetailsPage(
+                           data = item,
+                           onItemClicked = onItemClicked
+                       )
+                       if (mPagerState.items.lastIndex == i) {
+                           Spacer(modifier = modifier.width(16.dp))
+                       }
+                   }
+               }
 
-            Spacer(modifier = modifier.height(24.dp))
+               Spacer(modifier = modifier.height(24.dp))
+           }
         }
-
-        TopShadow(modifier = Modifier.align(Alignment.TopCenter))
-
-        DetailsToolbar(
-            modifier = Modifier.align(Alignment.TopCenter),
-            onBackClick = onBackPressed,
-            onLikeClicked = onItemClicked,
-            data = data
-        )
         OptionsScreen(
+            modifier = Modifier
+                .constrainAs(optionsScreen) {
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                    bottom.linkTo(parent.bottom)
+                }
+            ,
             onDeleteClicked = {
                 showDeleteDialog = true
                 deletePostId = it
@@ -226,6 +239,13 @@ fun ProductDetailsScreen(
             onSmsClicked = {
                 openSmsApp(context, (data?.user?.phoneNumber ?: ""))
             },
+            data = data
+        )
+        TopShadow()
+
+        DetailsToolbar(
+            onBackClick = onBackPressed,
+            onLikeClicked = onItemClicked,
             data = data
         )
     }
@@ -247,18 +267,28 @@ fun ProductDetailsScreen(
     }
 
 }
+enum class ScrollDirection {
+    UP,
+    DOWN
+}
+
 
 @Composable
 fun OptionsScreen(
+    modifier: Modifier,
     onDeleteClicked: (Int) -> Unit,
     onEditClicked: (Int) -> Unit,
     onCallClicked: () -> Unit,
     onSmsClicked: () -> Unit,
     data: Data?
 ) {
+
+    val paddingValues = WindowInsets.systemBars.asPaddingValues()
+
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
+            .padding(bottom = paddingValues.calculateBottomPadding())
             .wrapContentHeight()
             .shadow(elevation = 6.dp)
             .background(

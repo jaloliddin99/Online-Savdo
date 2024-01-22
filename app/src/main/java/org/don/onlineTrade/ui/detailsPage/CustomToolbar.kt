@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -84,16 +85,14 @@ fun DetailsToolbar(
 }
 
 @Composable
-fun TopShadow(
-    modifier: Modifier
-) {
+fun TopShadow() {
     val black = Color.Black.copy(alpha = 0.5f)
     val transparentBlack = Color.Black.copy(alpha = 0f)
 
     val gradientColors = listOf(black, transparentBlack)
 
     Box(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
             .height(120.dp)
             .background(
