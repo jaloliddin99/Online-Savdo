@@ -28,7 +28,6 @@ class HomeViewModel @Inject constructor(
     private val categoryUseCase: AllCategoriesUseCase,
     private val productsPagerUseCase: ProductsPagerUseCase,
     private val myPostsUseCase: MyPostsUseCase,
-    private val myLikedPostsUseCase: GetLikedProductUseCase,
     private val locationTrackerRepository: LocationTracker,
     private val nearPostsUseCase: NearPostsUseCase
 ) :
@@ -59,7 +58,7 @@ class HomeViewModel @Inject constructor(
                 }
 
                 is Resource.Loading -> {
-                    _state.value = HomeScreenState(isLoading = true)
+                    _state.value = _state.value.copy(isLoading = true, error = "")
                 }
             }
         }.launchIn(viewModelScope)
@@ -174,7 +173,7 @@ class HomeViewModel @Inject constructor(
                 }
 
                 is Resource.Loading -> {
-                    _stateNear.value = HomeScreenState2(isLoading = true)
+                    _stateNear.value = _stateNear.value.copy(isLoading = true, error = "")
                 }
             }
         }.launchIn(viewModelScope)
@@ -190,5 +189,3 @@ data class ScreenState(
     val endReached: Boolean = false,
     val page: Int = 0
 )
-
-const val TOKEN = "qwertyuiopasdfghjklzxcvbnm123456"

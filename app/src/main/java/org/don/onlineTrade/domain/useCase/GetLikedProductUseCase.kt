@@ -14,23 +14,19 @@ class GetLikedProductUseCase @Inject constructor(
         pageSize: Int,
         lang: String = SharedPref.language
     ): Result<List<Content>> {
-        val networkPager = repository.getLikedProducts(
-            token = token,
-            page = page,
-            count = pageSize,
-            lang = lang
-        ).data.content
-
-//        return if (startingIndex + pageSize <= networkPager.size) {
-//            Result.success(
-//                networkPager.slice(startingIndex until startingIndex + pageSize)
-//            )
-//        } else {
-//            Result.success(emptyList())
-//        }
-        return Result.success(
-            networkPager
-        )
+        return try {
+            val networkPager = repository.getLikedProducts(
+                token = token,
+                page = page,
+                count = pageSize,
+                lang = lang
+            ).data.content
+            return Result.success(
+                networkPager
+            )
+        }catch (e: Exception){
+            return Result.failure(Throwable("Error occurred!"))
+        }
     }
 
 

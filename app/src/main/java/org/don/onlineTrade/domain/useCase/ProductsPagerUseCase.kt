@@ -1,9 +1,7 @@
 package org.don.onlineTrade.domain.useCase
 
 import org.don.onlineTrade.data.remote.models.getPublicProducts.Content
-import org.don.onlineTrade.data.remote.models.getPublicProducts.Data
 import org.don.onlineTrade.domain.repository.NetworkRepository
-import org.don.onlineTrade.ui.home.TOKEN
 import org.don.onlineTrade.utils.SharedPref
 import javax.inject.Inject
 
@@ -18,8 +16,6 @@ class ProductsPagerUseCase @Inject constructor(
         categoryId: Int?,
         query: String?
     ): Result<List<Content>> {
-        val startingIndex = page * pageSize
-
         return try {
             val networkPager = repository.getProductsPager(
                 token = token,

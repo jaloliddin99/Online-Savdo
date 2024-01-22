@@ -5,7 +5,6 @@ import android.widget.Toast
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import id.zelory.compressor.Compressor
@@ -22,9 +21,6 @@ import org.don.onlineTrade.ui.add.ImageUrl
 import org.don.onlineTrade.ui.add.getRealPathFromURI
 import org.don.onlineTrade.ui.add.sizeInKb
 import org.don.onlineTrade.ui.home.GetProfileState
-import org.don.onlineTrade.ui.home.HomeScreenState
-import org.don.onlineTrade.ui.home.TOKEN
-import org.don.onlineTrade.ui.home.UpdateProfileState
 import org.don.onlineTrade.utils.FileManager.getFileFromUri
 import org.don.onlineTrade.utils.SharedPref
 import java.io.File
