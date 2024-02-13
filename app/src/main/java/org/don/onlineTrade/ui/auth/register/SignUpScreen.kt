@@ -66,6 +66,7 @@ import org.don.onlineTrade.ui.auth.TextFieldState
 import org.don.onlineTrade.ui.auth.removeFirstCharacterAndAllSpaces
 import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.spacing
+import org.don.onlineTrade.utils.FreeLoading
 
 
 @Composable
@@ -80,61 +81,53 @@ fun SignUpScreen(
         mutableStateOf(true)
     }
 
-    Surface(
-        color = Color.Transparent,
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = Color.Transparent)
-    ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            Column(
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
+
+            Spacer(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
+                    .weight(1f, fill = showBranding)
+                    .animateContentSize()
+            )
+
+            AnimatedVisibility(
+                visible = showBranding,
+                modifier = Modifier.fillMaxWidth()
             ) {
-
-                Spacer(
-                    modifier = Modifier
-                        .weight(1f, fill = showBranding)
-                        .animateContentSize()
-                )
-
-                AnimatedVisibility(
-                    visible = showBranding,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Branding()
-                }
-
-                Spacer(
-                    modifier = Modifier
-                        .weight(1f, fill = showBranding)
-                        .animateContentSize()
-                )
-                SignUpCreateAccount(
-                    onSignInSignUp = onSignInSignUp,
-                    onSignInAsGuest = {},
-                    onFocusChange = { hasFocus -> showBranding = !hasFocus },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp)
-                        .padding(bottom = 100.dp),
-                    onLoginPage = onLoginPage
-                )
-
+                Branding()
             }
 
-            if (state.registerMain != null) {
-                registrationSuccess.invoke(state.email)
-            }
-            if (state.error.isNotBlank()) {
-                Toast.makeText(LocalContext.current, state.error, Toast.LENGTH_SHORT).show()
-            }
+            Spacer(
+                modifier = Modifier
+                    .weight(1f, fill = showBranding)
+                    .animateContentSize()
+            )
+            SignUpCreateAccount(
+                onSignInSignUp = onSignInSignUp,
+                onSignInAsGuest = {},
+                onFocusChange = { hasFocus -> showBranding = !hasFocus },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp)
+                    .padding(bottom = 100.dp),
+                onLoginPage = onLoginPage
+            )
 
-            if (state.isLoading) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            }
         }
+
+        if (state.registerMain != null) {
+            registrationSuccess.invoke(state.email)
+        }
+        if (state.error.isNotBlank()) {
+            Toast.makeText(LocalContext.current, state.error, Toast.LENGTH_SHORT).show()
+        }
+
+        FreeLoading(isFeedLoading = state.isLoading, paddingTop = 64.dp)
+
     }
 }
 

@@ -79,134 +79,128 @@ fun VerificationScreen(
         mutableStateOf(true)
     }
 
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
 
-    Surface(
-        color = Color.Transparent,
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = Color.Transparent)
-    ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            Column(
-                modifier = modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally
+            Spacer(
+                modifier = Modifier
+                    .weight(1f, fill = showBranding)
+                    .animateContentSize()
+            )
+
+
+            AnimatedVisibility(
+                visible = showBranding,
+                modifier = Modifier.fillMaxWidth()
             ) {
-
-                Spacer(
+                Logo(
                     modifier = Modifier
-                        .weight(1f, fill = showBranding)
-                        .animateContentSize()
+                        .align(Alignment.CenterHorizontally)
+                        .padding(top = 48.dp)
+                        .width(100.dp)
+                        .height(100.dp)
                 )
+            }
 
+            Spacer(
+                modifier = Modifier
+                    .weight(1f, fill = showBranding)
+                    .animateContentSize()
+            )
 
-                AnimatedVisibility(
-                    visible = showBranding,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Logo(
-                        modifier = Modifier
-                            .align(Alignment.CenterHorizontally)
-                            .padding(top = 48.dp)
-                            .width(100.dp)
-                            .height(100.dp)
-                    )
-                }
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen20Dp))
 
-                Spacer(
-                    modifier = Modifier
-                        .weight(1f, fill = showBranding)
-                        .animateContentSize()
-                )
+            Text(
+                text = String.format(
+                    stringResource(id = R.string.enter_code_that_we_send),
+                    emailParam
+                ),
+                fontWeight = FontWeight.Normal,
+                fontFamily = robotoFontFamily,
+                modifier = Modifier.padding(horizontal = MaterialTheme.spacing.dimen16Dp),
+                fontSize = MaterialTheme.spacing.dimen16Sp,
+                textAlign = TextAlign.Center
+            )
 
-                Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen20Dp))
-
-                Text(
-                    text = String.format(
-                        stringResource(id = R.string.enter_code_that_we_send),
-                        emailParam
-                    ),
-                    fontWeight = FontWeight.Normal,
-                    fontFamily = robotoFontFamily,
-                    modifier = Modifier.padding(horizontal = MaterialTheme.spacing.dimen16Dp),
-                    fontSize = MaterialTheme.spacing.dimen16Sp,
-                    textAlign = TextAlign.Center
-                )
-
-                Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen20Dp))
-                OtpView(
-                    value = otpCodeState.value,
-                    digits = 6,
-                    modifier = Modifier
-                        .wrapContentWidth(),
-                    textColor = MaterialTheme.colorScheme.onPrimary,
-                    activeColor = MaterialTheme.colorScheme.primary,
-                    passiveColor = MaterialTheme.colorScheme.background,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = robotoFontFamily,
-                    onTextChange = { value, _ ->
-                        otpCodeState.value = value
-                        if (otpCodeState.value.length == 6) {
-                            enabledState.value = true
-                            keyboardController?.hide()
-                            showBranding = true
-                        } else {
-                            enabledState.value = false
-                        }
-                    },
-                    autoFocusEnabled = false,
-                    onFocusChanged = { hasFocus ->
-                        showBranding = !hasFocus
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen20Dp))
+            OtpView(
+                value = otpCodeState.value,
+                digits = 6,
+                modifier = Modifier
+                    .wrapContentWidth(),
+                textColor = MaterialTheme.colorScheme.onPrimary,
+                activeColor = MaterialTheme.colorScheme.primary,
+                passiveColor = MaterialTheme.colorScheme.background,
+                fontWeight = FontWeight.Bold,
+                fontFamily = robotoFontFamily,
+                onTextChange = { value, _ ->
+                    otpCodeState.value = value
+                    if (otpCodeState.value.length == 6) {
+                        enabledState.value = true
+                        keyboardController?.hide()
+                        showBranding = true
+                    } else {
+                        enabledState.value = false
                     }
-                )
-
-                val onSubmitClick = {
-                    onSubmit(emailParam, otpCodeState.value.toInt())
+                },
+                autoFocusEnabled = false,
+                onFocusChanged = { hasFocus ->
+                    showBranding = !hasFocus
                 }
-                Spacer(
-                    modifier = Modifier
-                        .weight(1f, fill = showBranding)
-                        .animateContentSize()
-                )
-                Button(
-                    onClick = onSubmitClick,
-                    enabled = enabledState.value,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(24.dp)
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.send),
-                        fontSize = 16.sp,
-                        fontFamily = robotoFontFamily,
-                        fontWeight = FontWeight.Normal
-                    )
-                }
-                Spacer(
-                    modifier = Modifier
-                        .weight(1f, fill = showBranding)
-                        .animateContentSize()
+            )
+
+            val onSubmitClick = {
+                onSubmit(emailParam, otpCodeState.value.toInt())
+            }
+            Spacer(
+                modifier = Modifier
+                    .weight(1f, fill = showBranding)
+                    .animateContentSize()
+            )
+            Button(
+                onClick = onSubmitClick,
+                enabled = enabledState.value,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp)
+            ) {
+                Text(
+                    text = stringResource(id = R.string.send),
+                    fontSize = 16.sp,
+                    fontFamily = robotoFontFamily,
+                    fontWeight = FontWeight.Normal
                 )
             }
+            Spacer(
+                modifier = Modifier
+                    .weight(1f, fill = showBranding)
+                    .animateContentSize()
+            )
         }
 
-        val context = LocalContext.current
-
-        if (state.registerMain != null) {
-            if (state.registerMain.status){
-                SharedPref.loginTime = System.currentTimeMillis()
-                SharedPref.deviceToken = "Bearer ${state.registerMain.token}"
-                onMainScreen.invoke()
-            }else{
-                Toast.makeText(context, stringResource(id = R.string.invalid_password), Toast.LENGTH_SHORT).show()
-            }
-        }
-        val rememberedContext = remember { { context } }
-        SideEffect {
-            if (state.error.isNotBlank()) {
-                Toast.makeText(rememberedContext(), state.error, Toast.LENGTH_SHORT).show()
-            }
-        }
         FreeLoading(state.isLoading, paddingTop = 64.dp)
+
+    }
+
+    val context = LocalContext.current
+
+    if (state.registerMain != null) {
+        if (state.registerMain.status){
+            SharedPref.loginTime = System.currentTimeMillis()
+            SharedPref.deviceToken = "Bearer ${state.registerMain.token}"
+            onMainScreen.invoke()
+        }else{
+            Toast.makeText(context, stringResource(id = R.string.invalid_password), Toast.LENGTH_SHORT).show()
+        }
+    }
+    val rememberedContext = remember { { context } }
+    SideEffect {
+        if (state.error.isNotBlank()) {
+            Toast.makeText(rememberedContext(), state.error, Toast.LENGTH_SHORT).show()
+        }
     }
 }
 

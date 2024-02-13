@@ -67,62 +67,56 @@ fun SignInScreen(
         mutableStateOf(true)
     }
 
-    Surface(
-        color = Color.Transparent,
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = Color.Transparent)
-    ) {
-        Box(modifier = Modifier.fillMaxSize()){
-            Column(
+    Box(modifier = Modifier.fillMaxSize()){
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
+
+            Spacer(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
+                    .weight(1f, fill = showBranding)
+                    .animateContentSize()
+            )
+
+            AnimatedVisibility(
+                visible = showBranding,
+                modifier = Modifier.fillMaxWidth()
             ) {
-
-                Spacer(
-                    modifier = Modifier
-                        .weight(1f, fill = showBranding)
-                        .animateContentSize()
-                )
-
-                AnimatedVisibility(
-                    visible = showBranding,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Branding()
-                }
-
-                Spacer(
-                    modifier = Modifier
-                        .weight(1f, fill = showBranding)
-                        .animateContentSize()
-                )
-                SignInToLoginAccount(
-                    onSignInSignUp = onSignInSignUp,
-                    onSignInAsGuest = {},
-                    onFocusChange = { hasFocus -> showBranding = !hasFocus },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp)
-                        .padding(bottom = 100.dp),
-                    forgotPassword
-                )
-            }
-            if (state.registerMain!= null){
-                loginSuccess.invoke(state.email)
+                Branding()
             }
 
-            val context = LocalContext.current
-            val rememberedContext = remember { { context } }
-            SideEffect {
-                if (state.error.isNotBlank()){
-                    Toast.makeText(rememberedContext(), state.error, Toast.LENGTH_SHORT).show()
-                }
-            }
-            FreeLoading(state.isLoading, paddingTop = 64.dp)
+            Spacer(
+                modifier = Modifier
+                    .weight(1f, fill = showBranding)
+                    .animateContentSize()
+            )
+            SignInToLoginAccount(
+                onSignInSignUp = onSignInSignUp,
+                onSignInAsGuest = {},
+                onFocusChange = { hasFocus -> showBranding = !hasFocus },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp)
+                    .padding(bottom = 100.dp),
+                forgotPassword
+            )
         }
+        if (state.registerMain!= null){
+            loginSuccess.invoke(state.email)
+        }
+
+        val context = LocalContext.current
+        val rememberedContext = remember { { context } }
+        SideEffect {
+            if (state.error.isNotBlank()){
+                Toast.makeText(rememberedContext(), state.error, Toast.LENGTH_SHORT).show()
+            }
+        }
+        FreeLoading(state.isLoading, paddingTop = 64.dp)
     }
+
 
 }
 
