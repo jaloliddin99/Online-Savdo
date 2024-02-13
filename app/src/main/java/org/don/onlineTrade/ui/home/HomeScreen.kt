@@ -119,14 +119,14 @@ fun HomeScreen(
             item(span = { GridItemSpan(2) }) {
                 Text(
                     text = stringResource(id = R.string.near_you),
-                    style = TextStyle.Default,
                     modifier = Modifier.padding(
                         start = MaterialTheme.spacing.dimen8Dp,
                         top = MaterialTheme.spacing.dimen8Dp,
                         bottom = MaterialTheme.spacing.dimen8Dp
                     ),
                     fontWeight = FontWeight.SemiBold,
-                    fontSize = MaterialTheme.spacing.dimen16Sp
+                    fontSize = MaterialTheme.spacing.dimen16Sp,
+                    fontFamily = robotoFontFamily
                 )
             }
 
@@ -158,8 +158,7 @@ fun HomeScreen(
                             viewModel.locationObserve()
                             viewModel.startLocationUpdates()
                         },
-                        hasNotPermission,
-                        gpsNotEnabled
+                        hasNotPermission
                     )
                 } else {
                     if (!FLAG_HAS_DATA) {
@@ -232,7 +231,6 @@ fun GPSEnableView(
     onPermissionClicked: () -> Unit,
     onTurnOnClicked: () -> Unit,
     hasNotPermission: Boolean,
-    gpsNotEnabled: Boolean
 ) {
     Card(
         modifier = Modifier

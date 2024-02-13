@@ -20,8 +20,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
-const val stronglyDeemphasizedAlpha = 0.6f
-const val slightlyDeemphasizedAlpha = 0.87f
 /**
  * Light default theme color scheme
  */
@@ -187,6 +185,8 @@ fun IELTSAIExaminerTheme(
         else -> if (darkTheme) DarkDefaultColorScheme else LightDefaultColorScheme
     }
 
+    val customColors = if (darkTheme) DarkCustomColors else LightCustomColors
+
     val emptyGradientColor = GradientColors(container = colorScheme.surfaceColorAtElevation(2.dp))
     val defaultGradientColor = GradientColors(
         top = colorScheme.inverseOnSurface,
@@ -228,7 +228,8 @@ fun IELTSAIExaminerTheme(
         LocalGradientColors provides gradientColors,
         LocalBackgroundTheme provides backgroundTheme,
         LocalTintTheme provides tintTheme,
-        LocalSpacing provides Spacing()
+        LocalSpacing provides Spacing(),
+        LocalCustomColors provides customColors
 
     ) {
         MaterialTheme(

@@ -1,5 +1,6 @@
 package org.don.onlineTrade.ui.home
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -28,6 +29,7 @@ import coil.compose.AsyncImage
 import org.don.onlineTrade.BuildConfig
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.nearPost.Data
+import org.don.onlineTrade.ui.theme.LocalCustomColors
 import org.don.onlineTrade.ui.theme.spacing
 
 @Composable
@@ -71,7 +73,8 @@ fun NearPostItem(
         onClick = {
             navigateToCategory(item.id)
         },
-        modifier = modifier.height(60.dp)
+        modifier = modifier
+            .height(60.dp)
             .width(180.dp)
     ) {
         Row(
@@ -83,9 +86,14 @@ fun NearPostItem(
                 modifier = Modifier
                     .width(60.dp)
                     .height(60.dp)
-                    .padding(8.dp),
+                    .padding(8.dp)
+                    .background(
+                        LocalCustomColors.current.imageBackgroundColor,
+                        shape = RoundedCornerShape(MaterialTheme.spacing.dimen4Dp)
+                    ),
                 model = url, contentDescription = null,
-            )
+
+                )
 
             Spacer(modifier = modifier.width(8.dp))
             Column(

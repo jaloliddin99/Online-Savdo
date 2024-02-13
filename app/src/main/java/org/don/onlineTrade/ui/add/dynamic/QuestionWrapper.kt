@@ -17,7 +17,6 @@
 package org.don.onlineTrade.ui.add.dynamic
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,9 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.don.onlineTrade.data.remote.models.leak.Parameter
 import org.don.onlineTrade.ui.theme.robotoFontFamily
-import org.don.onlineTrade.ui.theme.slightlyDeemphasizedAlpha
 import org.don.onlineTrade.ui.theme.spacing
-import org.don.onlineTrade.ui.theme.stronglyDeemphasizedAlpha
 import org.don.onlineTrade.utils.SharedPref
 
 /**
