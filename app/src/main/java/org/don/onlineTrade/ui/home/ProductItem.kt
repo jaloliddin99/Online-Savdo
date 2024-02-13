@@ -53,6 +53,7 @@ import org.don.onlineTrade.ui.theme.LocalCustomColors
 import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.convertDate
+import org.don.onlineTrade.utils.shimmerBrush
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -126,37 +127,25 @@ fun ProductItemDetails(
         var isError by remember {
             mutableStateOf(false)
         }
+        val showShimmer = remember { mutableStateOf(true) }
+
         val url = "${BuildConfig.BASE_URL}post/image/${data.image.imagePath}"
         val imageLoader = rememberAsyncImagePainter(model = url,
             onState = { state ->
                 isLoading = state is AsyncImagePainter.State.Loading
                 isError = state is AsyncImagePainter.State.Error
             })
-
-        Box(
+        showShimmer.value = isLoading
+        Image(
+            contentDescription = null,
             modifier = Modifier
-                .wrapContentHeight()
-                .fillMaxWidth(),
-            contentAlignment = Alignment.Center
-        ) {
-            if (isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .size(80.dp),
-                    color = MaterialTheme.colorScheme.tertiary,
-                )
-            }
-            Image(
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(180.dp)
-                    .background(LocalCustomColors.current.imageBackgroundColor),
-                contentScale = ContentScale.Inside,
-                painter = if (isError.not()) imageLoader else painterResource(R.drawable.logo),
-            )
-        }
+                .fillMaxWidth()
+                .height(180.dp)
+                .background(LocalCustomColors.current.imageBackgroundColor)
+                .background(shimmerBrush(targetValue = 1300f, showShimmer = showShimmer.value)),
+            contentScale = ContentScale.Inside,
+            painter = if (isError.not()) imageLoader else painterResource(R.drawable.logo),
+        )
         val paddingValues = PaddingValues(
             bottom = MaterialTheme.spacing.dimen8Dp,
             start = MaterialTheme.spacing.dimen8Dp,

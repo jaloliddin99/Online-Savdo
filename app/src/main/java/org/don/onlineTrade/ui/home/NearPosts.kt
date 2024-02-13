@@ -18,6 +18,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -31,6 +33,7 @@ import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.nearPost.Data
 import org.don.onlineTrade.ui.theme.LocalCustomColors
 import org.don.onlineTrade.ui.theme.spacing
+import org.don.onlineTrade.utils.shimmerBrush
 
 @Composable
 fun NearPosts(
@@ -82,6 +85,8 @@ fun NearPostItem(
             horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
             val url = "${BuildConfig.BASE_URL}post/image/${item.image.imagePath}"
+            val showShimmer = remember { mutableStateOf(true) }
+
             AsyncImage(
                 modifier = Modifier
                     .width(60.dp)
@@ -90,10 +95,12 @@ fun NearPostItem(
                     .background(
                         LocalCustomColors.current.imageBackgroundColor,
                         shape = RoundedCornerShape(MaterialTheme.spacing.dimen4Dp)
-                    ),
-                model = url, contentDescription = null,
-
-                )
+                    )
+                    .background(shimmerBrush(targetValue = 1300f, showShimmer = showShimmer.value)),
+                model = url,
+                onSuccess = { showShimmer.value = false },
+                contentDescription = null,
+            )
 
             Spacer(modifier = modifier.width(8.dp))
             Column(
