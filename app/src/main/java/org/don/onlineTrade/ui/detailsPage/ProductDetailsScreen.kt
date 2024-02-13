@@ -36,6 +36,8 @@ import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Sms
 import androidx.compose.material3.Divider
 import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -143,7 +145,9 @@ fun ProductDetailsScreen(
     DisposableEffect(key1 = true) {
         systemUiController.setStatusBarColor(Color.Transparent, darkIcons = false)
         onDispose {
-            systemUiController.setStatusBarColor(Color.Transparent, darkIcons = !isDarkMode)
+            systemUiController.setStatusBarColor(
+                color = Color.Transparent, darkIcons = !isDarkMode
+            )
         }
     }
     val isFeedLoading = state.isLoading
@@ -162,22 +166,20 @@ fun ProductDetailsScreen(
         mutableIntStateOf(-1)
     }
 
-
+    val paddingValues = WindowInsets.systemBars.asPaddingValues()
     ConstraintLayout(
-        modifier = modifier
-            .fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         val (column, optionsScreen) = createRefs()
         LazyColumn(
             modifier = modifier
+                .padding(bottom = paddingValues.calculateBottomPadding())
                 .constrainAs(column) {
                     top.linkTo(parent.top)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                     bottom.linkTo(optionsScreen.top)
                 }
-
-
         ) {
            item {
                ImagePager(state, pagerState)
@@ -254,13 +256,7 @@ fun ProductDetailsScreen(
             }
         )
     }
-
 }
-enum class ScrollDirection {
-    UP,
-    DOWN
-}
-
 
 @Composable
 fun OptionsScreen(
@@ -284,34 +280,26 @@ fun OptionsScreen(
                 color = MaterialTheme.colorScheme.onPrimary,
                 shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
             )
-            .padding(top = 8.dp, start = 16.dp, end = 16.dp, bottom = 8.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly,
+            .padding(top = 8.dp, start = 16.dp, end = 16.dp, bottom = 12.dp),
+        horizontalArrangement = Arrangement.SpaceAround,
         verticalAlignment = Alignment.Top
     ) {
         if (data?.user?.id == SharedPref.userId) {
             CircularImage(
-                modifier = Modifier.weight(1f),
                 icon = Icons.Filled.Delete,
-                title = R.string.delete_post,
                 onClicked = { onDeleteClicked.invoke(data.id) }
             )
             CircularImage(
-                modifier = Modifier.weight(1f),
                 icon = Icons.Filled.Edit,
-                title = R.string.edit_post,
                 onClicked = { onEditClicked.invoke(data.id) }
             )
         }
         CircularImage(
-            modifier = Modifier.weight(1f),
             icon = Icons.Filled.Call,
-            title = R.string.call,
             onClicked = onCallClicked
         )
         CircularImage(
-            modifier = Modifier.weight(1f),
             icon = Icons.Filled.Sms,
-            title = R.string.send_msg,
             onClicked = onSmsClicked
         )
     }
@@ -320,35 +308,15 @@ fun OptionsScreen(
 
 @Composable
 fun CircularImage(
-    modifier: Modifier = Modifier,
     icon: ImageVector = Icons.Filled.Delete,
-    @StringRes title: Int,
     onClicked: () -> Unit
 ) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
+    FloatingActionButton(
+        onClick = onClicked,
+        shape = CircleShape,
+        elevation = FloatingActionButtonDefaults.elevation(0.dp)
     ) {
-        FilledIconButton(
-            modifier = Modifier
-                .width(56.dp)
-                .height(56.dp)
-                .background(color = MaterialTheme.colorScheme.primary, shape = CircleShape),
-            onClick = onClicked
-        ) {
-            Icon(imageVector = icon, contentDescription = null)
-        }
-
-        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen4Dp))
-
-        Text(
-            text = stringResource(id = title),
-            fontWeight = FontWeight.Normal,
-            fontFamily = robotoFontFamily,
-            fontSize = MaterialTheme.spacing.dimen12Sp,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
+        Icon(imageVector = icon, contentDescription = null)
     }
 }
 
@@ -436,7 +404,7 @@ fun DescriptionItems(
     ) {
         Image(
             imageVector = imageVector, contentDescription = null,
-            colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.primary)
+            colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.primaryContainer)
         )
 
         Spacer(modifier = Modifier.width(MaterialTheme.spacing.dimen12Dp))

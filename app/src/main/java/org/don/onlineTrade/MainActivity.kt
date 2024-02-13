@@ -68,8 +68,6 @@ class MainActivity : ComponentActivity(), OnRunTimePermissionListener {
                 }
             }
         }
-
-
         setContent {
             val darkTheme = shouldUseDarkTheme(state.darkThemeConfig)
             IELTSAIExaminerTheme(
