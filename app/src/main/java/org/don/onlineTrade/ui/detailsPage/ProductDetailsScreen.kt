@@ -142,7 +142,7 @@ fun ProductDetailsScreen(
     val systemUiController = rememberSystemUiController()
     val isDarkMode = isSystemInDarkTheme()
 
-    DisposableEffect(key1 = true) {
+    DisposableEffect(systemUiController) {
         systemUiController.setStatusBarColor(Color.Transparent, darkIcons = false)
         onDispose {
             systemUiController.setStatusBarColor(
