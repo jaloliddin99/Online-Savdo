@@ -44,6 +44,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
+import org.don.onlineTrade.BuildConfig
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.getPublicProducts.Content
 import org.don.onlineTrade.data.remote.models.getPublicProducts.Region
@@ -123,7 +124,7 @@ fun ProductItemDetails(
         var isError by remember {
             mutableStateOf(false)
         }
-        val url = "http://91.227.40.169:8080/api/v1/post/image/${data.image.imagePath}"
+        val url = "${BuildConfig.BASE_URL}post/image/${data.image.imagePath}"
         val imageLoader = rememberAsyncImagePainter(model = url,
             onState = { state ->
                 isLoading = state is AsyncImagePainter.State.Loading

@@ -8,10 +8,13 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -109,17 +112,6 @@ fun AddProductScreen(
 
     val context = LocalContext.current
 
-    val density = LocalDensity.current.density
-    val resources = context.resources
-    val bottomBarHeight = with(LocalView.current) {
-        val resourceId = com.google.android.material.R.dimen.design_bottom_navigation_height
-        resources.getDimensionPixelSize(resourceId)
-    }
-    val peekHeight = remember(bottomBarHeight) {
-        (bottomBarHeight / density).dp
-    }
-
-
     val state = viewModel.state.value
     val isLoading = state.isLoading
     if (state.error.isNotEmpty()) {
@@ -185,6 +177,7 @@ fun AddProductScreen(
     val descriptionFocusRequester = remember {
         FocusRequester()
     }
+    val paddingValues = WindowInsets.systemBars.asPaddingValues()
 
     Box(
         modifier = modifier
@@ -192,7 +185,7 @@ fun AddProductScreen(
             .padding(
                 start = MaterialTheme.spacing.dimen16Dp,
                 end = MaterialTheme.spacing.dimen16Dp,
-                bottom = peekHeight
+                bottom = paddingValues.calculateBottomPadding()
             )
     ) {
 

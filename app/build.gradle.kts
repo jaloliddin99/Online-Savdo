@@ -26,7 +26,13 @@ android {
 
     buildTypes {
 
+        debug {
+            buildConfigField("String", "BASE_URL", "\"http://91.227.40.169:8080/api/v1/\"")
+        }
+
+
         release {
+            buildConfigField("String", "BASE_URL", "\"http://91.227.40.169:8080/api/v1/\"")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -43,6 +49,7 @@ android {
         jvmTarget = "17"
     }
     buildFeatures {
+        buildConfig = true
         compose = true
     }
     composeOptions {
@@ -124,9 +131,6 @@ dependencies {
     implementation("com.google.maps.android:maps-compose:4.3.0")
     implementation("com.google.android.gms:play-services-maps:18.2.0")
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.30.1")
-
-
-
 
 
 }

@@ -43,6 +43,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import org.don.onlineTrade.BuildConfig
 import org.don.onlineTrade.data.remote.models.category.Category
 import org.don.onlineTrade.data.remote.models.category.CategoryItem
 import org.don.onlineTrade.ui.theme.spacing
@@ -101,7 +102,7 @@ fun CategoryItem(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
-            val url = "http://91.227.40.169:8080/api/v1/categories/image/${item.image}"
+            val url = "${BuildConfig.BASE_URL}categories/image/${item.image}"
             AsyncImage(
                 modifier = Modifier
                     .width(60.dp)
@@ -147,7 +148,7 @@ fun CategoryItemInVertical(
             horizontalArrangement = Arrangement.Center,
         ) {
             if (item.image != null) {
-                val url = "http://91.227.40.169:8080/api/v1/categories/image/${item.image}"
+                val url = "${BuildConfig.BASE_URL}categories/image/${item.image}"
                 AsyncImage(
                     modifier = Modifier
                         .width(MaterialTheme.spacing.dimen20Dp)

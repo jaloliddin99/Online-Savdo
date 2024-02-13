@@ -66,6 +66,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import kotlinx.coroutines.launch
+import org.don.onlineTrade.BuildConfig
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.getProfile.User
 import org.don.onlineTrade.ui.add.DialogCameraOrGallery
@@ -242,7 +243,7 @@ fun RoundImage(
     var isError by remember {
         mutableStateOf(false)
     }
-    val url = "http://91.227.40.169:8080/api/v1/user/image/${user?.profileUrl}"
+    val url = "${BuildConfig.BASE_URL}user/image/${user?.profileUrl}"
     val imageLoader = rememberAsyncImagePainter(model = url,
         onState = { state ->
             isLoading = state is AsyncImagePainter.State.Loading

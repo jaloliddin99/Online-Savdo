@@ -25,6 +25,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import org.don.onlineTrade.BuildConfig
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.nearPost.Data
 import org.don.onlineTrade.ui.theme.spacing
@@ -77,7 +78,7 @@ fun NearPostItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
-            val url = "http://91.227.40.169:8080/api/v1/post/image/${item.image.imagePath}"
+            val url = "${BuildConfig.BASE_URL}post/image/${item.image.imagePath}"
             AsyncImage(
                 modifier = Modifier
                     .width(60.dp)

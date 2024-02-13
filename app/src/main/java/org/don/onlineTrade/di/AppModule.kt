@@ -15,6 +15,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import org.don.onlineTrade.BuildConfig
 import org.don.onlineTrade.data.location.DefaultLocationTracker
 import org.don.onlineTrade.data.remote.ApiInterface
 import org.don.onlineTrade.domain.repository.LocationTracker
@@ -57,7 +58,7 @@ object AppModule {
         builder.addInterceptor(chuckerInterceptor)
 
         return Retrofit.Builder()
-            .baseUrl("http://91.227.40.169:8080/api/v1/")
+            .baseUrl(BuildConfig.BASE_URL)
             .client(builder.build())
             .addConverterFactory(GsonConverterFactory.create())
             .build()
