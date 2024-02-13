@@ -10,10 +10,6 @@ import org.don.onlineTrade.ui.filterCategory.FilterCategoryRoute
 
 
 const val filterCategoryNavigationRoute = "filterCategory/{param}"
-fun NavController.navigateToFilter(navOptions: NavOptions? = null) {
-    this.navigate(filterCategoryNavigationRoute, navOptions)
-}
-
 fun NavGraphBuilder.filterCategoryScreen(
     onItemClicked: (Int) -> Unit
 ) {

@@ -12,6 +12,8 @@ fun NavGraphBuilder.productDetailsScreen(
     onSimilarItemClicked: (Int) -> Unit,
     onEditClicked: (Int) -> Unit,
     navigateBack: () -> Unit,
+    goToMapsPage: (lat: String, lon: String) -> Unit
+
 ) {
     composable(
         route = pDetailsNavigationRoute,
@@ -28,6 +30,9 @@ fun NavGraphBuilder.productDetailsScreen(
             onSimilarItemClicked = onSimilarItemClicked,
             onEditClicked,
             navigateBack,
+            goToMapsPage  = { lat, long ->
+                goToMapsPage(lat.toString(), long.toString())
+            }
         )
     }
 }

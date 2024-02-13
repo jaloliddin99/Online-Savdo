@@ -118,6 +118,7 @@
     <string name="use_gps">Use GPS</string>
     <string name="select_this_location">Select this location</string>
     <string name="characteristics">Characteristics</string>
+    <string name="address">Address</string>
 
 
 </resources>

@@ -4,31 +4,25 @@ import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AreaChart
 import androidx.compose.material.icons.filled.Category
-import androidx.compose.material.icons.filled.Details
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LibraryAdd
-import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.outlined.AreaChart
 import androidx.compose.material.icons.outlined.Category
-import androidx.compose.material.icons.outlined.Details
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.LibraryAdd
-import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Save
 import androidx.compose.ui.graphics.vector.ImageVector
 import org.don.onlineTrade.R
-import org.don.onlineTrade.ui.map.mapNavigationRoute
 import org.don.onlineTrade.ui.navigation.categoriesNavigationRoute
 import org.don.onlineTrade.ui.navigation.districtsNavigationRoute
 import org.don.onlineTrade.ui.navigation.filterCategoryNavigationRoute
 import org.don.onlineTrade.ui.navigation.myProductsNavigationRoute
 import org.don.onlineTrade.ui.navigation.notificationsNavigationRoute
-import org.don.onlineTrade.ui.navigation.pDetailsNavigationRoute
 import org.don.onlineTrade.ui.navigation.passwordUpdateNavigationRoute
 import org.don.onlineTrade.ui.navigation.profileUpdateNavigationRoute
 import org.don.onlineTrade.ui.navigation.regionsNavigationRoute
@@ -59,15 +53,6 @@ sealed class NavItems(
         hasNews = false,
         badgeCount = 45,
         "add",
-        titleRes = R.string.chat_page
-    )
-    object MapScreen: NavItems(
-        title = "Map",
-        selectedIcon = Icons.Filled.Map,
-        unselectedIcon = Icons.Outlined.Map,
-        hasNews = false,
-        badgeCount = 45,
-        mapNavigationRoute,
         titleRes = R.string.chat_page
     )
     object Saved: NavItems(
@@ -148,15 +133,6 @@ sealed class NavItems(
         badgeCount = null,
         districtsNavigationRoute,
         titleRes = R.string.districts
-    )
-    object ProductDetails: NavItems(
-        title = "Product Details",
-        selectedIcon = Icons.Filled.Details,
-        unselectedIcon = Icons.Outlined.Details,
-        hasNews = true,
-        badgeCount = null,
-        screenRoute = pDetailsNavigationRoute,
-        titleRes = R.string.details
     )
 
     object Notifications: NavItems(

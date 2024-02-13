@@ -12,9 +12,7 @@ import org.don.onlineTrade.ui.region.RegionsRoute
 import org.don.onlineTrade.ui.region.district.DistrictsRoute
 
 const val districtsNavigationRoute = "district/{region_id}/{region_name}"
-fun NavController.navigateToDistricts(navOptions: NavOptions? = null) {
-    this.navigate(districtsNavigationRoute, navOptions)
-}
+
 
 fun NavGraphBuilder.districtsScreen(
     onBackPressed: (DataDistrict, Data, String, String) -> Unit

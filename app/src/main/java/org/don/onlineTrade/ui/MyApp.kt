@@ -56,6 +56,8 @@ import org.don.onlineTrade.ui.dialogs.settings.SettingsDialog
 import org.don.onlineTrade.ui.dialogs.settings.UserEditableSettings
 import org.don.onlineTrade.ui.map.mapNavigationRoute
 import org.don.onlineTrade.ui.map.mapScreen
+import org.don.onlineTrade.ui.map.mapUserScreen
+import org.don.onlineTrade.ui.map.mapUserScreenNavigationRoute
 import org.don.onlineTrade.ui.navigation.categoriesNavigationRoute
 import org.don.onlineTrade.ui.navigation.categoriesScreen
 import org.don.onlineTrade.ui.navigation.districtsNavigationRoute
@@ -158,7 +160,8 @@ fun MainScreenView(
                         && destination.screenRoute != pDetailsNavigationRoute
                         && destination.screenRoute != filterCategoryNavigationRoute
                         && destination.screenRoute != NavItems.AddProduct.screenRoute
-                        && destination.screenRoute != NavItems.MapScreen.screenRoute
+                        && destination.screenRoute != mapNavigationRoute
+                        && destination.screenRoute != mapUserScreenNavigationRoute
                     ) {
                         BottomNavigation(rememberNavController, appState)
                     }
@@ -187,6 +190,7 @@ fun MainScreenView(
                                 || destination.screenRoute == filterCategoryNavigationRoute
                                 || destination.screenRoute == NavItems.AddProduct.screenRoute
                                 || destination.screenRoute == mapNavigationRoute
+                                || destination.screenRoute == mapUserScreenNavigationRoute
 
                         TopAppBar(
                             title = stringResource(id = destination.titleRes),
@@ -316,6 +320,9 @@ fun NavigationGraph(
             },
             onEditClicked = {},
             navigateBack = navController::popBackStack,
+            goToMapsPage = { lat, lon ->
+                navController.navigate("mapUserScreen/$lat/$lon")
+            }
         )
         filterCategoryScreen(
             onItemClicked = {
@@ -343,6 +350,8 @@ fun NavigationGraph(
                 navController.popBackStack()
             }
         )
+
+        mapUserScreen()
 
         notificationsScreen()
         savedScreen(

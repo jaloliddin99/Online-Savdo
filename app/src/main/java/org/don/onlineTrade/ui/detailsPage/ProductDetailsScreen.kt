@@ -1,9 +1,9 @@
 package org.don.onlineTrade.ui.detailsPage
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -73,7 +73,6 @@ import org.don.onlineTrade.ui.home.HomeViewModel
 import org.don.onlineTrade.ui.home.PresentProductState
 import org.don.onlineTrade.ui.home.ProductItemForDetailsPage
 import org.don.onlineTrade.ui.home.ScreenState
-import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.FreeLoading
 import org.don.onlineTrade.utils.SharedPref
@@ -87,6 +86,8 @@ fun ProductDetailsRoute(
     onSimilarItemClicked: (Int) -> Unit,
     onEditClicked: (Int) -> Unit,
     navigateBack: () -> Unit,
+    goToMapsPage: (lat: Double, lon: Double) -> Unit
+
 ) {
     val detailsViewModel = hiltViewModel<PresentViewModel>()
     val homeViewMode = hiltViewModel<HomeViewModel>()
@@ -121,7 +122,8 @@ fun ProductDetailsRoute(
             detailsViewModel.deletePost(it)
         },
         onEditClicked = onEditClicked,
-        onBackPressed = navigateBack
+        onBackPressed = navigateBack,
+        goToMapsPage = goToMapsPage
     )
 }
 
@@ -136,7 +138,8 @@ fun ProductDetailsScreen(
     loadItems: () -> Unit,
     onDeleteClicked: (Int) -> Unit,
     onEditClicked: (Int) -> Unit,
-    onBackPressed: () -> Unit
+    onBackPressed: () -> Unit,
+    goToMapsPage: (lat: Double, lon: Double) -> Unit
 ) {
 
     val systemUiController = rememberSystemUiController()
@@ -181,35 +184,35 @@ fun ProductDetailsScreen(
                     bottom.linkTo(optionsScreen.top)
                 }
         ) {
-           item {
-               ImagePager(state, pagerState)
-               ItemDescription(data)
-               Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
-               ContactDetails(data)
-               Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
-               TextBold16(
-                   title = stringResource(id = R.string.similar_items),
-               )
-               LazyRow(modifier = Modifier.wrapContentHeight()) {
-                   items(count = mPagerState.items.size) { i ->
-                       val item = mPagerState.items[i]
-                       LaunchedEffect(scrollState) {
-                           if (i >= mPagerState.items.size - 1 && !mPagerState.endReached && !mPagerState.isLoading) {
-                               loadItems.invoke()
-                           }
-                       }
-                       ProductItemForDetailsPage(
-                           data = item,
-                           onItemClicked = onItemClicked
-                       )
-                       if (mPagerState.items.lastIndex == i) {
-                           Spacer(modifier = modifier.width(16.dp))
-                       }
-                   }
-               }
+            item {
+                ImagePager(state, pagerState)
+                ItemDescription(data, goToMapsPage)
+                Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
+                ContactDetails(data)
+                Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
+                TextBold16(
+                    title = stringResource(id = R.string.similar_items),
+                )
+                LazyRow(modifier = Modifier.wrapContentHeight()) {
+                    items(count = mPagerState.items.size) { i ->
+                        val item = mPagerState.items[i]
+                        LaunchedEffect(scrollState) {
+                            if (i >= mPagerState.items.size - 1 && !mPagerState.endReached && !mPagerState.isLoading) {
+                                loadItems.invoke()
+                            }
+                        }
+                        ProductItemForDetailsPage(
+                            data = item,
+                            onItemClicked = onItemClicked
+                        )
+                        if (mPagerState.items.lastIndex == i) {
+                            Spacer(modifier = modifier.width(16.dp))
+                        }
+                    }
+                }
 
-               Spacer(modifier = modifier.height(24.dp))
-           }
+                Spacer(modifier = modifier.height(24.dp))
+            }
         }
         OptionsScreen(
             modifier = Modifier
@@ -217,8 +220,7 @@ fun ProductDetailsScreen(
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                     bottom.linkTo(parent.bottom)
-                }
-            ,
+                },
             onDeleteClicked = {
                 showDeleteDialog = true
                 deletePostId = it
@@ -324,6 +326,7 @@ fun CircularImage(
 @Composable
 fun ItemDescription(
     data: Data?,
+    goToMapsPage: (lat: Double, lon: Double) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -343,7 +346,12 @@ fun ItemDescription(
         val district = data?.district?.name
         val address = if (region != null && district != null) "$region, $district"
         else if (data?.addressName != null) data.addressName else ""
-        DescriptionItems(desc = address)
+        DescriptionItems(desc = address,
+            onClicked = {
+                if (data?.latitude != null) {
+                    goToMapsPage.invoke(data.latitude, data.longitude)
+                }
+            })
         Divider(
             modifier = Modifier
                 .padding(vertical = MaterialTheme.spacing.dimen10Dp)
@@ -351,7 +359,8 @@ fun ItemDescription(
         DescriptionItems(
             imageVector = Icons.Filled.Category,
             title = stringResource(id = R.string.category),
-            desc = data?.category?.title ?: ""
+            desc = data?.category?.title ?: "",
+            {}
         )
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
     }
@@ -396,12 +405,18 @@ fun PriceWrapper(
 @Composable
 fun DescriptionItems(
     imageVector: ImageVector = Icons.Filled.LocationOn,
-    title: String = stringResource(id = R.string.location),
-    desc: String
+    title: String = stringResource(id = R.string.address),
+    desc: String,
+    onClicked: () -> Unit
 ) {
     Row(
+        modifier = Modifier
+            .clickable {
+                onClicked.invoke()
+            },
         verticalAlignment = Alignment.CenterVertically,
-    ) {
+
+        ) {
         Image(
             imageVector = imageVector, contentDescription = null,
             colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.primaryContainer)
@@ -439,20 +454,25 @@ fun ContactDetails(
         DescriptionItems(
             imageVector = Icons.Filled.Person,
             title = stringResource(id = R.string.name),
-            desc = "${data?.user?.name}"
+            desc = "${data?.user?.name}",
+            onClicked = {}
         )
         Divider(
             modifier = Modifier
                 .padding(vertical = MaterialTheme.spacing.dimen10Dp)
         )
+        val context = LocalContext.current
         DescriptionItems(
             imageVector = Icons.Filled.Phone,
             title = stringResource(id = R.string.name),
-            desc = data?.user?.phoneNumber ?: ""
+            desc = data?.user?.phoneNumber ?: "",
+            onClicked = {
+                callTo((data?.user?.phoneNumber ?: ""), context)
+            }
         )
 
 
     }
 
-
 }
+

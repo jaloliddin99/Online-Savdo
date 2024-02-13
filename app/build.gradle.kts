@@ -100,7 +100,7 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
 
 
-    val nav_version = "2.7.6"
+    val nav_version = "2.7.7"
 
     implementation("androidx.navigation:navigation-compose:$nav_version")
     implementation("androidx.compose.runtime:runtime-tracing:1.0.0-beta01")

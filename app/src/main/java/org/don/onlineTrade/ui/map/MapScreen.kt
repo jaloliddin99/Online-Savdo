@@ -57,9 +57,6 @@ import java.io.Serializable
 
 
 const val mapNavigationRoute = "mapNavigationRoute"
-fun NavController.navigateToNotifications(navOptions: NavOptions? = null) {
-    this.navigate(mapNavigationRoute, navOptions)
-}
 
 fun NavGraphBuilder.mapScreen(
     onBackClick: (MapScreenData?) -> Unit,
