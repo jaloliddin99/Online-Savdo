@@ -86,8 +86,7 @@ fun SavedScreen(
                 ProductItem(
                     item, onItemClicked = {
                         navigateToProduct.invoke(it)
-                    }, isLiked = true,
-                    isMainScreenOrProfile = false
+                    }, isLiked = true
                 )
             }
             item(span = { GridItemSpan(2) }) {

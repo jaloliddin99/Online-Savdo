@@ -1,6 +1,6 @@
 package org.don.onlineTrade.ui.home
 
-import androidx.compose.foundation.Image
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,7 +20,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -32,10 +31,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -44,12 +43,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
-import coil.compose.AsyncImagePainter
-import coil.compose.rememberAsyncImagePainter
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import org.don.onlineTrade.BuildConfig
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.getPublicProducts.Content
-import org.don.onlineTrade.ui.detailsPage.CircularImage
 import org.don.onlineTrade.ui.theme.LocalCustomColors
 import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.spacing
@@ -68,7 +66,6 @@ fun ProductItem(
         end = MaterialTheme.spacing.dimen8Dp
     ),
     isLiked: Boolean = false,
-    isMainScreenOrProfile: Boolean = true,
     isMyPosts: Boolean = false
 ) {
     Card(
@@ -80,7 +77,7 @@ fun ProductItem(
             onItemClicked(data.id)
         }
     ) {
-        ProductItemDetails(data, isLiked, isMainScreenOrProfile, isMyPosts)
+        ProductItemDetails(data, isLiked, isMyPosts)
     }
 }
 
@@ -116,9 +113,10 @@ fun ProductItemForDetailsPage(
 fun ProductItemDetails(
     data: Content,
     isLiked: Boolean = false,
-    isMainScreenOrProfile: Boolean = true,
     isMyPosts: Boolean = false
 ) {
+    Log.d("TAG", "ProductItemDetailsdwadawdwall ${data.status} $isMyPosts ")
+
     Column(
         verticalArrangement = Arrangement.Top,
         modifier = Modifier.wrapContentHeight()
@@ -126,30 +124,30 @@ fun ProductItemDetails(
         var isLoading by remember {
             mutableStateOf(true)
         }
-        var isError by remember {
-            mutableStateOf(false)
-        }
+
+        Log.d("TAG", "ProductItemDetailsdwadawdwamm ${data.status} $isMyPosts ")
+
 
         val url = "${BuildConfig.BASE_URL}post/image/${data.image.imagePath}"
-        val imageLoader = rememberAsyncImagePainter(model = url,
-            onState = { state ->
-                isLoading = state is AsyncImagePainter.State.Loading
-                isError = state is AsyncImagePainter.State.Error
-            })
-
 
         ConstraintLayout(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(180.dp)
         ) {
-            val (imageRef, likeRef, textRef) = createRefs()
+            val (imageRef, likeRef, textRef, pendingRef) = createRefs()
 
-            Image(
-                painter = if (isError.not()) imageLoader else painterResource(R.drawable.logo),
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxSize()
+            Log.d("TAG", "ProductItemDetailsdwadawdwaxx ${data.status} $isMyPosts ")
+
+
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(url)
+                    .crossfade(true)
+                    .build(),
+                contentScale = ContentScale.Inside,
+                contentDescription = "Loaded Image",
+                modifier = Modifier.fillMaxSize()
                     .constrainAs(imageRef) {
                         top.linkTo(parent.top)
                         bottom.linkTo(parent.bottom)
@@ -158,10 +156,11 @@ fun ProductItemDetails(
                     }
                     .background(LocalCustomColors.current.imageBackgroundColor)
                     .background(shimmerBrush(targetValue = 1300f, showShimmer = isLoading)),
-                contentScale = ContentScale.Inside
+                onSuccess = { isLoading = false },
+                onError = { isLoading = false },
             )
 
-            if (isLiked){
+            if (isLiked) {
                 Icon(
                     modifier = Modifier
                         .size(24.dp)
@@ -169,11 +168,13 @@ fun ProductItemDetails(
                             top.linkTo(parent.top, margin = 8.dp)
                             end.linkTo(parent.end, margin = 8.dp)
                         },
-                    painter = painterResource(id = R.drawable.heart_filled), // Your heart icon resource
+                    painter = painterResource(id = R.drawable.heart_filled),
                     contentDescription = "Like",
                     tint = Color.White
                 )
             }
+
+
 
             data.condition?.let {
                 Text(
@@ -191,6 +192,27 @@ fun ProductItemDetails(
                     fontSize = 9.sp
                 )
             }
+
+            if (isMyPosts && (data.status == 0 || data.status == 2)) {
+                Text(
+                    text = stringResource(
+                        id = if (data.status == 0) R.string.pending
+                        else R.string.rejected
+                    ),
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(50))
+                        .background(MaterialTheme.colorScheme.primary)
+                        .constrainAs(pendingRef) {
+                            bottom.linkTo(parent.bottom, margin = 4.dp)
+                            end.linkTo(parent.end, margin = 4.dp)
+                        }
+                        .padding(start = 4.dp, end = 4.dp, top = 1.dp, bottom = 2.dp),
+                    color = Color.White,
+                    fontFamily = robotoFontFamily,
+                    fontSize = 9.sp
+                )
+            }
+
         }
         Column(
             modifier = Modifier

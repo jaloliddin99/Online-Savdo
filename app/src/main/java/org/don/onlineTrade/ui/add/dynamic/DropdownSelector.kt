@@ -98,15 +98,3 @@ fun DropDownSample(
     }
 }
 
-
-@Preview(showBackground = true)
-@Composable
-fun SpinnerSample_Preview() {
-    MaterialTheme {
-//        DropDownSample(
-//            myData,
-//            "Select",
-//            onSelectionChanged = { },
-//        )
-    }
-}

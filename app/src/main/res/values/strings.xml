@@ -39,7 +39,7 @@
     <string name="profile">Profile</string>
     <string name="saved_page">Saved Page</string>
     <string name="enter_title">Enter title*</string>
-    <string name="for_instance_redme">For ex. Iphone 15 Pro Max</string>
+    <string name="for_instance_redme">For ex. Samsung s23 Ultra</string>
     <string name="select_category">Select Category*</string>
     <string name="select_category_without">Select Category</string>
     <string name="add_description">Add description*</string>
@@ -120,6 +120,8 @@
     <string name="characteristics">Characteristics</string>
     <string name="address">Address</string>
     <string name="liked">likes</string>
+    <string name="pending">Checking</string>
+    <string name="rejected">Rejected</string>
 
 
 </resources>

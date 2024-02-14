@@ -38,7 +38,7 @@
     <string name="profile">Profil</string>
     <string name="saved_page">Saqlangan sahifa</string>
     <string name="enter_title">Sarlavhani kiriting*</string>
-    <string name="for_instance_redme">Misol uchun, Iphone 15 Pro Max</string>
+    <string name="for_instance_redme">Misol uchun, Samsung s24 Ultra</string>
     <string name="select_category">Toifani tanlang*</string>
     <string name="select_category_without">Toifani tanlang</string>
     <string name="add_description">Tavsifni qo\'shing*</string>
@@ -120,4 +120,8 @@
 
     <string name="address">Address</string>
     <string name="liked"> likes</string>
+    <string name="pending">Tekshiruvda</string>
+    <string name="rejected">Rad etildi</string>
+
+
 </resources>

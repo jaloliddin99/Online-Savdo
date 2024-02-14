@@ -59,6 +59,7 @@ import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.leak.Parameter
 import org.don.onlineTrade.data.remote.models.leak.Values
 import org.don.onlineTrade.ui.theme.spacing
+import org.don.onlineTrade.utils.SharedPref
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -98,7 +99,7 @@ fun MultipleChoiceDialog(
                     FilterChip(
                         onClick = {  },
                         label = {
-                            Text(it.label_uz)
+                            Text(if (SharedPref.language == "ru") it.label_uz else it.label_ru)
                         },
                         selected = true,
                         leadingIcon = {
@@ -169,7 +170,7 @@ fun MultipleChoiceQuestion(
             val selected = selectedAnswers.contains(it)
             CheckboxRow(
                 modifier = Modifier.padding(vertical = 8.dp),
-                text = it.label_uz,
+                text = if (SharedPref.language == "ru") it.label_uz else it.label_ru,
                 selected = selected,
                 onOptionSelected = { onOptionSelected(!selected, it) }
             )
@@ -231,16 +232,3 @@ fun CheckboxRow(
     }
 }
 
-//@Preview
-//@Composable
-//fun MultipleChoiceQuestionPreview() {
-//    val possibleAnswers = listOf(R.string.success, R.string.continuee, R.string.camera)
-//    val selectedAnswers = remember { mutableStateListOf(R.string.Dark) }
-//    MultipleChoiceQuestion(
-//        titleResourceId = R.string.logout,
-//        directionsResourceId = R.string.forgot_password,
-//        possibleAnswers = possibleAnswers,
-//        selectedAnswers = selectedAnswers,
-//        onOptionSelected = { _, _ -> }
-//    )
-//}

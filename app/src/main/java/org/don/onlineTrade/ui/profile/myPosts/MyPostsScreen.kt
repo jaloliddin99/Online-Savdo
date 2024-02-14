@@ -1,5 +1,6 @@
 package org.don.onlineTrade.ui.profile.myPosts
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -41,12 +42,12 @@ fun MyPostsScreenRoute(
 fun MyPostsScreen(
     modifier: Modifier = Modifier,
     onItemClicked: (Int) -> Unit,
+    homeViewModel: HomeViewModel = hiltViewModel()
 ) {
 
-    val homeViewModel = hiltViewModel<HomeViewModel>()
     val pagerState = homeViewModel.pagerState
 
-    val scrollState = rememberLazyGridState()
+
     LaunchedEffect(key1 = homeViewModel){
         homeViewModel.loadNextItems(isMyPosts = true)
     }
@@ -61,16 +62,19 @@ fun MyPostsScreen(
         ) {
             items(pagerState.items.size) { i ->
                 val item = pagerState.items[i]
-                LaunchedEffect(scrollState) {
+                LaunchedEffect(rememberLazyGridState()) {
                     if (i >= pagerState.items.size - 1 && !pagerState.endReached && !pagerState.isLoading) {
                         homeViewModel.loadNextItems(
                             isMyPosts = true
                         )
                     }
                 }
+                Log.d("TAG", "ProductItemDetailsdwadawdwa0 --- ")
+
                 ProductItem(
                     item,
                     onItemClicked = onItemClicked,
+                    isMyPosts = true
                 )
             }
             item(span = { GridItemSpan(2) }) {

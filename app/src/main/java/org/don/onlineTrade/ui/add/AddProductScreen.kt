@@ -226,6 +226,7 @@ fun AddProductScreen(
                     modifier = Modifier.fillMaxWidth(),
                     title = R.string.please_select_category,
                     isFocusedOrClicked = {
+                        viewModel.setImageList(galleryImageUri)
                         navigateToCategories()
                     }
                 )
@@ -236,6 +237,7 @@ fun AddProductScreen(
                     modifier = Modifier.fillMaxWidth(),
                     title = R.string.enter_your_address,
                     isFocusedOrClicked = {
+                        viewModel.setImageList(galleryImageUri)
                         goToMapScreen()
                     }
                 )

@@ -62,7 +62,7 @@ fun FilterCategoryScreen(
     val pagerState = homeViewModel.pagerState
 
     val scrollState = rememberLazyGridState()
-    LaunchedEffect(key1 = homeViewModel){
+    LaunchedEffect(key1 = homeViewModel) {
         homeViewModel.loadNextItems(categoryId = categoryId)
     }
     Box(
@@ -83,10 +83,7 @@ fun FilterCategoryScreen(
                         )
                     }
                 }
-                ProductItem(
-                    item,
-                    onItemClicked = onItemClicked,
-                    )
+                ProductItem(item, onItemClicked = onItemClicked)
             }
             item(span = { GridItemSpan(2) }) {
 
@@ -105,7 +102,7 @@ fun FilterCategoryScreen(
                 Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen16Dp))
             }
         }
-        if (!pagerState.isLoading && pagerState.endReached && pagerState.items.isEmpty()){
+        if (!pagerState.isLoading && pagerState.endReached && pagerState.items.isEmpty()) {
             ComposeLottieAnimation(Modifier)
         }
         FreeLoading(pagerState.isLoading)
@@ -124,7 +121,9 @@ fun ComposeLottieAnimation(modifier: Modifier) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             LottieAnimation(
-                modifier = modifier.width(150.dp).height(150.dp),
+                modifier = modifier
+                    .width(150.dp)
+                    .height(150.dp),
                 composition = composition,
                 iterations = LottieConstants.IterateForever,
             )

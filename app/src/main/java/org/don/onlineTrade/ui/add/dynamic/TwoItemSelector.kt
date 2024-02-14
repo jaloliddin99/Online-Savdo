@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.leak.Parameter
@@ -61,7 +62,9 @@ fun HorizontalRadioGroup(
                     )
                     Text(
                         text = translator(param.values[0].label_uz, param.values[0].label_ru),
-                        modifier = Modifier.padding(start = 8.dp)
+                        modifier = Modifier.padding(start = 8.dp),
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
 
@@ -88,7 +91,9 @@ fun HorizontalRadioGroup(
                     )
                     Text(
                         text = translator(param.values[1].label_uz, param.values[1].label_ru),
-                        modifier = Modifier.padding(start = 8.dp)
+                        modifier = Modifier.padding(start = 8.dp),
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }

@@ -105,7 +105,8 @@ fun DynamicView(
                 )
             }
 
-            DynamicView.TYPE_PRICE.type -> {
+            DynamicView.TYPE_PRICE.type,
+            DynamicView.TYPE_SALARY.type -> {
                 val textFieldState by remember {
                     mutableStateOf(DynamicViewState(regex = param.validation))
                 }
@@ -201,6 +202,7 @@ enum class DynamicView(val type: String) {
     TYPE_ENUM("enum"),
     TYPE_DIGIT("digit"),
     TYPE_NUMBER("number"),
+    TYPE_SALARY("salary"),
     TYPE_MULTIPLE_CHOICE("multichoice"),
     TYPE_PRICE("price"),
     TYPE_HIDDEN("hidden")
