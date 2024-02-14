@@ -28,6 +28,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -86,12 +87,13 @@ fun CategoryItem(
     modifier: Modifier = Modifier,
     navigateToCategory: (Int) -> Unit
 ) {
-    Card(
+    OutlinedCard(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(MaterialTheme.spacing.dimen12Dp),
         onClick = {
             navigateToCategory(item.id)
-        }
+        },
+
     ) {
         Column(
             modifier = modifier

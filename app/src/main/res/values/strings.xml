@@ -119,6 +119,7 @@
     <string name="select_this_location">Select this location</string>
     <string name="characteristics">Characteristics</string>
     <string name="address">Address</string>
+    <string name="liked">likes</string>
 
 
 </resources>

@@ -62,12 +62,12 @@ fun DetailsToolbar(
         }) {
             if (data?.isLiked == true) {
                 Image(
-                    painter = painterResource(id = R.drawable.ph_heart_fill),
+                    painter = painterResource(id = R.drawable.heart_filled),
                     contentDescription = null
                 )
             } else {
                 Image(
-                    painter = painterResource(id = R.drawable.solar_heart_outline),
+                    painter = painterResource(id = R.drawable.heart_unfilled_2),
                     contentDescription = null
                 )
             }

@@ -2,9 +2,7 @@ package org.don.onlineTrade.ui.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -20,10 +18,10 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
@@ -41,18 +40,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.constraintlayout.compose.Dimension
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import org.don.onlineTrade.BuildConfig
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.getPublicProducts.Content
-import org.don.onlineTrade.data.remote.models.getPublicProducts.Region
+import org.don.onlineTrade.ui.detailsPage.CircularImage
 import org.don.onlineTrade.ui.theme.LocalCustomColors
 import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.spacing
@@ -164,21 +161,17 @@ fun ProductItemDetails(
                 contentScale = ContentScale.Inside
             )
 
-            // Like button with heart icon
-            IconButton(
-                modifier = Modifier
-                    .size(24.dp)
-                    .constrainAs(likeRef) {
-                        top.linkTo(parent.top, margin = 8.dp)
-                        end.linkTo(parent.end, margin = 8.dp)
-                    },
-                onClick = {
-
-                }
-            ) {
+            if (isLiked){
                 Icon(
-                    painter = painterResource(id = R.drawable.ph_heart_fill), // Your heart icon resource
+                    modifier = Modifier
+                        .size(24.dp)
+                        .constrainAs(likeRef) {
+                            top.linkTo(parent.top, margin = 8.dp)
+                            end.linkTo(parent.end, margin = 8.dp)
+                        },
+                    painter = painterResource(id = R.drawable.heart_filled), // Your heart icon resource
                     contentDescription = "Like",
+                    tint = Color.White
                 )
             }
 
@@ -214,6 +207,16 @@ fun ProductItemDetails(
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
+            )
+            val currentColor = LocalContentColor.current
+            val colorWithAlpha = currentColor.copy(alpha = 0.7f) // Adjust alpha as needed
+
+            Text(
+                text = "${data.likes} ${stringResource(id = R.string.liked)}",
+                fontSize = 12.sp,
+                fontFamily = robotoFontFamily,
+                fontWeight = FontWeight.Medium,
+                color = colorWithAlpha,
             )
             val region = data.region?.name
             val district = data.district?.name

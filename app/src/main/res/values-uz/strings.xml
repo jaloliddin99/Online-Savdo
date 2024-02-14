@@ -117,4 +117,7 @@
     <string name="use_gps">GPSdan foydalanish</string>
     <string name="select_this_location">Bu joyni tanlang</string>
     <string name="characteristics">Xususiyatlari</string>
+
+    <string name="address">Address</string>
+    <string name="liked"> likes</string>
 </resources>
