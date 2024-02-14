@@ -16,6 +16,8 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 
 const val mapUserScreenNavigationRoute = "mapUserScreen/{latitude}/{longitude}"
@@ -79,7 +81,13 @@ fun MapShowLocationScreen(
                 isBuildingEnabled = true
             ),
             cameraPositionState = cameraPositionState
-        )
+        ){
+            Marker(
+                state = MarkerState(position = destinationLatLng),
+                title = "Location",
+                snippet = "User location"
+            )
+        }
 
     }
 }

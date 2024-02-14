@@ -7,7 +7,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -21,6 +23,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
@@ -67,19 +71,19 @@ fun ProductItem(
         end = MaterialTheme.spacing.dimen8Dp
     ),
     isLiked: Boolean = false,
-    isMainScreenOrProfile: Boolean = true
+    isMainScreenOrProfile: Boolean = true,
+    isMyPosts: Boolean = false
 ) {
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         modifier = Modifier
             .padding(paddingValues)
-            //.aspectRatio(0.6f),
             .wrapContentWidth(),
         onClick = {
             onItemClicked(data.id)
         }
     ) {
-        ProductItemDetails(data, isLiked, isMainScreenOrProfile)
+        ProductItemDetails(data, isLiked, isMainScreenOrProfile, isMyPosts)
     }
 }
 
@@ -115,7 +119,8 @@ fun ProductItemForDetailsPage(
 fun ProductItemDetails(
     data: Content,
     isLiked: Boolean = false,
-    isMainScreenOrProfile: Boolean = true
+    isMainScreenOrProfile: Boolean = true,
+    isMyPosts: Boolean = false
 ) {
     Column(
         verticalArrangement = Arrangement.Top,
@@ -127,7 +132,6 @@ fun ProductItemDetails(
         var isError by remember {
             mutableStateOf(false)
         }
-        val showShimmer = remember { mutableStateOf(true) }
 
         val url = "${BuildConfig.BASE_URL}post/image/${data.image.imagePath}"
         val imageLoader = rememberAsyncImagePainter(model = url,
@@ -135,97 +139,85 @@ fun ProductItemDetails(
                 isLoading = state is AsyncImagePainter.State.Loading
                 isError = state is AsyncImagePainter.State.Error
             })
-        showShimmer.value = isLoading
-        Image(
-            contentDescription = null,
+
+
+        ConstraintLayout(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(180.dp)
-                .background(LocalCustomColors.current.imageBackgroundColor)
-                .background(shimmerBrush(targetValue = 1300f, showShimmer = showShimmer.value)),
-            contentScale = ContentScale.Inside,
-            painter = if (isError.not()) imageLoader else painterResource(R.drawable.logo),
-        )
-        val paddingValues = PaddingValues(
-            bottom = MaterialTheme.spacing.dimen8Dp,
-            start = MaterialTheme.spacing.dimen8Dp,
-            end = MaterialTheme.spacing.dimen8Dp,
-            top = MaterialTheme.spacing.dimen8Dp,
-        )
+        ) {
+            val (imageRef, likeRef, textRef) = createRefs()
+
+            Image(
+                painter = if (isError.not()) imageLoader else painterResource(R.drawable.logo),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .constrainAs(imageRef) {
+                        top.linkTo(parent.top)
+                        bottom.linkTo(parent.bottom)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    }
+                    .background(LocalCustomColors.current.imageBackgroundColor)
+                    .background(shimmerBrush(targetValue = 1300f, showShimmer = isLoading)),
+                contentScale = ContentScale.Inside
+            )
+
+            // Like button with heart icon
+            IconButton(
+                modifier = Modifier
+                    .size(24.dp)
+                    .constrainAs(likeRef) {
+                        top.linkTo(parent.top, margin = 8.dp)
+                        end.linkTo(parent.end, margin = 8.dp)
+                    },
+                onClick = {
+
+                }
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ph_heart_fill), // Your heart icon resource
+                    contentDescription = "Like",
+                )
+            }
+
+            data.condition?.let {
+                Text(
+                    text = it,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(50))
+                        .background(MaterialTheme.colorScheme.primary)
+                        .constrainAs(textRef) {
+                            bottom.linkTo(parent.bottom, margin = 4.dp)
+                            start.linkTo(parent.start, margin = 4.dp)
+                        }
+                        .padding(start = 4.dp, end = 4.dp, top = 1.dp, bottom = 2.dp),
+                    color = Color.White,
+                    fontFamily = robotoFontFamily,
+                    fontSize = 9.sp
+                )
+            }
+        }
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .padding(paddingValues),
+                .padding(MaterialTheme.spacing.dimen8Dp),
         ) {
-            ConstraintLayout(
+            Text(
+                text = data.title,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-            ) {
-                val (text, icon) = createRefs()
-                Text(
-                    text = data.title,
-                    modifier = Modifier
-                        .constrainAs(text) {
-                            start.linkTo(parent.start)
-                            top.linkTo(parent.top)
-                            bottom.linkTo(parent.bottom)
-                            end.linkTo(icon.start)
-                            width = Dimension.fillToConstraints
-                        }
-                        .fillMaxWidth(),
-                    fontSize = 14.sp,
-                    fontFamily = robotoFontFamily,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-
-                val shape = RoundedCornerShape(8.dp)
-
-                if (!isMainScreenOrProfile) {
-                    Icon(
-                        painter = painterResource(id = if (isLiked) R.drawable.ph_heart_fill else R.drawable.solar_heart_outline),
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier
-                            .width(MaterialTheme.spacing.dimen32Dp)
-                            .height(MaterialTheme.spacing.dimen32Dp)
-                            .padding(MaterialTheme.spacing.dimen4Dp)
-                            .clip(shape)
-                            .constrainAs(icon) {
-                                end.linkTo(parent.end)
-                                top.linkTo(parent.top)
-                                bottom.linkTo(parent.bottom)
-                            }
-                            .clickable {
-
-                            }
-                    )
-                }
-
-            }
-
-            Text(
-                text = stringResource(id = R.string.txt_new),
+                    .fillMaxWidth(),
                 fontSize = 14.sp,
                 fontFamily = robotoFontFamily,
-                fontWeight = FontWeight.Medium,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen4Dp))
-
-            Text(
-                text = "${data.price} ${data.priceUnit}",
-                fontSize = 14.sp,
-                fontFamily = robotoFontFamily,
-                fontWeight = FontWeight.Medium,
-            )
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen4Dp))
             val region = data.region?.name
             val district = data.district?.name
             val name = data.addressName
-
 
             Text(
                 text = if (region != null && district != null) "$region, $district"
@@ -237,13 +229,30 @@ fun ProductItemDetails(
                 fontWeight = FontWeight.Normal,
             )
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen4Dp))
-            Text(
-                text = convertDate(data.createdDate),
-                fontFamily = robotoFontFamily,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Normal,
-            )
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen4Dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(50))
+                        .background(MaterialTheme.colorScheme.primary)
+                        .padding(start = 4.dp, end = 4.dp, top = 1.dp, bottom = 2.dp),
+                    text = "${data.price} ${data.priceUnit}",
+                    fontSize = 12.sp,
+                    fontFamily = robotoFontFamily,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.White
+                )
+                Text(
+                    text = convertDate(data.createdDate),
+                    fontFamily = robotoFontFamily,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Normal,
+                )
+            }
         }
     }
 }

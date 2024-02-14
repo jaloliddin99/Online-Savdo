@@ -58,8 +58,8 @@ val convertDate: (String) -> String = { date: String ->
     val month = dateTime.monthValue
     val year = dateTime.year
     val isCurrentYear = Year.now().value == year
-    val formatter = DateTimeFormatter.ofPattern("d MMMM" + if (isCurrentYear) "" else ", yyyy")
-        .withLocale(Locale.ENGLISH)
+    val formatter = DateTimeFormatter.ofPattern("d MMM" + if (isCurrentYear) "" else ", yyyy")
+        .withLocale(Locale.getDefault())
     val formattedDate = dateTime.format(formatter)
     formattedDate
 }

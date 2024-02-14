@@ -1,7 +1,5 @@
 package org.don.onlineTrade.ui.map
 
-import android.location.Location
-import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -21,9 +19,7 @@ import org.don.onlineTrade.domain.repository.LocationTracker
 import org.don.onlineTrade.domain.state.Resource
 import org.don.onlineTrade.domain.useCase.LocationReverseUseCase
 import org.don.onlineTrade.domain.useCase.regionUseCase.RegionsDistrictsUseCase
-import org.don.onlineTrade.ui.home.AddProductScreenState
 import org.don.onlineTrade.ui.home.MapScreenScreenState
-import org.don.onlineTrade.ui.region.MyLocation
 import org.don.onlineTrade.utils.LOCATION_REVERSE_URL
 import org.don.onlineTrade.utils.SharedPref
 import javax.inject.Inject

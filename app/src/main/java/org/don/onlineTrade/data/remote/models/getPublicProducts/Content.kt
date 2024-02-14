@@ -12,6 +12,7 @@ data class Content(
     val addressName: String,
     val addressDescription: String,
     val title: String,
+    val condition: String?=null
 )
 
 data class District(
