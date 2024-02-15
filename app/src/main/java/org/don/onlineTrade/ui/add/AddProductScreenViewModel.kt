@@ -42,18 +42,6 @@ class AddProductScreenViewModel @Inject constructor(
 ) : AndroidViewModel(application) {
 
 
-    var categoryValue: CategoryItem by mutableStateOf(CategoryItem())
-
-    fun categoryValue(newValue: CategoryItem) {
-        categoryValue = newValue
-    }
-
-    var mapValue: MapScreenData by mutableStateOf(MapScreenData())
-
-    fun mapScreenValue(mapScreenData: MapScreenData){
-        mapValue = mapScreenData
-    }
-
     var titleValue: TextFieldState by mutableStateOf(ProductTitleState())
     fun setTitle(newValue: TextFieldState) {
         titleValue = newValue
@@ -74,7 +62,6 @@ class AddProductScreenViewModel @Inject constructor(
 
 
     private fun clearStoredValues() {
-        categoryValue(CategoryItem())
         setTitle(ProductTitleState())
         setDescription(ProductDescriptionState())
         setImageList(listOf())

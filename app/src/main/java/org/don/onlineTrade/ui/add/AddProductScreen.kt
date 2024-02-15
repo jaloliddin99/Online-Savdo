@@ -114,9 +114,6 @@ fun AddProductScreen(
 
     val state = viewModel.state.value
     val isLoading = state.isLoading
-    if (state.error.isNotEmpty()) {
-        Toast.makeText(context, state.error, Toast.LENGTH_SHORT).show()
-    }
     if (state.showSuccessDialog) {
         NotifyDialog(onDismiss = {
             viewModel.updateShowSuccessDialog(false)
@@ -126,23 +123,19 @@ fun AddProductScreen(
         })
     }
 
+    Log.d("TAG", "AddProductScreendwadawdawd $item")
+
     if (item != null) {
-        viewModel.categoryValue(item)
         LaunchedEffect(key1 = Unit) {
             viewModel.getCategoryDerails(item.id)
         }
     }
 
-    if (map != null) {
-        viewModel.mapScreenValue(map)
-    }
-
-    val productTitleState by rememberSaveable(stateSaver = ProductTitleStateSaver) {
+    val productTitleState by remember {
         mutableStateOf(viewModel.titleValue)
     }
 
-
-    val productDescriptionState by rememberSaveable(stateSaver = ProductDescriptionStateSaver) {
+    val productDescriptionState by remember {
         mutableStateOf(viewModel.descriptionVM)
     }
 
@@ -222,7 +215,7 @@ fun AddProductScreen(
 
             TitleWrapper(titleRes = R.string.select_category) {
                 TextFieldUnEditable(
-                    productTitle = viewModel.categoryValue.title,
+                    productTitle = item?.title,
                     modifier = Modifier.fillMaxWidth(),
                     title = R.string.please_select_category,
                     isFocusedOrClicked = {
@@ -233,7 +226,7 @@ fun AddProductScreen(
             }
             TitleWrapper(titleRes = R.string.enter_your_address) {
                 TextFieldUnEditable(
-                    productTitle = viewModel.mapValue.addressName,
+                    productTitle = map?.addressName,
                     modifier = Modifier.fillMaxWidth(),
                     title = R.string.enter_your_address,
                     isFocusedOrClicked = {
@@ -257,7 +250,7 @@ fun AddProductScreen(
             val isEnabled =
                 productTitleState.isValid
                         && productDescriptionState.isValid
-                        && viewModel.categoryValue.id != -1
+                        && item?.id != -1
                         && (galleryImageUri.isNotEmpty() && galleryImageUri.size < 10)
                         && map != null
                         && dynamicDataCorrect(dynamicViewData)
@@ -267,7 +260,7 @@ fun AddProductScreen(
                 submitProduct(
                     productTitleState.text,
                     productDescriptionState.text,
-                    viewModel.categoryValue.id,
+                    item!!.id,
                     galleryImageUri,
                     map!!,
                     getOnlyValidOptions(dynamicViewData).map { it.toPostDto() }
@@ -350,6 +343,9 @@ fun AddProductScreen(
 
         }
         FreeLoading(isFeedLoading = isLoading)
+    }
+    if (state.error.isNotEmpty()) {
+        Toast.makeText(context, state.error, Toast.LENGTH_SHORT).show()
     }
 }
 

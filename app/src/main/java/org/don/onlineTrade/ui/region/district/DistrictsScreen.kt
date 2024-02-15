@@ -1,6 +1,5 @@
 package org.don.onlineTrade.ui.region.district
 
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Box
@@ -12,8 +11,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -23,15 +20,9 @@ import org.don.onlineTrade.data.location.checkGpsEnabled
 import org.don.onlineTrade.data.remote.models.region.Data
 import org.don.onlineTrade.data.remote.models.region.DataDistrict
 import org.don.onlineTrade.ui.add.AskLocationDialog
-import org.don.onlineTrade.ui.add.ProductTitleStateSaver
-import org.don.onlineTrade.ui.home.GPSEnableView
-import org.don.onlineTrade.ui.home.NearPosts
-import org.don.onlineTrade.ui.home.RegionsScreenState
 import org.don.onlineTrade.ui.region.DistrictItem
-import org.don.onlineTrade.ui.region.MyLocation
 import org.don.onlineTrade.ui.region.RegionsViewModel
 import org.don.onlineTrade.utils.FreeLoading
-import org.don.onlineTrade.utils.LocaleManager
 import org.don.onlineTrade.utils.hasPermissionForLocation
 import org.don.onlineTrade.utils.runTimePermission.RunTimePermission
 
