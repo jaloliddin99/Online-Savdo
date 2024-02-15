@@ -95,7 +95,7 @@
     <string name="send_msg">Отправить сообщение</string>
     <string name="are_you_really_sure">Вы уверены, что хотите удалить этот пост? Это действие нельзя отменить.</string>
     <string name="success">Успех</string>
-    <string name="your_post_has_been_successfully_created">Ваш пост успешно создан. Вы можете увидеть его на главном экране. Вы можете обновить, удал</string>
+    <string name="your_post_has_been_successfully_created">Ваше сообщение успешно отправлено на рассмотрение. оно будет проверено и опубликовано в течение 1 дня.</string>
     <string name="log_out">Вы действительно уверены, что хотите выйти из своего профиля?</string>
     <string name="invalid_password">Неверный пароль</string>
     <string name="near_you">Сообщения рядом с вами</string>

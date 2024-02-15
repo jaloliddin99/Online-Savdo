@@ -165,6 +165,7 @@ class AddProductScreenViewModel @Inject constructor(
                         clearStoredValues()
                         _state.value = AddProductScreenState(
                             postNewProduct = result.data,
+                            showSuccessDialog = true
                         )
                     }
 
