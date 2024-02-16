@@ -59,7 +59,9 @@ class HomeViewModel @Inject constructor(
                 }
 
                 is Resource.Loading -> {
-                    _state.value = _state.value.copy(isLoading = true, error = "")
+                    if (_state.value.categoryList == null) {
+                        _state.value = _state.value.copy(isLoading = true, error = "")
+                    }
                 }
             }
         }.launchIn(viewModelScope)
