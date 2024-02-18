@@ -6,6 +6,6 @@ import java.util.Locale
 
 fun convertLongToDateString(timeInMillis: Long): String {
     val date = Date(timeInMillis)
-    val format = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+    val format = SimpleDateFormat("MMM dd, yyyy", Locale.ENGLISH)
     return format.format(date)
 }
