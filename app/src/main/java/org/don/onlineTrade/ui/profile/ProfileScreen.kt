@@ -452,7 +452,7 @@ fun LogOut(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp)
+                    .height(48.dp)
                     .padding(horizontal = MaterialTheme.spacing.dimen16Dp)
             ) {
                 Text(

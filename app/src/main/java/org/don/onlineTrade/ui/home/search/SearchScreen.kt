@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsTopHeight
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -31,6 +32,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -41,14 +43,17 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -74,6 +79,7 @@ import org.don.onlineTrade.ui.filterCategory.ComposeLottieAnimation
 import org.don.onlineTrade.ui.home.HomeViewModel
 import org.don.onlineTrade.ui.home.ProductItem
 import org.don.onlineTrade.ui.theme.spacing
+import org.don.onlineTrade.utils.convertLongToDateString
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
@@ -186,8 +192,7 @@ fun SearchScreen(
             onDismissRequest = {
                 showBottomSheet = false
             },
-            sheetState = sheetState,
-            modifier = modifier.fillMaxHeight()
+            sheetState = sheetState
         ) {
             BottomSheetContent(
                 onClickListen = {
@@ -204,20 +209,55 @@ fun SearchScreen(
 
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomSheetContent(
     onClickListen: () -> Unit
 ) {
+
+    val datePickerState = rememberDatePickerState()
+    val showDialog = rememberSaveable { mutableIntStateOf(0) }
+    var titleTextFrom by remember {
+        mutableStateOf<String?>(null)
+    }
+    var titleTextTo by remember {
+        mutableStateOf<String?>(null)
+    }
+
+    if (showDialog.intValue != 0) {
+        DatePickerDialog(
+            onDismissRequest = { showDialog.intValue = 0 },
+            confirmButton = {
+                TextButton(onClick = { showDialog.intValue = 0 }) {
+                    datePickerState.selectedDateMillis?.let {
+                        val date = convertLongToDateString(it)
+                        if (showDialog.intValue == 1)
+                            titleTextFrom = date
+                        else titleTextTo = date
+                    }
+                    Text("Ok")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog.intValue = 0 }) {
+                    Text("Cancel")
+                }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
+
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .padding(horizontal = 16.dp)
     ) {
         Text("Filter", style = MaterialTheme.typography.headlineMedium)
 
-        // Horizontal TextButtons
         Row(
-            modifier = Modifier.padding(vertical = 8.dp),
+            modifier = Modifier.padding(vertical = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             TextButton(
@@ -226,10 +266,12 @@ fun BottomSheetContent(
                     .padding(end = 8.dp)
                     .border(1.dp, Color.Gray, RoundedCornerShape(50)),
 
-                onClick = { /* Handle click */ },
+                onClick = {
+                    showDialog.intValue = 1
+                },
                 shape = RoundedCornerShape(50) // Rounded corners
             ) {
-                Text("Option 1")
+                Text(titleTextFrom ?: "From")
             }
 
             TextButton(
@@ -237,32 +279,35 @@ fun BottomSheetContent(
                     .weight(1f)
                     .padding(end = 8.dp)
                     .border(1.dp, Color.Gray, RoundedCornerShape(50)),
-                onClick = { /* Handle click */ },
+                onClick = { showDialog.intValue = 2 },
                 shape = RoundedCornerShape(50) // Rounded corners
             ) {
-                Text("Option 2")
+                Text(titleTextTo ?: "From")
             }
         }
 
         TextButton(
-            onClick = onClickListen,
+            onClick = {
+
+            },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp)
+                .padding(vertical = 12.dp)
                 .border(1.dp, Color.Gray, RoundedCornerShape(50)),
-            shape = RoundedCornerShape(50) // Rounded corners
+            shape = RoundedCornerShape(50)
         ) {
             Text("Select Region and District")
         }
+
         Button(
-            onClick = { /* Handle Click */ },
+            onClick = onClickListen,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            shape = RoundedCornerShape(50) // Rounded corners
+                .height(48.dp)
         ) {
-            Text("Confirm")
+            Text("Apply Filter")
         }
+        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen24Dp))
     }
 }
 
