@@ -3,19 +3,7 @@ package org.don.onlineTrade.data.remote.models.region
 import androidx.annotation.Keep
 import java.io.Serializable
 
-@Keep
-data class ModelGetRegions(
-    val `data`: List<Data>,
-    val message: String,
-    val success: Boolean
-)
 
-@Keep
-data class ModelGetDistricts(
-    val `data`: List<DataDistrict>,
-    val message: String,
-    val success: Boolean
-)
 @Keep
 data class Data(
     val id: Int,
@@ -40,5 +28,11 @@ data class ModelGetRegionAndDistricts(
 data class RegionDistrict(
     val id: Int,
     val name: String,
-    val regionId: Int?=null
+    val districts: List<District>
+)
+
+@Keep
+data class District(
+    val id: Int,
+    val name: String
 )

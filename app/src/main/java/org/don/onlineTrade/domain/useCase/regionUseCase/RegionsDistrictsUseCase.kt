@@ -2,12 +2,9 @@ package org.don.onlineTrade.domain.useCase.regionUseCase
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import org.don.onlineTrade.data.remote.models.region.Data
-import org.don.onlineTrade.data.remote.models.region.DataDistrict
 import org.don.onlineTrade.data.remote.models.region.RegionDistrict
 import org.don.onlineTrade.domain.repository.NetworkRepository
 import org.don.onlineTrade.domain.state.Resource
-import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
 
@@ -35,26 +32,4 @@ class RegionsDistrictsUseCase @Inject constructor(
         }
     }
 
-    fun invokeDistricts(
-        token: String,
-        language: String,
-        regionId: Int
-    ): Flow<Resource<List<DataDistrict>>> = flow {
-        try {
-            emit(Resource.Loading())
-            emit(
-                Resource.Success(
-                    repository.getAllDistricts(
-                        token,
-                        language,
-                        regionId = regionId
-                    ).data
-                )
-            )
-        } catch (e: Exception) {
-            emit(Resource.Error(e.localizedMessage ?: "An unexpected error occured"))
-        } catch (e: IOException) {
-            emit(Resource.Error("Couldn't reach server. Check your internet connection."))
-        }
-    }
 }

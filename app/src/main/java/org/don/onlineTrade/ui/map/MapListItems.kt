@@ -220,8 +220,9 @@ val getLocation: (GeoObject?, List<RegionDistrict>?) -> MapScreenData? = { obj, 
         val lat = obj.Point.pos.split(" ")[1].toDouble()
         val addressName = obj.name
         val addressDescription = obj.description
-        val regionList = list.filter { it.regionId ==  null }
-        val districtList = list.filter { it.regionId !=  null }
+        val regionList = list
+        val districtList = list.flatMap { it.districts }
+
         val mapRegionList = obj.metaDataProperty.GeocoderMetaData.Address.Components
         var regionId = -1
         var districtId = -1

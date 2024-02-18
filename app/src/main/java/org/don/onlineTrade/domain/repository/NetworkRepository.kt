@@ -13,9 +13,7 @@ import org.don.onlineTrade.data.remote.models.getPublicProducts.ModelPosts
 import org.don.onlineTrade.data.remote.models.leak.ModelLeak
 import org.don.onlineTrade.data.remote.models.nearPost.NeaPostModel
 import org.don.onlineTrade.data.remote.models.post.PostModel
-import org.don.onlineTrade.data.remote.models.region.ModelGetDistricts
 import org.don.onlineTrade.data.remote.models.region.ModelGetRegionAndDistricts
-import org.don.onlineTrade.data.remote.models.region.ModelGetRegions
 import org.don.onlineTrade.data.remote.models.reverse.ModelAddressReverse
 import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsModel
 
@@ -58,18 +56,6 @@ interface NetworkRepository {
         categoryId: Int
     ): ModelLeak
 
-
-    suspend fun getAllRegions(
-        token: String,
-        language: String
-    ): ModelGetRegions
-
-
-    suspend fun getAllDistricts(
-        token: String,
-        language: String,
-        regionId: Int
-    ): ModelGetDistricts
 
     suspend fun getAllRegionDistrict(
         token: String,

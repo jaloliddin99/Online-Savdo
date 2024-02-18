@@ -34,7 +34,6 @@ data class RegionsScreenState(
     val error: String = "",
     val showAlertDialog: Boolean = false,
     val myLocation: MyLocation? = null,
-    val district: DataDistrict? = null
 )
 
 

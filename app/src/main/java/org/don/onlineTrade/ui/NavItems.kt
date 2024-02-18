@@ -19,7 +19,6 @@ import androidx.compose.material.icons.outlined.Save
 import androidx.compose.ui.graphics.vector.ImageVector
 import org.don.onlineTrade.R
 import org.don.onlineTrade.ui.navigation.categoriesNavigationRoute
-import org.don.onlineTrade.ui.navigation.districtsNavigationRoute
 import org.don.onlineTrade.ui.navigation.filterCategoryNavigationRoute
 import org.don.onlineTrade.ui.navigation.myProductsNavigationRoute
 import org.don.onlineTrade.ui.navigation.notificationsNavigationRoute
@@ -124,15 +123,6 @@ sealed class NavItems(
         badgeCount = null,
         regionsNavigationRoute,
         titleRes = R.string.regions
-    )
-    object District: NavItems(
-        title = "Districts",
-        selectedIcon = Icons.Filled.AreaChart,
-        unselectedIcon = Icons.Outlined.AreaChart,
-        hasNews = true,
-        badgeCount = null,
-        districtsNavigationRoute,
-        titleRes = R.string.districts
     )
 
     object Notifications: NavItems(

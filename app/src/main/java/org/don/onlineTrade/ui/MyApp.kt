@@ -60,8 +60,6 @@ import org.don.onlineTrade.ui.map.mapUserScreen
 import org.don.onlineTrade.ui.map.mapUserScreenNavigationRoute
 import org.don.onlineTrade.ui.navigation.categoriesNavigationRoute
 import org.don.onlineTrade.ui.navigation.categoriesScreen
-import org.don.onlineTrade.ui.navigation.districtsNavigationRoute
-import org.don.onlineTrade.ui.navigation.districtsScreen
 import org.don.onlineTrade.ui.navigation.filterCategoryNavigationRoute
 import org.don.onlineTrade.ui.navigation.filterCategoryScreen
 import org.don.onlineTrade.ui.navigation.forgotPasswordRoute
@@ -152,7 +150,6 @@ fun MainScreenView(
                     if (destination != null
                         && destination.screenRoute != categoriesNavigationRoute
                         && destination.screenRoute != regionsNavigationRoute
-                        && destination.screenRoute != districtsNavigationRoute
                         && destination.screenRoute != profileUpdateNavigationRoute
                         && destination.screenRoute != passwordUpdateNavigationRoute
                         && destination.screenRoute != notificationsNavigationRoute
@@ -181,7 +178,6 @@ fun MainScreenView(
                     if (destination != null) {
                         val showBackArrow = destination.screenRoute == categoriesNavigationRoute
                                 || destination.screenRoute == regionsNavigationRoute
-                                || destination.screenRoute == districtsNavigationRoute
                                 || destination.screenRoute == profileUpdateNavigationRoute
                                 || destination.screenRoute == passwordUpdateNavigationRoute
                                 || destination.screenRoute == pDetailsNavigationRoute
@@ -473,20 +469,10 @@ fun NavigationGraph(
 
                 navController.popBackStack()
             }
-
         )
         regionsScreen(
             onBackPressed = {
                 navController.navigate("district/${it.id}/${it.name}")
-            }
-        )
-        districtsScreen(
-            onBackPressed = { district, region, lat, lon ->
-                navController.navigate("add/${region.id}/${region.name}/${district.id}/${district.name}/$lat/$lon") {
-                    popUpTo(navController.graph.id) {
-                        inclusive = true
-                    }
-                }
             }
         )
     }

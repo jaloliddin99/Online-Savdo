@@ -75,6 +75,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.leak.Values
+import org.don.onlineTrade.data.remote.models.region.District
+import org.don.onlineTrade.data.remote.models.region.RegionDistrict
 import org.don.onlineTrade.ui.filterCategory.ComposeLottieAnimation
 import org.don.onlineTrade.ui.home.HomeViewModel
 import org.don.onlineTrade.ui.home.ProductItem
@@ -223,7 +225,25 @@ fun BottomSheetContent(
     var titleTextTo by remember {
         mutableStateOf<String?>(null)
     }
+    val showRegionDistrictDialog = remember {
+        mutableStateOf(false)
+    }
+    var regionId by remember {
+        mutableStateOf<RegionDistrict?>(null)
+    }
+    var districtId by remember {
+        mutableStateOf<District?>(null)
+    }
 
+    if (showRegionDistrictDialog.value) {
+        ShowRegionsDialog(onDismissRequest = {
+            showRegionDistrictDialog.value = false
+        }, onSelectRequest = { region, district ->
+            regionId = region
+            districtId = district
+            showRegionDistrictDialog.value = false
+        })
+    }
     if (showDialog.intValue != 0) {
         DatePickerDialog(
             onDismissRequest = { showDialog.intValue = 0 },
@@ -288,7 +308,7 @@ fun BottomSheetContent(
 
         TextButton(
             onClick = {
-
+                showRegionDistrictDialog.value = true
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -296,7 +316,7 @@ fun BottomSheetContent(
                 .border(1.dp, Color.Gray, RoundedCornerShape(50)),
             shape = RoundedCornerShape(50)
         ) {
-            Text("Select Region and District")
+            Text(regionId?.name ?: "Select Region and District")
         }
 
         Button(
