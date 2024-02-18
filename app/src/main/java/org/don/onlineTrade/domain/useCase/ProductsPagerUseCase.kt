@@ -14,7 +14,11 @@ class ProductsPagerUseCase @Inject constructor(
         pageSize: Int,
         lang: String = SharedPref.language,
         categoryId: Int?,
-        query: String?
+        query: String?,
+        startDate: String?,
+        endDate: String?,
+        regionId: Int = -1,
+        districtId: Int = -1
     ): Result<List<Content>> {
         return try {
             val networkPager = repository.getProductsPager(
@@ -23,7 +27,11 @@ class ProductsPagerUseCase @Inject constructor(
                 count = pageSize,
                 lang = lang,
                 categoryId = categoryId,
-                query = query
+                query = query,
+                startDate,
+                endDate,
+                regionId,
+                districtId
             ).data.content
             return Result.success(
                 networkPager

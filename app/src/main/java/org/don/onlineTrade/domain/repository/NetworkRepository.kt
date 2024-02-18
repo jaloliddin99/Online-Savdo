@@ -16,6 +16,7 @@ import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.ModelGetRegionAndDistricts
 import org.don.onlineTrade.data.remote.models.reverse.ModelAddressReverse
 import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsModel
+import retrofit2.http.Query
 
 interface NetworkRepository {
 
@@ -43,7 +44,6 @@ interface NetworkRepository {
         code: Int,
         password: String
     ): ModelSuccess
-
 
 
     suspend fun getAllCategories(
@@ -123,7 +123,11 @@ interface NetworkRepository {
         count: Int,
         lang: String,
         categoryId: Int?,
-        query: String?
+        query: String?,
+        startDate: String?,
+        endDate: String?,
+        regionId: Int = -1,
+        districtId: Int = -1
     ): ModelPosts
 
     suspend fun getNearPosts(

@@ -172,7 +172,11 @@ class NetworkRepositoryImpl @Inject constructor(
         count: Int,
         lang: String,
         categoryId: Int?,
-        query: String?
+        query: String?,
+        startDate: String?,
+        endDate: String?,
+        regionId: Int,
+        districtId: Int
     ): ModelPosts {
         return apiInterface.getPublicProducts(
             token = token,
@@ -180,7 +184,11 @@ class NetworkRepositoryImpl @Inject constructor(
             size = count,
             lang = lang,
             categoryId = categoryId,
-            query = query
+            query = query,
+            startDate,
+            endDate,
+            regionId,
+            districtId
         )
     }
 

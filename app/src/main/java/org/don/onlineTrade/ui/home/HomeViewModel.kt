@@ -84,6 +84,10 @@ class HomeViewModel @Inject constructor(
                       categoryId: Int?,
                       minPrice: Int?,
                       maxPrice: Int?,
+                      startDate: String?,
+                      endDate: String?,
+                      regionId: Int,
+                      districtId: Int,
                       isMyPosts: Boolean ->
             if (isMyPosts) {
                 myPostsUseCase.getItems(
@@ -95,8 +99,12 @@ class HomeViewModel @Inject constructor(
                     page = nextPage,
                     pageSize = 20,
                     categoryId = categoryId,
-                    query = query
-                )
+                    query = query,
+                    startDate = startDate,
+                    endDate = endDate,
+                    regionId = regionId,
+                    districtId = districtId
+                    )
             }
         },
         getNextKey = {
@@ -121,6 +129,10 @@ class HomeViewModel @Inject constructor(
         categoryId: Int? = null,
         minPrice: Int? = null,
         maxPrice: Int? = null,
+        startDate: String? = null,
+        endDate: String? = null,
+        regionId: Int = -1,
+        districtId: Int = -1,
         isMyPosts: Boolean = false
     ) {
         viewModelScope.launch {
@@ -129,7 +141,11 @@ class HomeViewModel @Inject constructor(
                 categoryId = categoryId,
                 minPrice = minPrice,
                 maxPrice = maxPrice,
-                isMyPosts = isMyPosts
+                isMyPosts = isMyPosts,
+                startDate = startDate,
+                endDate = endDate,
+                regionId = regionId,
+                districtId = districtId
             )
         }
     }

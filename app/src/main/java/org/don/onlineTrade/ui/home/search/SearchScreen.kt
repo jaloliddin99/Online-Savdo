@@ -197,10 +197,18 @@ fun SearchScreen(
             sheetState = sheetState
         ) {
             BottomSheetContent(
-                onClickListen = {
+                onClickListen = { filter ->
                     scope.launch { sheetState.hide() }.invokeOnCompletion {
                         if (!sheetState.isVisible) {
                             showBottomSheet = false
+                            homeViewModel.resetPager()
+                            homeViewModel.loadNextItems(
+                                query = searchTextListener,
+                                startDate = filter.titleTextFrom,
+                                endDate = filter.titleTextTo,
+                                regionId = filter.regionId,
+                                districtId = filter.districtId
+                            )
                         }
                     }
                 }
@@ -211,10 +219,17 @@ fun SearchScreen(
 
 }
 
+data class FilterClass(
+    val titleTextFrom: String? = null,
+    val titleTextTo: String? = null,
+    val regionId: Int = -1,
+    val districtId: Int = -1
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomSheetContent(
-    onClickListen: () -> Unit
+    onClickListen: (FilterClass) -> Unit
 ) {
 
     val datePickerState = rememberDatePickerState()
@@ -320,7 +335,16 @@ fun BottomSheetContent(
         }
 
         Button(
-            onClick = onClickListen,
+            onClick = {
+                onClickListen.invoke(
+                    FilterClass(
+                        titleTextFrom,
+                        titleTextTo,
+                        (regionId?.id ?: -1),
+                        (districtId?.id ?: -1)
+                    )
+                )
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp)

@@ -67,7 +67,11 @@ interface ApiInterface {
         @Query("size") size: Int,
         @Query("lang") lang: String,
         @Query("category_id") categoryId: Int?,
-        @Query("query") query: String?
+        @Query("query") query: String?,
+        @Query("startDate") startDate: String?,
+        @Query("endDate") endDate: String?,
+        @Query("regionId") regionId: Int = -1,
+        @Query("districtId") districtId: Int = -1
     ): ModelPosts
 
     @GET("post/near")
