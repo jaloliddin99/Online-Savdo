@@ -1,5 +1,6 @@
 package org.don.onlineTrade.ui.home
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -96,8 +97,8 @@ fun CategoryItem(
         Column(
             modifier = modifier
                 .padding(
-                    start = MaterialTheme.spacing.dimen12Dp,
-                    end = MaterialTheme.spacing.dimen12Dp
+                    start = MaterialTheme.spacing.dimen8Dp,
+                    end = MaterialTheme.spacing.dimen8Dp
                 ),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceEvenly

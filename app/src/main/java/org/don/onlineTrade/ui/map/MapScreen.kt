@@ -206,6 +206,7 @@ fun MapsScreen(
                     searchTextListener = it
                 },
                 searchQuery = searchTextListener,
+                onFilterClicked = {}
             )
 
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
