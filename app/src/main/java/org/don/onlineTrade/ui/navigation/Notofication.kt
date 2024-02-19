@@ -4,7 +4,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
-import org.don.onlineTrade.ui.notofication.NotificationsRoute
+import org.don.onlineTrade.ui.notification.NotificationsRoute
 
 const val notificationsNavigationRoute = "notifications"
 fun NavController.navigateToNotifications(navOptions: NavOptions? = null) {

@@ -6,6 +6,7 @@ import org.don.onlineTrade.data.remote.models.LoginBody
 import org.don.onlineTrade.data.remote.models.ModelSuccess
 import org.don.onlineTrade.data.remote.models.RegistrationBody
 import org.don.onlineTrade.data.remote.models.VerificationRes
+import org.don.onlineTrade.data.remote.models.getNotifications.NotificationData
 import org.don.onlineTrade.data.remote.models.getProfile.ModelGetProfile
 import org.don.onlineTrade.data.remote.models.getProfile.UpdatePasswordModel
 import org.don.onlineTrade.data.remote.models.getProfile.UpdateProfileModel
@@ -16,6 +17,7 @@ import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.ModelGetRegionAndDistricts
 import org.don.onlineTrade.data.remote.models.reverse.ModelAddressReverse
 import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsModel
+import retrofit2.http.Header
 import retrofit2.http.Query
 
 interface NetworkRepository {
@@ -77,6 +79,13 @@ interface NetworkRepository {
         files: List<MultipartBody.Part>,
         postParams: RequestBody
     ): PostModel
+
+    suspend fun getNotifications(
+        token: String,
+        page: Int,
+        size: Int,
+        lang: String
+    ): NotificationData
 
     suspend fun showProductModel(
         id: Int,

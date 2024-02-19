@@ -1,4 +1,4 @@
-package org.don.onlineTrade.ui.notofication
+package org.don.onlineTrade.ui.notification
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -37,12 +37,12 @@ fun NotificationsScreen(
     modifier: Modifier = Modifier,
 ) {
 
-    val homeViewModel = hiltViewModel<HomeViewModel>()
+    val homeViewModel = hiltViewModel<NotificationViewModel>()
     val pagerState = homeViewModel.pagerState
 
     val scrollState = rememberLazyGridState()
     LaunchedEffect(key1 = homeViewModel){
-        homeViewModel.loadNextItems(isMyPosts = true)
+        homeViewModel.loadNextItems()
     }
     Box(
         modifier = modifier.fillMaxSize()
@@ -52,9 +52,7 @@ fun NotificationsScreen(
                 val item = pagerState.items[i]
                 LaunchedEffect(scrollState) {
                     if (i >= pagerState.items.size - 1 && !pagerState.endReached && !pagerState.isLoading) {
-                        homeViewModel.loadNextItems(
-                            isMyPosts = true
-                        )
+                        homeViewModel.loadNextItems()
                     }
                 }
                 NotificationItemScreen(

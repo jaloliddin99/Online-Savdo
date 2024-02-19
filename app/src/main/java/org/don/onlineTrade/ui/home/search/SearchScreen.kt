@@ -1,6 +1,5 @@
 package org.don.onlineTrade.ui.home.search
 
-import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -8,15 +7,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsTopHeight
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -46,7 +42,6 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -64,17 +59,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
-import org.don.onlineTrade.R
-import org.don.onlineTrade.data.remote.models.leak.Values
 import org.don.onlineTrade.data.remote.models.region.District
 import org.don.onlineTrade.data.remote.models.region.RegionDistrict
 import org.don.onlineTrade.ui.filterCategory.ComposeLottieAnimation
@@ -82,9 +72,6 @@ import org.don.onlineTrade.ui.home.HomeViewModel
 import org.don.onlineTrade.ui.home.ProductItem
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.convertLongToDateString
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.util.Calendar
 
 
 @Composable
@@ -122,7 +109,7 @@ fun SearchScreen(
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
-    var myFliter by remember {
+    var myFilter by remember {
         mutableStateOf(FilterClass())
     }
 
@@ -140,10 +127,10 @@ fun SearchScreen(
                     homeViewModel.resetPager()
                     homeViewModel.loadNextItems(
                         query = searchTextListener,
-                        startDate = myFliter.titleTextFrom,
-                        endDate = myFliter.titleTextTo,
-                        regionId = myFliter.regionId,
-                        districtId = myFliter.districtId
+                        startDate = myFilter.titleTextFrom,
+                        endDate = myFilter.titleTextTo,
+                        regionId = myFilter.regionId,
+                        districtId = myFilter.districtId
                     )
                 },
                 searchQuery = searchTextListener,
@@ -165,10 +152,10 @@ fun SearchScreen(
                         if (i >= pagerState.items.size - 1 && !pagerState.endReached && !pagerState.isLoading) {
                             homeViewModel.loadNextItems(
                                 query = searchTextListener,
-                                startDate = myFliter.titleTextFrom,
-                                endDate = myFliter.titleTextTo,
-                                regionId = myFliter.regionId,
-                                districtId = myFliter.districtId
+                                startDate = myFilter.titleTextFrom,
+                                endDate = myFilter.titleTextTo,
+                                regionId = myFilter.regionId,
+                                districtId = myFilter.districtId
                             )
                         }
                     }
@@ -211,7 +198,7 @@ fun SearchScreen(
                 onClickListen = { filter ->
                     scope.launch { sheetState.hide() }.invokeOnCompletion {
                         if (!sheetState.isVisible){
-                            myFliter = filter
+                            myFilter = filter
                             showBottomSheet = false
                             homeViewModel.resetPager()
                             homeViewModel.loadNextItems(

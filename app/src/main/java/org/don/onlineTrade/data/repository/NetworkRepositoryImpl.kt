@@ -9,6 +9,7 @@ import org.don.onlineTrade.data.remote.models.ModelSuccess
 import org.don.onlineTrade.data.remote.models.RegistrationBody
 import org.don.onlineTrade.data.remote.models.VerificationRes
 import org.don.onlineTrade.data.remote.models.category.Category
+import org.don.onlineTrade.data.remote.models.getNotifications.NotificationData
 import org.don.onlineTrade.data.remote.models.getProfile.ModelGetProfile
 import org.don.onlineTrade.data.remote.models.getProfile.UpdatePasswordModel
 import org.don.onlineTrade.data.remote.models.getProfile.UpdateProfileModel
@@ -122,6 +123,15 @@ class NetworkRepositoryImpl @Inject constructor(
             files,
             postParams
         )
+    }
+
+    override suspend fun getNotifications(
+        token: String,
+        page: Int,
+        size: Int,
+        lang: String
+    ): NotificationData {
+        return apiInterface.getAllNotifications(token, page, size, lang)
     }
 
     override suspend fun showProductModel(

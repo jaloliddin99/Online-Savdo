@@ -1,11 +1,14 @@
-package org.don.onlineTrade.ui.notofication
+package org.don.onlineTrade.ui.notification
 
+import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -16,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,17 +30,25 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
+import org.don.onlineTrade.BuildConfig
 import org.don.onlineTrade.R
-import org.don.onlineTrade.data.remote.models.getPublicProducts.Content
+import org.don.onlineTrade.data.remote.models.getNotifications.Content
+import org.don.onlineTrade.ui.theme.LocalCustomColors
 import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.convertDate
+import org.don.onlineTrade.utils.shimmerBrush
 
 
 @Composable
@@ -55,12 +67,11 @@ fun NotificationItemScreen(
         modifier = Modifier
             .padding(paddingValues)
             .wrapContentWidth()
-    ){
+    ) {
         NotificationItemView(data)
     }
 
 }
-
 
 
 @Composable
@@ -68,45 +79,38 @@ fun NotificationItemView(
     data: Content
 ) {
     Column(
-        verticalArrangement = Arrangement.Top,
         modifier = Modifier.wrapContentHeight()
     ) {
         var isLoading by remember {
             mutableStateOf(true)
         }
-        var isError by remember {
-            mutableStateOf(false)
-        }
-        val url = "http://91.227.40.169:8080/api/v1/post/image/${data.image.imagePath}"
-        val imageLoader = rememberAsyncImagePainter(model = url,
-            onState = { state ->
-                isLoading = state is AsyncImagePainter.State.Loading
-                isError = state is AsyncImagePainter.State.Error
-            })
+        val currentColor = LocalContentColor.current
 
-        Box(
+        val url = "${BuildConfig.BASE_URL}notification/image/${data.imagePath}"
+        Log.d("TAG", "NotificationItemViewdwadawdawdwad $url")
+
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(url)
+                .crossfade(true)
+                .build(),
+            contentScale = ContentScale.Crop,
+            contentDescription = "Loaded Image",
             modifier = Modifier
-                .wrapContentHeight()
-                .fillMaxWidth(),
-            contentAlignment = Alignment.Center
-        ) {
-            if (isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .size(80.dp),
-                    color = MaterialTheme.colorScheme.tertiary,
-                )
-            }
-            Image(
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(180.dp),
-                contentScale = ContentScale.None,
-                painter = if (isError.not()) imageLoader else painterResource(R.drawable.ic_launcher_background),
-            )
-        }
+                .fillMaxWidth()
+                .height(180.dp)
+                .background(LocalCustomColors.current.imageBackgroundColor)
+                .background(shimmerBrush(targetValue = 1300f, showShimmer = isLoading)),
+            onSuccess = {
+                isLoading = false
+                Log.d("TAG", "NotificationItemViewdwadawdawdwad onSuccess")
+            },
+            onError = {
+                isLoading = false
+                Log.d("TAG", "NotificationItemViewdwadawdawdwad onError, ${it.result.throwable.message}")
+
+            },
+        )
         val paddingValues = PaddingValues(
             bottom = MaterialTheme.spacing.dimen8Dp,
             start = MaterialTheme.spacing.dimen8Dp,
@@ -119,20 +123,32 @@ fun NotificationItemView(
                 .padding(paddingValues),
         ) {
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen4Dp))
+            val colorWithAlpha = currentColor.copy(alpha = 0.7f) // Adjust alpha as needed
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen4Dp))
             Text(
-                text = "${data.price} ${data.priceUnit}",
+                text = data.title,
+                fontSize = 16.sp,
+                fontFamily = robotoFontFamily,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen4Dp))
+            Text(
+                text = data.desc,
                 fontSize = 14.sp,
                 fontFamily = robotoFontFamily,
                 fontWeight = FontWeight.Medium,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis
             )
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen4Dp))
             Text(
+                modifier = Modifier.fillMaxWidth(),
                 text = convertDate(data.createdDate),
                 fontFamily = robotoFontFamily,
-                fontSize = 12.sp,
+                fontSize = 13.sp,
                 fontWeight = FontWeight.Normal,
+                color = colorWithAlpha,
+                textAlign = TextAlign.End
             )
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen4Dp))
         }
     }
 }

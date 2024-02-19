@@ -8,6 +8,7 @@ import org.don.onlineTrade.data.remote.models.ModelSuccess
 import org.don.onlineTrade.data.remote.models.RegistrationBody
 import org.don.onlineTrade.data.remote.models.VerificationRes
 import org.don.onlineTrade.data.remote.models.category.Category
+import org.don.onlineTrade.data.remote.models.getNotifications.NotificationData
 import org.don.onlineTrade.data.remote.models.getProfile.ModelGetProfile
 import org.don.onlineTrade.data.remote.models.getProfile.UpdatePasswordModel
 import org.don.onlineTrade.data.remote.models.getProfile.UpdateProfileModel
@@ -73,6 +74,15 @@ interface ApiInterface {
         @Query("regionId") regionId: Int = -1,
         @Query("districtId") districtId: Int = -1
     ): ModelPosts
+
+
+    @GET("notification/pager")
+    suspend fun getAllNotifications(
+        @Header("Authorization") token: String,
+        @Query("page") page: Int,
+        @Query("size") size: Int,
+        @Query("lang") lang: String,
+    ): NotificationData
 
     @GET("post/near")
     suspend fun getNearPosts(
