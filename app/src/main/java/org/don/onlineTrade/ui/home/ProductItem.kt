@@ -52,6 +52,7 @@ import org.don.onlineTrade.ui.theme.LocalCustomColors
 import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.convertDate
+import org.don.onlineTrade.utils.formatNumberWithSpaces
 import org.don.onlineTrade.utils.shimmerBrush
 
 
@@ -115,8 +116,6 @@ fun ProductItemDetails(
     isLiked: Boolean = false,
     isMyPosts: Boolean = false
 ) {
-    Log.d("TAG", "ProductItemDetailsdwadawdwall ${data.status} $isMyPosts ")
-
     Column(
         verticalArrangement = Arrangement.Top,
         modifier = Modifier.wrapContentHeight()
@@ -124,9 +123,6 @@ fun ProductItemDetails(
         var isLoading by remember {
             mutableStateOf(true)
         }
-
-        Log.d("TAG", "ProductItemDetailsdwadawdwamm ${data.status} $isMyPosts ")
-
 
         val url = "${BuildConfig.BASE_URL}post/image/${data.image.imagePath}"
 
@@ -137,15 +133,12 @@ fun ProductItemDetails(
         ) {
             val (imageRef, likeRef, textRef, pendingRef) = createRefs()
 
-            Log.d("TAG", "ProductItemDetailsdwadawdwaxx ${data.status} $isMyPosts ")
-
-
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(url)
                     .crossfade(true)
                     .build(),
-                contentScale = ContentScale.Inside,
+                contentScale = ContentScale.Crop,
                 contentDescription = "Loaded Image",
                 modifier = Modifier.fillMaxSize()
                     .constrainAs(imageRef) {
@@ -265,7 +258,7 @@ fun ProductItemDetails(
                         .clip(RoundedCornerShape(50))
                         .background(MaterialTheme.colorScheme.primary)
                         .padding(start = 4.dp, end = 4.dp, top = 1.dp, bottom = 2.dp),
-                    text = "${data.price} ${data.priceUnit}",
+                    text = "${formatNumberWithSpaces(data.price)} ${data.priceUnit}",
                     fontSize = 12.sp,
                     fontFamily = robotoFontFamily,
                     fontWeight = FontWeight.Medium,

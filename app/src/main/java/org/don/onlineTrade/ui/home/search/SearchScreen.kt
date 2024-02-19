@@ -122,6 +122,9 @@ fun SearchScreen(
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
+    var myFliter by remember {
+        mutableStateOf(FilterClass())
+    }
 
 
     Box {
@@ -136,7 +139,11 @@ fun SearchScreen(
                     searchTextListener = it
                     homeViewModel.resetPager()
                     homeViewModel.loadNextItems(
-                        query = searchTextListener
+                        query = searchTextListener,
+                        startDate = myFliter.titleTextFrom,
+                        endDate = myFliter.titleTextTo,
+                        regionId = myFliter.regionId,
+                        districtId = myFliter.districtId
                     )
                 },
                 searchQuery = searchTextListener,
@@ -157,7 +164,11 @@ fun SearchScreen(
                     LaunchedEffect(scrollState) {
                         if (i >= pagerState.items.size - 1 && !pagerState.endReached && !pagerState.isLoading) {
                             homeViewModel.loadNextItems(
-                                query = searchTextListener
+                                query = searchTextListener,
+                                startDate = myFliter.titleTextFrom,
+                                endDate = myFliter.titleTextTo,
+                                regionId = myFliter.regionId,
+                                districtId = myFliter.districtId
                             )
                         }
                     }
@@ -199,7 +210,8 @@ fun SearchScreen(
             BottomSheetContent(
                 onClickListen = { filter ->
                     scope.launch { sheetState.hide() }.invokeOnCompletion {
-                        if (!sheetState.isVisible) {
+                        if (!sheetState.isVisible){
+                            myFliter = filter
                             showBottomSheet = false
                             homeViewModel.resetPager()
                             homeViewModel.loadNextItems(
@@ -317,7 +329,7 @@ fun BottomSheetContent(
                 onClick = { showDialog.intValue = 2 },
                 shape = RoundedCornerShape(50) // Rounded corners
             ) {
-                Text(titleTextTo ?: "From")
+                Text(titleTextTo ?: "to")
             }
         }
 

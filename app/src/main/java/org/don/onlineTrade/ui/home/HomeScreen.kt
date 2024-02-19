@@ -169,7 +169,7 @@ fun HomeScreen(
                     if (stateNear.getNearPost != null) {
                         NearPosts(
                             state = stateNear.getNearPost!!.data,
-                            navigateToCategory = {}
+                            navigateToCategory = navigateToProduct
                         )
                     }
                 }

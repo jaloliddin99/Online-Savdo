@@ -30,6 +30,7 @@
     <string name="hide_password">Скрыть пароль</string>
     <string name="show_password">Показать пароль</string>
     <string name="password">Пароль</string>
+    <string name="m">на расстоянии</string>
     <string name="confirm_password">Подтвердите пароль</string>
     <string name="login_account">Вход в аккаунт</string>
     <string name="please_login">Пожалуйста, войдите в свой аккаунт</string>

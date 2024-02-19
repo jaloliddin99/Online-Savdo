@@ -22,6 +22,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -32,6 +35,7 @@ import org.don.onlineTrade.BuildConfig
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.nearPost.Data
 import org.don.onlineTrade.ui.theme.LocalCustomColors
+import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.shimmerBrush
 
@@ -68,7 +72,9 @@ fun NearPosts(
 fun NearPostItem(
     item: Data,
     modifier: Modifier = Modifier,
-    navigateToCategory: (Int) -> Unit
+    navigateToCategory: (Int) -> Unit,
+    shape: Shape = RoundedCornerShape(MaterialTheme.spacing.dimen8Dp)
+
 ) {
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -92,12 +98,14 @@ fun NearPostItem(
                     .width(60.dp)
                     .height(60.dp)
                     .padding(8.dp)
+                    .clip(shape)
                     .background(
                         LocalCustomColors.current.imageBackgroundColor,
                         shape = RoundedCornerShape(MaterialTheme.spacing.dimen4Dp)
                     )
                     .background(shimmerBrush(targetValue = 1300f, showShimmer = showShimmer.value)),
                 model = url,
+                contentScale = ContentScale.Crop,
                 onSuccess = { showShimmer.value = false },
                 contentDescription = null,
             )
@@ -109,6 +117,7 @@ fun NearPostItem(
                 Text(
                     text = item.title,
                     textAlign = TextAlign.Center,
+                    fontFamily = robotoFontFamily,
                     fontWeight = FontWeight.Normal,
                     fontSize = 12.sp,
                     maxLines = 1
@@ -116,11 +125,11 @@ fun NearPostItem(
                 Text(
                     text = "${item.distance} ${stringResource(id = R.string.m)}",
                     textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.Medium,
                     fontSize = 10.sp,
-                    maxLines = 1
+                    maxLines = 1,
+                    fontFamily = robotoFontFamily,
+                    fontWeight = FontWeight.Medium
                 )
-
             }
         }
     }

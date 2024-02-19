@@ -6,11 +6,21 @@ import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
 import org.don.onlineTrade.R
+import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
 import java.time.LocalDateTime
 import java.time.Year
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
+
+fun formatNumberWithSpaces(numberStr: String): String {
+    val symbols = DecimalFormatSymbols(Locale.US).apply {
+        groupingSeparator = ' '
+    }
+    val formatter = DecimalFormat("#,###", symbols)
+    return formatter.format(numberStr.toLong())
+}
 fun openSmsApp(context: Context, phoneNumber: String) {
     val smsUri = Uri.parse("smsto:$phoneNumber")
     val smsIntent = Intent(Intent.ACTION_SENDTO, smsUri)
