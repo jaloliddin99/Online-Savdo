@@ -15,13 +15,15 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.gms.tasks.Task
+import com.google.firebase.FirebaseApp
+import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.don.onlineTrade.domain.model.DarkThemeConfig
 import org.don.onlineTrade.domain.model.ThemeBrand
 import org.don.onlineTrade.ui.MainScreenView
-import org.don.onlineTrade.ui.add.AddProductScreenViewModel
 import org.don.onlineTrade.ui.dialogs.settings.SETTINGS_UI_STATE
 import org.don.onlineTrade.ui.dialogs.settings.SettingsDialogViewModel
 import org.don.onlineTrade.ui.dialogs.settings.UserEditableSettings
@@ -42,10 +44,17 @@ class MainActivity : ComponentActivity(), OnRunTimePermissionListener {
     }
     private val viewModel: SettingsDialogViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
-        //LocaleManager.setLocale(this, SharedPref.language)
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        FirebaseApp.initializeApp(this)
 
+        FirebaseMessaging.getInstance().subscribeToTopic("all")
+            .addOnCompleteListener { task: Task<Void?> ->
+                var msg = "Subscribed to topic all"
+                if (!task.isSuccessful) {
+                    msg = "Failed to subscribe to topic all"
+                }
+            }
         RunTimePermission().permissionList(this, this)
         val userSetting = ModelPref.get<UserEditableSettings>(SETTINGS_UI_STATE)
         val settingsUiState = if (userSetting != null) userSetting

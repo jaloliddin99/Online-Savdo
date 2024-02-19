@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -192,7 +193,7 @@ fun MainScreenView(
                             title = stringResource(id = destination.titleRes),
                             navigationIcon = if (!showBackArrow) Icons.Filled.Search else Icons.Filled.ArrowBack,
                             navigationIconContentDescription = null,
-                            actionIcon = if (destination.screenRoute == profileNavigationRoute) Icons.Filled.Settings else Icons.Filled.Notifications,
+                            actionIcon = if (destination.screenRoute == profileNavigationRoute) Icons.Filled.Settings else Icons.Outlined.Notifications,
                             actionIconContentDescription = null,
                             colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                                 containerColor = Color.Transparent
