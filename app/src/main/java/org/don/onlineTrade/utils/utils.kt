@@ -14,7 +14,9 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 
-fun formatNumberWithSpaces(numberStr: String): String {
+fun formatNumberWithSpaces(numberStr: String?): String {
+    if (numberStr == null)
+        return ""
     val symbols = DecimalFormatSymbols(Locale.US).apply {
         groupingSeparator = ' '
     }

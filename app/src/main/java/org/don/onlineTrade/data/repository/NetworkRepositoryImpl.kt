@@ -150,6 +150,10 @@ class NetworkRepositoryImpl @Inject constructor(
         return apiInterface.likePost(token, id, language)
     }
 
+    override suspend fun prioritizePost(token: String, postId: Long, period: Int): PostModel {
+        return apiInterface.prioritizePost(token, postId, period)
+    }
+
     override suspend fun getLikedProducts(
         token: String,
         page: Int,

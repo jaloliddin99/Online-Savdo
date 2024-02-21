@@ -198,7 +198,7 @@ fun HomeScreen(
                     }
                 }
 
-                ProductItem(item, onItemClicked = navigateToProduct)
+                ProductItem(item, onItemClicked = navigateToProduct,onItemLongLicked = {})
             }
             item(span = { GridItemSpan(2) }) {
                 if (pagerState.isLoading && pagerState.page != 0) {

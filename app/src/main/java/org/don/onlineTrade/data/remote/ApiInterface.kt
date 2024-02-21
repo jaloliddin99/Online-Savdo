@@ -140,6 +140,13 @@ interface ApiInterface {
     ): PostModel
 
 
+    @POST("post/prioritize")
+    suspend fun prioritizePost(
+        @Header("Authorization") token: String,
+        @Query("postId") postId: Long,
+        @Query("period") periodInHours: Int
+    ): PostModel
+
     @GET("post/{id}")
     suspend fun showProductModel(
         @Header("Authorization") token: String,

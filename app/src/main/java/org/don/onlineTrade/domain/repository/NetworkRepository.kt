@@ -105,6 +105,12 @@ interface NetworkRepository {
     ): PostDetailsModel
 
 
+    suspend fun prioritizePost(
+        token: String,
+        postId: Long,
+        period: Int
+    ): PostModel
+
     suspend fun getLikedProducts(
         token: String,
         page: Int,

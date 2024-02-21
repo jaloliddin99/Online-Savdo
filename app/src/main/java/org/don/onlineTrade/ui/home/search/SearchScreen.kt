@@ -162,6 +162,7 @@ fun SearchScreen(
                     ProductItem(
                         item,
                         onItemClicked = onItemClick
+                        ,onItemLongLicked = {}
                     )
                 }
                 item(span = { GridItemSpan(2) }) {

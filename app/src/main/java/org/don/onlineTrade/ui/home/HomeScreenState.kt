@@ -62,6 +62,12 @@ data class PresentProductState(
     val error: String = ""
 )
 
+data class MyProfileScreen(
+    val isLoading: Boolean = false,
+    val getProfile: PostModel? = null,
+    val error: String = ""
+)
+
 
 data class GetProfileState(
     val isLoading: Boolean = false,

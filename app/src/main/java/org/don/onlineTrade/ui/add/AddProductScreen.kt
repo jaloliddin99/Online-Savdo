@@ -123,8 +123,6 @@ fun AddProductScreen(
         })
     }
 
-    Log.d("TAG", "AddProductScreendwadawdawd $item")
-
     if (item != null) {
         LaunchedEffect(key1 = Unit) {
             viewModel.getCategoryDerails(item.id)

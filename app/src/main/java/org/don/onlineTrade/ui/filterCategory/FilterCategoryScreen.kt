@@ -83,7 +83,7 @@ fun FilterCategoryScreen(
                         )
                     }
                 }
-                ProductItem(item, onItemClicked = onItemClicked)
+                ProductItem(item, onItemClicked = onItemClicked, onItemLongLicked = {})
             }
             item(span = { GridItemSpan(2) }) {
 

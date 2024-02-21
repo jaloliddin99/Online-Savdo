@@ -13,7 +13,8 @@ data class Content(
     val addressDescription: String,
     val title: String,
     val status: Int,
-    val condition: String?=null
+    val condition: String?=null,
+    val isPrioritized: Boolean
 )
 
 data class District(

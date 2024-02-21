@@ -122,6 +122,7 @@
     <string name="liked">likes</string>
     <string name="pending">Checking</string>
     <string name="rejected">Rejected</string>
+    <string name="top">Top</string>
 
 
 </resources>

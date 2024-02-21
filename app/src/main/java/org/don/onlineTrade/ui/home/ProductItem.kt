@@ -1,7 +1,10 @@
 package org.don.onlineTrade.ui.home
 
 import android.util.Log
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -32,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -56,7 +60,7 @@ import org.don.onlineTrade.utils.formatNumberWithSpaces
 import org.don.onlineTrade.utils.shimmerBrush
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun ProductItem(
     data: Content,
@@ -67,16 +71,22 @@ fun ProductItem(
         end = MaterialTheme.spacing.dimen8Dp
     ),
     isLiked: Boolean = false,
-    isMyPosts: Boolean = false
+    isMyPosts: Boolean = false,
+    onItemLongLicked: (Int) -> Unit
 ) {
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         modifier = Modifier
             .padding(paddingValues)
-            .wrapContentWidth(),
-        onClick = {
-            onItemClicked(data.id)
-        }
+            .wrapContentWidth()
+            .combinedClickable(
+                onClick = {
+                    onItemClicked(data.id)
+                },
+                onLongClick = {
+                    onItemLongLicked.invoke(data.id)
+                },
+            )
     ) {
         ProductItemDetails(data, isLiked, isMyPosts)
     }
@@ -114,7 +124,7 @@ fun ProductItemForDetailsPage(
 fun ProductItemDetails(
     data: Content,
     isLiked: Boolean = false,
-    isMyPosts: Boolean = false
+    isMyPosts: Boolean = false,
 ) {
     Column(
         verticalArrangement = Arrangement.Top,
@@ -131,7 +141,7 @@ fun ProductItemDetails(
                 .fillMaxWidth()
                 .height(180.dp)
         ) {
-            val (imageRef, likeRef, textRef, pendingRef) = createRefs()
+            val (imageRef, likeRef, textRef, pendingRef, prioritized) = createRefs()
 
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
@@ -140,7 +150,8 @@ fun ProductItemDetails(
                     .build(),
                 contentScale = ContentScale.Crop,
                 contentDescription = "Loaded Image",
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
                     .constrainAs(imageRef) {
                         top.linkTo(parent.top)
                         bottom.linkTo(parent.bottom)
@@ -183,6 +194,23 @@ fun ProductItemDetails(
                     color = Color.White,
                     fontFamily = robotoFontFamily,
                     fontSize = 9.sp
+                )
+            }
+
+            if (data.isPrioritized){
+                Text(
+                    text = stringResource(id = R.string.top),
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(50))
+                        .background(MaterialTheme.colorScheme.primary)
+                        .constrainAs(prioritized) {
+                            bottom.linkTo(parent.top, margin = 4.dp)
+                            end.linkTo(parent.start, margin = 4.dp)
+                        }
+                        .padding(start = 4.dp, end = 4.dp, top = 1.dp, bottom = 2.dp),
+                    color = Color.White,
+                    fontFamily = robotoFontFamily,
+                    fontSize = 12.sp
                 )
             }
 
