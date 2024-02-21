@@ -13,7 +13,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -28,15 +27,12 @@ fun PrioritizeDialogContent(
     onButtonClicked: (Int) -> Unit
 ) {
     val timeDurations = listOf(
-        3L, 6L, 12L, 24L, // Hours for 1 day
-        72L, 144L, 240L, 360L, 720L // Hours for multiple days, converted to hours
+        3L, 6L, 12L, 24L,
+        72L, 144L, 240L, 360L, 720L
     )
 
-    // Using a continuous range for the slider
-    var sliderPosition by remember { mutableStateOf(0f) }
+    var sliderPosition by remember { mutableFloatStateOf(0f) }
     val maxIndex = (timeDurations.size - 1).toFloat()
-
-    // Map the continuous slider position to the nearest duration
     val nearestDurationIndex = mapSliderPositionToNearestDurationIndex(sliderPosition, maxIndex, timeDurations)
     val selectedDuration = timeDurations[nearestDurationIndex]
 
@@ -51,7 +47,7 @@ fun PrioritizeDialogContent(
             value = sliderPosition,
             onValueChange = { sliderPosition = it.coerceIn(0f, maxIndex) },
             valueRange = 0f..maxIndex,
-            steps = 0 // Making the slider move smoothly without snapping to steps
+            steps = 0
         )
 
         Text(text = "Selected duration in hours: $selectedDuration hours")

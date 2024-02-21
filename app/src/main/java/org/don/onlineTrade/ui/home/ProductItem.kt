@@ -1,10 +1,8 @@
 package org.don.onlineTrade.ui.home
 
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -18,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -35,7 +34,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -60,7 +58,7 @@ import org.don.onlineTrade.utils.formatNumberWithSpaces
 import org.don.onlineTrade.utils.shimmerBrush
 
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ProductItem(
     data: Content,
@@ -76,6 +74,7 @@ fun ProductItem(
 ) {
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        shape = RoundedCornerShape(12.dp),
         modifier = Modifier
             .padding(paddingValues)
             .wrapContentWidth()
@@ -201,13 +200,13 @@ fun ProductItemDetails(
                 Text(
                     text = stringResource(id = R.string.top),
                     modifier = Modifier
-                        .clip(RoundedCornerShape(50))
+                        .clip(RoundedCornerShape(topStart = 12.dp, bottomEnd = 12.dp))
                         .background(MaterialTheme.colorScheme.primary)
                         .constrainAs(prioritized) {
-                            bottom.linkTo(parent.top, margin = 4.dp)
-                            end.linkTo(parent.start, margin = 4.dp)
+                            top.linkTo(parent.top)
+                            start.linkTo(parent.start)
                         }
-                        .padding(start = 4.dp, end = 4.dp, top = 1.dp, bottom = 2.dp),
+                        .padding(start = 6.dp, end = 6.dp, top = 1.dp, bottom = 2.dp),
                     color = Color.White,
                     fontFamily = robotoFontFamily,
                     fontSize = 12.sp

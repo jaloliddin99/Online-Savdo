@@ -1,7 +1,6 @@
 package org.don.onlineTrade.ui.profile.myPosts
 
-import android.util.Log
-import androidx.compose.foundation.isSystemInDarkTheme
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -31,13 +30,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.launch
+import org.don.onlineTrade.R
 import org.don.onlineTrade.ui.filterCategory.ComposeLottieAnimation
 import org.don.onlineTrade.ui.home.HomeViewModel
 import org.don.onlineTrade.ui.home.ProductItem
-import org.don.onlineTrade.ui.home.search.BottomSheetContent
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.FreeLoading
 
@@ -74,7 +75,8 @@ fun MyPostsScreen(
     var postId by remember {
         mutableIntStateOf(-1)
     }
-
+    val context = LocalContext.current
+    val prioritized: String = stringResource(id = R.string.it_is_already_prioritized)
 
 
     LaunchedEffect(key1 = homeViewModel){
@@ -105,8 +107,13 @@ fun MyPostsScreen(
                     onItemClicked = onItemClicked,
                     isMyPosts = true,
                     onItemLongLicked = {
-                        postId = it
-                        showBottomSheet = true
+                        if (!item.isPrioritized && item.status == 1){
+                            postId = it
+                            showBottomSheet = true
+                        }
+                        if (item.isPrioritized){
+                            Toast.makeText(context, prioritized, Toast.LENGTH_SHORT).show()
+                        }
                     }
                 )
             }

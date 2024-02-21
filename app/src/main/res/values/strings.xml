@@ -123,6 +123,7 @@
     <string name="pending">Checking</string>
     <string name="rejected">Rejected</string>
     <string name="top">Top</string>
+    <string name="it_is_already_prioritized">This post is already prioritized</string>
 
 
 </resources>
