@@ -6,6 +6,7 @@ import org.don.onlineTrade.data.remote.models.LoginBody
 import org.don.onlineTrade.data.remote.models.ModelSuccess
 import org.don.onlineTrade.data.remote.models.RegistrationBody
 import org.don.onlineTrade.data.remote.models.VerificationRes
+import org.don.onlineTrade.data.remote.models.category.ParentCategories
 import org.don.onlineTrade.data.remote.models.getNotifications.NotificationData
 import org.don.onlineTrade.data.remote.models.getProfile.ModelGetProfile
 import org.don.onlineTrade.data.remote.models.getProfile.UpdatePasswordModel
@@ -52,6 +53,11 @@ interface NetworkRepository {
         token: String,
         language: String
     ): org.don.onlineTrade.data.remote.models.category.Category
+
+    suspend fun getAllParentCategories(
+        token: String,
+        language: String
+    ): ParentCategories
 
     suspend fun getCategoryDetails(
         token: String,

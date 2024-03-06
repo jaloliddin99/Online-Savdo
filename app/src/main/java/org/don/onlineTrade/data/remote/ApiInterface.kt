@@ -8,6 +8,7 @@ import org.don.onlineTrade.data.remote.models.ModelSuccess
 import org.don.onlineTrade.data.remote.models.RegistrationBody
 import org.don.onlineTrade.data.remote.models.VerificationRes
 import org.don.onlineTrade.data.remote.models.category.Category
+import org.don.onlineTrade.data.remote.models.category.ParentCategories
 import org.don.onlineTrade.data.remote.models.getNotifications.NotificationData
 import org.don.onlineTrade.data.remote.models.getProfile.ModelGetProfile
 import org.don.onlineTrade.data.remote.models.getProfile.UpdatePasswordModel
@@ -106,6 +107,11 @@ interface ApiInterface {
         @Query("lang") language: String,
     ): Category
 
+    @GET("categories/parents")
+    suspend fun getAllParentCategories(
+        @Header("Authorization") token: String,
+        @Query("lang") language: String,
+    ): ParentCategories
 
     @GET("categories/{categoryId}")
     suspend fun getCategories(

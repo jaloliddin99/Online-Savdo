@@ -86,7 +86,7 @@ fun HomeScreen(
 
     LaunchedEffect(key1 = viewModel) {
         viewModel.loadNextItems()
-        viewModel.getAllCategories()
+        viewModel.getAllParentCategories()
     }
 
     Box(
@@ -96,7 +96,7 @@ fun HomeScreen(
             columns = GridCells.Fixed(2),
             contentPadding = PaddingValues(horizontal = MaterialTheme.spacing.dimen8Dp)
         ) {
-            if (state.categoryList != null) {
+            if (state.parentCategoryList != null) {
                 item {
                     Text(
                         text = stringResource(id = R.string.category),
@@ -111,7 +111,7 @@ fun HomeScreen(
                 }
                 item(key = "Categories", span = { GridItemSpan(2) }) {
                     Categories(
-                        state.categoryList,
+                        state.parentCategoryList,
                         navigateToCategory = navigateToCategory
                     )
                 }

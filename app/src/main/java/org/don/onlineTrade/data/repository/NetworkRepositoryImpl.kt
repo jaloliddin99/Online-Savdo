@@ -9,6 +9,7 @@ import org.don.onlineTrade.data.remote.models.ModelSuccess
 import org.don.onlineTrade.data.remote.models.RegistrationBody
 import org.don.onlineTrade.data.remote.models.VerificationRes
 import org.don.onlineTrade.data.remote.models.category.Category
+import org.don.onlineTrade.data.remote.models.category.ParentCategories
 import org.don.onlineTrade.data.remote.models.getNotifications.NotificationData
 import org.don.onlineTrade.data.remote.models.getProfile.ModelGetProfile
 import org.don.onlineTrade.data.remote.models.getProfile.UpdatePasswordModel
@@ -79,6 +80,10 @@ class NetworkRepositoryImpl @Inject constructor(
 
     override suspend fun getAllCategories(token: String, language: String): Category {
         return apiInterface.getAllCategories(token, language)
+    }
+
+    override suspend fun getAllParentCategories(token: String, language: String): ParentCategories {
+        return apiInterface.getAllParentCategories(token, language)
     }
 
     override suspend fun getCategoryDetails(token: String, categoryId: Int): ModelLeak {

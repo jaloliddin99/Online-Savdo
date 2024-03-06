@@ -45,12 +45,14 @@ import coil.compose.AsyncImage
 import org.don.onlineTrade.BuildConfig
 import org.don.onlineTrade.data.remote.models.category.Category
 import org.don.onlineTrade.data.remote.models.category.CategoryItem
+import org.don.onlineTrade.data.remote.models.category.CategoryParent
+import org.don.onlineTrade.data.remote.models.category.ParentCategories
 import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.spacing
 
 @Composable
 fun Categories(
-    state: Category,
+    state: ParentCategories,
     navigateToCategory: (Int) -> Unit,
     modifier: Modifier = Modifier
 
@@ -82,7 +84,7 @@ fun Categories(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryItem(
-    item: CategoryItem,
+    item: CategoryParent,
     modifier: Modifier = Modifier,
     navigateToCategory: (Int) -> Unit
 ) {

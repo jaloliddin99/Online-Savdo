@@ -8,3 +8,5 @@ data class CategoryItem(
     val image: String? = null,
     val title: String = ""
 ):Serializable
+
+

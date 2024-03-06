@@ -67,6 +67,38 @@ class HomeViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
+    fun getAllParentCategories(
+        token: String = SharedPref.deviceToken,
+        language: String = SharedPref.language,
+    ) {
+        categoryUseCase.parentCategories(
+            token,
+            language,
+        ).onEach { result ->
+            when (result) {
+                is Resource.Success -> {
+                    val data = result.data
+                    data?.sortBy { it.position }
+                    _state.value = HomeScreenState(parentCategoryList = data)
+                }
+
+                is Resource.Error -> {
+                    _state.value = HomeScreenState(
+                        error = result.message ?: "An unexpected error occured"
+                    )
+                }
+
+                is Resource.Loading -> {
+                    if (_state.value.categoryList == null) {
+                        _state.value = _state.value.copy(isLoading = true, error = "")
+                    }
+                }
+            }
+        }.launchIn(viewModelScope)
+    }
+
+
+
     fun resetPager() {
         paginator.reset()
         pagerState = ScreenState()

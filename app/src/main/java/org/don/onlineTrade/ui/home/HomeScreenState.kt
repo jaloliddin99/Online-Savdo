@@ -9,6 +9,7 @@ import org.don.onlineTrade.data.remote.models.region.Data
 import org.don.onlineTrade.data.remote.models.region.DataDistrict
 import org.don.onlineTrade.ui.region.MyLocation
 import org.don.onlineTrade.data.remote.models.category.Category
+import org.don.onlineTrade.data.remote.models.category.ParentCategories
 import org.don.onlineTrade.data.remote.models.leak.ModelLeak
 import org.don.onlineTrade.data.remote.models.region.RegionDistrict
 import org.don.onlineTrade.data.remote.models.reverse.FeatureMember
@@ -17,6 +18,7 @@ import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsModel
 data class HomeScreenState(
     val isLoading: Boolean = false,
     val categoryList: Category? = null,
+    val parentCategoryList: ParentCategories? = null,
     val getLocation: Boolean = false,
     val error: String = ""
 )
