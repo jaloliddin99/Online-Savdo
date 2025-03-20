@@ -80,12 +80,7 @@ fun UnitDropdownSelector(
 @Composable
 fun SpinnerSample_Preview() {
     MaterialTheme {
-//
-//        SpinnerSample(
-//            myData,
-//            preselected = myData.first(),
-//            onSelectionChanged = { },
-//            modifier = Modifier.fillMaxWidth()
-//        )
+
+
     }
 }
