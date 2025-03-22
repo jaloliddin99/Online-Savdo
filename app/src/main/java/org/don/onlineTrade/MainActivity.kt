@@ -50,10 +50,6 @@ class MainActivity : ComponentActivity(), OnRunTimePermissionListener {
 
         FirebaseMessaging.getInstance().subscribeToTopic("all")
             .addOnCompleteListener { task: Task<Void?> ->
-                var msg = "Subscribed to topic all"
-                if (!task.isSuccessful) {
-                    msg = "Failed to subscribe to topic all"
-                }
             }
         RunTimePermission().permissionList(this, this)
         val userSetting = ModelPref.get<UserEditableSettings>(SETTINGS_UI_STATE)

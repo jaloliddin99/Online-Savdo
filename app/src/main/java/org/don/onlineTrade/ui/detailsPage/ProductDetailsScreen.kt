@@ -38,6 +38,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -127,7 +128,6 @@ fun ProductDetailsRoute(
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ProductDetailsScreen(
     mPagerState: ScreenState,
@@ -149,7 +149,7 @@ fun ProductDetailsScreen(
         systemUiController.setStatusBarColor(Color.Transparent, darkIcons = false)
         onDispose {
             systemUiController.setStatusBarColor(
-                color = Color.Transparent, darkIcons = !isDarkMode
+                color = Color.Transparent, darkIcons = isDarkMode
             )
         }
     }
@@ -338,7 +338,7 @@ fun ItemDescription(
             ),
     ) {
         ProductDescription(data)
-        Divider(
+        HorizontalDivider(
             modifier = Modifier
                 .padding(vertical = MaterialTheme.spacing.dimen10Dp)
         )
@@ -470,8 +470,6 @@ fun ContactDetails(
                 callTo((data?.user?.phoneNumber ?: ""), context)
             }
         )
-
-
     }
 
 }

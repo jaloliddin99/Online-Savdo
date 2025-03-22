@@ -251,10 +251,13 @@ fun ProductItemDetails(
                 overflow = TextOverflow.Ellipsis
             )
             val currentColor = LocalContentColor.current
-            val colorWithAlpha = currentColor.copy(alpha = 0.7f) // Adjust alpha as needed
+            val colorWithAlpha = currentColor.copy(alpha = 0.7f)
 
             Text(
-                text = "${data.likes} ${stringResource(id = R.string.liked)}",
+                text = if (data.likes == 0 || data.likes == 1)
+                    "${data.likes} ${stringResource(id = R.string.likeSingular)}"
+                else
+                    "${data.likes} ${stringResource(id = R.string.likePulural)}",
                 fontSize = 12.sp,
                 fontFamily = robotoFontFamily,
                 fontWeight = FontWeight.Medium,

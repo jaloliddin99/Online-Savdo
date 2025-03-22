@@ -62,10 +62,13 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.launch
+import org.don.onlineTrade.R
+
 import org.don.onlineTrade.data.remote.models.region.District
 import org.don.onlineTrade.data.remote.models.region.RegionDistrict
 import org.don.onlineTrade.ui.filterCategory.ComposeLottieAnimation
@@ -307,7 +310,7 @@ fun BottomSheetContent(
                 },
                 shape = RoundedCornerShape(50) // Rounded corners
             ) {
-                Text(titleTextFrom ?: "From")
+                Text(titleTextFrom ?: stringResource(id = R.string.from))
             }
 
             TextButton(
@@ -318,7 +321,7 @@ fun BottomSheetContent(
                 onClick = { showDialog.intValue = 2 },
                 shape = RoundedCornerShape(50) // Rounded corners
             ) {
-                Text(titleTextTo ?: "to")
+                Text(titleTextTo ?: stringResource(id = R.string.to))
             }
         }
 
@@ -332,7 +335,7 @@ fun BottomSheetContent(
                 .border(1.dp, Color.Gray, RoundedCornerShape(50)),
             shape = RoundedCornerShape(50)
         ) {
-            Text(regionId?.name ?: "Select Region and District")
+            Text(regionId?.name ?: stringResource(id = R.string.txt_select_region_and_district))
         }
 
         Button(
@@ -350,7 +353,7 @@ fun BottomSheetContent(
                 .fillMaxWidth()
                 .height(48.dp)
         ) {
-            Text("Apply Filter")
+            Text(stringResource(id = R.string.txt_apply_filter))
         }
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen24Dp))
     }

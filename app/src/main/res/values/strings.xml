@@ -119,11 +119,17 @@
     <string name="select_this_location">Select this location</string>
     <string name="characteristics">Characteristics</string>
     <string name="address">Address</string>
-    <string name="liked">likes</string>
+    <string name="likePulural">likes</string>
+    <string name="likeSingular">like</string>
     <string name="pending">Checking</string>
     <string name="rejected">Rejected</string>
     <string name="top">Top</string>
     <string name="it_is_already_prioritized">This post is already prioritized</string>
+    
+    <string name="txt_apply_filter">Apply Filter</string>
+    <string name="txt_select_region_and_district">Select Region and District</string>
+    <string name="from">From</string>
+    <string name="to">to</string>
 
 
 </resources>

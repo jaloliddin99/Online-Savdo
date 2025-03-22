@@ -28,12 +28,12 @@ android {
     buildTypes {
 
         debug {
-            buildConfigField("String", "BASE_URL", "\"http://91.227.40.169:8080/api/v1/\"")
+            buildConfigField("String", "BASE_URL", "\"http://178.157.91.84:8080/api/v1/\"")
         }
 
 
         release {
-            buildConfigField("String", "BASE_URL", "\"http://91.227.40.169:8080/api/v1/\"")
+            buildConfigField("String", "BASE_URL", "\"http://178.157.91.84:8080/api/v1/\"")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(

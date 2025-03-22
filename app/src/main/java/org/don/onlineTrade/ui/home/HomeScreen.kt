@@ -196,7 +196,6 @@ fun HomeScreen(
                         viewModel.loadNextItems()
                     }
                 }
-
                 ProductItem(item, onItemClicked = navigateToProduct,onItemLongLicked = {})
             }
             item(span = { GridItemSpan(2) }) {

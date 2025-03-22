@@ -31,7 +31,11 @@ fun openSmsApp(context: Context, phoneNumber: String) {
 }
 
 fun callTo(phone: String = "", context: Context?) {
-    val intent = Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phone, null))
+    val intent = Intent(Intent.ACTION_DIAL,
+        Uri.fromParts("tel",
+            if (!phone.startsWith("+")) "+${phone}" else phone,
+            null)
+    )
     context?.startActivity(intent)
 }
 

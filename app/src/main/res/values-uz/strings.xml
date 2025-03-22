@@ -120,9 +120,17 @@
     <string name="characteristics">Xususiyatlari</string>
 
     <string name="address">Address</string>
-    <string name="liked"> likes</string>
+    <string name="likePulural">likes</string>
+    <string name="likeSingular">like</string>
     <string name="pending">Tekshiruvda</string>
     <string name="rejected">Rad etildi</string>
+    <string name="top">Top</string>
+    <string name="it_is_already_prioritized">Bu post allaqachon topda</string>
+
+    <string name="txt_apply_filter">Filterlash</string>
+    <string name="txt_select_region_and_district">Viloyat Tuman</string>
+    <string name="from">Dan</string>
+    <string name="to">gacha</string>
 
 
 </resources>

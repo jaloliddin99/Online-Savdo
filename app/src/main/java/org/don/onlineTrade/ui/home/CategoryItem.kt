@@ -43,7 +43,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import org.don.onlineTrade.BuildConfig
-import org.don.onlineTrade.data.remote.models.category.Category
 import org.don.onlineTrade.data.remote.models.category.CategoryItem
 import org.don.onlineTrade.data.remote.models.category.CategoryParent
 import org.don.onlineTrade.data.remote.models.category.ParentCategories
@@ -80,8 +79,6 @@ fun Categories(
     }
 }
 
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryItem(
     item: CategoryParent,

@@ -35,24 +35,20 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
+import org.don.onlineTrade.BuildConfig
 import org.don.onlineTrade.R
 import org.don.onlineTrade.ui.home.PresentProductState
 import org.don.onlineTrade.ui.theme.spacing
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ImagePager(
     state: PresentProductState,
     pagerState: PagerState
 ) {
-    var isLoading by remember {
-        mutableStateOf(true)
-    }
-    var isError by remember {
-        mutableStateOf(false)
-    }
+    var isLoading by remember { mutableStateOf(true) }
+    var isError by remember { mutableStateOf(false) }
 
-    val prefix = "http://91.227.40.169:8080/api/v1/post/image/"
+    val prefix = "${BuildConfig.BASE_URL}post/image/"
 
     val suffix = state.registerMain?.data?.images?.get(pagerState.currentPage)?.imagePath
     val url = "$prefix$suffix"
