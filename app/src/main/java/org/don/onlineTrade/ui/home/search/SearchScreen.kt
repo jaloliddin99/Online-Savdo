@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Search
@@ -377,7 +378,7 @@ fun SearchToolbar(
     ) {
         IconButton(onClick = onBackClick) {
             Icon(
-                imageVector = Icons.Rounded.ArrowBack,
+                imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurface
             )
@@ -391,8 +392,8 @@ fun SearchToolbar(
 
         IconButton(onClick = onFilterClicked) {
             Icon(
-                imageVector = Icons.Default.FilterList, // Use the appropriate filter icon
-                contentDescription = "Filter", // Provide an appropriate content description
+                imageVector = Icons.Default.FilterList,
+                contentDescription = "Filter",
                 tint = MaterialTheme.colorScheme.onSurface
             )
         }
@@ -400,8 +401,6 @@ fun SearchToolbar(
     }
 }
 
-
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun SearchTextField(
     onSearchQueryChanged: (String) -> Unit,

@@ -35,7 +35,7 @@
     <string name="login_account">Вход в аккаунт</string>
     <string name="please_login">Пожалуйста, войдите в свой аккаунт</string>
     <string name="do_you_already_have_account">У вас уже есть аккаунт?</string>
-    <string name="for_you_loading">Загрузка элементов...</string>
+    <string name="for_you_loading">Загрузка элементов…</string>
     <string name="profile">Профиль</string>
     <string name="saved_page">Сохраненная страница</string>
     <string name="enter_title">Введите заголовок*</string>
