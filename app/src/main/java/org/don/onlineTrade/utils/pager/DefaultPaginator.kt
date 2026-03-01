@@ -2,8 +2,8 @@ package org.don.onlineTrade.utils.pager
 
 class DefaultPaginator<Key, Item>(
     private val initialKey: Key,
-    private inline val onLoadUpdated: (Boolean) -> Unit,
-    private inline val onRequest: suspend (
+    private val onLoadUpdated: (Boolean) -> Unit,
+    private val onRequest: suspend (
         nextKey: Key,
         query: String?,
         categoryId: Int?,
@@ -15,9 +15,9 @@ class DefaultPaginator<Key, Item>(
         districtId: Int,
         isMyPosts: Boolean
     ) -> Result<List<Item>>,
-    private inline val getNextKey: suspend (List<Item>) -> Key,
-    private inline val onError: suspend (Throwable?) -> Unit,
-    private inline val onSuccess: suspend (items: List<Item>, newKey: Key) -> Unit
+    private val getNextKey: suspend (List<Item>) -> Key,
+    private val onError: suspend (Throwable?) -> Unit,
+    private val onSuccess: suspend (items: List<Item>, newKey: Key) -> Unit
 ) : Paginator<Key, Item> {
 
     private var currentKey = initialKey

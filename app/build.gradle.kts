@@ -1,21 +1,20 @@
 plugins {
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
-    id("kotlin-android")
-    id("kotlin-kapt")
-    id("dagger.hilt.android.plugin")
+    id("org.jetbrains.kotlin.plugin.compose") // ✅ Compose compiler plugin
+    id("com.google.devtools.ksp")
     id("com.google.gms.google-services")
-    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
+    id("dagger.hilt.android.plugin")
+    id("kotlin-parcelize")
 }
 
 android {
-    namespace = "org.don.onlineTrade"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
+        namespace = "org.don.onlineTrade"
         applicationId = "org.don.onlineTrade"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
@@ -28,12 +27,12 @@ android {
     buildTypes {
 
         debug {
-            buildConfigField("String", "BASE_URL", "\"http://91.227.40.169:8080/api/v1/\"")
+            buildConfigField("String", "BASE_URL", "\"http://95.169.201.165:8080/api/v1/\"")
         }
 
 
         release {
-            buildConfigField("String", "BASE_URL", "\"http://91.227.40.169:8080/api/v1/\"")
+            buildConfigField("String", "BASE_URL", "\"http://95.169.201.165:8080/api/v1/\"")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -42,40 +41,34 @@ android {
             )
         }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
+
     buildFeatures {
-        buildConfig = true
-        compose = true
+        viewBinding  = true
+        dataBinding  = true
+        buildConfig  = true
+        compose      = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.3"
-    }
+
+
     bundle {
         language {
             enableSplit = false
         }
     }
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
-    }
+}
+
+kotlin {
+    jvmToolchain(17)
 }
 
 dependencies {
 
-    implementation("androidx.core:core-ktx:1.12.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
-    implementation("androidx.activity:activity-ktx:1.8.2")
+    implementation("androidx.core:core-ktx:1.17.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.10.0")
+    implementation("androidx.activity:activity-ktx:1.12.4")
 
 
-    implementation(platform("androidx.compose:compose-bom:2023.10.01"))
+    implementation(platform("androidx.compose:compose-bom:2026.02.00"))
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
@@ -84,10 +77,10 @@ dependencies {
 //    implementation("androidx.compose.material:material-icons-core")
 //    implementation("androidx.compose.material3:material3-window-size-class")
 
-    implementation("androidx.activity:activity-compose:1.8.2")
+    implementation("androidx.activity:activity-compose:1.12.4")
 //    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
 //    implementation("androidx.compose.runtime:runtime-livedata")
-    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0-rc02")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.10.0")
 
 
     implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
@@ -101,39 +94,39 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
 
 
-    val nav_version = "2.7.7"
+    val nav_version = "2.9.7"
 
     implementation("androidx.navigation:navigation-compose:$nav_version")
     implementation("androidx.compose.runtime:runtime-tracing:1.0.0-beta01")
 
-    implementation("com.google.dagger:hilt-android:2.48")
-    kapt("com.google.dagger:hilt-android-compiler:2.47")
-    kapt("androidx.hilt:hilt-compiler:1.1.0")
-    implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
+    implementation("com.google.dagger:hilt-android:2.59.2")
+    ksp("com.google.dagger:hilt-android-compiler:2.59.2")
+    ksp("androidx.hilt:hilt-compiler:1.3.0")
+    implementation("androidx.hilt:hilt-navigation-compose:1.3.0")
 
     implementation("com.chibatching.kotpref:kotpref:2.13.1")
-    implementation("com.google.code.gson:gson:2.10.1")
+    implementation("com.google.code.gson:gson:2.13.2")
 
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.retrofit2:retrofit:3.0.0")
+    implementation("com.squareup.retrofit2:converter-gson:3.0.0")
 
-    debugImplementation("com.github.chuckerteam.chucker:library:4.0.0")
-    releaseImplementation("com.github.chuckerteam.chucker:library-no-op:3.5.2")
-    implementation("com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.2")
+    debugImplementation("com.github.chuckerteam.chucker:library:4.3.0")
+    releaseImplementation("com.github.chuckerteam.chucker:library-no-op:4.3.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:5.3.2")
 
     implementation("com.karumi:dexter:6.2.3")
-    implementation("io.coil-kt:coil-compose:2.4.0")
+    implementation("io.coil-kt:coil-compose:2.7.0")
 
     implementation("id.zelory:compressor:3.0.1")
-    implementation("com.airbnb.android:lottie-compose:6.0.1")
+    implementation("com.airbnb.android:lottie-compose:6.7.1")
     implementation("com.github.ozcanalasalvar:otpview:2.0.1")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.12.32")
-    implementation("com.google.android.gms:play-services-location:21.0.1")
+    implementation("com.google.android.gms:play-services-location:21.3.0")
     implementation("com.google.maps.android:maps-compose:4.3.0")
     implementation("com.google.android.gms:play-services-maps:18.2.0")
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.30.1")
 
-    implementation(platform("com.google.firebase:firebase-bom:32.7.2"))
+    implementation(platform("com.google.firebase:firebase-bom:34.9.0"))
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-messaging-ktx:23.4.1")
 

@@ -14,9 +14,11 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -149,7 +151,7 @@ fun ProductDetailsScreen(
         systemUiController.setStatusBarColor(Color.Transparent, darkIcons = false)
         onDispose {
             systemUiController.setStatusBarColor(
-                color = Color.Transparent, darkIcons = !isDarkMode
+                color = Color.Transparent, darkIcons = if (isDarkMode) false else false
             )
         }
     }
@@ -168,15 +170,12 @@ fun ProductDetailsScreen(
     var deletePostId by rememberSaveable {
         mutableIntStateOf(-1)
     }
-
-    val paddingValues = WindowInsets.systemBars.asPaddingValues()
     ConstraintLayout(
         modifier = modifier.fillMaxSize()
     ) {
         val (column, optionsScreen) = createRefs()
         LazyColumn(
             modifier = modifier
-                .padding(bottom = paddingValues.calculateBottomPadding())
                 .constrainAs(column) {
                     top.linkTo(parent.top)
                     start.linkTo(parent.start)
@@ -212,6 +211,7 @@ fun ProductDetailsScreen(
                 }
 
                 Spacer(modifier = modifier.height(24.dp))
+                NavigationBarSpacer()
             }
         }
         OptionsScreen(
@@ -270,40 +270,41 @@ fun OptionsScreen(
     data: Data?
 ) {
 
-    val paddingValues = WindowInsets.systemBars.asPaddingValues()
 
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(bottom = paddingValues.calculateBottomPadding())
-            .wrapContentHeight()
-            .shadow(elevation = 6.dp)
-            .background(
-                color = MaterialTheme.colorScheme.onPrimary,
-                shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
-            )
-            .padding(top = 8.dp, start = 16.dp, end = 16.dp, bottom = 12.dp),
-        horizontalArrangement = Arrangement.SpaceAround,
-        verticalAlignment = Alignment.Top
-    ) {
-        if (data?.user?.id == SharedPref.userId) {
+    Column(modifier.fillMaxWidth()) {
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .shadow(elevation = 6.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.surface,
+                    shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+                )
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.Top
+        ) {
+            if (data?.user?.id == SharedPref.userId) {
+                CircularImage(
+                    icon = Icons.Filled.Delete,
+                    onClicked = { onDeleteClicked.invoke(data.id) }
+                )
+                CircularImage(
+                    icon = Icons.Filled.Edit,
+                    onClicked = { onEditClicked.invoke(data.id) }
+                )
+            }
             CircularImage(
-                icon = Icons.Filled.Delete,
-                onClicked = { onDeleteClicked.invoke(data.id) }
+                icon = Icons.Filled.Call,
+                onClicked = onCallClicked
             )
             CircularImage(
-                icon = Icons.Filled.Edit,
-                onClicked = { onEditClicked.invoke(data.id) }
+                icon = Icons.Filled.Sms,
+                onClicked = onSmsClicked
             )
         }
-        CircularImage(
-            icon = Icons.Filled.Call,
-            onClicked = onCallClicked
-        )
-        CircularImage(
-            icon = Icons.Filled.Sms,
-            onClicked = onSmsClicked
-        )
+        NavigationBarSpacer()
     }
 }
 
@@ -431,10 +432,21 @@ fun DescriptionItems(
             TextNormal16(title = desc)
         }
         Spacer(modifier = Modifier.weight(1f))
-        Image(imageVector = Icons.Filled.KeyboardArrowRight, contentDescription = null)
+        Image(imageVector = Icons.Filled.KeyboardArrowRight, contentDescription = null,
+            )
     }
 }
 
+
+@Composable
+internal fun NavigationBarSpacer() {
+    Spacer(
+        modifier = Modifier
+            .fillMaxWidth()
+            .windowInsetsBottomHeight(WindowInsets.navigationBars)
+            .background(MaterialTheme.colorScheme.surface)
+    )
+}
 
 @Composable
 fun ContactDetails(

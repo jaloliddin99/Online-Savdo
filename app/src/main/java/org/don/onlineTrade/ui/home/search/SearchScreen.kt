@@ -382,13 +382,14 @@ fun SearchToolbar(
         SearchTextField(
             onSearchQueryChanged = onSearchQueryChanged,
             searchQuery = searchQuery,
-            onSearchTriggered = onSearchTriggered
+            onSearchTriggered = onSearchTriggered,
+            modifier = modifier.weight(1f)
         )
 
         IconButton(onClick = onFilterClicked) {
             Icon(
-                imageVector = Icons.Default.FilterList, // Use the appropriate filter icon
-                contentDescription = "Filter", // Provide an appropriate content description
+                imageVector = Icons.Default.FilterList,
+                contentDescription = "Filter",
                 tint = MaterialTheme.colorScheme.onSurface
             )
         }
@@ -400,6 +401,7 @@ fun SearchToolbar(
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun SearchTextField(
+    modifier: Modifier,
     onSearchQueryChanged: (String) -> Unit,
     searchQuery: String,
     onSearchTriggered: (String) -> Unit,
@@ -416,7 +418,7 @@ fun SearchTextField(
     }
 
     TextField(
-        colors = TextFieldDefaults.textFieldColors(
+        colors = TextFieldDefaults.colors(
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
             disabledIndicatorColor = Color.Transparent,
@@ -446,8 +448,7 @@ fun SearchTextField(
                 onSearchQueryChanged(it)
             }
         },
-        modifier = Modifier
-            .wrapContentWidth()
+        modifier = modifier
             .padding(vertical = 16.dp)
             .focusRequester(focusRequest)
             .onKeyEvent {

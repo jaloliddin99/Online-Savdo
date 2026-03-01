@@ -11,11 +11,9 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import okhttp3.internal.assertThreadHoldsLock
 import org.don.onlineTrade.data.remote.models.getPublicProducts.Content
 import org.don.onlineTrade.domain.repository.LocationTracker
 import org.don.onlineTrade.domain.state.Resource
-import org.don.onlineTrade.domain.useCase.GetLikedProductUseCase
 import org.don.onlineTrade.domain.useCase.MyPostsUseCase
 import org.don.onlineTrade.domain.useCase.NearPostsUseCase
 import org.don.onlineTrade.domain.useCase.ProductsPagerUseCase
