@@ -17,6 +17,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Online Trade"
+rootProject.name = "Internet Savdo"
 include(":app")
  

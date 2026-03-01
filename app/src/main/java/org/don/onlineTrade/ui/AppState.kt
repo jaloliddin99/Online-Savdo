@@ -64,13 +64,6 @@ class ApplicationState(
             else -> null
         }
 
-    /**
-     * UI logic for navigating to a top level destination in the app. Top level destinations have
-     * only one copy of the destination of the back stack, and save and restore state whenever you
-     * navigate to and from it.
-     *
-     * @param topLevelDestination: The destination the app needs to navigate to.
-     */
     fun navigateToTopLevelDestination(topLevelDestination: NavItems) {
         val topLevelNavOptions = navOptions {
             // Pop up to the start destination of the graph to
@@ -79,10 +72,7 @@ class ApplicationState(
             popUpTo(navController.graph.findStartDestination().id) {
                 saveState = true
             }
-            // Avoid multiple copies of the same destination when
-            // reselecting the same item
             launchSingleTop = true
-            // Restore state when reselecting a previously selected item
             restoreState = true
         }
 

@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Search
@@ -35,6 +36,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -61,10 +63,13 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.launch
+import org.don.onlineTrade.R
+
 import org.don.onlineTrade.data.remote.models.region.District
 import org.don.onlineTrade.data.remote.models.region.RegionDistrict
 import org.don.onlineTrade.ui.filterCategory.ComposeLottieAnimation
@@ -306,7 +311,7 @@ fun BottomSheetContent(
                 },
                 shape = RoundedCornerShape(50) // Rounded corners
             ) {
-                Text(titleTextFrom ?: "From")
+                Text(titleTextFrom ?: stringResource(id = R.string.from))
             }
 
             TextButton(
@@ -317,7 +322,7 @@ fun BottomSheetContent(
                 onClick = { showDialog.intValue = 2 },
                 shape = RoundedCornerShape(50) // Rounded corners
             ) {
-                Text(titleTextTo ?: "to")
+                Text(titleTextTo ?: stringResource(id = R.string.to))
             }
         }
 
@@ -331,7 +336,7 @@ fun BottomSheetContent(
                 .border(1.dp, Color.Gray, RoundedCornerShape(50)),
             shape = RoundedCornerShape(50)
         ) {
-            Text(regionId?.name ?: "Select Region and District")
+            Text(regionId?.name ?: stringResource(id = R.string.txt_select_region_and_district))
         }
 
         Button(
@@ -349,7 +354,7 @@ fun BottomSheetContent(
                 .fillMaxWidth()
                 .height(48.dp)
         ) {
-            Text("Apply Filter")
+            Text(stringResource(id = R.string.txt_apply_filter))
         }
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen24Dp))
     }
@@ -373,7 +378,7 @@ fun SearchToolbar(
     ) {
         IconButton(onClick = onBackClick) {
             Icon(
-                imageVector = Icons.Rounded.ArrowBack,
+                imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurface
             )
@@ -397,8 +402,6 @@ fun SearchToolbar(
     }
 }
 
-
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun SearchTextField(
     modifier: Modifier,

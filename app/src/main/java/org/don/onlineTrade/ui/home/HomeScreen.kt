@@ -73,7 +73,6 @@ fun HomeScreen(
     navigateToProduct: (Int) -> Unit,
     navigateToCategory: (Int) -> Unit,
 ) {
-    hiltViewModel<ProfileViewModel>()
     val viewModel = hiltViewModel<HomeViewModel>()
     val state = viewModel.state.value
     val stateNear = viewModel.stateNear.value
@@ -197,7 +196,6 @@ fun HomeScreen(
                         viewModel.loadNextItems()
                     }
                 }
-
                 ProductItem(item, onItemClicked = navigateToProduct,onItemLongLicked = {})
             }
             item(span = { GridItemSpan(2) }) {
