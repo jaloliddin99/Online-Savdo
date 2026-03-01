@@ -42,43 +42,38 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.navArgument
+import org.don.onlineTrade.data.remote.models.category.CategoryItem
+import org.don.onlineTrade.data.remote.models.region.Data
+import org.don.onlineTrade.ui.add.AddProductRoute
+import org.don.onlineTrade.ui.auth.forgotPassword.ForgotPasswordRoute
+import org.don.onlineTrade.ui.auth.forgotPassword.ResetPasswordRoute
+import org.don.onlineTrade.ui.auth.login.SignInRoute
+import org.don.onlineTrade.ui.auth.register.SignUpRoute
+import org.don.onlineTrade.ui.auth.verify.VerificationRoute
+import org.don.onlineTrade.ui.categoriesList.CategoriesRoute
+import org.don.onlineTrade.ui.detailsPage.ProductDetailsRoute
 import org.don.onlineTrade.ui.dialogs.settings.SettingsDialog
 import org.don.onlineTrade.ui.dialogs.settings.UserEditableSettings
-import org.don.onlineTrade.ui.map.mapNavigationRoute
-import org.don.onlineTrade.ui.map.mapScreen
-import org.don.onlineTrade.ui.map.mapUserScreen
-import org.don.onlineTrade.ui.map.mapUserScreenNavigationRoute
+import org.don.onlineTrade.ui.filterCategory.FilterCategoryRoute
+import org.don.onlineTrade.ui.home.HomeRoute
+import org.don.onlineTrade.ui.home.search.SearchRoute
+import org.don.onlineTrade.ui.map.MapScreenData
+import org.don.onlineTrade.ui.map.MapShowLocationScreen
+import org.don.onlineTrade.ui.map.MapsScreen
 import org.don.onlineTrade.ui.navigation.NavigationDefaults
-import org.don.onlineTrade.ui.navigation.addProductScreen
-import org.don.onlineTrade.ui.navigation.categoriesNavigationRoute
-import org.don.onlineTrade.ui.navigation.categoriesScreen
-import org.don.onlineTrade.ui.navigation.filterCategoryNavigationRoute
-import org.don.onlineTrade.ui.navigation.filterCategoryScreen
-import org.don.onlineTrade.ui.navigation.forgotPasswordRoute
-import org.don.onlineTrade.ui.navigation.homeScreen
-import org.don.onlineTrade.ui.navigation.loginScreen
-import org.don.onlineTrade.ui.navigation.myProductsNavigationRoute
-import org.don.onlineTrade.ui.navigation.myProductsScreen
-import org.don.onlineTrade.ui.navigation.notificationsNavigationRoute
-import org.don.onlineTrade.ui.navigation.notificationsScreen
-import org.don.onlineTrade.ui.navigation.pDetailsNavigationRoute
-import org.don.onlineTrade.ui.navigation.passwordUpdateNavigationRoute
-import org.don.onlineTrade.ui.navigation.passwordUpdateScreen
-import org.don.onlineTrade.ui.navigation.productDetailsScreen
-import org.don.onlineTrade.ui.navigation.profileNavigationRoute
-import org.don.onlineTrade.ui.navigation.profileScreen
-import org.don.onlineTrade.ui.navigation.profileUpdateNavigationRoute
-import org.don.onlineTrade.ui.navigation.profileUpdateScreen
-import org.don.onlineTrade.ui.navigation.regionsNavigationRoute
-import org.don.onlineTrade.ui.navigation.regionsScreen
-import org.don.onlineTrade.ui.navigation.registrationScreen
-import org.don.onlineTrade.ui.navigation.resetPasswordRoute
-import org.don.onlineTrade.ui.navigation.savedScreen
-import org.don.onlineTrade.ui.navigation.searchScreen
-import org.don.onlineTrade.ui.navigation.verificationScreen
-import org.don.onlineTrade.ui.navigation.welcomeScreen
+import org.don.onlineTrade.ui.navigation.Screen
+import org.don.onlineTrade.ui.notification.NotificationsRoute
+import org.don.onlineTrade.ui.profile.ProfileRoute
+import org.don.onlineTrade.ui.profile.myPosts.MyPostsScreenRoute
+import org.don.onlineTrade.ui.profile.update.UpdateProfileRoute
+import org.don.onlineTrade.ui.profile.updatePassword.UpdatePasswordRoute
+import org.don.onlineTrade.ui.region.RegionsRoute
+import org.don.onlineTrade.ui.saved.SavedRoute
 import org.don.onlineTrade.ui.theme.AppBackground
 import org.don.onlineTrade.ui.theme.AppGradientBackground
 import org.don.onlineTrade.ui.theme.GradientColors
@@ -114,7 +109,7 @@ fun MainScreenView(
     }
 
     if (toNotificationPage) {
-        rememberNavController.navigate(notificationsNavigationRoute)
+        rememberNavController.navigate(Screen.Notifications.route)
         toNotificationPage = false
     }
 
@@ -148,17 +143,17 @@ fun MainScreenView(
                 contentWindowInsets = WindowInsets(0, 0, 0, 0),
                 bottomBar = {
                     if (destination != null
-                        && destination.screenRoute != categoriesNavigationRoute
-                        && destination.screenRoute != regionsNavigationRoute
-                        && destination.screenRoute != profileUpdateNavigationRoute
-                        && destination.screenRoute != passwordUpdateNavigationRoute
-                        && destination.screenRoute != notificationsNavigationRoute
-                        && destination.screenRoute != myProductsNavigationRoute
-                        && destination.screenRoute != pDetailsNavigationRoute
-                        && destination.screenRoute != filterCategoryNavigationRoute
-                        && destination.screenRoute != NavItems.AddProduct.screenRoute
-                        && destination.screenRoute != mapNavigationRoute
-                        && destination.screenRoute != mapUserScreenNavigationRoute
+                        && destination.screenRoute != Screen.Categories.route
+                        && destination.screenRoute != Screen.Regions.route
+                        && destination.screenRoute != Screen.ProfileUpdate.route
+                        && destination.screenRoute != Screen.PasswordUpdate.route
+                        && destination.screenRoute != Screen.Notifications.route
+                        && destination.screenRoute != Screen.MyProducts.route
+                        && destination.screenRoute != Screen.ProductDetails.ROUTE
+                        && destination.screenRoute != Screen.FilterCategory.ROUTE
+                        && destination.screenRoute != Screen.AddProduct.route
+                        && destination.screenRoute != Screen.Map.route
+                        && destination.screenRoute != Screen.MapUserLocation.ROUTE
                     ) {
                         BottomNavigation(rememberNavController, appState)
                     }
@@ -176,29 +171,29 @@ fun MainScreenView(
                         )
                 ) {
                     if (destination != null) {
-                        val showBackArrow = destination.screenRoute == categoriesNavigationRoute
-                                || destination.screenRoute == regionsNavigationRoute
-                                || destination.screenRoute == profileUpdateNavigationRoute
-                                || destination.screenRoute == passwordUpdateNavigationRoute
-                                || destination.screenRoute == pDetailsNavigationRoute
-                                || destination.screenRoute == notificationsNavigationRoute
-                                || destination.screenRoute == myProductsNavigationRoute
-                                || destination.screenRoute == filterCategoryNavigationRoute
-                                || destination.screenRoute == NavItems.AddProduct.screenRoute
-                                || destination.screenRoute == mapNavigationRoute
-                                || destination.screenRoute == mapUserScreenNavigationRoute
+                        val showBackArrow = destination.screenRoute == Screen.Categories.route
+                                || destination.screenRoute == Screen.Regions.route
+                                || destination.screenRoute == Screen.ProfileUpdate.route
+                                || destination.screenRoute == Screen.PasswordUpdate.route
+                                || destination.screenRoute == Screen.ProductDetails.ROUTE
+                                || destination.screenRoute == Screen.Notifications.route
+                                || destination.screenRoute == Screen.MyProducts.route
+                                || destination.screenRoute == Screen.FilterCategory.ROUTE
+                                || destination.screenRoute == Screen.AddProduct.route
+                                || destination.screenRoute == Screen.Map.route
+                                || destination.screenRoute == Screen.MapUserLocation.ROUTE
 
                         TopAppBar(
                             title = stringResource(id = destination.titleRes),
                             navigationIcon = if (!showBackArrow) Icons.Filled.Search else Icons.Filled.ArrowBack,
                             navigationIconContentDescription = null,
-                            actionIcon = if (destination.screenRoute == profileNavigationRoute) Icons.Filled.Settings else Icons.Outlined.Notifications,
+                            actionIcon = if (destination.screenRoute == Screen.Profile.route) Icons.Filled.Settings else Icons.Outlined.Notifications,
                             actionIconContentDescription = null,
                             colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                                 containerColor = Color.Transparent
                             ),
                             onActionClick = {
-                                if (destination.screenRoute == profileNavigationRoute) {
+                                if (destination.screenRoute == Screen.Profile.route) {
                                     showSettingsDialog = true
                                 } else {
                                     toNotificationPage = true
@@ -258,13 +253,6 @@ fun BottomNavigation(
 
                 icon = {
                     BadgedBox(badge = {
-//                        if (item.badgeCount != null) {
-//                            Badge {
-//                                Text(text = item.badgeCount.toString())
-//                            }
-//                        } else if (item.hasNews) {
-//                            //Badge()
-//                        }
                     }) {
                         Icon(
                             imageVector = if (index == selectedItemIndex)
@@ -296,185 +284,308 @@ fun NavigationGraph(
     NavHost(
         navController = navController,
         startDestination = if (isUserHasRightToAccessToMainPart()) {
-            NavItems.Home.screenRoute
+            Screen.Home.route
         } else {
-            welcomeScreen
+            Screen.Welcome.route
         }
     ) {
 
-        homeScreen(
-            navigateToCategory = {
-                navController.navigate("filterCategory/$it")
-            },
-            navigateToProduct = {
-                navController.navigate("productDetails/$it")
-            }
-        )
-        productDetailsScreen(
-            onSimilarItemClicked = {
-                navController.navigate("productDetails/$it")
-            },
-            onEditClicked = {},
-            navigateBack = navController::popBackStack,
-            goToMapsPage = { lat, lon ->
-                navController.navigate("mapUserScreen/$lat/$lon")
-            }
-        )
-        filterCategoryScreen(
-            onItemClicked = {
-                navController.navigate("productDetails/$it")
-            }
-        )
-
-        addProductScreen(
-            navigateToCategories = {
-                navController.navigate(categoriesNavigationRoute)
-            },
-            goToDetailsPage = {
-                navController.popBackStack()
-            },
-            goToMapScreen = {
-                navController.navigate(mapNavigationRoute)
-            }
-        )
-
-        mapScreen(
-            onBackClick = {
-                navController.previousBackStackEntry
-                    ?.savedStateHandle
-                    ?.set("map_item", it)
-                navController.popBackStack()
-            }
-        )
-
-        mapUserScreen()
-
-        notificationsScreen()
-        savedScreen(
-            navigateToProduct = {
-                navController.navigate("productDetails/$it")
-            }
-        )
-        profileScreen(
-            toMyProducts = {
-                navController.navigate(myProductsNavigationRoute)
-            },
-            toUpdateProfile = {
-                navController.navigate(profileUpdateNavigationRoute)
-            },
-            toUpdatePassword = {
-                navController.navigate(passwordUpdateNavigationRoute)
-            },
-            toForgotPassword = {
-                navController.navigate("forgotPasswordRoute/$it")
-            },
-            goToRegistration = {
-                navController.navigate(welcomeScreen) {
-                    popUpTo(navController.graph.id) {
-                        inclusive = true
-                    }
+        composable(route = Screen.Home.route) {
+            HomeRoute(
+                navigateToProduct = {
+                    navController.navigate(Screen.ProductDetails(it).route)
+                },
+                navigateToCategory = {
+                    navController.navigate(Screen.FilterCategory(it).route)
                 }
-            },
-            restartApp = {
-                restartApp.invoke()
-            }
-        )
-
-        profileUpdateScreen(
-            goBackAndRefresh = {
-                navController.previousBackStackEntry
-                    ?.savedStateHandle
-                    ?.set("refresh_profile", true)
-                navController.popBackStack()
-            }
-        )
-
-        passwordUpdateScreen(
-            goBackAndRefresh = {
-                navController.previousBackStackEntry
-                    ?.savedStateHandle
-                    ?.set("refresh_profile", true)
-                navController.popBackStack()
-            }
-        )
-
-        myProductsScreen(
-            onItemClicked = {
-                navController.navigate("productDetails/$it")
-            }
-        )
-
-        searchScreen(
-            onBackClick = navController::popBackStack,
-            onItemClick = {
-                navController.navigate("productDetails/$it")
-            },
-        )
-
-        registrationScreen(
-            navigateToVerification = {
-                navController.navigate("verification_screen/$it")
-            },
-            onLoginPage = {
-                navController.navigate(loginScreen)
-            }
-        )
-
-        loginScreen(
-            navigationToVerification = {
-                navController.navigate("verification_screen/$it")
-            },
-            forgotPassword = {
-                navController.navigate("forgotPasswordRoute/${true}")
-            }
-        )
-
-        verificationScreen(
-            navigateToMainScreen = {
-                navController.navigate(NavItems.Home.screenRoute) {
-                    popUpTo(navController.graph.id) {
-                        inclusive = true
-                    }
-                }
-            },
-            onBackPressed = navController::popBackStack
-        )
-
-        forgotPasswordRoute { email: String, fromLogin: Boolean ->
-            navController.navigate("resetPasswordRoute/${email}/$fromLogin")
+            )
         }
 
-        resetPasswordRoute(
-            navigateToLoginPage = {
-                navController.navigate(loginScreen) {
-                    popUpTo(navController.graph.id) {
-                        inclusive = true
+        composable(
+            route = Screen.ProductDetails.ROUTE,
+            arguments = listOf(
+                navArgument("param") {
+                    type = NavType.IntType
+                    defaultValue = 0
+                }
+            )
+        ) { backStackEntry ->
+            val param = backStackEntry.arguments?.getInt("param")
+            ProductDetailsRoute(
+                param ?: 0,
+                onSimilarItemClicked = {
+                    navController.navigate(Screen.ProductDetails(it).route)
+                },
+                {},
+                navController::popBackStack,
+                goToMapsPage = { lat, long ->
+                    navController.navigate(Screen.MapUserLocation(lat.toString(), long.toString()).route)
+                }
+            )
+        }
+
+        composable(
+            route = Screen.FilterCategory.ROUTE,
+            arguments = listOf(
+                navArgument("param") {
+                    type = NavType.IntType
+                    defaultValue = 0
+                }
+            )
+        ) { backStackEntry ->
+            val param = backStackEntry.arguments?.getInt("param")
+            FilterCategoryRoute(
+                onItemClicked = {
+                    navController.navigate(Screen.ProductDetails(it).route)
+                },
+                categoryId = param
+            )
+        }
+
+        composable(route = Screen.AddProduct.route) { entry ->
+            val item = entry.savedStateHandle.get<CategoryItem>("category_item")
+            val map = entry.savedStateHandle.get<MapScreenData>("map_item")
+            AddProductRoute(
+                navigateToCategories = {
+                    navController.navigate(Screen.Categories.route)
+                },
+                item = item,
+                map = map,
+                goToDetailsPage = {
+                    navController.popBackStack()
+                },
+                goToMapScreen = {
+                    navController.navigate(Screen.Map.route)
+                }
+            )
+        }
+
+        composable(route = Screen.Map.route) {
+            MapsScreen(
+                onBackClick = {
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("map_item", it)
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(
+            route = Screen.MapUserLocation.ROUTE,
+            arguments = listOf(
+                navArgument("latitude") {
+                    type = NavType.StringType
+                },
+                navArgument("longitude") {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val lat = (backStackEntry.arguments?.getString("latitude") ?: return@composable).toDouble()
+            val long = (backStackEntry.arguments?.getString("longitude") ?: return@composable).toDouble()
+            MapShowLocationScreen(
+                lat = lat, lon = long
+            )
+        }
+
+        composable(route = Screen.Notifications.route) {
+            NotificationsRoute()
+        }
+
+        composable(route = Screen.Saved.route) {
+            SavedRoute(
+                navigateToProduct = {
+                    navController.navigate(Screen.ProductDetails(it).route)
+                }
+            )
+        }
+
+        composable(route = Screen.Profile.route) { entry ->
+            val item = entry.savedStateHandle.get<Boolean>("refresh_profile") ?: false
+            if (item) {
+                entry.savedStateHandle.set("refresh_profile", false)
+            }
+            ProfileRoute(
+                toMyProducts = {
+                    navController.navigate(Screen.MyProducts.route)
+                },
+                toUpdateProfile = {
+                    navController.navigate(Screen.ProfileUpdate.route)
+                },
+                toUpdatePassword = {
+                    navController.navigate(Screen.PasswordUpdate.route)
+                },
+                refreshProfile = item,
+                toForgotPassword = {
+                    navController.navigate(Screen.ForgotPassword(it).route)
+                },
+                goToRegistration = {
+                    navController.navigate(Screen.Welcome.route) {
+                        popUpTo(navController.graph.id) {
+                            inclusive = true
+                        }
+                    }
+                },
+                restartApp = {
+                    restartApp.invoke()
+                }
+            )
+        }
+
+        composable(route = Screen.ProfileUpdate.route) {
+            UpdateProfileRoute(
+                goBackAndRefresh = {
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("refresh_profile", true)
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(route = Screen.PasswordUpdate.route) {
+            UpdatePasswordRoute(
+                goBackAndRefresh = {
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("refresh_profile", true)
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(route = Screen.MyProducts.route) {
+            MyPostsScreenRoute(
+                onItemClicked = {
+                    navController.navigate(Screen.ProductDetails(it).route)
+                }
+            )
+        }
+
+        composable(route = Screen.Search.route) {
+            SearchRoute(
+                onBackClick = navController::popBackStack,
+                onItemClick = {
+                    navController.navigate(Screen.ProductDetails(it).route)
+                },
+            )
+        }
+
+        composable(route = Screen.Welcome.route) {
+            SignUpRoute(
+                navigateToVerification = {
+                    navController.navigate(Screen.Verification(it).route)
+                },
+                onLoginPage = {
+                    navController.navigate(Screen.Login.route)
+                }
+            )
+        }
+
+        composable(route = Screen.Login.route) {
+            SignInRoute(
+                navigateToVerification = {
+                    navController.navigate(Screen.Verification(it).route)
+                },
+                forgotPassword = {
+                    navController.navigate(Screen.ForgotPassword(true).route)
+                }
+            )
+        }
+
+        composable(
+            route = Screen.Verification.ROUTE,
+            arguments = listOf(
+                navArgument("email") {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val emailParam = backStackEntry.arguments?.getString("email")
+            emailParam?.let {
+                VerificationRoute(
+                    emailParam = it,
+                    navigateToMainScreen = {
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(navController.graph.id) {
+                                inclusive = true
+                            }
+                        }
+                    },
+                    onBackPressed = navController::popBackStack
+                )
+            }
+        }
+
+        composable(
+            route = Screen.ForgotPassword.ROUTE,
+            arguments = listOf(
+                navArgument("fromLoginPage") {
+                    type = NavType.BoolType
+                }
+            )
+        ) {
+            val fromLoginPage = it.arguments?.getBoolean("fromLoginPage") ?: true
+            ForgotPasswordRoute(
+                goToResetPage = { email ->
+                    navController.navigate(Screen.ResetPassword(email, fromLoginPage).route)
+                },
+            )
+        }
+
+        composable(
+            route = Screen.ResetPassword.ROUTE,
+            arguments = listOf(
+                navArgument("email") {
+                    type = NavType.StringType
+                },
+                navArgument("fromLoginPage") {
+                    type = NavType.BoolType
+                }
+            )
+        ) {
+            val email = it.arguments?.getString("email") ?: return@composable
+            val fromLoginPage = it.arguments?.getBoolean("fromLoginPage") ?: true
+
+            ResetPasswordRoute(
+                goToLoginPage = {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(navController.graph.id) {
+                            inclusive = true
+                        }
+                    }
+                },
+                mEmail = email,
+                fromLoginPage = fromLoginPage,
+                onBackPressed = {
+                    navController.navigate(Screen.Profile.route) {
+                        popUpTo(navController.graph.id) {
+                            inclusive = true
+                        }
                     }
                 }
-            },
-            onBackPressed = {
-                navController.navigate(NavItems.Profile.screenRoute) {
-                    popUpTo(navController.graph.id) {
-                        inclusive = true
-                    }
+            )
+        }
+
+        composable(route = Screen.Categories.route) {
+            CategoriesRoute(
+                onBackPressed = {
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("category_item", it)
+                    navController.popBackStack()
                 }
-            }
-        )
+            )
+        }
 
-        categoriesScreen(
-            onBackPressed = {
-                navController.previousBackStackEntry
-                    ?.savedStateHandle
-                    ?.set("category_item", it)
-
-                navController.popBackStack()
-            }
-        )
-        regionsScreen(
-            onBackPressed = {
-                navController.navigate("district/${it.id}/${it.name}")
-            }
-        )
+        composable(route = Screen.Regions.route) {
+            RegionsRoute(
+                onRegionSelected = {
+                    navController.navigate("district/${it.id}/${it.name}")
+                }
+            )
+        }
     }
 }
 

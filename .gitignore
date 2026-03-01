@@ -13,3 +13,9 @@
 .externalNativeBuild
 .cxx
 local.properties
+/.idea/AndroidProjectSystem.xml
+/app/release/app-release.apk
+/.idea/deploymentTargetSelector.xml
+/.idea/migrations.xml
+/app/release/output-metadata.json
+/.idea/runConfigurations.xml

@@ -33,10 +33,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavOptions
-import androidx.navigation.compose.composable
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -55,20 +51,6 @@ import org.don.onlineTrade.utils.hasPermissionForLocation
 import org.don.onlineTrade.utils.runTimePermission.RunTimePermission
 import java.io.Serializable
 
-
-const val mapNavigationRoute = "mapNavigationRoute"
-
-fun NavGraphBuilder.mapScreen(
-    onBackClick: (MapScreenData?) -> Unit,
-) {
-    composable(
-        route = mapNavigationRoute,
-    ) {
-        MapsScreen(
-            onBackClick = onBackClick
-        )
-    }
-}
 
 const val LATITUDE = 41.33261529612184
 const val LONGITUDE = 69.25163862724608

@@ -9,22 +9,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
-import org.don.onlineTrade.ui.navigation.addNavigationRoute
-import org.don.onlineTrade.ui.navigation.categoriesNavigationRoute
-import org.don.onlineTrade.ui.navigation.filterCategoryNavigationRoute
-import org.don.onlineTrade.ui.navigation.homeNavigationRoute
-import org.don.onlineTrade.ui.navigation.myProductsNavigationRoute
-import org.don.onlineTrade.ui.navigation.navigateToHome
-import org.don.onlineTrade.ui.navigation.navigateToPosts
-import org.don.onlineTrade.ui.navigation.navigateToProfile
-import org.don.onlineTrade.ui.navigation.navigateToSearch
-import org.don.onlineTrade.ui.navigation.navigateToSettingsGraph
-import org.don.onlineTrade.ui.navigation.notificationsNavigationRoute
-import org.don.onlineTrade.ui.navigation.passwordUpdateNavigationRoute
-import org.don.onlineTrade.ui.navigation.profileNavigationRoute
-import org.don.onlineTrade.ui.navigation.profileUpdateNavigationRoute
-import org.don.onlineTrade.ui.navigation.regionsNavigationRoute
-import org.don.onlineTrade.ui.navigation.savedNavigationRoute
+import org.don.onlineTrade.ui.navigation.Screen
 
 
 @Composable
@@ -50,17 +35,17 @@ class ApplicationState(
             .currentBackStackEntryAsState().value?.destination
     val currentTopLevelDestination: NavItems?
         @Composable get() = when (currentDestination?.route) {
-            homeNavigationRoute -> NavItems.Home
-            addNavigationRoute -> NavItems.AddProduct
-            savedNavigationRoute -> NavItems.Saved
-            profileNavigationRoute -> NavItems.Profile
-            categoriesNavigationRoute -> NavItems.Categories
-            myProductsNavigationRoute -> NavItems.MyPosts
-            regionsNavigationRoute -> NavItems.Regions
-            profileUpdateNavigationRoute -> NavItems.ProfileUpdate
-            passwordUpdateNavigationRoute -> NavItems.PasswordUpdate
-            notificationsNavigationRoute -> NavItems.Notifications
-            filterCategoryNavigationRoute -> NavItems.FilterCategories
+            Screen.Home.route -> NavItems.Home
+            Screen.AddProduct.route -> NavItems.AddProduct
+            Screen.Saved.route -> NavItems.Saved
+            Screen.Profile.route -> NavItems.Profile
+            Screen.Categories.route -> NavItems.Categories
+            Screen.MyProducts.route -> NavItems.MyPosts
+            Screen.Regions.route -> NavItems.Regions
+            Screen.ProfileUpdate.route -> NavItems.ProfileUpdate
+            Screen.PasswordUpdate.route -> NavItems.PasswordUpdate
+            Screen.Notifications.route -> NavItems.Notifications
+            Screen.FilterCategory.ROUTE -> NavItems.FilterCategories
             else -> null
         }
 
@@ -77,16 +62,16 @@ class ApplicationState(
         }
 
         when (topLevelDestination) {
-            NavItems.Home -> navController.navigateToHome(topLevelNavOptions)
-            NavItems.AddProduct -> navController.navigateToPosts(topLevelNavOptions)
-            NavItems.Saved -> navController.navigateToSettingsGraph(topLevelNavOptions)
-            NavItems.Profile -> navController.navigateToProfile(topLevelNavOptions)
-            else -> null
+            NavItems.Home -> navController.navigate(Screen.Home.route, topLevelNavOptions)
+            NavItems.AddProduct -> navController.navigate(Screen.AddProduct.route, topLevelNavOptions)
+            NavItems.Saved -> navController.navigate(Screen.Saved.route, topLevelNavOptions)
+            NavItems.Profile -> navController.navigate(Screen.Profile.route, topLevelNavOptions)
+            else -> {}
         }
     }
 
     fun navigateToSearch() {
-        navController.navigateToSearch()
+        navController.navigate(Screen.Search.route)
     }
 
 

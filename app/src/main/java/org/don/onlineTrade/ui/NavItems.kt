@@ -18,13 +18,7 @@ import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Save
 import androidx.compose.ui.graphics.vector.ImageVector
 import org.don.onlineTrade.R
-import org.don.onlineTrade.ui.navigation.categoriesNavigationRoute
-import org.don.onlineTrade.ui.navigation.filterCategoryNavigationRoute
-import org.don.onlineTrade.ui.navigation.myProductsNavigationRoute
-import org.don.onlineTrade.ui.navigation.notificationsNavigationRoute
-import org.don.onlineTrade.ui.navigation.passwordUpdateNavigationRoute
-import org.don.onlineTrade.ui.navigation.profileUpdateNavigationRoute
-import org.don.onlineTrade.ui.navigation.regionsNavigationRoute
+import org.don.onlineTrade.ui.navigation.Screen
 
 sealed class NavItems(
     val title: String,
@@ -42,7 +36,7 @@ sealed class NavItems(
         unselectedIcon = Icons.Outlined.Home,
         hasNews = false,
         badgeCount = null,
-        "home",
+        Screen.Home.route,
         titleRes = R.string.top_home
     )
     object AddProduct: NavItems(
@@ -51,7 +45,7 @@ sealed class NavItems(
         unselectedIcon = Icons.Outlined.LibraryAdd,
         hasNews = false,
         badgeCount = 45,
-        "add",
+        Screen.AddProduct.route,
         titleRes = R.string.chat_page
     )
     object Saved: NavItems(
@@ -60,7 +54,7 @@ sealed class NavItems(
         unselectedIcon = Icons.Outlined.Save,
         hasNews = true,
         badgeCount = null,
-        "saved",
+        Screen.Saved.route,
         titleRes = R.string.saved_page
     )
 
@@ -70,7 +64,7 @@ sealed class NavItems(
         unselectedIcon = Icons.Outlined.Person,
         hasNews = true,
         badgeCount = null,
-        "profile",
+        Screen.Profile.route,
         titleRes = R.string.profile
     )
 
@@ -81,7 +75,7 @@ sealed class NavItems(
         unselectedIcon = Icons.Outlined.Person,
         hasNews = true,
         badgeCount = null,
-        profileUpdateNavigationRoute,
+        Screen.ProfileUpdate.route,
         titleRes = R.string.update_profile
     )
 
@@ -91,7 +85,7 @@ sealed class NavItems(
         unselectedIcon = Icons.Outlined.Person,
         hasNews = true,
         badgeCount = null,
-        passwordUpdateNavigationRoute,
+        Screen.PasswordUpdate.route,
         titleRes = R.string.password_update
     )
     object Categories: NavItems(
@@ -100,7 +94,7 @@ sealed class NavItems(
         unselectedIcon = Icons.Outlined.Category,
         hasNews = true,
         badgeCount = null,
-        categoriesNavigationRoute,
+        Screen.Categories.route,
         titleRes = R.string.select_category_without
     )
 
@@ -110,7 +104,7 @@ sealed class NavItems(
         unselectedIcon = Icons.Outlined.Category,
         hasNews = true,
         badgeCount = null,
-        myProductsNavigationRoute,
+        Screen.MyProducts.route,
         titleRes = R.string.my_orders
     )
 
@@ -121,7 +115,7 @@ sealed class NavItems(
         unselectedIcon = Icons.Outlined.AreaChart,
         hasNews = true,
         badgeCount = null,
-        regionsNavigationRoute,
+        Screen.Regions.route,
         titleRes = R.string.regions
     )
 
@@ -131,7 +125,7 @@ sealed class NavItems(
         unselectedIcon = Icons.Outlined.Notifications,
         hasNews = true,
         badgeCount = null,
-        screenRoute = notificationsNavigationRoute,
+        screenRoute = Screen.Notifications.route,
         titleRes = R.string.notifications
     )
 
@@ -141,7 +135,7 @@ sealed class NavItems(
         unselectedIcon = Icons.Outlined.Category,
         hasNews = true,
         badgeCount = null,
-        screenRoute = filterCategoryNavigationRoute,
+        screenRoute = Screen.FilterCategory.ROUTE,
         titleRes = R.string.categories
     )
 }
