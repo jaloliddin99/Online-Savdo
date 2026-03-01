@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import org.don.onlineTrade.R
 import org.don.onlineTrade.ui.home.ProductItem
+import org.don.onlineTrade.ui.home.ShimmerProductGrid
 import org.don.onlineTrade.ui.theme.spacing
 
 
@@ -76,34 +77,40 @@ fun SavedScreen(
                     fontSize = MaterialTheme.spacing.dimen16Sp
                 )
             }
-            items(count = pagerState.items.size) { i ->
-                val item = pagerState.items[i]
-                LaunchedEffect(scrollState) {
-                    if (i >= pagerState.items.size - 1 && !pagerState.endReached && !pagerState.isLoading) {
-                        viewModel.loadNextItems()
+            if (pagerState.isLoading && pagerState.items.isEmpty() && pagerState.page == 0) {
+                item(span = { GridItemSpan(2) }) {
+                    ShimmerProductGrid()
+                }
+            } else {
+                items(count = pagerState.items.size) { i ->
+                    val item = pagerState.items[i]
+                    LaunchedEffect(scrollState) {
+                        if (i >= pagerState.items.size - 1 && !pagerState.endReached && !pagerState.isLoading) {
+                            viewModel.loadNextItems()
+                        }
+                    }
+                    ProductItem(
+                        item, onItemClicked = {
+                            navigateToProduct.invoke(it)
+                        }, isLiked = true,
+                        onItemLongLicked = {}
+                    )
+                }
+                item(span = { GridItemSpan(2) }) {
+                    if (pagerState.isLoading && pagerState.page != 0) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
                     }
                 }
-                ProductItem(
-                    item, onItemClicked = {
-                        navigateToProduct.invoke(it)
-                    }, isLiked = true,
-                    onItemLongLicked = {}
-                )
-            }
-            item(span = { GridItemSpan(2) }) {
-                if (pagerState.isLoading && pagerState.page != 0) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
+                item {
+                    Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen16Dp))
                 }
-            }
-            item {
-                Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen16Dp))
             }
         }
     }

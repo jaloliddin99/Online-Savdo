@@ -76,7 +76,6 @@ import org.don.onlineTrade.ui.home.PresentProductState
 import org.don.onlineTrade.ui.home.ProductItemForDetailsPage
 import org.don.onlineTrade.ui.home.ScreenState
 import org.don.onlineTrade.ui.theme.spacing
-import org.don.onlineTrade.utils.FreeLoading
 import org.don.onlineTrade.utils.SharedPref
 import org.don.onlineTrade.utils.callTo
 import org.don.onlineTrade.utils.openSmsApp
@@ -170,82 +169,82 @@ fun ProductDetailsScreen(
     var deletePostId by rememberSaveable {
         mutableIntStateOf(-1)
     }
-    ConstraintLayout(
-        modifier = modifier.fillMaxSize()
-    ) {
-        val (column, optionsScreen) = createRefs()
-        LazyColumn(
-            modifier = modifier
-                .constrainAs(column) {
-                    top.linkTo(parent.top)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                    bottom.linkTo(optionsScreen.top)
-                }
+    if (isFeedLoading && data == null) {
+        ShimmerDetailsContent()
+    } else {
+        ConstraintLayout(
+            modifier = modifier.fillMaxSize()
         ) {
-            item {
-                ImagePager(state, pagerState)
-                ItemDescription(data, goToMapsPage)
-                Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
-                ContactDetails(data)
-                Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
-                TextBold16(
-                    title = stringResource(id = R.string.similar_items),
-                )
-                LazyRow(modifier = Modifier.wrapContentHeight()) {
-                    items(count = mPagerState.items.size) { i ->
-                        val item = mPagerState.items[i]
-                        LaunchedEffect(scrollState) {
-                            if (i >= mPagerState.items.size - 1 && !mPagerState.endReached && !mPagerState.isLoading) {
-                                loadItems.invoke()
+            val (column, optionsScreen) = createRefs()
+            LazyColumn(
+                modifier = modifier
+                    .constrainAs(column) {
+                        top.linkTo(parent.top)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                        bottom.linkTo(optionsScreen.top)
+                    }
+            ) {
+                item {
+                    ImagePager(state, pagerState)
+                    ItemDescription(data, goToMapsPage)
+                    Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
+                    ContactDetails(data)
+                    Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
+                    TextBold16(
+                        title = stringResource(id = R.string.similar_items),
+                    )
+                    LazyRow(modifier = Modifier.wrapContentHeight()) {
+                        items(count = mPagerState.items.size) { i ->
+                            val item = mPagerState.items[i]
+                            LaunchedEffect(scrollState) {
+                                if (i >= mPagerState.items.size - 1 && !mPagerState.endReached && !mPagerState.isLoading) {
+                                    loadItems.invoke()
+                                }
+                            }
+                            ProductItemForDetailsPage(
+                                data = item,
+                                onItemClicked = onItemClicked
+                            )
+                            if (mPagerState.items.lastIndex == i) {
+                                Spacer(modifier = modifier.width(16.dp))
                             }
                         }
-                        ProductItemForDetailsPage(
-                            data = item,
-                            onItemClicked = onItemClicked
-                        )
-                        if (mPagerState.items.lastIndex == i) {
-                            Spacer(modifier = modifier.width(16.dp))
-                        }
                     }
+
+                    Spacer(modifier = modifier.height(24.dp))
+                    NavigationBarSpacer()
                 }
-
-                Spacer(modifier = modifier.height(24.dp))
-                NavigationBarSpacer()
             }
-        }
-        OptionsScreen(
-            modifier = Modifier
-                .constrainAs(optionsScreen) {
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                    bottom.linkTo(parent.bottom)
+            OptionsScreen(
+                modifier = Modifier
+                    .constrainAs(optionsScreen) {
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                        bottom.linkTo(parent.bottom)
+                    },
+                onDeleteClicked = {
+                    showDeleteDialog = true
+                    deletePostId = it
                 },
-            onDeleteClicked = {
-                showDeleteDialog = true
-                deletePostId = it
-            },
-            onEditClicked = onEditClicked,
-            onCallClicked = {
-                callTo((data?.user?.phoneNumber ?: ""), context)
-            },
-            onSmsClicked = {
-                openSmsApp(context, (data?.user?.phoneNumber ?: ""))
-            },
-            data = data
-        )
-        TopShadow()
+                onEditClicked = onEditClicked,
+                onCallClicked = {
+                    callTo((data?.user?.phoneNumber ?: ""), context)
+                },
+                onSmsClicked = {
+                    openSmsApp(context, (data?.user?.phoneNumber ?: ""))
+                },
+                data = data
+            )
+            TopShadow()
 
-        DetailsToolbar(
-            onBackClick = onBackPressed,
-            onLikeClicked = onItemClicked,
-            data = data
-        )
+            DetailsToolbar(
+                onBackClick = onBackPressed,
+                onLikeClicked = onItemClicked,
+                data = data
+            )
+        }
     }
-    FreeLoading(
-        isFeedLoading = isFeedLoading,
-        paddingTop = MaterialTheme.spacing.dimen56Dp
-    )
 
     if (showDeleteDialog) {
         DeletePostAlert(

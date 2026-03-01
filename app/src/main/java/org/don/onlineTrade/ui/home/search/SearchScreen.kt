@@ -75,6 +75,7 @@ import org.don.onlineTrade.data.remote.models.region.RegionDistrict
 import org.don.onlineTrade.ui.filterCategory.ComposeLottieAnimation
 import org.don.onlineTrade.ui.home.HomeViewModel
 import org.don.onlineTrade.ui.home.ProductItem
+import org.don.onlineTrade.ui.home.ShimmerProductGrid
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.convertLongToDateString
 
@@ -144,45 +145,52 @@ fun SearchScreen(
                 }
             )
 
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                modifier = modifier
-                    .padding(end = MaterialTheme.spacing.dimen16Dp)
-                    .fillMaxSize(),
-            ) {
+            if (pagerState.isLoading && pagerState.items.isEmpty() && pagerState.page == 0) {
+                ShimmerProductGrid(
+                    modifier = modifier
+                        .padding(end = MaterialTheme.spacing.dimen16Dp)
+                )
+            } else {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    modifier = modifier
+                        .padding(end = MaterialTheme.spacing.dimen16Dp)
+                        .fillMaxSize(),
+                ) {
 
-                items(pagerState.items.size) { i ->
-                    val item = pagerState.items[i]
-                    LaunchedEffect(scrollState) {
-                        if (i >= pagerState.items.size - 1 && !pagerState.endReached && !pagerState.isLoading) {
-                            homeViewModel.loadNextItems(
-                                query = searchTextListener,
-                                startDate = myFilter.titleTextFrom,
-                                endDate = myFilter.titleTextTo,
-                                regionId = myFilter.regionId,
-                                districtId = myFilter.districtId
-                            )
+                    items(pagerState.items.size) { i ->
+                        val item = pagerState.items[i]
+                        LaunchedEffect(scrollState) {
+                            if (i >= pagerState.items.size - 1 && !pagerState.endReached && !pagerState.isLoading) {
+                                homeViewModel.loadNextItems(
+                                    query = searchTextListener,
+                                    startDate = myFilter.titleTextFrom,
+                                    endDate = myFilter.titleTextTo,
+                                    regionId = myFilter.regionId,
+                                    districtId = myFilter.districtId
+                                )
+                            }
+                        }
+                        ProductItem(
+                            item,
+                            onItemClicked = onItemClick,
+                            onItemLongLicked = {}
+                        )
+                    }
+                    item(span = { GridItemSpan(2) }) {
+                        if (pagerState.isLoading && pagerState.page != 0) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(8.dp),
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                CircularProgressIndicator()
+                            }
                         }
                     }
-                    ProductItem(
-                        item,
-                        onItemClicked = onItemClick
-                        ,onItemLongLicked = {}
-                    )
-                }
-                item(span = { GridItemSpan(2) }) {
-                    if (pagerState.isLoading && pagerState.page != 0) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(8.dp),
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            CircularProgressIndicator()
-                        }
-                    }
-                }
 
+                }
             }
 
         }

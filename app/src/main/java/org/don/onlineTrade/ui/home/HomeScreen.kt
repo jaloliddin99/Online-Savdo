@@ -48,7 +48,6 @@ import org.don.onlineTrade.data.location.checkGpsEnabled
 import org.don.onlineTrade.ui.profile.ProfileViewModel
 import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.spacing
-import org.don.onlineTrade.utils.FreeLoading
 import org.don.onlineTrade.utils.LocaleManager.FLAG_HAS_DATA
 import org.don.onlineTrade.utils.hasPermissionForLocation
 import org.don.onlineTrade.utils.runTimePermission.RunTimePermission
@@ -88,6 +87,8 @@ fun HomeScreen(
         viewModel.getAllParentCategories()
     }
 
+    val isInitialLoad = isFeedLoading && pagerState.items.isEmpty()
+
     Box(
         modifier = modifier.fillMaxSize()
     ) {
@@ -95,8 +96,8 @@ fun HomeScreen(
             columns = GridCells.Fixed(2),
             contentPadding = PaddingValues(horizontal = MaterialTheme.spacing.dimen8Dp)
         ) {
-            if (state.parentCategoryList != null) {
-                item {
+            if (isInitialLoad) {
+                item(span = { GridItemSpan(2) }) {
                     Text(
                         text = stringResource(id = R.string.category),
                         style = TextStyle.Default,
@@ -108,113 +109,161 @@ fun HomeScreen(
                         fontSize = MaterialTheme.spacing.dimen16Sp
                     )
                 }
-                item(key = "Categories", span = { GridItemSpan(2) }) {
-                    Categories(
-                        state.parentCategoryList,
-                        navigateToCategory = navigateToCategory
+                item(span = { GridItemSpan(2) }) {
+                    ShimmerCategoriesRow()
+                }
+                item(span = { GridItemSpan(2) }) {
+                    Text(
+                        text = stringResource(id = R.string.near_you),
+                        modifier = Modifier.padding(
+                            start = MaterialTheme.spacing.dimen8Dp,
+                            top = MaterialTheme.spacing.dimen8Dp,
+                            bottom = MaterialTheme.spacing.dimen8Dp
+                        ),
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = MaterialTheme.spacing.dimen16Sp,
+                        fontFamily = robotoFontFamily
                     )
                 }
-            }
-            item(span = { GridItemSpan(2) }) {
-                Text(
-                    text = stringResource(id = R.string.near_you),
-                    modifier = Modifier.padding(
-                        start = MaterialTheme.spacing.dimen8Dp,
-                        top = MaterialTheme.spacing.dimen8Dp,
-                        bottom = MaterialTheme.spacing.dimen8Dp
-                    ),
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = MaterialTheme.spacing.dimen16Sp,
-                    fontFamily = robotoFontFamily
-                )
-            }
-
-            item(span = { GridItemSpan(2) }) {
-                val activity = LocalContext.current as ComponentActivity
-                val hasNotPermission = !hasPermissionForLocation(context)
-                val gpsNotEnabled = !checkGpsEnabled(activity)
-
-                if (hasNotPermission || gpsNotEnabled) {
-                    GPSEnableView(
-                        onPermissionClicked = {
-                            if (!hasNotPermission){
-                                GpsCheckHelper(activity).turnOnGpsDialogRequest()
-                                viewModel.locationObserve()
-                                viewModel.startLocationUpdates()
-                            }
-                            RunTimePermission().locationPermission(
-                                onPermissionEnabled = {
-                                    GpsCheckHelper(activity).turnOnGpsDialogRequest()
-                                    viewModel.locationObserve()
-                                    viewModel.startLocationUpdates()
-                                },
-                                onPermissionNotEnabled = {},
-                                activity
-                            )
-                        },
-                        onTurnOnClicked = {
-                            GpsCheckHelper(activity).turnOnGpsDialogRequest()
-                            viewModel.locationObserve()
-                            viewModel.startLocationUpdates()
-                        },
-                        hasNotPermission
+                item(span = { GridItemSpan(2) }) {
+                    ShimmerNearPostsRow()
+                }
+                item(span = { GridItemSpan(2) }) {
+                    Text(
+                        text = stringResource(id = R.string.all_posts),
+                        style = TextStyle.Default,
+                        modifier = Modifier.padding(
+                            start = MaterialTheme.spacing.dimen8Dp,
+                            top = MaterialTheme.spacing.dimen8Dp
+                        ),
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = MaterialTheme.spacing.dimen16Sp
                     )
-                } else {
-                    if (!FLAG_HAS_DATA) {
-                        FLAG_HAS_DATA = true
-                        viewModel.locationObserve()
-                        viewModel.startLocationUpdates()
+                }
+                item(span = { GridItemSpan(2) }) {
+                    ShimmerProductGrid()
+                }
+            } else {
+                if (state.parentCategoryList != null) {
+                    item {
+                        Text(
+                            text = stringResource(id = R.string.category),
+                            style = TextStyle.Default,
+                            modifier = Modifier.padding(
+                                start = MaterialTheme.spacing.dimen8Dp,
+                                bottom = MaterialTheme.spacing.dimen8Dp
+                            ),
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = MaterialTheme.spacing.dimen16Sp
+                        )
                     }
-                    if (stateNear.getNearPost != null) {
-                        NearPosts(
-                            state = stateNear.getNearPost!!.data,
-                            navigateToCategory = navigateToProduct
+                    item(key = "Categories", span = { GridItemSpan(2) }) {
+                        Categories(
+                            state.parentCategoryList,
+                            navigateToCategory = navigateToCategory
                         )
                     }
                 }
-            }
+                item(span = { GridItemSpan(2) }) {
+                    Text(
+                        text = stringResource(id = R.string.near_you),
+                        modifier = Modifier.padding(
+                            start = MaterialTheme.spacing.dimen8Dp,
+                            top = MaterialTheme.spacing.dimen8Dp,
+                            bottom = MaterialTheme.spacing.dimen8Dp
+                        ),
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = MaterialTheme.spacing.dimen16Sp,
+                        fontFamily = robotoFontFamily
+                    )
+                }
 
-            item(span = { GridItemSpan(2) }) {
-                Text(
-                    text = stringResource(id = R.string.all_posts),
-                    style = TextStyle.Default,
-                    modifier = Modifier.padding(
-                        start = MaterialTheme.spacing.dimen8Dp,
-                        top = MaterialTheme.spacing.dimen8Dp
-                    ),
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = MaterialTheme.spacing.dimen16Sp
-                )
-            }
-            items(count = pagerState.items.size,
-                key = {
-                    pagerState.items[it].image.imagePath
-                }) { i ->
-                val item = pagerState.items[i]
-                LaunchedEffect(scrollState) {
-                    if (i >= pagerState.items.size - 1 && !pagerState.endReached && !pagerState.isLoading) {
-                        viewModel.loadNextItems()
+                item(span = { GridItemSpan(2) }) {
+                    val activity = LocalContext.current as ComponentActivity
+                    val hasNotPermission = !hasPermissionForLocation(context)
+                    val gpsNotEnabled = !checkGpsEnabled(activity)
+
+                    if (hasNotPermission || gpsNotEnabled) {
+                        GPSEnableView(
+                            onPermissionClicked = {
+                                if (!hasNotPermission){
+                                    GpsCheckHelper(activity).turnOnGpsDialogRequest()
+                                    viewModel.locationObserve()
+                                    viewModel.startLocationUpdates()
+                                }
+                                RunTimePermission().locationPermission(
+                                    onPermissionEnabled = {
+                                        GpsCheckHelper(activity).turnOnGpsDialogRequest()
+                                        viewModel.locationObserve()
+                                        viewModel.startLocationUpdates()
+                                    },
+                                    onPermissionNotEnabled = {},
+                                    activity
+                                )
+                            },
+                            onTurnOnClicked = {
+                                GpsCheckHelper(activity).turnOnGpsDialogRequest()
+                                viewModel.locationObserve()
+                                viewModel.startLocationUpdates()
+                            },
+                            hasNotPermission
+                        )
+                    } else {
+                        if (!FLAG_HAS_DATA) {
+                            FLAG_HAS_DATA = true
+                            viewModel.locationObserve()
+                            viewModel.startLocationUpdates()
+                        }
+                        if (stateNear.getNearPost != null) {
+                            NearPosts(
+                                state = stateNear.getNearPost!!.data,
+                                navigateToCategory = navigateToProduct
+                            )
+                        }
                     }
                 }
-                ProductItem(item, onItemClicked = navigateToProduct,onItemLongLicked = {})
-            }
-            item(span = { GridItemSpan(2) }) {
-                if (pagerState.isLoading && pagerState.page != 0) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        CircularProgressIndicator()
+
+                item(span = { GridItemSpan(2) }) {
+                    Text(
+                        text = stringResource(id = R.string.all_posts),
+                        style = TextStyle.Default,
+                        modifier = Modifier.padding(
+                            start = MaterialTheme.spacing.dimen8Dp,
+                            top = MaterialTheme.spacing.dimen8Dp
+                        ),
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = MaterialTheme.spacing.dimen16Sp
+                    )
+                }
+                items(count = pagerState.items.size,
+                    key = {
+                        pagerState.items[it].image.imagePath
+                    }) { i ->
+                    val item = pagerState.items[i]
+                    LaunchedEffect(scrollState) {
+                        if (i >= pagerState.items.size - 1 && !pagerState.endReached && !pagerState.isLoading) {
+                            viewModel.loadNextItems()
+                        }
+                    }
+                    ProductItem(item, onItemClicked = navigateToProduct,onItemLongLicked = {})
+                }
+                item(span = { GridItemSpan(2) }) {
+                    if (pagerState.isLoading && pagerState.page != 0) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
                     }
                 }
-            }
-            item {
-                Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen16Dp))
+                item {
+                    Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen16Dp))
+                }
             }
         }
-        FreeLoading(isFeedLoading = isFeedLoading)
     }
 
 
