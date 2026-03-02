@@ -169,7 +169,7 @@ val LightAndroidBackgroundTheme = BackgroundTheme(color = DarkGreenGray95)
 val DarkAndroidBackgroundTheme = BackgroundTheme(color = Color.Black)
 
 @Composable
-fun IELTSAIExaminerTheme(
+fun OnlineMarketTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     androidTheme:Boolean = true,
     disableDynamicTheming: Boolean = false,

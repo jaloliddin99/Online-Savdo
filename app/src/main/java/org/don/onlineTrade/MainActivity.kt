@@ -15,9 +15,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.google.android.gms.tasks.Task
-import com.google.firebase.FirebaseApp
-import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -27,7 +24,7 @@ import org.don.onlineTrade.ui.MainScreenView
 import org.don.onlineTrade.ui.dialogs.settings.SETTINGS_UI_STATE
 import org.don.onlineTrade.ui.dialogs.settings.SettingsDialogViewModel
 import org.don.onlineTrade.ui.dialogs.settings.UserEditableSettings
-import org.don.onlineTrade.ui.theme.IELTSAIExaminerTheme
+import org.don.onlineTrade.ui.theme.OnlineMarketTheme
 import org.don.onlineTrade.utils.LocaleManager
 import org.don.onlineTrade.utils.ModelPref
 import org.don.onlineTrade.utils.SharedPref
@@ -46,11 +43,6 @@ class MainActivity : ComponentActivity(), OnRunTimePermissionListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-        FirebaseApp.initializeApp(this)
-
-        FirebaseMessaging.getInstance().subscribeToTopic("all")
-            .addOnCompleteListener { task: Task<Void?> ->
-            }
         RunTimePermission().permissionList(this, this)
         val userSetting = ModelPref.get<UserEditableSettings>(SETTINGS_UI_STATE)
         val settingsUiState = if (userSetting != null) userSetting
@@ -75,7 +67,7 @@ class MainActivity : ComponentActivity(), OnRunTimePermissionListener {
         }
         setContent {
             val darkTheme = shouldUseDarkTheme(state.darkThemeConfig)
-            IELTSAIExaminerTheme(
+            OnlineMarketTheme(
                 darkTheme = darkTheme,
                 androidTheme = shouldUseAndroidTheme(state.brand),
                 disableDynamicTheming = shouldDisableDynamicTheming(state.useDynamicColor)

@@ -149,7 +149,7 @@ annotation class ThemePreviews
 @ThemePreviews
 @Composable
 fun BackgroundDefault() {
-    IELTSAIExaminerTheme(disableDynamicTheming = true) {
+    OnlineMarketTheme(disableDynamicTheming = true) {
         AppBackground(Modifier.size(100.dp), content = {})
     }
 }
@@ -157,7 +157,7 @@ fun BackgroundDefault() {
 @ThemePreviews
 @Composable
 fun BackgroundDynamic() {
-    IELTSAIExaminerTheme(disableDynamicTheming = false) {
+    OnlineMarketTheme(disableDynamicTheming = false) {
         AppBackground(Modifier.size(100.dp), content = {})
     }
 }
@@ -165,7 +165,7 @@ fun BackgroundDynamic() {
 @ThemePreviews
 @Composable
 fun BackgroundAndroid() {
-    IELTSAIExaminerTheme(androidTheme = true) {
+    OnlineMarketTheme(androidTheme = true) {
         AppBackground(Modifier.size(100.dp), content = {})
     }
 }
@@ -173,7 +173,7 @@ fun BackgroundAndroid() {
 @ThemePreviews
 @Composable
 fun GradientBackgroundDefault() {
-    IELTSAIExaminerTheme(disableDynamicTheming = true) {
+    OnlineMarketTheme(disableDynamicTheming = true) {
         AppGradientBackground(Modifier.size(100.dp), content = {})
     }
 }
@@ -181,7 +181,7 @@ fun GradientBackgroundDefault() {
 @ThemePreviews
 @Composable
 fun GradientBackgroundDynamic() {
-    IELTSAIExaminerTheme(disableDynamicTheming = false) {
+    OnlineMarketTheme(disableDynamicTheming = false) {
         AppGradientBackground(Modifier.size(100.dp), content = {})
     }
 }
@@ -189,7 +189,7 @@ fun GradientBackgroundDynamic() {
 @ThemePreviews
 @Composable
 fun GradientBackgroundAndroid() {
-    IELTSAIExaminerTheme(androidTheme = true) {
+    OnlineMarketTheme(androidTheme = true) {
         AppGradientBackground(Modifier.size(100.dp), content = {})
     }
 }
