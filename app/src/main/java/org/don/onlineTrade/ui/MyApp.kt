@@ -1,5 +1,12 @@
 package org.don.onlineTrade.ui
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
@@ -16,7 +23,6 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Notifications
-import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -27,9 +33,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -80,6 +84,25 @@ import org.don.onlineTrade.ui.theme.GradientColors
 import org.don.onlineTrade.ui.theme.LocalGradientColors
 import org.don.onlineTrade.utils.SharedPref
 
+private val BOTTOM_BAR_ROUTES = setOf(
+    Screen.Home.route,
+    Screen.Saved.route,
+    Screen.Profile.route
+)
+
+private val BACK_ARROW_ROUTES = setOf(
+    Screen.Categories.route,
+    Screen.Regions.route,
+    Screen.ProfileUpdate.route,
+    Screen.PasswordUpdate.route,
+    Screen.ProductDetails.ROUTE,
+    Screen.Notifications.route,
+    Screen.MyProducts.route,
+    Screen.FilterCategory.ROUTE,
+    Screen.AddProduct.route,
+    Screen.Map.route,
+    Screen.MapUserLocation.ROUTE
+)
 
 @OptIn(
     ExperimentalMaterial3Api::class,
@@ -93,24 +116,11 @@ fun MainScreenView(
 
 ) {
 
-    val rememberNavController = appState.navController
-    val currentBackStackEntry by rememberNavController.currentBackStackEntryAsState()
-    val currentRoute by remember {
-        derivedStateOf {
-            currentBackStackEntry?.destination?.route ?: "home"
-        }
-    }
-    var toNotificationPage by rememberSaveable {
-        mutableStateOf(false)
-    }
+    val currentRoute = appState.currentDestination?.route
+    val showBottomBar = currentRoute in BOTTOM_BAR_ROUTES
 
     var showSettingsDialog by rememberSaveable {
         mutableStateOf(false)
-    }
-
-    if (toNotificationPage) {
-        rememberNavController.navigate(Screen.Notifications.route)
-        toNotificationPage = false
     }
 
     if (showSettingsDialog) {
@@ -133,6 +143,10 @@ fun MainScreenView(
         ) {
             val destination = appState.currentTopLevelDestination
 
+            var lastDestination by remember { mutableStateOf(destination) }
+            if (destination != null) {
+                lastDestination = destination
+            }
 
             Scaffold(
                 modifier = Modifier.semantics {
@@ -142,20 +156,12 @@ fun MainScreenView(
                 contentColor = MaterialTheme.colorScheme.onBackground,
                 contentWindowInsets = WindowInsets(0, 0, 0, 0),
                 bottomBar = {
-                    if (destination != null
-                        && destination.screenRoute != Screen.Categories.route
-                        && destination.screenRoute != Screen.Regions.route
-                        && destination.screenRoute != Screen.ProfileUpdate.route
-                        && destination.screenRoute != Screen.PasswordUpdate.route
-                        && destination.screenRoute != Screen.Notifications.route
-                        && destination.screenRoute != Screen.MyProducts.route
-                        && destination.screenRoute != Screen.ProductDetails.ROUTE
-                        && destination.screenRoute != Screen.FilterCategory.ROUTE
-                        && destination.screenRoute != Screen.AddProduct.route
-                        && destination.screenRoute != Screen.Map.route
-                        && destination.screenRoute != Screen.MapUserLocation.ROUTE
+                    AnimatedVisibility(
+                        visible = showBottomBar,
+                        enter = slideInVertically { it },
+                        exit = slideOutVertically { it }
                     ) {
-                        BottomNavigation(rememberNavController, appState)
+                        BottomNavigation(appState.navController, appState)
                     }
                 }
             ) { padding ->
@@ -170,47 +176,42 @@ fun MainScreenView(
                             )
                         )
                 ) {
-                    if (destination != null) {
-                        val showBackArrow = destination.screenRoute == Screen.Categories.route
-                                || destination.screenRoute == Screen.Regions.route
-                                || destination.screenRoute == Screen.ProfileUpdate.route
-                                || destination.screenRoute == Screen.PasswordUpdate.route
-                                || destination.screenRoute == Screen.ProductDetails.ROUTE
-                                || destination.screenRoute == Screen.Notifications.route
-                                || destination.screenRoute == Screen.MyProducts.route
-                                || destination.screenRoute == Screen.FilterCategory.ROUTE
-                                || destination.screenRoute == Screen.AddProduct.route
-                                || destination.screenRoute == Screen.Map.route
-                                || destination.screenRoute == Screen.MapUserLocation.ROUTE
+                    AnimatedVisibility(
+                        visible = destination != null,
+                        enter = expandVertically() + fadeIn(),
+                        exit = shrinkVertically() + fadeOut()
+                    ) {
+                        val topBarDestination = lastDestination
+                        if (topBarDestination != null) {
+                            val showBackArrow = topBarDestination.screenRoute in BACK_ARROW_ROUTES
 
-                        TopAppBar(
-                            title = stringResource(id = destination.titleRes),
-                            navigationIcon = if (!showBackArrow) Icons.Filled.Search else Icons.Filled.ArrowBack,
-                            navigationIconContentDescription = null,
-                            actionIcon = if (destination.screenRoute == Screen.Profile.route) Icons.Filled.Settings else Icons.Outlined.Notifications,
-                            actionIconContentDescription = null,
-                            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                                containerColor = Color.Transparent
-                            ),
-                            onActionClick = {
-                                if (destination.screenRoute == Screen.Profile.route) {
-                                    showSettingsDialog = true
-                                } else {
-                                    toNotificationPage = true
+                            TopAppBar(
+                                title = stringResource(id = topBarDestination.titleRes),
+                                navigationIcon = if (!showBackArrow) Icons.Filled.Search else Icons.Filled.ArrowBack,
+                                navigationIconContentDescription = null,
+                                actionIcon = if (topBarDestination.screenRoute == Screen.Profile.route) Icons.Filled.Settings else Icons.Outlined.Notifications,
+                                actionIconContentDescription = null,
+                                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                                    containerColor = Color.Transparent
+                                ),
+                                onActionClick = {
+                                    if (topBarDestination.screenRoute == Screen.Profile.route) {
+                                        showSettingsDialog = true
+                                    } else {
+                                        appState.navController.navigate(Screen.Notifications.route)
+                                    }
+                                },
+                                onNavigationClick = {
+                                    if (showBackArrow) {
+                                        appState.navController.popBackStack()
+                                    } else {
+                                        appState.navigateToSearch()
+                                    }
                                 }
-
-                            },
-                            onNavigationClick = {
-                                if (showBackArrow) {
-                                    toNotificationPage = false
-                                    appState.navController.popBackStack()
-                                } else {
-                                    appState.navigateToSearch()
-                                }
-                            }
-                        )
+                            )
+                        }
                     }
-                    NavigationGraph(appState, restartApp )
+                    NavigationGraph(appState, restartApp)
                 }
             }
         }
@@ -236,15 +237,13 @@ fun BottomNavigation(
             NavItems.Saved,
             NavItems.Profile
         )
-        val selectedItemIndex by rememberSaveable {
-            mutableIntStateOf(0)
-        }
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route
-        items.forEachIndexed { index, item ->
+        items.forEach { item ->
+            val isSelected = currentRoute == item.screenRoute
 
             NavigationBarItem(
-                selected = currentRoute == item.screenRoute,
+                selected = isSelected,
                 alwaysShowLabel = true,
                 onClick = {
                     appState.navigateToTopLevelDestination(item)
@@ -252,15 +251,12 @@ fun BottomNavigation(
                 label = { Text(text = item.title) },
 
                 icon = {
-                    BadgedBox(badge = {
-                    }) {
-                        Icon(
-                            imageVector = if (index == selectedItemIndex)
-                                item.selectedIcon else item.unselectedIcon,
+                    Icon(
+                        imageVector = if (isSelected)
+                            item.selectedIcon else item.unselectedIcon,
 
-                            contentDescription = item.title
-                        )
-                    }
+                        contentDescription = item.title
+                    )
                 },
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = NavigationDefaults.navigationSelectedItemColor(),
