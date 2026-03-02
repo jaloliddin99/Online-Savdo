@@ -126,6 +126,11 @@
     <string name="top">Топ</string>
     <string name="it_is_already_prioritized">Этот пост уже в приоритете</string>
 
+    <string name="section_general">Общие</string>
+    <string name="section_my_content">Мой контент</string>
+    <string name="section_account">Аккаунт</string>
+    <string name="section_support">Поддержка</string>
+
     <string name="txt_apply_filter">Применить фильтр</string>
     <string name="txt_select_region_and_district">Выберите регион и район</string>
     <string name="from">От</string>

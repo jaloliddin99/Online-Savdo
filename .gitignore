@@ -19,3 +19,4 @@ local.properties
 /.idea/migrations.xml
 /app/release/output-metadata.json
 /.idea/runConfigurations.xml
+/hs_err_pid11948.log

@@ -9,6 +9,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -21,6 +22,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddToPhotos
@@ -202,27 +204,34 @@ fun ProfileScreen(
             }
 
             Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen24Dp))
-            AppLanguage(restartApp)
-            Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen8Dp))
-            ProfileSettingsAndPosts(
-                toMyProducts
-            )
-            Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen8Dp))
-
-            ProfileUpdatePasswordAndProfile(
-                updateProfile = toUpdateProfile,
-                updatePassword = toUpdatePassword
-            )
-            Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen8Dp))
-            AboutAppAndContactWithUs()
-            Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen8Dp))
-            LogOut(
-                logOut = {
-                    SharedPref.clear()
-                    goToRegistration.invoke()
-                },
-                forgotPassword = { toForgotPassword(false) }
-            )
+            ProfileSection(title = stringResource(id = R.string.section_general)) {
+                AppLanguage(restartApp)
+            }
+            Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen16Dp))
+            ProfileSection(title = stringResource(id = R.string.section_my_content)) {
+                ProfileSettingsAndPosts(toMyProducts)
+            }
+            Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen16Dp))
+            ProfileSection(title = stringResource(id = R.string.section_account)) {
+                ProfileUpdatePasswordAndProfile(
+                    updateProfile = toUpdateProfile,
+                    updatePassword = toUpdatePassword
+                )
+            }
+            Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen16Dp))
+            ProfileSection(title = stringResource(id = R.string.section_support)) {
+                AboutAppAndContactWithUs()
+            }
+            Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen16Dp))
+            ProfileSection {
+                LogOut(
+                    logOut = {
+                        SharedPref.clear()
+                        goToRegistration.invoke()
+                    },
+                    forgotPassword = { toForgotPassword(false) }
+                )
+            }
             Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen24Dp))
 
         }
@@ -302,9 +311,7 @@ fun RoundImage(
 @Composable
 fun AboutAppAndContactWithUs() {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(color = MaterialTheme.colorScheme.surface)
+        modifier = Modifier.fillMaxWidth()
     ) {
         ProfileColumnItem(
             imageVector = Icons.Filled.Warning,
@@ -335,9 +342,7 @@ fun ProfileUpdatePasswordAndProfile(
     updatePassword: () -> Unit
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(color = MaterialTheme.colorScheme.surface)
+        modifier = Modifier.fillMaxWidth()
     ) {
         ProfileColumnItem(
             imageVector = Icons.Filled.Settings,
@@ -363,9 +368,7 @@ fun ProfileSettingsAndPosts(
     toMyProducts: () -> Unit,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(color = MaterialTheme.colorScheme.surface)
+        modifier = Modifier.fillMaxWidth()
     ) {
         ProfileColumnItem(
             imageVector = Icons.Filled.Settings,
@@ -399,9 +402,7 @@ fun LogOut(
     var showBottomSheet by remember { mutableStateOf(false) }
 
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(color = MaterialTheme.colorScheme.surface)
+        modifier = Modifier.fillMaxWidth()
     ) {
         ProfileColumnItem(
             imageVector = Icons.Filled.Password,
@@ -582,7 +583,6 @@ fun ProfileColumnItem(
             .clickable { onItemClicked() }
             .fillMaxWidth()
             .height(56.dp)
-            .background(color = MaterialTheme.colorScheme.surface)
             .padding(horizontal = MaterialTheme.spacing.dimen16Dp),
         verticalAlignment = Alignment.CenterVertically) {
         if (language) {
@@ -612,6 +612,38 @@ fun ProfileColumnItem(
             imageVector = Icons.Filled.KeyboardArrowRight, contentDescription = null,
             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
 
+        )
+    }
+}
+
+@Composable
+fun ProfileSection(
+    modifier: Modifier = Modifier,
+    title: String? = null,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = MaterialTheme.spacing.dimen16Dp)
+    ) {
+        if (title != null) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(
+                    start = 4.dp,
+                    bottom = MaterialTheme.spacing.dimen8Dp
+                )
+            )
+        }
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp))
+                .background(color = MaterialTheme.colorScheme.surface),
+            content = content
         )
     }
 }

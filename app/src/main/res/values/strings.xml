@@ -126,6 +126,11 @@
     <string name="top">Top</string>
     <string name="it_is_already_prioritized">This post is already prioritized</string>
     
+    <string name="section_general">General</string>
+    <string name="section_my_content">My Content</string>
+    <string name="section_account">Account</string>
+    <string name="section_support">Support</string>
+
     <string name="txt_apply_filter">Apply Filter</string>
     <string name="txt_select_region_and_district">Select Region and District</string>
     <string name="from">From</string>
