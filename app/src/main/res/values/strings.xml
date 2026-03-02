@@ -136,5 +136,15 @@
     <string name="from">From</string>
     <string name="to">to</string>
 
+    <string name="step_category_location">Category &amp; Location</string>
+    <string name="step_basic_info">Basic Info</string>
+    <string name="step_photos_details">Photos &amp; Details</string>
+    <string name="step_review_submit">Review &amp; Submit</string>
+    <string name="next">Next</string>
+    <string name="back">Back</string>
+    <string name="images_selected">%d image(s) selected</string>
+    <string name="review_details">Details</string>
+    <string name="preview">Preview</string>
+
 
 </resources>

@@ -136,5 +136,15 @@
     <string name="from">От</string>
     <string name="to">До</string>
 
+    <string name="step_category_location">Категория и местоположение</string>
+    <string name="step_basic_info">Основная информация</string>
+    <string name="step_photos_details">Фото и детали</string>
+    <string name="step_review_submit">Проверка и отправка</string>
+    <string name="next">Далее</string>
+    <string name="back">Назад</string>
+    <string name="images_selected">%d изображений выбрано</string>
+    <string name="review_details">Детали</string>
+    <string name="preview">Предпросмотр</string>
+
 
 </resources>

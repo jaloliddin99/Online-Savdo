@@ -3,48 +3,38 @@ package org.don.onlineTrade.ui.add
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.category.CategoryItem
 import org.don.onlineTrade.data.remote.models.post.PostParamDTO
 import org.don.onlineTrade.data.remote.models.post.PostValueDTO
 import org.don.onlineTrade.data.remote.models.post.toPostDto
-import org.don.onlineTrade.ui.add.dynamic.DynamicView
 import org.don.onlineTrade.ui.add.dynamic.DynamicViewData
-import org.don.onlineTrade.ui.add.dynamic.TitleWrapper
 import org.don.onlineTrade.ui.map.MapScreenData
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.ComposeFileProvider
@@ -62,8 +52,6 @@ fun AddProductRoute(
     goToDetailsPage: () -> Unit,
     goToMapScreen: () -> Unit
 ) {
-
-
     AddProductScreen(
         modifier = modifier,
         navigateToCategories,
@@ -111,6 +99,9 @@ fun AddProductScreen(
 ) {
 
     val context = LocalContext.current
+    val currentStep = viewModel.currentStep
+    var swipeDirection by remember { mutableIntStateOf(1) }
+    var showPreview by remember { mutableStateOf(false) }
 
     val state = viewModel.state.value
     val isLoading = state.isLoading
@@ -150,11 +141,9 @@ fun AddProductScreen(
             galleryImageUri = galleryImageUri + it.map { it.toImageUrl(isFromCamera = false, it) }
         }
 
-
     var capturedImageUri by remember {
         mutableStateOf<Uri>(Uri.EMPTY)
     }
-
 
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture(),
@@ -165,10 +154,77 @@ fun AddProductScreen(
     )
 
     val focusRequester = remember { FocusRequester() }
-    val descriptionFocusRequester = remember {
-        FocusRequester()
-    }
+    val descriptionFocusRequester = remember { FocusRequester() }
     val paddingValues = WindowInsets.systemBars.asPaddingValues()
+
+    // Initialize dynamic view data from category details
+    if (state.categoryDetail != null) {
+        val params = state.categoryDetail.parameters
+        if (dynamicViewData.isEmpty()) {
+            dynamicViewData = params.associateBy(
+                keySelector = { it.code },
+                valueTransform = {
+                    DynamicViewData(
+                        isRequired = it.validation.is_required,
+                        isValid = false,
+                        code = it.code,
+                        label_ru = it.label_ru,
+                        label_uz = it.label_uz,
+                        type = it.type,
+                        post_value = listOf(
+                            PostValueDTO(
+                                label_uz = "",
+                                label_ru = "",
+                                key = ""
+                            )
+                        ),
+                        unit = null
+                    )
+                }
+            )
+        }
+    }
+
+    // Per-step validation
+    val isStep1Valid = item != null && item.id != -1 && map != null
+    val isStep2Valid = productTitleState.isValid && productDescriptionState.isValid
+    val isStep3Valid = galleryImageUri.isNotEmpty()
+            && galleryImageUri.size < 10
+            && dynamicDataCorrect(dynamicViewData)
+    val isSubmitEnabled = isStep1Valid && isStep2Valid && isStep3Valid
+
+    val isNextEnabled = when (currentStep) {
+        1 -> isStep1Valid
+        2 -> isStep2Valid
+        3 -> isStep3Valid
+        else -> false
+    }
+
+    val onSubmit = {
+        submitProduct(
+            productTitleState.text,
+            productDescriptionState.text,
+            item!!.id,
+            galleryImageUri,
+            map!!,
+            getOnlyValidOptions(dynamicViewData).map { it.toPostDto() }
+        )
+    }
+
+    fun navigateNext() {
+        swipeDirection = 1
+        viewModel.goToNextStep()
+    }
+
+    fun navigatePrevious() {
+        swipeDirection = -1
+        viewModel.goToPreviousStep()
+    }
+
+    // Back handler: go to previous step instead of exiting screen
+    BackHandler(enabled = currentStep > 1) {
+        navigatePrevious()
+    }
 
     Box(
         modifier = modifier
@@ -179,169 +235,122 @@ fun AddProductScreen(
                 bottom = paddingValues.calculateBottomPadding()
             )
     ) {
-
         Column(
-            modifier = modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.Start,
+            modifier = Modifier.fillMaxSize()
         ) {
+            // Progress bar + step label
+            WizardProgressBar(currentStep)
+            StepLabel(currentStep)
 
-            TitleWrapper(titleRes = R.string.enter_title) {
-                TextFieldForProduct(
-                    productState = productTitleState,
-                    onImeAction = {
-                        focusRequester.requestFocus()
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-
-            TitleWrapper(titleRes = R.string.add_description) {
-                TextFieldForProduct(
-                    productState = productDescriptionState,
-                    onImeAction = {
-                        descriptionFocusRequester.requestFocus()
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(focusRequester)
-                        .height(200.dp),
-                    title = R.string.please_enter_description
-                )
-            }
-
-            TitleWrapper(titleRes = R.string.select_category) {
-                TextFieldUnEditable(
-                    productTitle = item?.title,
-                    modifier = Modifier.fillMaxWidth(),
-                    title = R.string.please_select_category,
-                    isFocusedOrClicked = {
-                        viewModel.setImageList(galleryImageUri)
-                        navigateToCategories()
-                    }
-                )
-            }
-            TitleWrapper(titleRes = R.string.enter_your_address) {
-                TextFieldUnEditable(
-                    productTitle = map?.addressName,
-                    modifier = Modifier.fillMaxWidth(),
-                    title = R.string.enter_your_address,
-                    isFocusedOrClicked = {
-                        viewModel.setImageList(galleryImageUri)
-                        goToMapScreen()
-                    }
-                )
-            }
-
-            TitleWrapper(titleRes = R.string.select_image_for_your_product) {
-                ShowSelectedImages(imagesList = galleryImageUri, onAddButtonClicked = {
-                    viewModel.updateSHowCameraOrGallery(true)
-                }, cancelClicked = {
-                    val list = galleryImageUri.toMutableList()
-                    list.remove(it)
-                    galleryImageUri = list
-                })
-            }
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
-
-            val isEnabled =
-                productTitleState.isValid
-                        && productDescriptionState.isValid
-                        && item?.id != -1
-                        && (galleryImageUri.isNotEmpty() && galleryImageUri.size < 10)
-                        && map != null
-                        && dynamicDataCorrect(dynamicViewData)
-
-
-            val onSubmit = {
-                submitProduct(
-                    productTitleState.text,
-                    productDescriptionState.text,
-                    item!!.id,
-                    galleryImageUri,
-                    map!!,
-                    getOnlyValidOptions(dynamicViewData).map { it.toPostDto() }
-                )
-            }
-
-
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen16Dp))
-
-            if (state.categoryDetail != null) {
-                val params = state.categoryDetail.parameters
-                if (dynamicViewData.isEmpty()) {
-                    dynamicViewData = params.associateBy(
-                        keySelector = { it.code },
-                        valueTransform = {
-                            DynamicViewData(
-                                isRequired = it.validation.is_required,
-                                isValid = false,
-                                code = it.code,
-                                label_ru = it.label_ru,
-                                label_uz = it.label_uz,
-                                type = it.type,
-                                post_value = listOf(
-                                    PostValueDTO(
-                                        label_uz = "",
-                                        label_ru = "",
-                                        key = ""
-                                    )
-                                ),
-                                unit = null
-                            )
+            // Animated step content
+            AnimatedContent(
+                targetState = currentStep,
+                transitionSpec = {
+                    val direction = if (swipeDirection >= 0) 1 else -1
+                    slideInHorizontally(
+                        initialOffsetX = { fullWidth -> fullWidth * direction },
+                        animationSpec = tween(300)
+                    ) togetherWith slideOutHorizontally(
+                        targetOffsetX = { fullWidth -> -fullWidth * direction },
+                        animationSpec = tween(300)
+                    )
+                },
+                modifier = Modifier.weight(1f),
+                label = "wizard_step_transition"
+            ) { step ->
+                when (step) {
+                    1 -> StepCategoryAndLocation(
+                        item = item,
+                        map = map,
+                        onCategoryClick = {
+                            viewModel.setImageList(galleryImageUri)
+                            navigateToCategories()
+                        },
+                        onMapClick = {
+                            viewModel.setImageList(galleryImageUri)
+                            goToMapScreen()
                         }
                     )
-                }
-                DynamicView(params, dynamicViewData) {
-                    dynamicViewData = it
-                }
-            }
 
-
-            Button(
-                onClick = onSubmit,
-                enabled = isEnabled,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 28.dp, bottom = 3.dp)
-                    .height(56.dp)
-            ) {
-                Text(
-                    text = stringResource(id = R.string.upload),
-                    style = MaterialTheme.typography.titleSmall
-                )
-            }
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen24Dp))
-            if (state.showCameraOrGalleryDialog) {
-                DialogCameraOrGallery(onDismiss = {
-                    viewModel.updateSHowCameraOrGallery(false)
-                }, onCameraSelected = {
-                    RunTimePermission().permissionListForCamera(
-                        cameraPermission = {
-                            if (it) {
-                                val uri = ComposeFileProvider.getImageUri(context)
-                                capturedImageUri = uri
-                                cameraLauncher.launch(uri)
-                            }
-                        }, context
+                    2 -> StepBasicInfo(
+                        titleState = productTitleState,
+                        descriptionState = productDescriptionState,
+                        focusRequester = focusRequester,
+                        descriptionFocusRequester = descriptionFocusRequester
                     )
-                    viewModel.updateSHowCameraOrGallery(false)
-                }, onGallerySelected = {
-                    RunTimePermission().permissionForGallery(
-                        galleryPermission = {
-                            if (it) {
-                                galleryLauncher.launch("image/*")
-                            }
-                        }, context
+
+                    3 -> StepPhotosAndDetails(
+                        imagesList = galleryImageUri,
+                        onAddImageClicked = {
+                            viewModel.updateSHowCameraOrGallery(true)
+                        },
+                        onCancelImage = {
+                            val list = galleryImageUri.toMutableList()
+                            list.remove(it)
+                            galleryImageUri = list
+                        },
+                        categoryParams = state.categoryDetail?.parameters,
+                        dynamicViewData = dynamicViewData,
+                        onDynamicViewDataChanged = { dynamicViewData = it }
                     )
-                    viewModel.updateSHowCameraOrGallery(false)
-                })
+                }
             }
 
+            // Bottom navigation bar
+            WizardBottomBar(
+                currentStep = currentStep,
+                isNextEnabled = isNextEnabled,
+                isSubmitEnabled = isSubmitEnabled,
+                onBack = { navigatePrevious() },
+                onNext = { navigateNext() },
+                onPreview = { showPreview = true },
+                onSubmit = onSubmit
+            )
         }
+
         FreeLoading(isFeedLoading = isLoading)
     }
+
+    // Preview bottom sheet
+    if (showPreview) {
+        ProductPreviewBottomSheet(
+            onDismiss = { showPreview = false },
+            categoryName = item?.title,
+            address = map?.addressName,
+            title = productTitleState.text,
+            description = productDescriptionState.text,
+            images = galleryImageUri,
+            dynamicViewData = dynamicViewData
+        )
+    }
+
+    // Camera/Gallery dialog
+    if (state.showCameraOrGalleryDialog) {
+        DialogCameraOrGallery(onDismiss = {
+            viewModel.updateSHowCameraOrGallery(false)
+        }, onCameraSelected = {
+            RunTimePermission().permissionListForCamera(
+                cameraPermission = {
+                    if (it) {
+                        val uri = ComposeFileProvider.getImageUri(context)
+                        capturedImageUri = uri
+                        cameraLauncher.launch(uri)
+                    }
+                }, context
+            )
+            viewModel.updateSHowCameraOrGallery(false)
+        }, onGallerySelected = {
+            RunTimePermission().permissionForGallery(
+                galleryPermission = {
+                    if (it) {
+                        galleryLauncher.launch("image/*")
+                    }
+                }, context
+            )
+            viewModel.updateSHowCameraOrGallery(false)
+        })
+    }
+
     if (state.error.isNotEmpty()) {
         Toast.makeText(context, state.error, Toast.LENGTH_SHORT).show()
     }
@@ -363,7 +372,7 @@ private fun dynamicDataCorrect(map: Map<String, DynamicViewData>): Boolean {
 }
 
 private fun getOnlyValidOptions(map: Map<String, DynamicViewData>): List<DynamicViewData> {
-   val newList = map.values.toList().filter {
+    val newList = map.values.toList().filter {
         it.isValid
     }
     return newList

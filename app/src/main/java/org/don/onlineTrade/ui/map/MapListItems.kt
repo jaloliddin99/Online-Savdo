@@ -47,7 +47,7 @@ import org.don.onlineTrade.ui.theme.spacing
 @Composable
 fun DisplayLocations(
     featureMember: List<FeatureMember>?,
-    onBackClick: (MapScreenData?) -> Unit
+    onItemClick: (FeatureMember) -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -70,16 +70,7 @@ fun DisplayLocations(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
-                                val lat = item.GeoObject.Point.pos.split(" ")[0].toDouble()
-                                val lon = item.GeoObject.Point.pos.split(" ")[1].toDouble()
-                                onBackClick(
-                                    MapScreenData(
-                                        lat = lon,
-                                        lon = lat,
-                                        addressName = item.GeoObject.name,
-                                        addressDescription = item.GeoObject.description
-                                    )
-                                )
+                                onItemClick(item)
                             },
                         verticalArrangement = Arrangement.SpaceEvenly
                     ) {

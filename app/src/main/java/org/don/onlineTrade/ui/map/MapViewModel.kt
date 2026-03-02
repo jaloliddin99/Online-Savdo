@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.don.onlineTrade.domain.repository.LocationTracker
 import org.don.onlineTrade.domain.state.Resource
+import org.don.onlineTrade.data.remote.models.reverse.FeatureMember
 import org.don.onlineTrade.domain.useCase.LocationReverseUseCase
 import org.don.onlineTrade.domain.useCase.regionUseCase.RegionsDistrictsUseCase
 import org.don.onlineTrade.ui.home.MapScreenScreenState
@@ -139,6 +140,17 @@ class MapViewModel @Inject constructor(
             }.launchIn(viewModelScope)
     }
 
+
+    fun reverseGeocodeFromCamera(latLng: LatLng) {
+        getLocationReverse(location = latLng)
+    }
+
+    fun selectLocation(featureMember: FeatureMember) {
+        _state.value = _state.value.copy(
+            singleFutureMember = listOf(featureMember),
+            featureMember = null
+        )
+    }
 
     fun locationObserve() = viewModelScope.launch {
         locationTrackerRepository.getCurrentLocation().collectLatest {

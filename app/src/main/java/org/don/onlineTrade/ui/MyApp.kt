@@ -81,8 +81,10 @@ import org.don.onlineTrade.ui.saved.SavedRoute
 import org.don.onlineTrade.ui.theme.AppBackground
 import org.don.onlineTrade.ui.theme.AppGradientBackground
 import org.don.onlineTrade.ui.theme.GradientColors
+import org.don.onlineTrade.ui.home.HomeViewModel
 import org.don.onlineTrade.ui.theme.LocalGradientColors
 import org.don.onlineTrade.utils.SharedPref
+import androidx.hilt.navigation.compose.hiltViewModel
 
 private val BOTTOM_BAR_ROUTES = setOf(
     Screen.Home.route,
@@ -286,8 +288,13 @@ fun NavigationGraph(
         }
     ) {
 
-        composable(route = Screen.Home.route) {
+        composable(route = Screen.Home.route) { entry ->
+            val graphEntry = remember(entry) {
+                navController.getBackStackEntry(navController.graph.id)
+            }
+            val homeViewModel = hiltViewModel<HomeViewModel>(graphEntry)
             HomeRoute(
+                homeViewModel = homeViewModel,
                 navigateToProduct = {
                     navController.navigate(Screen.ProductDetails(it).route)
                 },
@@ -306,9 +313,14 @@ fun NavigationGraph(
                 }
             )
         ) { backStackEntry ->
+            val graphEntry = remember(backStackEntry) {
+                navController.getBackStackEntry(navController.graph.id)
+            }
+            val homeViewModel = hiltViewModel<HomeViewModel>(graphEntry)
             val param = backStackEntry.arguments?.getInt("param")
             ProductDetailsRoute(
                 param ?: 0,
+                homeViewModel = homeViewModel,
                 onSimilarItemClicked = {
                     navController.navigate(Screen.ProductDetails(it).route)
                 },
@@ -564,8 +576,13 @@ fun NavigationGraph(
             )
         }
 
-        composable(route = Screen.Categories.route) {
+        composable(route = Screen.Categories.route) { entry ->
+            val graphEntry = remember(entry) {
+                navController.getBackStackEntry(navController.graph.id)
+            }
+            val homeViewModel = hiltViewModel<HomeViewModel>(graphEntry)
             CategoriesRoute(
+                homeViewModel = homeViewModel,
                 onBackPressed = {
                     navController.previousBackStackEntry
                         ?.savedStateHandle

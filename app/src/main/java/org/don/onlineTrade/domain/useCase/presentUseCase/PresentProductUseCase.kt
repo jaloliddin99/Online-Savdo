@@ -1,5 +1,6 @@
 package org.don.onlineTrade.domain.useCase.presentUseCase
 
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsModel
@@ -20,6 +21,7 @@ class PresentProductUseCase@Inject constructor(
     ): Flow<Resource<PostDetailsModel>> = flow {
         try {
             emit(Resource.Loading())
+            delay(1300)
             emit(
                 Resource.Success(
                     repository.showProductModel(

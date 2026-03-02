@@ -143,9 +143,10 @@ fun MapsScreen(
         liftUpListener = true
         initialCameraPosition = it
     }
-    val onMapCameraIdle: (cameraPosition: CameraPosition) -> Unit = { it ->
+    val onMapCameraIdle: (cameraPosition: CameraPosition) -> Unit = {
         liftUpListener = false
         initialCameraPosition = it
+        viewModel.reverseGeocodeFromCamera(LatLng(it.target.latitude, it.target.longitude))
     }
 
     LaunchedEffect(key1 = cameraPositionState.isMoving) {
@@ -192,8 +193,9 @@ fun MapsScreen(
             )
 
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
-            DisplayLocations(featureMember = state.featureMember, onBackClick = {
-                getLocation(singleLocation, state.regionDistrictData)
+            DisplayLocations(featureMember = state.featureMember, onItemClick = { featureMember ->
+                viewModel.selectLocation(featureMember)
+                searchTextListener = ""
             })
             Spacer(modifier = Modifier.weight(1f))
 

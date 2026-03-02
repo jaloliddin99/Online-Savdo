@@ -51,7 +51,7 @@ fun DetailsToolbar(
             Icon(
                 imageVector = Icons.Default.ArrowBack,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimary
+                tint = MaterialTheme.colorScheme.onSurface
             )
         }
         Spacer(modifier = modifier.weight(1f))
@@ -77,7 +77,7 @@ fun DetailsToolbar(
             Icon(
                 imageVector = Icons.Default.Share,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimary
+                tint = MaterialTheme.colorScheme.onSurface
             )
         }
 

@@ -42,6 +42,17 @@ class AddProductScreenViewModel @Inject constructor(
 ) : AndroidViewModel(application) {
 
 
+    var currentStep by mutableStateOf(1)
+        private set
+
+    fun goToNextStep() {
+        if (currentStep < 3) currentStep++
+    }
+
+    fun goToPreviousStep() {
+        if (currentStep > 1) currentStep--
+    }
+
     var titleValue: TextFieldState by mutableStateOf(ProductTitleState())
     fun setTitle(newValue: TextFieldState) {
         titleValue = newValue
@@ -62,6 +73,7 @@ class AddProductScreenViewModel @Inject constructor(
 
 
     private fun clearStoredValues() {
+        currentStep = 1
         setTitle(ProductTitleState())
         setDescription(ProductDescriptionState())
         setImageList(listOf())

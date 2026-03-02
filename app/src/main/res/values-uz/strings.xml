@@ -137,5 +137,15 @@
     <string name="from">Dan</string>
     <string name="to">gacha</string>
 
+    <string name="step_category_location">Toifa va manzil</string>
+    <string name="step_basic_info">Asosiy ma\'lumot</string>
+    <string name="step_photos_details">Rasmlar va tafsilotlar</string>
+    <string name="step_review_submit">Ko\'rib chiqish va yuborish</string>
+    <string name="next">Keyingi</string>
+    <string name="back">Orqaga</string>
+    <string name="images_selected">%d ta rasm tanlandi</string>
+    <string name="review_details">Tafsilotlar</string>
+    <string name="preview">Ko\'rib chiqish</string>
+
 
 </resources>

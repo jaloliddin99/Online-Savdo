@@ -4,25 +4,22 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -37,34 +34,29 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Sms
 import androidx.compose.material3.Divider
-import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.showProducts.Data
 import org.don.onlineTrade.data.remote.models.showProducts.PostParam
@@ -84,24 +76,27 @@ import org.don.onlineTrade.utils.openSmsApp
 @Composable
 fun ProductDetailsRoute(
     productId: Int,
+    homeViewModel: HomeViewModel,
     onSimilarItemClicked: (Int) -> Unit,
     onEditClicked: (Int) -> Unit,
     navigateBack: () -> Unit,
     goToMapsPage: (lat: Double, lon: Double) -> Unit
-
 ) {
     val detailsViewModel = hiltViewModel<PresentViewModel>()
-    val homeViewMode = hiltViewModel<HomeViewModel>()
+    val homeViewMode = homeViewModel
     val pagerState = homeViewMode.pagerState
 
-
-    LaunchedEffect(key1 = "hello") {
-        homeViewMode.loadNextItems()
+    LaunchedEffect(productId) {
         detailsViewModel.getProductDetail(
             id = productId,
             language = SharedPref.language,
             token = SharedPref.deviceToken
         )
+    }
+
+    // Defer similar items loading so it doesn't block navigation
+    LaunchedEffect(Unit) {
+        homeViewMode.loadNextItems()
     }
 
     val state = detailsViewModel.state.value
@@ -143,17 +138,6 @@ fun ProductDetailsScreen(
     goToMapsPage: (lat: Double, lon: Double) -> Unit
 ) {
 
-    val systemUiController = rememberSystemUiController()
-    val isDarkMode = isSystemInDarkTheme()
-
-    DisposableEffect(systemUiController) {
-        systemUiController.setStatusBarColor(Color.Transparent, darkIcons = false)
-        onDispose {
-            systemUiController.setStatusBarColor(
-                color = Color.Transparent, darkIcons = if (isDarkMode) false else false
-            )
-        }
-    }
     val isFeedLoading = state.isLoading
     val data = state.registerMain?.data
 
@@ -162,43 +146,62 @@ fun ProductDetailsScreen(
     })
 
     val context = LocalContext.current
-    val scrollState = rememberLazyGridState()
     var showDeleteDialog by rememberSaveable {
         mutableStateOf(false)
     }
     var deletePostId by rememberSaveable {
         mutableIntStateOf(-1)
     }
+
+    // Pagination: trigger once when we approach the end of similar items
+    val shouldLoadMore by remember {
+        derivedStateOf {
+            mPagerState.items.isNotEmpty()
+                    && !mPagerState.endReached
+                    && !mPagerState.isLoading
+        }
+    }
+
     if (isFeedLoading && data == null) {
         ShimmerDetailsContent()
     } else {
-        ConstraintLayout(
-            modifier = modifier.fillMaxSize()
-        ) {
-            val (column, optionsScreen) = createRefs()
+        Box(modifier = modifier.fillMaxSize()) {
             LazyColumn(
-                modifier = modifier
-                    .constrainAs(column) {
-                        top.linkTo(parent.top)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                        bottom.linkTo(optionsScreen.top)
-                    }
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = 80.dp) // space for bottom bar
             ) {
-                item {
+                // Image pager
+                item(key = "image_pager") {
                     ImagePager(state, pagerState)
+                }
+
+                // Product description
+                item(key = "description") {
                     ItemDescription(data, goToMapsPage)
+                }
+
+                // Contact details
+                item(key = "contacts") {
                     Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
                     ContactDetails(data)
+                }
+
+                // Similar items header
+                item(key = "similar_header") {
                     Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
                     TextBold16(
                         title = stringResource(id = R.string.similar_items),
                     )
+                }
+
+                // Similar items row
+                item(key = "similar_items") {
                     LazyRow(modifier = Modifier.wrapContentHeight()) {
                         items(count = mPagerState.items.size) { i ->
                             val item = mPagerState.items[i]
-                            LaunchedEffect(scrollState) {
-                                if (i >= mPagerState.items.size - 1 && !mPagerState.endReached && !mPagerState.isLoading) {
+                            if (i >= mPagerState.items.size - 1 && shouldLoadMore) {
+                                LaunchedEffect(mPagerState.items.size) {
                                     loadItems.invoke()
                                 }
                             }
@@ -207,22 +210,22 @@ fun ProductDetailsScreen(
                                 onItemClicked = onItemClicked
                             )
                             if (mPagerState.items.lastIndex == i) {
-                                Spacer(modifier = modifier.width(16.dp))
+                                Spacer(modifier = Modifier.width(16.dp))
                             }
                         }
                     }
+                }
 
-                    Spacer(modifier = modifier.height(24.dp))
+                // Bottom spacing
+                item(key = "bottom_spacer") {
+                    Spacer(modifier = Modifier.height(24.dp))
                     NavigationBarSpacer()
                 }
             }
+
+            // Bottom action bar
             OptionsScreen(
-                modifier = Modifier
-                    .constrainAs(optionsScreen) {
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                        bottom.linkTo(parent.bottom)
-                    },
+                modifier = Modifier.align(Alignment.BottomCenter),
                 onDeleteClicked = {
                     showDeleteDialog = true
                     deletePostId = it
@@ -236,8 +239,9 @@ fun ProductDetailsScreen(
                 },
                 data = data
             )
-            TopShadow()
 
+            // Toolbar overlay
+            TopShadow()
             DetailsToolbar(
                 onBackClick = onBackPressed,
                 onLikeClicked = onItemClicked,
@@ -268,11 +272,9 @@ fun OptionsScreen(
     onSmsClicked: () -> Unit,
     data: Data?
 ) {
-
-
     Column(modifier.fillMaxWidth()) {
         Row(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
                 .shadow(elevation = 6.dp)
@@ -346,7 +348,8 @@ fun ItemDescription(
         val district = data?.district?.name
         val address = if (region != null && district != null) "$region, $district"
         else if (data?.addressName != null) data.addressName else ""
-        DescriptionItems(desc = address,
+        DescriptionItems(
+            desc = address,
             onClicked = {
                 if (data?.latitude != null) {
                     goToMapsPage.invoke(data.latitude, data.longitude)
@@ -431,8 +434,11 @@ fun DescriptionItems(
             TextNormal16(title = desc)
         }
         Spacer(modifier = Modifier.weight(1f))
-        Image(imageVector = Icons.Filled.KeyboardArrowRight, contentDescription = null,
-            )
+        Icon(
+            imageVector = Icons.Filled.KeyboardArrowRight,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurface
+        )
     }
 }
 
@@ -481,9 +487,5 @@ fun ContactDetails(
                 callTo((data?.user?.phoneNumber ?: ""), context)
             }
         )
-
-
     }
-
 }
-

@@ -38,14 +38,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.location.GpsCheckHelper
 import org.don.onlineTrade.data.location.checkGpsEnabled
-import org.don.onlineTrade.ui.profile.ProfileViewModel
 import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.LocaleManager.FLAG_HAS_DATA
@@ -56,11 +53,13 @@ import org.don.onlineTrade.utils.runTimePermission.RunTimePermission
 @Composable
 fun HomeRoute(
     modifier: Modifier = Modifier,
+    homeViewModel: HomeViewModel,
     navigateToProduct: (Int) -> Unit,
     navigateToCategory: (Int) -> Unit
 ) {
     HomeScreen(
         modifier = modifier,
+        homeViewModel = homeViewModel,
         navigateToProduct = navigateToProduct,
         navigateToCategory = navigateToCategory
     )
@@ -69,10 +68,11 @@ fun HomeRoute(
 @Composable
 fun HomeScreen(
     modifier: Modifier,
+    homeViewModel: HomeViewModel,
     navigateToProduct: (Int) -> Unit,
     navigateToCategory: (Int) -> Unit,
 ) {
-    val viewModel = hiltViewModel<HomeViewModel>()
+    val viewModel = homeViewModel
     val state = viewModel.state.value
     val stateNear = viewModel.stateNear.value
     val isFeedLoading = state.isLoading
@@ -337,12 +337,3 @@ fun GPSEnableView(
     }
 }
 
-@Preview
-@Composable
-fun HomeScreenPreview() {
-    HomeScreen(
-        modifier = Modifier,
-        navigateToProduct = {},
-        navigateToCategory = {}
-    )
-}
