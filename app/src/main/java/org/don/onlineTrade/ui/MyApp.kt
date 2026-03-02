@@ -33,6 +33,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -144,8 +145,14 @@ fun MainScreenView(
             },
         ) {
             val destination = appState.currentTopLevelDestination
+            val currentRoute = appState.currentDestination
 
-            var lastDestination by remember { mutableStateOf(destination) }
+            // Before NavHost initializes, currentRoute is null.
+            // Default to Home toolbar so it's visible from the very first frame.
+            val startsOnTopLevel = remember { isUserHasRightToAccessToMainPart() }
+            var lastDestination by remember {
+                mutableStateOf(destination ?: if (startsOnTopLevel) NavItems.Home else null)
+            }
             if (destination != null) {
                 lastDestination = destination
             }
@@ -178,11 +185,17 @@ fun MainScreenView(
                             )
                         )
                 ) {
-                    AnimatedVisibility(
-                        visible = destination != null,
-                        enter = expandVertically() + fadeIn(),
-                        exit = shrinkVertically() + fadeOut()
-                    ) {
+                    // Show toolbar on top-level screens, OR before NavHost
+                    // initializes if we know the start screen is top-level
+                    val navNotReady = currentRoute == null
+                    val showTopBar = destination != null || (navNotReady && startsOnTopLevel)
+                    var useTopBarAnimation by remember { mutableStateOf(false) }
+
+                    LaunchedEffect(showTopBar) {
+                        if (showTopBar) useTopBarAnimation = true
+                    }
+
+                    val topBarContent: @Composable () -> Unit = {
                         val topBarDestination = lastDestination
                         if (topBarDestination != null) {
                             val showBackArrow = topBarDestination.screenRoute in BACK_ARROW_ROUTES
@@ -211,6 +224,19 @@ fun MainScreenView(
                                     }
                                 }
                             )
+                        }
+                    }
+
+                    // First appearance: show instantly. After that: animate.
+                    if (!useTopBarAnimation && showTopBar) {
+                        topBarContent()
+                    } else if (useTopBarAnimation) {
+                        AnimatedVisibility(
+                            visible = showTopBar,
+                            enter = expandVertically() + fadeIn(),
+                            exit = shrinkVertically() + fadeOut()
+                        ) {
+                            topBarContent()
                         }
                     }
                     NavigationGraph(appState, restartApp)
