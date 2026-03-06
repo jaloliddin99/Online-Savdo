@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -50,6 +51,7 @@ import org.don.onlineTrade.ui.auth.register.Branding
 import org.don.onlineTrade.ui.auth.register.DoYouHaveAccount
 import org.don.onlineTrade.ui.auth.register.RegistrationState
 import org.don.onlineTrade.ui.auth.register.SignUpScreen
+import org.don.onlineTrade.ui.theme.OnlineMarketTheme
 import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.FreeLoading
@@ -67,7 +69,7 @@ fun SignInScreen(
         mutableStateOf(true)
     }
 
-    Box(modifier = Modifier.fillMaxSize()){
+    Box(modifier = Modifier.fillMaxSize().statusBarsPadding()){
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -220,9 +222,11 @@ fun SignInToLoginAccount(
 @Preview
 @Composable
 private fun WelcomeScreenPreview() {
-    SignInScreen(onSignInSignUp = { s: String, s1: String -> },
-        state = LoginState(),
-        loginSuccess = {},
-        forgotPassword = {}
-    )
+    OnlineMarketTheme {
+        SignInScreen(onSignInSignUp = { s: String, s1: String -> },
+            state = LoginState(),
+            loginSuccess = {},
+            forgotPassword = {}
+        )
+    }
 }

@@ -120,7 +120,6 @@ fun HomeScreen(
                 }
             }
 
-            // ── Near Posts Section ──
             item(span = { GridItemSpan(2) }) {
                 Text(
                     text = stringResource(id = R.string.near_you),

@@ -1,6 +1,8 @@
 package org.don.onlineTrade.ui
 
+import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -22,7 +24,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -202,25 +203,26 @@ fun MainScreenView(
 
                             TopAppBar(
                                 title = stringResource(id = topBarDestination.titleRes),
-                                navigationIcon = if (!showBackArrow) Icons.Filled.Search else Icons.Filled.ArrowBack,
+                                navigationIcon = if (showBackArrow) Icons.Filled.ArrowBack else null,
                                 navigationIconContentDescription = null,
-                                actionIcon = if (topBarDestination.screenRoute == Screen.Profile.route) Icons.Filled.Settings else Icons.Outlined.Notifications,
+                                actionIcon = when (topBarDestination.screenRoute) {
+                                    Screen.Profile.route -> Icons.Filled.Settings
+                                    in BACK_ARROW_ROUTES -> null
+                                    else -> Icons.Filled.Search
+                                },
                                 actionIconContentDescription = null,
                                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                                     containerColor = Color.Transparent
                                 ),
                                 onActionClick = {
-                                    if (topBarDestination.screenRoute == Screen.Profile.route) {
-                                        showSettingsDialog = true
-                                    } else {
-                                        appState.navController.navigate(Screen.Notifications.route)
+                                    when (topBarDestination.screenRoute) {
+                                        Screen.Profile.route -> showSettingsDialog = true
+                                        else -> appState.navigateToSearch()
                                     }
                                 },
                                 onNavigationClick = {
                                     if (showBackArrow) {
                                         appState.navController.popBackStack()
-                                    } else {
-                                        appState.navigateToSearch()
                                     }
                                 }
                             )
@@ -463,6 +465,9 @@ fun NavigationGraph(
                 },
                 restartApp = {
                     restartApp.invoke()
+                },
+                toNotifications = {
+                    navController.navigate(Screen.Notifications.route)
                 }
             )
         }
@@ -497,7 +502,33 @@ fun NavigationGraph(
             )
         }
 
-        composable(route = Screen.Search.route) {
+        composable(
+            route = Screen.Search.route,
+            enterTransition = {
+                slideIntoContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Start,
+                    animationSpec = tween(300)
+                ) + fadeIn(animationSpec = tween(300))
+            },
+            exitTransition = {
+                slideOutOfContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.End,
+                    animationSpec = tween(300)
+                ) + fadeOut(animationSpec = tween(300))
+            },
+            popEnterTransition = {
+                slideIntoContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.End,
+                    animationSpec = tween(300)
+                ) + fadeIn(animationSpec = tween(300))
+            },
+            popExitTransition = {
+                slideOutOfContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.End,
+                    animationSpec = tween(300)
+                ) + fadeOut(animationSpec = tween(300))
+            }
+        ) {
             SearchRoute(
                 onBackClick = navController::popBackStack,
                 onItemClick = {

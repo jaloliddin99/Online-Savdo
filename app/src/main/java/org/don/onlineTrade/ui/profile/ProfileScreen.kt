@@ -30,6 +30,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Help
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Warning
@@ -97,7 +98,8 @@ fun ProfileRoute(
     refreshProfile: Boolean = false,
     toForgotPassword: (Boolean) -> Unit,
     goToRegistration: () -> Unit,
-    restartApp: () -> Unit
+    restartApp: () -> Unit,
+    toNotifications: () -> Unit = {}
 ) {
     val viewModel = hiltViewModel<ProfileViewModel>()
     val state = viewModel.state.value
@@ -115,7 +117,8 @@ fun ProfileRoute(
         uploadImage = {
             viewModel.updateProfileImage(it)
         },
-        restartApp
+        restartApp,
+        toNotifications
     )
 }
 
@@ -129,7 +132,8 @@ fun ProfileScreen(
     toForgotPassword: (Boolean) -> Unit,
     goToRegistration: () -> Unit,
     uploadImage: (ImageUrl) -> Unit,
-    restartApp: () -> Unit
+    restartApp: () -> Unit,
+    toNotifications: () -> Unit = {}
 ) {
     val context = LocalContext.current
 
@@ -215,7 +219,8 @@ fun ProfileScreen(
             ProfileSection(title = stringResource(id = R.string.section_account)) {
                 ProfileUpdatePasswordAndProfile(
                     updateProfile = toUpdateProfile,
-                    updatePassword = toUpdatePassword
+                    updatePassword = toUpdatePassword,
+                    toNotifications = toNotifications
                 )
             }
             Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen16Dp))
@@ -339,7 +344,8 @@ fun AboutAppAndContactWithUs() {
 @Composable
 fun ProfileUpdatePasswordAndProfile(
     updateProfile: () -> Unit,
-    updatePassword: () -> Unit
+    updatePassword: () -> Unit,
+    toNotifications: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -359,6 +365,17 @@ fun ProfileUpdatePasswordAndProfile(
             imageVector = Icons.Filled.Password,
             title = stringResource(id = R.string.password_update),
             onItemClicked = updatePassword
+        )
+        Divider(
+            modifier = Modifier
+                .padding(horizontal = 24.dp)
+                .clip(CircleShape),
+            thickness = 0.5.dp
+        )
+        ProfileColumnItem(
+            imageVector = Icons.Filled.Notifications,
+            title = stringResource(id = R.string.notifications),
+            onItemClicked = toNotifications
         )
     }
 }

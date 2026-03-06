@@ -33,7 +33,13 @@ class FPasswordViewModel @Inject constructor(
         ).onEach { result ->
             when (result) {
                 is Resource.Success -> {
-                    _state.value = ForgotPasswordState(main = result.data)
+                    if (result.data?.success == true){
+                        _state.value = ForgotPasswordState(main = result.data)
+                    }else {
+                        _state.value = ForgotPasswordState(
+                            error = result.message ?: "An unexpected error occured"
+                        )
+                    }
                 }
 
                 is Resource.Error -> {

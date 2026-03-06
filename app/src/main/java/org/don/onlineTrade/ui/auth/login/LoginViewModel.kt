@@ -33,8 +33,14 @@ class LoginViewModel @Inject constructor(
         ).onEach { result ->
             when (result) {
                 is Resource.Success -> {
-                    _state.value = LoginState(registerMain = result.data,
-                        email = loginBody.email)
+                    if (result.data?.success == true){
+                        _state.value = LoginState(registerMain = result.data,
+                            email = loginBody.email)
+                    }else {
+                        _state.value = LoginState(
+                            error = result.message ?: "An unexpected error occured"
+                        )
+                    }
                 }
 
                 is Resource.Error -> {
