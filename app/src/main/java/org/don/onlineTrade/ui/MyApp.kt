@@ -542,6 +542,7 @@ fun NavigationGraph(
             }
         ) { entry ->
             val mapData = entry.savedStateHandle.get<MapScreenData>("map_search_data")
+            val categoryItem = entry.savedStateHandle.get<CategoryItem>("category_item")
             SearchRoute(
                 onBackClick = navController::popBackStack,
                 onItemClick = {
@@ -550,7 +551,11 @@ fun NavigationGraph(
                 onMapClick = {
                     navController.navigate(Screen.MapSearch.route)
                 },
-                mapSearchData = mapData
+                onCategoryClick = {
+                    navController.navigate(Screen.Categories.route)
+                },
+                mapSearchData = mapData,
+                categoryItem = categoryItem
             )
         }
 

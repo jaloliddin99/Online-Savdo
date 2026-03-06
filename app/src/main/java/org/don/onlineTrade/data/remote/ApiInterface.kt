@@ -75,7 +75,9 @@ interface ApiInterface {
         @Query("startDate") startDate: String?,
         @Query("endDate") endDate: String?,
         @Query("regionId") regionId: Int = -1,
-        @Query("districtId") districtId: Int = -1
+        @Query("districtId") districtId: Int = -1,
+        @Query("fromPrice") fromPrice: Int? = null,
+        @Query("toPrice") toPrice: Int? = null
     ): ModelPosts
 
 

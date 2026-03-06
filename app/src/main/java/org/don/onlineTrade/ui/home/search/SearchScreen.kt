@@ -76,6 +76,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.launch
@@ -84,6 +85,7 @@ import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.region.District
 import org.don.onlineTrade.data.remote.models.region.RegionDistrict
 import org.don.onlineTrade.data.remote.models.searchSuggestion.CategorySuggestion
+import org.don.onlineTrade.data.remote.models.category.CategoryItem
 import org.don.onlineTrade.ui.filterCategory.ComposeLottieAnimation
 import org.don.onlineTrade.ui.home.HomeViewModel
 import org.don.onlineTrade.ui.home.ProductItem
@@ -100,7 +102,9 @@ fun SearchRoute(
     onBackClick: () -> Unit,
     onItemClick: (Int) -> Unit,
     onMapClick: () -> Unit = {},
+    onCategoryClick: () -> Unit = {},
     mapSearchData: MapScreenData? = null,
+    categoryItem: CategoryItem? = null,
 ) {
 
     SearchScreen(
@@ -108,7 +112,9 @@ fun SearchRoute(
         onBackClick = onBackClick,
         onItemClick = onItemClick,
         onMapClick = onMapClick,
+        onCategoryClick = onCategoryClick,
         mapSearchData = mapSearchData,
+        categoryItem = categoryItem,
     )
 }
 
@@ -120,7 +126,9 @@ fun SearchScreen(
     onBackClick: () -> Unit,
     onItemClick: (Int) -> Unit = {},
     onMapClick: () -> Unit = {},
+    onCategoryClick: () -> Unit = {},
     mapSearchData: MapScreenData? = null,
+    categoryItem: CategoryItem? = null,
 ) {
 
     var searchTextListener by remember {
@@ -151,17 +159,30 @@ fun SearchScreen(
         }
     }
 
+    // Handle category selection from CategoriesRoute
+    LaunchedEffect(categoryItem) {
+        categoryItem?.let {
+            myFilter = myFilter.copy(categoryId = it.id.toLong(), categoryName = it.title)
+        }
+    }
+
     fun triggerSearch(query: String, categoryId: Long? = null) {
         searchViewModel.clearSuggestions()
         homeViewModel.resetPager()
+        val catId = categoryId ?: myFilter.categoryId
         homeViewModel.loadNextItems(
             query = query,
-            categoryId = categoryId?.toInt(),
+            categoryId = catId?.toInt(),
+            minPrice = myFilter.fromPrice,
+            maxPrice = myFilter.toPrice,
             startDate = myFilter.titleTextFrom,
             endDate = myFilter.titleTextTo,
             regionId = myFilter.regionId,
             districtId = myFilter.districtId
         )
+        if (categoryId != null) {
+            myFilter = myFilter.copy(categoryId = categoryId)
+        }
     }
 
     Box {
@@ -172,6 +193,7 @@ fun SearchScreen(
                 onSearchQueryChanged = {
                     searchTextListener = it
                     searchViewModel.onSuggestionQueryChanged(it)
+                    homeViewModel.resetPager()
                 },
                 onSearchTriggered = {
                     searchTextListener = it
@@ -194,7 +216,10 @@ fun SearchScreen(
                         triggerSearch(searchTextListener)
                     },
                     onSuggestionClick = { suggestion ->
-                        searchTextListener = suggestion.name
+                        myFilter = myFilter.copy(
+                            categoryId = suggestion.categoryId,
+                            categoryName = suggestion.name
+                        )
                         triggerSearch(searchTextListener, suggestion.categoryId)
                     }
                 )
@@ -208,13 +233,22 @@ fun SearchScreen(
                     filter = myFilter,
                     onQueryClick = {
                         searchTextListener = ""
-                        searchViewModel.onSuggestionQueryChanged("")
-                        triggerSearch("")
+                        homeViewModel.resetPager()
+                        searchViewModel.fetchSuggestions("")
                     },
                     onRadiusClick = onMapClick,
                     onDateFromClick = { showBottomSheet = true },
                     onDateToClick = { showBottomSheet = true },
-                    onRegionClick = { showBottomSheet = true }
+                    onRegionClick = { showBottomSheet = true },
+                    onPriceClick = { showBottomSheet = true },
+                    onCategoryClick = {
+                        if (myFilter.categoryId != null) {
+                            myFilter = myFilter.copy(categoryId = null, categoryName = null)
+                            triggerSearch(searchTextListener)
+                        } else {
+                            onCategoryClick()
+                        }
+                    }
                 )
             }
 
@@ -237,6 +271,9 @@ fun SearchScreen(
                             if (i >= pagerState.items.size - 1 && !pagerState.endReached && !pagerState.isLoading) {
                                 homeViewModel.loadNextItems(
                                     query = searchTextListener,
+                                    categoryId = myFilter.categoryId?.toInt(),
+                                    minPrice = myFilter.fromPrice,
+                                    maxPrice = myFilter.toPrice,
                                     startDate = myFilter.titleTextFrom,
                                     endDate = myFilter.titleTextTo,
                                     regionId = myFilter.regionId,
@@ -290,6 +327,9 @@ fun SearchScreen(
                             homeViewModel.resetPager()
                             homeViewModel.loadNextItems(
                                 query = searchTextListener,
+                                categoryId = filter.categoryId?.toInt(),
+                                minPrice = filter.fromPrice,
+                                maxPrice = filter.toPrice,
                                 startDate = filter.titleTextFrom,
                                 endDate = filter.titleTextTo,
                                 regionId = filter.regionId,
@@ -426,8 +466,38 @@ fun ActiveFilterChips(
     onRadiusClick: () -> Unit,
     onDateFromClick: () -> Unit,
     onDateToClick: () -> Unit,
-    onRegionClick: () -> Unit
+    onRegionClick: () -> Unit,
+    onPriceClick: () -> Unit,
+    onCategoryClick: () -> Unit
 ) {
+    data class ChipData(
+        val label: String,
+        val applied: Boolean,
+        val onClick: () -> Unit
+    )
+
+    val isCategoryApplied = filter.categoryId != null
+    val isPriceApplied = filter.fromPrice != null || filter.toPrice != null
+    val priceLabel = if (isPriceApplied) {
+        buildString {
+            filter.fromPrice?.let { append(it) }
+            append(" - ")
+            filter.toPrice?.let { append(it) }
+        }
+    } else stringResource(R.string.price)
+
+    val chips = buildList {
+        if (queryText.isNotEmpty()) {
+            add(ChipData(label = queryText, applied = true, onClick = onQueryClick))
+        }
+        add(ChipData(label = filter.categoryName ?: stringResource(R.string.category), applied = isCategoryApplied, onClick = onCategoryClick))
+        add(ChipData(label = if (radiusKm > 0) "$radiusKm km" else stringResource(R.string.location), applied = radiusKm > 0, onClick = onRadiusClick))
+        add(ChipData(label = priceLabel, applied = isPriceApplied, onClick = onPriceClick))
+        add(ChipData(label = filter.titleTextFrom ?: stringResource(R.string.from), applied = filter.titleTextFrom != null, onClick = onDateFromClick))
+        add(ChipData(label = filter.titleTextTo ?: stringResource(R.string.to), applied = filter.titleTextTo != null, onClick = onDateToClick))
+        add(ChipData(label = stringResource(R.string.regions), applied = filter.regionId != -1, onClick = onRegionClick))
+    }.sortedByDescending { it.applied }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -435,37 +505,13 @@ fun ActiveFilterChips(
             .padding(horizontal = MaterialTheme.spacing.dimen16Dp, vertical = 4.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        if (queryText.isNotEmpty()) {
+        chips.forEach { chip ->
             FilterChip(
-                label = queryText,
-                applied = true,
-                onClick = onQueryClick
+                label = chip.label,
+                applied = chip.applied,
+                onClick = chip.onClick
             )
         }
-
-        FilterChip(
-            label = if (radiusKm > 0) "$radiusKm km" else stringResource(R.string.location),
-            applied = radiusKm > 0,
-            onClick = onRadiusClick
-        )
-
-        FilterChip(
-            label = filter.titleTextFrom ?: stringResource(R.string.from),
-            applied = filter.titleTextFrom != null,
-            onClick = onDateFromClick
-        )
-
-        FilterChip(
-            label = filter.titleTextTo ?: stringResource(R.string.to),
-            applied = filter.titleTextTo != null,
-            onClick = onDateToClick
-        )
-
-        FilterChip(
-            label = stringResource(R.string.regions),
-            applied = filter.regionId != -1,
-            onClick = onRegionClick
-        )
     }
 }
 
@@ -492,7 +538,7 @@ fun FilterChip(
                 }
             )
             .clickable { onClick() }
-            .padding(horizontal = 12.dp, vertical = 6.dp),
+            .padding(horizontal = 12.dp, vertical = 8.dp),
         contentAlignment = Alignment.Center
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -519,7 +565,11 @@ data class FilterClass(
     val titleTextFrom: String? = null,
     val titleTextTo: String? = null,
     val regionId: Int = -1,
-    val districtId: Int = -1
+    val districtId: Int = -1,
+    val fromPrice: Int? = null,
+    val toPrice: Int? = null,
+    val categoryId: Long? = null,
+    val categoryName: String? = null
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -545,6 +595,8 @@ fun BottomSheetContent(
     var districtId by remember {
         mutableStateOf<District?>(null)
     }
+    var fromPrice by remember { mutableStateOf("") }
+    var toPrice by remember { mutableStateOf("") }
 
     if (showRegionDistrictDialog.value) {
         ShowRegionsDialog(onDismissRequest = {
@@ -617,6 +669,38 @@ fun BottomSheetContent(
             }
         }
 
+        Row(
+            modifier = Modifier.padding(vertical = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            TextField(
+                value = fromPrice,
+                onValueChange = { fromPrice = it.filter { c -> c.isDigit() } },
+                modifier = Modifier.weight(1f),
+                placeholder = { Text(stringResource(R.string.from)) },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                shape = RoundedCornerShape(50),
+                colors = TextFieldDefaults.colors(
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                )
+            )
+            TextField(
+                value = toPrice,
+                onValueChange = { toPrice = it.filter { c -> c.isDigit() } },
+                modifier = Modifier.weight(1f),
+                placeholder = { Text(stringResource(R.string.to)) },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                shape = RoundedCornerShape(50),
+                colors = TextFieldDefaults.colors(
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                )
+            )
+        }
+
         TextButton(
             onClick = {
                 showRegionDistrictDialog.value = true
@@ -634,10 +718,12 @@ fun BottomSheetContent(
             onClick = {
                 onClickListen.invoke(
                     FilterClass(
-                        titleTextFrom,
-                        titleTextTo,
-                        (regionId?.id ?: -1),
-                        (districtId?.id ?: -1)
+                        titleTextFrom = titleTextFrom,
+                        titleTextTo = titleTextTo,
+                        regionId = (regionId?.id ?: -1),
+                        districtId = (districtId?.id ?: -1),
+                        fromPrice = fromPrice.toIntOrNull(),
+                        toPrice = toPrice.toIntOrNull()
                     )
                 )
             },

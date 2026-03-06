@@ -18,7 +18,9 @@ class ProductsPagerUseCase @Inject constructor(
         startDate: String?,
         endDate: String?,
         regionId: Int = -1,
-        districtId: Int = -1
+        districtId: Int = -1,
+        fromPrice: Int? = null,
+        toPrice: Int? = null
     ): Result<List<Content>> {
         return try {
             val networkPager = repository.getProductsPager(
@@ -31,7 +33,9 @@ class ProductsPagerUseCase @Inject constructor(
                 startDate,
                 endDate,
                 regionId,
-                districtId
+                districtId,
+                fromPrice,
+                toPrice
             ).data.content
             return Result.success(
                 networkPager

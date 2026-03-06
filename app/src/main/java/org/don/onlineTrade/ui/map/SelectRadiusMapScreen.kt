@@ -241,6 +241,7 @@ fun SelectRadiusMapScreen(
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
             Button(
                 onClick = {
+                    SharedPref.radius = sliderPosition.toInt()
                     onBackClick(
                         MapScreenData(
                             lat = markerPosition.latitude,

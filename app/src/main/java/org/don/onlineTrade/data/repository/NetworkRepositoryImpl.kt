@@ -196,7 +196,9 @@ class NetworkRepositoryImpl @Inject constructor(
         startDate: String?,
         endDate: String?,
         regionId: Int,
-        districtId: Int
+        districtId: Int,
+        fromPrice: Int?,
+        toPrice: Int?
     ): ModelPosts {
         return apiInterface.getPublicProducts(
             token = token,
@@ -208,7 +210,9 @@ class NetworkRepositoryImpl @Inject constructor(
             startDate,
             endDate,
             regionId,
-            districtId
+            districtId,
+            fromPrice,
+            toPrice
         )
     }
 

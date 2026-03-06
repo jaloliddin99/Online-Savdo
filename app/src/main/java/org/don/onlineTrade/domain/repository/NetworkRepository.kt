@@ -149,7 +149,9 @@ interface NetworkRepository {
         startDate: String?,
         endDate: String?,
         regionId: Int = -1,
-        districtId: Int = -1
+        districtId: Int = -1,
+        fromPrice: Int? = null,
+        toPrice: Int? = null
     ): ModelPosts
 
     suspend fun getNearPosts(

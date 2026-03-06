@@ -133,7 +133,9 @@ class HomeViewModel @Inject constructor(
                     startDate = startDate,
                     endDate = endDate,
                     regionId = regionId,
-                    districtId = districtId
+                    districtId = districtId,
+                    fromPrice = minPrice,
+                    toPrice = maxPrice
                     )
             }
         },
