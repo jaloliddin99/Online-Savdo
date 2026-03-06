@@ -16,6 +16,7 @@ sealed class Screen(val route: String) {
     data object Login : Screen("loginScreen")
     data object Welcome : Screen("welcome_screen")
     data object Map : Screen("mapNavigationRoute")
+    data object MapSearch : Screen("mapSearchRoute")
 
     // Routes with arguments
     data class ProductDetails(val productId: Int) : Screen("productDetails/$productId") {

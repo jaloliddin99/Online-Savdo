@@ -71,6 +71,7 @@ import org.don.onlineTrade.ui.home.search.SearchRoute
 import org.don.onlineTrade.ui.map.MapScreenData
 import org.don.onlineTrade.ui.map.MapShowLocationScreen
 import org.don.onlineTrade.ui.map.MapsScreen
+import org.don.onlineTrade.ui.map.SelectRadiusMapScreen
 import org.don.onlineTrade.ui.navigation.NavigationDefaults
 import org.don.onlineTrade.ui.navigation.Screen
 import org.don.onlineTrade.ui.notification.NotificationsRoute
@@ -407,6 +408,17 @@ fun NavigationGraph(
             )
         }
 
+        composable(route = Screen.MapSearch.route) {
+            SelectRadiusMapScreen(
+                onBackClick = {
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("map_search_data", it)
+                    navController.popBackStack()
+                }
+            )
+        }
+
         composable(
             route = Screen.MapUserLocation.ROUTE,
             arguments = listOf(
@@ -534,6 +546,9 @@ fun NavigationGraph(
                 onItemClick = {
                     navController.navigate(Screen.ProductDetails(it).route)
                 },
+                onMapClick = {
+                    navController.navigate(Screen.MapSearch.route)
+                }
             )
         }
 

@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -25,6 +26,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.Button
@@ -85,12 +87,14 @@ fun SearchRoute(
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit,
     onItemClick: (Int) -> Unit,
+    onMapClick: () -> Unit = {},
 ) {
 
     SearchScreen(
         modifier = modifier,
         onBackClick = onBackClick,
         onItemClick = onItemClick,
+        onMapClick = onMapClick,
     )
 }
 
@@ -101,6 +105,7 @@ fun SearchScreen(
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit,
     onItemClick: (Int) -> Unit = {},
+    onMapClick: () -> Unit = {},
 ) {
 
     var searchTextListener by remember {
@@ -142,7 +147,8 @@ fun SearchScreen(
                 searchQuery = searchTextListener,
                 onFilterClicked = {
                     showBottomSheet = true
-                }
+                },
+                onMapClick = onMapClick
             )
 
             if (pagerState.isLoading && pagerState.items.isEmpty() && pagerState.page == 0) {
@@ -375,7 +381,9 @@ fun SearchToolbar(
     onSearchQueryChanged: (String) -> Unit,
     searchQuery: String,
     onSearchTriggered: (String) -> Unit,
-    onFilterClicked: () -> Unit
+    onFilterClicked: (() -> Unit)? = null,
+    onMapClick: (() -> Unit)? = null,
+    autoFocus: Boolean = true
 ) {
 
     Row(
@@ -396,15 +404,21 @@ fun SearchToolbar(
             onSearchQueryChanged = onSearchQueryChanged,
             searchQuery = searchQuery,
             onSearchTriggered = onSearchTriggered,
-            modifier = modifier.weight(1f)
+            modifier = modifier.weight(1f),
+            onMapClick = onMapClick,
+            autoFocus = autoFocus
         )
 
-        IconButton(onClick = onFilterClicked) {
-            Icon(
-                imageVector = Icons.Default.FilterList,
-                contentDescription = "Filter",
-                tint = MaterialTheme.colorScheme.onSurface
-            )
+        if (onFilterClicked != null) {
+            IconButton(onClick = onFilterClicked) {
+                Icon(
+                    imageVector = Icons.Default.FilterList,
+                    contentDescription = "Filter",
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }else {
+            Spacer(modifier.width(16.dp))
         }
 
     }
@@ -416,6 +430,8 @@ fun SearchTextField(
     onSearchQueryChanged: (String) -> Unit,
     searchQuery: String,
     onSearchTriggered: (String) -> Unit,
+    onMapClick: (() -> Unit)? = null,
+    autoFocus: Boolean = true,
 ) {
     val focusRequest = remember {
         FocusRequester()
@@ -442,15 +458,26 @@ fun SearchTextField(
             )
         },
         trailingIcon = {
-            if (searchQuery.isNotEmpty()) {
-                IconButton(onClick = {
-                    onSearchQueryChanged("")
-                }) {
-                    Icon(
-                        imageVector = Icons.Filled.Clear,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface,
-                    )
+            Row {
+                if (searchQuery.isNotEmpty()) {
+                    IconButton(onClick = {
+                        onSearchQueryChanged("")
+                    }) {
+                        Icon(
+                            imageVector = Icons.Filled.Clear,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
+                }
+                if (onMapClick != null) {
+                    IconButton(onClick = onMapClick) {
+                        Icon(
+                            imageVector = Icons.Filled.MyLocation,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
+                    }
                 }
             }
         },
@@ -484,8 +511,10 @@ fun SearchTextField(
         maxLines = 1,
         singleLine = true,
     )
-    LaunchedEffect(Unit) {
-        focusRequest.requestFocus()
+    if (autoFocus) {
+        LaunchedEffect(Unit) {
+            focusRequest.requestFocus()
+        }
     }
 
 }

@@ -36,10 +36,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.rememberCameraPositionState
+import androidx.compose.ui.graphics.luminance
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.location.GpsCheckHelper
 import org.don.onlineTrade.data.location.checkGpsEnabled
@@ -54,7 +56,7 @@ import java.io.Serializable
 
 const val LATITUDE = 41.33261529612184
 const val LONGITUDE = 69.25163862724608
-const val ZOOM_LEVEL = 15f
+const val ZOOM_LEVEL = 12f
 const val ANIM_DURATION = 1000
 const val TILT = 0f
 const val BEARING = 0f
@@ -136,7 +138,6 @@ fun MapsScreen(
         )
     }
 
-
     var initialCameraPosition by remember { mutableStateOf(cameraPositionState.position) }
 
     val onMapCameraMoveStart: (cameraPosition: CameraPosition) -> Unit = {
@@ -158,6 +159,14 @@ fun MapsScreen(
     }
 
 
+    val isDarkTheme = MaterialTheme.colorScheme.background.luminance() < 0.5f
+    val context = LocalContext.current
+    val mapStyleOptions = remember(isDarkTheme) {
+        if (isDarkTheme) {
+            MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_dark)
+        } else null
+    }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -167,7 +176,8 @@ fun MapsScreen(
                 .fillMaxSize(),
             properties = MapProperties(
                 mapType = MapType.NORMAL,
-                isBuildingEnabled = true
+                isBuildingEnabled = true,
+                mapStyleOptions = mapStyleOptions
             ),
             cameraPositionState = cameraPositionState
         )
@@ -246,7 +256,7 @@ fun MapsScreen(
 }
 
 
-private fun turnOnGps(
+internal fun turnOnGps(
     viewModel: MapViewModel,
     hasNotPermission: Boolean,
     activity: Activity,
@@ -286,6 +296,7 @@ data class MapScreenData(
     val addressName: String = "",
     val addressDescription: String = "",
     val regionId: Int = -1,
-    val districtId: Int = -1
+    val districtId: Int = -1,
+    val radiusKm: Float = -1f
 ) : Serializable
 
