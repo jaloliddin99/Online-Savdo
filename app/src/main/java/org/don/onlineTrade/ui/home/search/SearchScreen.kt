@@ -1,6 +1,9 @@
 package org.don.onlineTrade.ui.home.search
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,13 +27,17 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -51,6 +58,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -66,6 +74,7 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -74,10 +83,13 @@ import org.don.onlineTrade.R
 
 import org.don.onlineTrade.data.remote.models.region.District
 import org.don.onlineTrade.data.remote.models.region.RegionDistrict
+import org.don.onlineTrade.data.remote.models.searchSuggestion.CategorySuggestion
 import org.don.onlineTrade.ui.filterCategory.ComposeLottieAnimation
 import org.don.onlineTrade.ui.home.HomeViewModel
 import org.don.onlineTrade.ui.home.ProductItem
 import org.don.onlineTrade.ui.home.ShimmerProductGrid
+import org.don.onlineTrade.ui.map.MapScreenData
+import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.convertLongToDateString
 
@@ -88,6 +100,7 @@ fun SearchRoute(
     onBackClick: () -> Unit,
     onItemClick: (Int) -> Unit,
     onMapClick: () -> Unit = {},
+    mapSearchData: MapScreenData? = null,
 ) {
 
     SearchScreen(
@@ -95,6 +108,7 @@ fun SearchRoute(
         onBackClick = onBackClick,
         onItemClick = onItemClick,
         onMapClick = onMapClick,
+        mapSearchData = mapSearchData,
     )
 }
 
@@ -106,6 +120,7 @@ fun SearchScreen(
     onBackClick: () -> Unit,
     onItemClick: (Int) -> Unit = {},
     onMapClick: () -> Unit = {},
+    mapSearchData: MapScreenData? = null,
 ) {
 
     var searchTextListener by remember {
@@ -113,7 +128,10 @@ fun SearchScreen(
     }
 
     val homeViewModel = hiltViewModel<HomeViewModel>()
+    val searchViewModel = hiltViewModel<SearchViewModel>()
     val pagerState = homeViewModel.pagerState
+    val suggestions = searchViewModel.suggestions
+    val queryText = searchViewModel.queryText
 
     val scrollState = rememberLazyGridState()
 
@@ -124,6 +142,27 @@ fun SearchScreen(
         mutableStateOf(FilterClass())
     }
 
+    // Update location data when map data arrives
+    LaunchedEffect(mapSearchData) {
+        mapSearchData?.let {
+            if (it.lat != null && it.lon != null) {
+                searchViewModel.updateSearchLocation(it.lat, it.lon, it.radiusKm.toInt())
+            }
+        }
+    }
+
+    fun triggerSearch(query: String, categoryId: Long? = null) {
+        searchViewModel.clearSuggestions()
+        homeViewModel.resetPager()
+        homeViewModel.loadNextItems(
+            query = query,
+            categoryId = categoryId?.toInt(),
+            startDate = myFilter.titleTextFrom,
+            endDate = myFilter.titleTextTo,
+            regionId = myFilter.regionId,
+            districtId = myFilter.districtId
+        )
+    }
 
     Box {
         Column(modifier = modifier) {
@@ -132,24 +171,52 @@ fun SearchScreen(
                 onBackClick = onBackClick,
                 onSearchQueryChanged = {
                     searchTextListener = it
+                    searchViewModel.onSuggestionQueryChanged(it)
                 },
                 onSearchTriggered = {
                     searchTextListener = it
-                    homeViewModel.resetPager()
-                    homeViewModel.loadNextItems(
-                        query = searchTextListener,
-                        startDate = myFilter.titleTextFrom,
-                        endDate = myFilter.titleTextTo,
-                        regionId = myFilter.regionId,
-                        districtId = myFilter.districtId
-                    )
+                    triggerSearch(it)
                 },
                 searchQuery = searchTextListener,
                 onFilterClicked = {
                     showBottomSheet = true
                 },
-                onMapClick = onMapClick
+                onMapClick = onMapClick,
+                isFilterIconVisible = suggestions.isEmpty() && pagerState.items.isNotEmpty()
             )
+
+            // Show suggestions if available
+            if (suggestions.isNotEmpty()) {
+                SuggestionsList(
+                    query = queryText,
+                    suggestions = suggestions,
+                    onAllClick = {
+                        triggerSearch(searchTextListener)
+                    },
+                    onSuggestionClick = { suggestion ->
+                        searchTextListener = suggestion.name
+                        triggerSearch(searchTextListener, suggestion.categoryId)
+                    }
+                )
+            }
+
+            // Filter chips
+            if (suggestions.isEmpty() && (pagerState.items.isNotEmpty() || pagerState.isLoading)) {
+                ActiveFilterChips(
+                    queryText = queryText,
+                    radiusKm = searchViewModel.searchRadiusKm,
+                    filter = myFilter,
+                    onQueryClick = {
+                        searchTextListener = ""
+                        searchViewModel.onSuggestionQueryChanged("")
+                        triggerSearch("")
+                    },
+                    onRadiusClick = onMapClick,
+                    onDateFromClick = { showBottomSheet = true },
+                    onDateToClick = { showBottomSheet = true },
+                    onRegionClick = { showBottomSheet = true }
+                )
+            }
 
             if (pagerState.isLoading && pagerState.items.isEmpty() && pagerState.page == 0) {
                 ShimmerProductGrid(
@@ -217,7 +284,7 @@ fun SearchScreen(
             BottomSheetContent(
                 onClickListen = { filter ->
                     scope.launch { sheetState.hide() }.invokeOnCompletion {
-                        if (!sheetState.isVisible){
+                        if (!sheetState.isVisible) {
                             myFilter = filter
                             showBottomSheet = false
                             homeViewModel.resetPager()
@@ -236,6 +303,216 @@ fun SearchScreen(
     }
 
 
+}
+
+@Composable
+fun SuggestionsList(
+    query: String,
+    suggestions: List<CategorySuggestion>,
+    onAllClick: () -> Unit,
+    onSuggestionClick: (CategorySuggestion) -> Unit
+) {
+    val totalCount = suggestions.sumOf { it.count }
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = MaterialTheme.spacing.dimen16Dp)
+            .background(
+                color = MaterialTheme.colorScheme.surface,
+                shape = RoundedCornerShape(MaterialTheme.spacing.dimen12Dp)
+            )
+            .padding(horizontal = MaterialTheme.spacing.dimen12Dp)
+    ) {
+        // "All" item
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onAllClick() }
+                .padding(vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Search,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(end = 12.dp)
+            )
+            if (query.isEmpty()) {
+                Text(
+                    text = stringResource(id = R.string.all_posts),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontFamily = robotoFontFamily,
+                    modifier = Modifier.weight(1f)
+                )
+            } else {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(
+                        text = query,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Text(
+                        text = stringResource(id = R.string.all_posts),
+                        fontFamily = robotoFontFamily,
+                        fontWeight = FontWeight.Normal,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface.copy(0.5f)
+                    )
+                }
+            }
+            Text(
+                text = "$totalCount",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        HorizontalDivider()
+
+        suggestions.forEachIndexed { index, suggestion ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onSuggestionClick(suggestion) }
+                    .padding(vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Search,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(end = 12.dp)
+                )
+                if (query.isEmpty()) {
+                    Text(
+                        text = suggestion.name,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontFamily = robotoFontFamily,
+                        modifier = Modifier.weight(1f)
+                    )
+                } else {
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Text(
+                            text = query,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Text(
+                            text = stringResource(R.string.search_screen_in, suggestion.name),
+                            fontFamily = robotoFontFamily,
+                            fontWeight = FontWeight.Normal,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface.copy(0.5f)
+                        )
+
+                    }
+                }
+                Text(
+                    text = "${suggestion.count}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            if (index != suggestions.lastIndex) {
+                HorizontalDivider()
+            }
+        }
+    }
+}
+
+@Composable
+fun ActiveFilterChips(
+    queryText: String,
+    radiusKm: Int,
+    filter: FilterClass,
+    onQueryClick: () -> Unit,
+    onRadiusClick: () -> Unit,
+    onDateFromClick: () -> Unit,
+    onDateToClick: () -> Unit,
+    onRegionClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState())
+            .padding(horizontal = MaterialTheme.spacing.dimen16Dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        if (queryText.isNotEmpty()) {
+            FilterChip(
+                label = queryText,
+                applied = true,
+                onClick = onQueryClick
+            )
+        }
+
+        FilterChip(
+            label = if (radiusKm > 0) "$radiusKm km" else stringResource(R.string.location),
+            applied = radiusKm > 0,
+            onClick = onRadiusClick
+        )
+
+        FilterChip(
+            label = filter.titleTextFrom ?: stringResource(R.string.from),
+            applied = filter.titleTextFrom != null,
+            onClick = onDateFromClick
+        )
+
+        FilterChip(
+            label = filter.titleTextTo ?: stringResource(R.string.to),
+            applied = filter.titleTextTo != null,
+            onClick = onDateToClick
+        )
+
+        FilterChip(
+            label = stringResource(R.string.regions),
+            applied = filter.regionId != -1,
+            onClick = onRegionClick
+        )
+    }
+}
+
+@Composable
+fun FilterChip(
+    label: String,
+    applied: Boolean,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .then(
+                if (applied) {
+                    Modifier.background(
+                        color = MaterialTheme.colorScheme.primary,
+                        shape = RoundedCornerShape(50)
+                    )
+                } else {
+                    Modifier.border(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.outline,
+                        shape = RoundedCornerShape(50)
+                    )
+                }
+            )
+            .clickable { onClick() }
+            .padding(horizontal = 12.dp, vertical = 6.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodySmall,
+                color = if (applied) MaterialTheme.colorScheme.onPrimary
+                else MaterialTheme.colorScheme.onSurface
+            )
+            if (applied) {
+                Spacer(modifier = Modifier.width(4.dp))
+                Icon(
+                    imageVector = Icons.Filled.Close,
+                    contentDescription = null,
+                    modifier = Modifier.size(14.dp),
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+        }
+    }
 }
 
 data class FilterClass(
@@ -383,7 +660,8 @@ fun SearchToolbar(
     onSearchTriggered: (String) -> Unit,
     onFilterClicked: (() -> Unit)? = null,
     onMapClick: (() -> Unit)? = null,
-    autoFocus: Boolean = true
+    autoFocus: Boolean = true,
+    isFilterIconVisible: Boolean = true,
 ) {
 
     Row(
@@ -409,7 +687,7 @@ fun SearchToolbar(
             autoFocus = autoFocus
         )
 
-        if (onFilterClicked != null) {
+        if (onFilterClicked != null && isFilterIconVisible) {
             IconButton(onClick = onFilterClicked) {
                 Icon(
                     imageVector = Icons.Default.FilterList,
@@ -417,7 +695,7 @@ fun SearchToolbar(
                     tint = MaterialTheme.colorScheme.onSurface
                 )
             }
-        }else {
+        } else {
             Spacer(modifier.width(16.dp))
         }
 
@@ -470,10 +748,10 @@ fun SearchTextField(
                         )
                     }
                 }
-                if (onMapClick != null) {
+                if (onMapClick != null && searchQuery.isEmpty()) {
                     IconButton(onClick = onMapClick) {
                         Icon(
-                            imageVector = Icons.Filled.MyLocation,
+                            imageVector = Icons.Filled.LocationOn,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary,
                         )

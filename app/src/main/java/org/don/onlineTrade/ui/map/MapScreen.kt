@@ -49,6 +49,7 @@ import org.don.onlineTrade.ui.add.AskLocationDialog
 import org.don.onlineTrade.ui.home.search.SearchToolbar
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.FreeLoading
+import org.don.onlineTrade.utils.SharedPref
 import org.don.onlineTrade.utils.hasPermissionForLocation
 import org.don.onlineTrade.utils.runTimePermission.RunTimePermission
 import java.io.Serializable
@@ -120,7 +121,7 @@ fun MapsScreen(
             val lat = obj.split(" ")[1].toDouble()
             LatLng(lat, lng)
         } else
-            LatLng(LATITUDE, LONGITUDE)
+            LatLng(SharedPref.latitude.toDouble(), SharedPref.longitude.toDouble())
 
     val initialZoom = ZOOM_LEVEL
     val finalZoom = ZOOM_LEVEL
@@ -297,6 +298,6 @@ data class MapScreenData(
     val addressDescription: String = "",
     val regionId: Int = -1,
     val districtId: Int = -1,
-    val radiusKm: Float = -1f
+    val radiusKm: Int = 10
 ) : Serializable
 

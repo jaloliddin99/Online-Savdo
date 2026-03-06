@@ -20,6 +20,7 @@ import org.don.onlineTrade.data.remote.models.nearPost.NeaPostModel
 import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.ModelGetRegionAndDistricts
 import org.don.onlineTrade.data.remote.models.reverse.ModelAddressReverse
+import org.don.onlineTrade.data.remote.models.searchSuggestion.SearchSuggestionResponse
 import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsModel
 import org.don.onlineTrade.domain.repository.NetworkRepository
 import javax.inject.Inject
@@ -243,6 +244,31 @@ class NetworkRepositoryImpl @Inject constructor(
 
     override suspend fun addressReverse(url: String): ModelAddressReverse {
         return apiInterface.getLocationList(url)
+    }
+
+    override suspend fun getSearchSuggestions(
+        query: String,
+        lat: Double,
+        lon: Double,
+        radius: Int,
+        lang: String
+    ): SearchSuggestionResponse {
+        return apiInterface.getSearchSuggestions(query, lat, lon, radius, lang)
+    }
+
+    override suspend fun searchPosts(
+        lang: String,
+        page: Int,
+        size: Int,
+        query: String,
+        lat: Double,
+        lon: Double,
+        radius: Int,
+        categoryId: Long?,
+        startDate: String?,
+        endDate: String?
+    ): ModelPosts {
+        return apiInterface.searchPosts(lang, page, size, query, lat, lon, radius, categoryId, 1, startDate, endDate)
     }
 
 }

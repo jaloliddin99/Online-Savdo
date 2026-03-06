@@ -17,6 +17,7 @@ import org.don.onlineTrade.data.remote.models.nearPost.NeaPostModel
 import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.ModelGetRegionAndDistricts
 import org.don.onlineTrade.data.remote.models.reverse.ModelAddressReverse
+import org.don.onlineTrade.data.remote.models.searchSuggestion.SearchSuggestionResponse
 import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsModel
 import retrofit2.http.Header
 import retrofit2.http.Query
@@ -168,5 +169,26 @@ interface NetworkRepository {
     suspend fun updatePassword(token: String, body: UpdatePasswordModel): ModelSuccess
 
     suspend fun addressReverse(url: String): ModelAddressReverse
+
+    suspend fun getSearchSuggestions(
+        query: String,
+        lat: Double,
+        lon: Double,
+        radius: Int,
+        lang: String
+    ): SearchSuggestionResponse
+
+    suspend fun searchPosts(
+        lang: String,
+        page: Int,
+        size: Int,
+        query: String,
+        lat: Double,
+        lon: Double,
+        radius: Int,
+        categoryId: Long?,
+        startDate: String?,
+        endDate: String?
+    ): ModelPosts
 
 }

@@ -145,6 +145,7 @@
     <string name="images_selected">%d изображений выбрано</string>
     <string name="review_details">Детали</string>
     <string name="preview">Предпросмотр</string>
+    <string name="search_screen_in">"В %s"</string>
 
 
 </resources>

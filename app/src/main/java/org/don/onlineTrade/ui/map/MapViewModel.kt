@@ -155,6 +155,8 @@ class MapViewModel @Inject constructor(
     fun locationObserve() = viewModelScope.launch {
         locationTrackerRepository.getCurrentLocation().collectLatest {
             stopLocationUpdates()
+            SharedPref.latitude = it.latitude.toString()
+            SharedPref.longitude = it.longitude.toString()
             getLocationReverse(location = LatLng(it.latitude, it.longitude))
             _state.value = _state.value.copy(
                 latLng = LatLng(it.latitude, it.longitude),

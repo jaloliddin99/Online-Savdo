@@ -540,7 +540,8 @@ fun NavigationGraph(
                     animationSpec = tween(300)
                 ) + fadeOut(animationSpec = tween(300))
             }
-        ) {
+        ) { entry ->
+            val mapData = entry.savedStateHandle.get<MapScreenData>("map_search_data")
             SearchRoute(
                 onBackClick = navController::popBackStack,
                 onItemClick = {
@@ -548,7 +549,8 @@ fun NavigationGraph(
                 },
                 onMapClick = {
                     navController.navigate(Screen.MapSearch.route)
-                }
+                },
+                mapSearchData = mapData
             )
         }
 

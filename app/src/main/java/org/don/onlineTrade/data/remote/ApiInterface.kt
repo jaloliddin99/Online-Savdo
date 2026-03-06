@@ -14,12 +14,14 @@ import org.don.onlineTrade.data.remote.models.getProfile.ModelGetProfile
 import org.don.onlineTrade.data.remote.models.getProfile.UpdatePasswordModel
 import org.don.onlineTrade.data.remote.models.getProfile.UpdateProfileModel
 import org.don.onlineTrade.data.remote.models.getPublicProducts.ModelPosts
+import org.don.onlineTrade.data.remote.models.searchSuggestion.SearchSuggestionResponse
 import org.don.onlineTrade.data.remote.models.leak.ModelLeak
 import org.don.onlineTrade.data.remote.models.nearPost.NeaPostModel
 import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.ModelGetRegionAndDistricts
 import org.don.onlineTrade.data.remote.models.reverse.ModelAddressReverse
 import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsModel
+import org.don.onlineTrade.utils.SharedPref
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -204,6 +206,32 @@ interface ApiInterface {
         @Header("Authorization") token: String,
         @Body body: UpdatePasswordModel
     ): ModelSuccess
+
+    @GET("post/search/suggest")
+    suspend fun getSearchSuggestions(
+        @Query("query") query: String,
+        @Query("lat") lat: Double,
+        @Query("lon") lon: Double,
+        @Query("radius") radius: Int,
+        @Query("lang") lang: String,
+        @Header("Authorization") token: String = SharedPref.deviceToken,
+        ): SearchSuggestionResponse
+
+    @GET("post/search")
+    suspend fun searchPosts(
+        @Query("lang") lang: String,
+        @Query("page") page: Int,
+        @Query("size") size: Int,
+        @Query("query") query: String,
+        @Query("lat") lat: Double,
+        @Query("lon") lon: Double,
+        @Query("radius") radius: Int,
+        @Query("category_id") categoryId: Long?,
+        @Query("status") status: Int = 1,
+        @Query("startDate") startDate: String?,
+        @Query("endDate") endDate: String?,
+        @Header("Authorization") token: String = SharedPref.deviceToken,
+        ): ModelPosts
 
     @GET
     suspend fun getLocationList(

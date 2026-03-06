@@ -146,6 +146,7 @@
     <string name="images_selected">%d ta rasm tanlandi</string>
     <string name="review_details">Tafsilotlar</string>
     <string name="preview">Ko\'rib chiqish</string>
+    <string name="search_screen_in">"%s da"</string>
 
 
 </resources>

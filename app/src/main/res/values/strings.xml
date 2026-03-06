@@ -145,6 +145,7 @@
     <string name="images_selected">%d image(s) selected</string>
     <string name="review_details">Details</string>
     <string name="preview">Preview</string>
+    <string name="search_screen_in">"In %s"</string>
 
 
 </resources>

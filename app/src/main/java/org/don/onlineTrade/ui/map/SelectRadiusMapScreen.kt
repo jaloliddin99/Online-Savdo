@@ -61,6 +61,7 @@ import org.don.onlineTrade.ui.home.search.SearchToolbar
 import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.FreeLoading
+import org.don.onlineTrade.utils.SharedPref
 import org.don.onlineTrade.utils.hasPermissionForLocation
 import kotlin.math.ln
 
@@ -75,8 +76,16 @@ fun SelectRadiusMapScreen(
     val gpsNotEnabled = !checkGpsEnabled(activity)
 
     var searchTextListener by remember { mutableStateOf("") }
-    var radiusKm by remember { mutableFloatStateOf(10f) }
-    var markerPosition by remember { mutableStateOf(LatLng(LATITUDE, LONGITUDE)) }
+    var sliderPosition by remember { mutableFloatStateOf(sliderFromKm(10f)) }
+    val radiusKm = kmFromSlider(sliderPosition).toInt()
+    var markerPosition by remember {
+        mutableStateOf(
+            LatLng(
+                SharedPref.latitude.toDouble(),
+                SharedPref.longitude.toDouble()
+            )
+        )
+    }
 
     // Auto-navigate to user's current location on open
     LaunchedEffect(Unit) {
@@ -182,16 +191,16 @@ fun SelectRadiusMapScreen(
                     .fillMaxWidth()
                     .padding(horizontal = MaterialTheme.spacing.dimen16Dp)
                     .background(
-                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        color = MaterialTheme.colorScheme.background,
                         shape = RoundedCornerShape(MaterialTheme.spacing.dimen12Dp)
                     )
                     .padding(horizontal = MaterialTheme.spacing.dimen12Dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Slider(
-                    value = radiusKm,
-                    onValueChange = { radiusKm = it },
-                    valueRange = 1f..500f,
+                    value = sliderPosition,
+                    onValueChange = { sliderPosition = it },
+                    valueRange = 0f..1f,
                     modifier = Modifier
                         .weight(1f)
                         .height(32.dp),
@@ -259,4 +268,17 @@ fun SelectRadiusMapScreen(
             Toast.makeText(LocalContext.current, state.error, Toast.LENGTH_SHORT).show()
         }
     }
+}
+
+// Piecewise linear mapping: 50% of slider = 1–20km, 25% = 20–50km, 25% = 50–500km
+private fun kmFromSlider(position: Float): Float = when {
+    position <= 0.5f -> 1f + (position / 0.5f) * 19f        // 1..20
+    position <= 0.75f -> 20f + ((position - 0.5f) / 0.25f) * 30f  // 20..50
+    else -> 50f + ((position - 0.75f) / 0.25f) * 450f       // 50..500
+}
+
+private fun sliderFromKm(km: Float): Float = when {
+    km <= 20f -> ((km - 1f) / 19f) * 0.5f
+    km <= 50f -> 0.5f + ((km - 20f) / 30f) * 0.25f
+    else -> 0.75f + ((km - 50f) / 450f) * 0.25f
 }
