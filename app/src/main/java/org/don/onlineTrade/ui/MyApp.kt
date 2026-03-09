@@ -86,6 +86,7 @@ import org.don.onlineTrade.ui.theme.AppGradientBackground
 import org.don.onlineTrade.ui.theme.GradientColors
 import org.don.onlineTrade.ui.home.HomeViewModel
 import org.don.onlineTrade.ui.theme.LocalGradientColors
+import org.don.onlineTrade.utils.AuthEvent
 import org.don.onlineTrade.utils.SharedPref
 import androidx.hilt.navigation.compose.hiltViewModel
 
@@ -123,6 +124,17 @@ fun MainScreenView(
 
     val currentRoute = appState.currentDestination?.route
     val showBottomBar = currentRoute in BOTTOM_BAR_ROUTES
+
+    LaunchedEffect(Unit) {
+        AuthEvent.unauthorizedFlow.collect {
+            SharedPref.deviceToken = ""
+            appState.navController.navigate(Screen.Welcome.route) {
+                popUpTo(appState.navController.graph.id) {
+                    inclusive = true
+                }
+            }
+        }
+    }
 
     var showSettingsDialog by rememberSaveable {
         mutableStateOf(false)

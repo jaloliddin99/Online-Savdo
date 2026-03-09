@@ -18,6 +18,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import org.don.onlineTrade.BuildConfig
 import org.don.onlineTrade.data.location.DefaultLocationTracker
 import org.don.onlineTrade.data.remote.ApiInterface
+import org.don.onlineTrade.data.remote.AuthInterceptor
 import org.don.onlineTrade.domain.repository.LocationTracker
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -56,6 +57,7 @@ object AppModule {
 
         builder.addInterceptor(interceptor)
         builder.addInterceptor(chuckerInterceptor)
+        builder.addInterceptor(AuthInterceptor())
 
         return Retrofit.Builder()
             .baseUrl(BuildConfig.BASE_URL)
