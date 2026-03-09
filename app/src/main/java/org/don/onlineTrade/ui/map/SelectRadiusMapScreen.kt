@@ -2,6 +2,7 @@ package org.don.onlineTrade.ui.map
 
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,7 +41,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -54,6 +54,7 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import androidx.compose.ui.graphics.luminance
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.location.GpsCheckHelper
 import org.don.onlineTrade.data.location.checkGpsEnabled
@@ -68,10 +69,10 @@ import kotlin.math.ln
 @Composable
 fun SelectRadiusMapScreen(
     onBackClick: (MapScreenData?) -> Unit,
-    viewModel: MapViewModel = hiltViewModel()
+    viewModel: MapViewModel = hiltViewModel<MapViewModel>()
 ) {
     val state = viewModel.state.value
-    val activity = LocalContext.current as ComponentActivity
+    val activity = LocalActivity.current as ComponentActivity
     val hasNotPermission = !hasPermissionForLocation(activity)
     val gpsNotEnabled = !checkGpsEnabled(activity)
 

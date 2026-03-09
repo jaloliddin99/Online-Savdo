@@ -159,12 +159,6 @@ fun SearchScreen(
         }
     }
 
-    // Handle category selection from CategoriesRoute
-    LaunchedEffect(categoryItem) {
-        categoryItem?.let {
-            myFilter = myFilter.copy(categoryId = it.id.toLong(), categoryName = it.title)
-        }
-    }
 
     fun triggerSearch(query: String, categoryId: Long? = null) {
         searchViewModel.clearSuggestions()
@@ -182,6 +176,14 @@ fun SearchScreen(
         )
         if (categoryId != null) {
             myFilter = myFilter.copy(categoryId = categoryId)
+        }
+    }
+
+    // Handle category selection from CategoriesRoute
+    LaunchedEffect(categoryItem) {
+        categoryItem?.let {
+            myFilter = myFilter.copy(categoryId = it.id.toLong(), categoryName = it.title)
+            triggerSearch(searchTextListener, it.id.toLong())
         }
     }
 
