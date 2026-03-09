@@ -3,13 +3,14 @@ package org.don.onlineTrade.domain.useCase.presentUseCase
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsModel
+import org.don.onlineTrade.data.remote.models.GenericModel
+import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsData
 import org.don.onlineTrade.domain.repository.NetworkRepository
 import org.don.onlineTrade.domain.state.Resource
 import java.io.IOException
 import javax.inject.Inject
 
-class PresentProductUseCase@Inject constructor(
+class PresentProductUseCase @Inject constructor(
     private val repository: NetworkRepository
 ) {
 
@@ -18,22 +19,20 @@ class PresentProductUseCase@Inject constructor(
         id: Int,
         token: String,
         language: String
-    ): Flow<Resource<PostDetailsModel>> = flow {
+    ): Flow<Resource<GenericModel<PostDetailsData>>> = flow {
         try {
             emit(Resource.Loading())
             delay(1300)
-            emit(
-                Resource.Success(
-                    repository.showProductModel(
-                        id,
-                        token,
-                        language
-                    )
-                )
-            )
-        } catch(e: Exception) {
+
+            val data = repository.showProductModel(id, token, language)
+            if (data.success){
+                emit(Resource.Success(data))
+            }else{
+                emit(Resource.Error(data.message))
+            }
+        } catch (e: Exception) {
             emit(Resource.Error(e.localizedMessage ?: "An unexpected error occured"))
-        } catch(e: IOException) {
+        } catch (e: IOException) {
             emit(Resource.Error("Couldn't reach server. Check your internet connection."))
         }
     }

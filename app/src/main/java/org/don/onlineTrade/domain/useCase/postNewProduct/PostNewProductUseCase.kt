@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import org.don.onlineTrade.data.remote.models.ModelSuccess
 import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.domain.repository.NetworkRepository
 import org.don.onlineTrade.domain.state.Resource
@@ -29,7 +30,7 @@ class PostNewProductUseCase @Inject constructor(
         userId: Int,
         files: List<MultipartBody.Part>,
         postParams: RequestBody
-    ): Flow<Resource<PostModel>> = flow {
+    ): Flow<Resource<ModelSuccess>> = flow {
         try {
             emit(Resource.Loading())
             emit(

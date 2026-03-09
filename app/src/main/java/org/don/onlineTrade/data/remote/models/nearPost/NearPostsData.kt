@@ -1,6 +1,6 @@
 package org.don.onlineTrade.data.remote.models.nearPost
 
-data class Data(
+data class NearPostsData(
     val createdDate: String,
     val distance: Int,
     val id: Int,

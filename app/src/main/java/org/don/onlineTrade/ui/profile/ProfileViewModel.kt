@@ -58,7 +58,7 @@ class ProfileViewModel @Inject constructor(
             when (result) {
                 is Resource.Success -> {
                     SharedPref.userId = result.data?.data?.id ?: -1
-                    _state.value = GetProfileState(getProfile = result.data)
+                    _state.value = GetProfileState(getProfile = result.data?.data)
                 }
 
                 is Resource.Error -> {

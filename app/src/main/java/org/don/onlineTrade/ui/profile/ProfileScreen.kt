@@ -194,7 +194,7 @@ fun ProfileScreen(
         ) {
 
             Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen24Dp))
-            RoundImage(user = state.getProfile?.data,
+            RoundImage(user = state.getProfile,
                 onImageClicked = {
                     showGalleryOrCameraDialog = true
                 })
@@ -202,9 +202,9 @@ fun ProfileScreen(
             Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen12Dp))
 
             if (state.getProfile != null) {
-                val user = state.getProfile.data
+                val user = state.getProfile
                 TextBold16(title = user.name)
-                user.phoneNumber?.let { TextNormal16(title = it) }
+                TextNormal16(title = user.phoneNumber)
             }
 
             Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen24Dp))

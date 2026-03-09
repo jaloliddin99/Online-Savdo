@@ -1,7 +1,5 @@
 package org.don.onlineTrade.ui.auth.verify
 
-import org.don.onlineTrade.data.remote.models.ModelSuccess
-import org.don.onlineTrade.data.remote.models.RegisterMain
 import org.don.onlineTrade.data.remote.models.VerificationRes
 
 

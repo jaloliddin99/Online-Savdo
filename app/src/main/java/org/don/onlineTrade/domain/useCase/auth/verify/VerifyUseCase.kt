@@ -2,9 +2,6 @@ package org.don.onlineTrade.domain.useCase.auth.verify
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import org.don.onlineTrade.data.remote.models.ModelSuccess
-import org.don.onlineTrade.data.remote.models.RegisterMain
-import org.don.onlineTrade.data.remote.models.RegistrationBody
 import org.don.onlineTrade.data.remote.models.VerificationRes
 import org.don.onlineTrade.domain.repository.NetworkRepository
 import org.don.onlineTrade.domain.state.Resource
@@ -23,13 +20,12 @@ class VerifyUseCase @Inject constructor(
     ): Flow<Resource<VerificationRes>> = flow {
         try {
             emit(Resource.Loading())
-            emit(
-                Resource.Success(
-                    repository.verify(
-                        code, email
-                    )
-                )
-            )
+            val data = repository.verify(code, email)
+            if (data.status){
+                emit(Resource.Success(data))
+            }else{
+                emit(Resource.Error(data.message))
+            }
         } catch (e: HttpException) {
             emit(Resource.Error(e.localizedMessage ?: "An unexpected error occured"))
         } catch (e: IOException) {

@@ -2,6 +2,7 @@ package org.don.onlineTrade.ui.home
 
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -134,7 +135,7 @@ fun HomeScreen(
                 )
             }
             item(span = { GridItemSpan(2) }) {
-                val activity = LocalContext.current as ComponentActivity
+                val activity = LocalActivity.current as ComponentActivity
                 val hasNotPermission = !hasPermissionForLocation(context)
                 val gpsNotEnabled = !checkGpsEnabled(activity)
 
@@ -171,7 +172,7 @@ fun HomeScreen(
                     }
                     if (stateNear.getNearPost != null) {
                         NearPosts(
-                            state = stateNear.getNearPost!!.data,
+                            state = stateNear.getNearPost!!,
                             navigateToCategory = navigateToProduct
                         )
                     } else {

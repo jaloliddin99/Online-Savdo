@@ -37,7 +37,7 @@ class PresentViewModel @Inject constructor(
         ).onEach { result ->
             when (result) {
                 is Resource.Success -> {
-                    _state.value = PresentProductState(registerMain = result.data)
+                    _state.value = PresentProductState(registerMain = result.data?.data)
                 }
 
                 is Resource.Error -> {
@@ -61,7 +61,7 @@ class PresentViewModel @Inject constructor(
         ).onEach { result ->
             when (result) {
                 is Resource.Success -> {
-                    _state.value = PresentProductState(registerMain = result.data)
+                    _state.value = PresentProductState(registerMain = result.data?.data)
                 }
 
                 is Resource.Error -> {

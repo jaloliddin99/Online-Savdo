@@ -14,7 +14,7 @@ class GetLikedProductUseCase @Inject constructor(
         pageSize: Int,
         lang: String = SharedPref.language
     ): Result<List<Content>> {
-        return try {
+        try {
             val networkPager = repository.getLikedProducts(
                 token = token,
                 page = page,

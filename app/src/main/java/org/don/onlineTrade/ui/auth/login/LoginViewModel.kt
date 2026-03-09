@@ -1,6 +1,5 @@
 package org.don.onlineTrade.ui.auth.login
 
-import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -9,11 +8,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import org.don.onlineTrade.data.remote.models.LoginBody
-import org.don.onlineTrade.data.remote.models.RegisterMain
 import org.don.onlineTrade.domain.state.Resource
 import org.don.onlineTrade.domain.useCase.auth.loginUseCase.LoginUseCase
-import org.don.onlineTrade.utils.SharedPref
-import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel

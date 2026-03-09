@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -27,7 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import org.don.onlineTrade.R
-import org.don.onlineTrade.data.remote.models.showProducts.Data
+import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsData
 import org.don.onlineTrade.ui.theme.spacing
 
 
@@ -36,7 +35,7 @@ fun DetailsToolbar(
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit,
     onLikeClicked: (Int) -> Unit,
-    data: Data?
+    data: PostDetailsData?
 ) {
     val paddingValues = WindowInsets.systemBars.asPaddingValues()
     Row(

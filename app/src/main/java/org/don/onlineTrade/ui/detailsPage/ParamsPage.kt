@@ -10,8 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import org.don.onlineTrade.R
-import org.don.onlineTrade.data.remote.models.showProducts.Data
-import org.don.onlineTrade.ui.add.TextBold16
+import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsData
 import org.don.onlineTrade.ui.add.TextMedium14
 import org.don.onlineTrade.ui.add.TextNormal12
 import org.don.onlineTrade.ui.add.TextNormal14
@@ -20,7 +19,7 @@ import org.don.onlineTrade.ui.theme.spacing
 
 @Composable
 fun PostParams(
-    data: Data,
+    data: PostDetailsData,
     modifier: Modifier = Modifier
 ) {
 

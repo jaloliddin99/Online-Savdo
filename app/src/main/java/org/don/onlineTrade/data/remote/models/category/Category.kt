@@ -1,6 +1,5 @@
 package org.don.onlineTrade.data.remote.models.category
 
-import java.io.Serializable
 
 class Category : ArrayList<CategoryItem>()
 class ParentCategories : ArrayList<CategoryParent>()

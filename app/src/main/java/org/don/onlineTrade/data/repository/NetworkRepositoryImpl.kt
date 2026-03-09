@@ -4,6 +4,7 @@ package org.don.onlineTrade.data.repository
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import org.don.onlineTrade.data.remote.ApiInterface
+import org.don.onlineTrade.data.remote.models.GenericModel
 import org.don.onlineTrade.data.remote.models.LoginBody
 import org.don.onlineTrade.data.remote.models.ModelSuccess
 import org.don.onlineTrade.data.remote.models.RegistrationBody
@@ -11,17 +12,17 @@ import org.don.onlineTrade.data.remote.models.VerificationRes
 import org.don.onlineTrade.data.remote.models.category.Category
 import org.don.onlineTrade.data.remote.models.category.ParentCategories
 import org.don.onlineTrade.data.remote.models.getNotifications.NotificationData
-import org.don.onlineTrade.data.remote.models.getProfile.ModelGetProfile
 import org.don.onlineTrade.data.remote.models.getProfile.UpdatePasswordModel
 import org.don.onlineTrade.data.remote.models.getProfile.UpdateProfileModel
-import org.don.onlineTrade.data.remote.models.getPublicProducts.ModelPosts
+import org.don.onlineTrade.data.remote.models.getProfile.User
+import org.don.onlineTrade.data.remote.models.getPublicProducts.Data
 import org.don.onlineTrade.data.remote.models.leak.ModelLeak
-import org.don.onlineTrade.data.remote.models.nearPost.NeaPostModel
+import org.don.onlineTrade.data.remote.models.nearPost.NearPostsData
 import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.ModelGetRegionAndDistricts
 import org.don.onlineTrade.data.remote.models.reverse.ModelAddressReverse
-import org.don.onlineTrade.data.remote.models.searchSuggestion.SearchSuggestionResponse
-import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsModel
+import org.don.onlineTrade.data.remote.models.searchSuggestion.SearchSuggestionData
+import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsData
 import org.don.onlineTrade.domain.repository.NetworkRepository
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -113,7 +114,7 @@ class NetworkRepositoryImpl @Inject constructor(
         userId: Int,
         files: List<MultipartBody.Part>,
         postParams: RequestBody
-    ): PostModel {
+    ): ModelSuccess {
         return apiInterface.newProduct(
             token,
             title,
@@ -144,7 +145,7 @@ class NetworkRepositoryImpl @Inject constructor(
         id: Int,
         token: String,
         language: String
-    ): PostDetailsModel {
+    ): GenericModel<PostDetailsData> {
         return apiInterface.showProductModel(token, id, language)
     }
 
@@ -152,11 +153,11 @@ class NetworkRepositoryImpl @Inject constructor(
         return apiInterface.deletePost(token, id)
     }
 
-    override suspend fun likePost(id: Int, token: String, language: String): PostDetailsModel {
+    override suspend fun likePost(id: Int, token: String, language: String): GenericModel<PostDetailsData> {
         return apiInterface.likePost(token, id, language)
     }
 
-    override suspend fun prioritizePost(token: String, postId: Long, period: Int): PostModel {
+    override suspend fun prioritizePost(token: String, postId: Long, period: Int): ModelSuccess {
         return apiInterface.prioritizePost(token, postId, period)
     }
 
@@ -165,7 +166,7 @@ class NetworkRepositoryImpl @Inject constructor(
         page: Int,
         count: Int,
         lang: String
-    ): ModelPosts {
+    ): GenericModel<Data> {
         return apiInterface.getLikedProducts(
             token = token,
             page = page,
@@ -174,7 +175,7 @@ class NetworkRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun getProfile(token: String): ModelGetProfile {
+    override suspend fun getProfile(token: String): GenericModel<User> {
         return apiInterface.getProfile(token)
     }
 
@@ -199,7 +200,7 @@ class NetworkRepositoryImpl @Inject constructor(
         districtId: Int,
         fromPrice: Int?,
         toPrice: Int?
-    ): ModelPosts {
+    ): GenericModel<Data> {
         return apiInterface.getPublicProducts(
             token = token,
             page = page,
@@ -221,7 +222,7 @@ class NetworkRepositoryImpl @Inject constructor(
         lat: Double,
         lon: Double,
         lang: String
-    ): NeaPostModel {
+    ): GenericModel<List<NearPostsData>> {
         return apiInterface.getNearPosts(
             token, lat, lon, lang
         )
@@ -233,7 +234,7 @@ class NetworkRepositoryImpl @Inject constructor(
         page: Int,
         count: Int,
         lang: String
-    ): ModelPosts {
+    ): GenericModel<Data> {
         return apiInterface.getMyPosts(
             token = token,
             page = page,
@@ -256,7 +257,7 @@ class NetworkRepositoryImpl @Inject constructor(
         lon: Double,
         radius: Int,
         lang: String
-    ): SearchSuggestionResponse {
+    ): GenericModel<SearchSuggestionData> {
         return apiInterface.getSearchSuggestions(query, lat, lon, radius, lang)
     }
 
@@ -271,7 +272,7 @@ class NetworkRepositoryImpl @Inject constructor(
         categoryId: Long?,
         startDate: String?,
         endDate: String?
-    ): ModelPosts {
+    ): GenericModel<Data> {
         return apiInterface.searchPosts(lang, page, size, query, lat, lon, radius, categoryId, 1, startDate, endDate)
     }
 

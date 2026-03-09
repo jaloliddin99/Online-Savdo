@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import org.don.onlineTrade.BuildConfig
 import org.don.onlineTrade.R
-import org.don.onlineTrade.data.remote.models.nearPost.Data
+import org.don.onlineTrade.data.remote.models.nearPost.NearPostsData
 import org.don.onlineTrade.ui.theme.LocalCustomColors
 import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.spacing
@@ -41,7 +41,7 @@ import org.don.onlineTrade.utils.shimmerBrush
 
 @Composable
 fun NearPosts(
-    state: List<Data>,
+    state: List<NearPostsData>,
     navigateToCategory: (Int) -> Unit,
     modifier: Modifier = Modifier
 
@@ -70,7 +70,7 @@ fun NearPosts(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NearPostItem(
-    item: Data,
+    item: NearPostsData,
     modifier: Modifier = Modifier,
     navigateToCategory: (Int) -> Unit,
     shape: Shape = RoundedCornerShape(MaterialTheme.spacing.dimen8Dp)

@@ -18,12 +18,6 @@ class WelcomeViewModel @Inject constructor(
 ) : ViewModel() {
 
 
-    fun signInAsGuest(
-        onSignInComplete: () -> Unit,
-    ) {
-        onSignInComplete()
-    }
-
 
     private val _state = mutableStateOf(RegistrationState())
     val state: State<RegistrationState> = _state

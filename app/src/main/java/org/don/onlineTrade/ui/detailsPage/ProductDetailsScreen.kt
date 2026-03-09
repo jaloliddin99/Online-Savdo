@@ -38,7 +38,6 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -58,7 +57,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import org.don.onlineTrade.R
-import org.don.onlineTrade.data.remote.models.showProducts.Data
+import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsData
 import org.don.onlineTrade.data.remote.models.showProducts.PostParam
 import org.don.onlineTrade.ui.add.TextBold16
 import org.don.onlineTrade.ui.add.TextNormal16
@@ -139,10 +138,10 @@ fun ProductDetailsScreen(
 ) {
 
     val isFeedLoading = state.isLoading
-    val data = state.registerMain?.data
+    val data = state.registerMain
 
     val pagerState = rememberPagerState(pageCount = {
-        state.registerMain?.data?.images?.size ?: 0
+        state.registerMain?.images?.size ?: 0
     })
 
     val context = LocalContext.current
@@ -270,7 +269,7 @@ fun OptionsScreen(
     onEditClicked: (Int) -> Unit,
     onCallClicked: () -> Unit,
     onSmsClicked: () -> Unit,
-    data: Data?
+    data: PostDetailsData?
 ) {
     Column(modifier.fillMaxWidth()) {
         Row(
@@ -327,7 +326,7 @@ fun CircularImage(
 
 @Composable
 fun ItemDescription(
-    data: Data?,
+    data: PostDetailsData?,
     goToMapsPage: (lat: Double, lon: Double) -> Unit
 ) {
     Column(
@@ -371,7 +370,7 @@ fun ItemDescription(
 
 @Composable
 fun ProductDescription(
-    data: Data?,
+    data: PostDetailsData?,
 ) {
     val category = data?.category
     val params = category?.post_param
@@ -455,7 +454,7 @@ internal fun NavigationBarSpacer() {
 
 @Composable
 fun ContactDetails(
-    data: Data?
+    data: PostDetailsData?
 ) {
     Column(
         modifier = Modifier

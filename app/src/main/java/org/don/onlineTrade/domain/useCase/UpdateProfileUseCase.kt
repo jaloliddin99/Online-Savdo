@@ -2,13 +2,10 @@ package org.don.onlineTrade.domain.useCase
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import okhttp3.RequestBody
 import org.don.onlineTrade.data.remote.models.ModelSuccess
-import org.don.onlineTrade.data.remote.models.getProfile.ModelGetProfile
 import org.don.onlineTrade.data.remote.models.getProfile.UpdateProfileModel
 import org.don.onlineTrade.domain.repository.NetworkRepository
 import org.don.onlineTrade.domain.state.Resource
-import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
 

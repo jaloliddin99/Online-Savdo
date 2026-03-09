@@ -1,7 +1,6 @@
 package org.don.onlineTrade.ui.auth.register
 
 import org.don.onlineTrade.data.remote.models.ModelSuccess
-import org.don.onlineTrade.data.remote.models.RegisterMain
 
 
 data class RegistrationState(

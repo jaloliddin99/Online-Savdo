@@ -19,13 +19,12 @@ class ForgotPasswordUseCase @Inject constructor(
     ): Flow<Resource<ModelSuccess>> = flow {
         try {
             emit(Resource.Loading())
-            emit(
-                Resource.Success(
-                    repository.forgotPassword(
-                        email
-                    )
-                )
-            )
+            val data = repository.forgotPassword(email)
+            if (data.success){
+                emit(Resource.Success(data))
+            }else{
+                emit(Resource.Error(data.message))
+            }
         } catch (e: Exception) {
             emit(Resource.Error(e.localizedMessage ?: "An unexpected error occured"))
         } catch (e: IOException) {

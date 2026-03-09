@@ -2,7 +2,8 @@ package org.don.onlineTrade.domain.useCase.presentUseCase
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsModel
+import org.don.onlineTrade.data.remote.models.GenericModel
+import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsData
 import org.don.onlineTrade.domain.repository.NetworkRepository
 import org.don.onlineTrade.domain.state.Resource
 import java.io.IOException
@@ -16,18 +17,17 @@ class LikeDislikeUseCase@Inject constructor(
         id: Int,
         token: String,
         language: String
-    ): Flow<Resource<PostDetailsModel>> = flow {
+    ): Flow<Resource<GenericModel<PostDetailsData>>> = flow {
         try {
             emit(Resource.Loading())
-            emit(
-                Resource.Success(
-                    repository.likePost(
-                        id,
-                        token,
-                        language
-                    )
-                )
-            )
+
+
+            val data = repository.likePost(  id, token, language)
+            if (data.success){
+                emit(Resource.Success(data))
+            }else{
+                emit(Resource.Error(data.message))
+            }
         } catch(e: Exception) {
             emit(Resource.Error(e.localizedMessage ?: "An unexpected error occured"))
         } catch(e: IOException) {

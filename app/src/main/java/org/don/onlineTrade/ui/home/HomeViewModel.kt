@@ -215,7 +215,7 @@ class HomeViewModel @Inject constructor(
         ).onEach { result ->
             when (result) {
                 is Resource.Success -> {
-                    _stateNear.value = HomeScreenState2(getNearPost = result.data)
+                    _stateNear.value = HomeScreenState2(getNearPost = result.data?.data)
                 }
 
                 is Resource.Error -> {

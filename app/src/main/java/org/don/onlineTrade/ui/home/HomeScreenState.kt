@@ -2,18 +2,17 @@ package org.don.onlineTrade.ui.home
 
 import com.google.android.gms.maps.model.LatLng
 import org.don.onlineTrade.data.remote.models.ModelSuccess
-import org.don.onlineTrade.data.remote.models.getProfile.ModelGetProfile
-import org.don.onlineTrade.data.remote.models.nearPost.NeaPostModel
 import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.Data
 import org.don.onlineTrade.data.remote.models.region.DataDistrict
 import org.don.onlineTrade.ui.region.MyLocation
 import org.don.onlineTrade.data.remote.models.category.Category
 import org.don.onlineTrade.data.remote.models.category.ParentCategories
+import org.don.onlineTrade.data.remote.models.getProfile.User
 import org.don.onlineTrade.data.remote.models.leak.ModelLeak
 import org.don.onlineTrade.data.remote.models.region.RegionDistrict
 import org.don.onlineTrade.data.remote.models.reverse.FeatureMember
-import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsModel
+import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsData
 
 data class HomeScreenState(
     val isLoading: Boolean = false,
@@ -25,7 +24,7 @@ data class HomeScreenState(
 
 data class HomeScreenState2(
     val isLoading: Boolean = false,
-    var getNearPost: NeaPostModel? = null,
+    var getNearPost: List<org.don.onlineTrade.data.remote.models.nearPost.NearPostsData>? = listOf(),
     val error: String = ""
 )
 
@@ -41,7 +40,7 @@ data class RegionsScreenState(
 
 data class AddProductScreenState(
     val isLoading: Boolean = false,
-    val postNewProduct: PostModel? = null,
+    val postNewProduct: ModelSuccess? = null,
     val error: String = "",
     val showSuccessDialog: Boolean = false,
     val categoryDetail: ModelLeak? = null,
@@ -59,21 +58,21 @@ data class MapScreenScreenState(
 
 data class PresentProductState(
     val isLoading: Boolean = false,
-    val registerMain: PostDetailsModel? = null,
+    val registerMain: PostDetailsData? = null,
     val delete: ModelSuccess? = null,
     val error: String = ""
 )
 
 data class MyProfileScreen(
     val isLoading: Boolean = false,
-    val getProfile: PostModel? = null,
+    val getProfile: ModelSuccess? = null,
     val error: String = ""
 )
 
 
 data class GetProfileState(
     val isLoading: Boolean = false,
-    val getProfile: ModelGetProfile? = null,
+    val getProfile: User? = null,
     val updateProfileImage: ModelSuccess? = null,
     val error: String = ""
 )

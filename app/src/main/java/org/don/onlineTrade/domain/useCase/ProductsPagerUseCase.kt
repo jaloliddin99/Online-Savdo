@@ -22,7 +22,7 @@ class ProductsPagerUseCase @Inject constructor(
         fromPrice: Int? = null,
         toPrice: Int? = null
     ): Result<List<Content>> {
-        return try {
+        try {
             val networkPager = repository.getProductsPager(
                 token = token,
                 page = page,

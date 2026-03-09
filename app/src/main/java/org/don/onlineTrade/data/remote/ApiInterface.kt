@@ -3,6 +3,7 @@ package org.don.onlineTrade.data.remote
 import androidx.annotation.Keep
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import org.don.onlineTrade.data.remote.models.GenericModel
 import org.don.onlineTrade.data.remote.models.LoginBody
 import org.don.onlineTrade.data.remote.models.ModelSuccess
 import org.don.onlineTrade.data.remote.models.RegistrationBody
@@ -10,17 +11,17 @@ import org.don.onlineTrade.data.remote.models.VerificationRes
 import org.don.onlineTrade.data.remote.models.category.Category
 import org.don.onlineTrade.data.remote.models.category.ParentCategories
 import org.don.onlineTrade.data.remote.models.getNotifications.NotificationData
-import org.don.onlineTrade.data.remote.models.getProfile.ModelGetProfile
 import org.don.onlineTrade.data.remote.models.getProfile.UpdatePasswordModel
 import org.don.onlineTrade.data.remote.models.getProfile.UpdateProfileModel
-import org.don.onlineTrade.data.remote.models.getPublicProducts.ModelPosts
-import org.don.onlineTrade.data.remote.models.searchSuggestion.SearchSuggestionResponse
+import org.don.onlineTrade.data.remote.models.getProfile.User
+import org.don.onlineTrade.data.remote.models.getPublicProducts.Data
 import org.don.onlineTrade.data.remote.models.leak.ModelLeak
-import org.don.onlineTrade.data.remote.models.nearPost.NeaPostModel
+import org.don.onlineTrade.data.remote.models.nearPost.NearPostsData
 import org.don.onlineTrade.data.remote.models.post.PostModel
 import org.don.onlineTrade.data.remote.models.region.ModelGetRegionAndDistricts
 import org.don.onlineTrade.data.remote.models.reverse.ModelAddressReverse
-import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsModel
+import org.don.onlineTrade.data.remote.models.searchSuggestion.SearchSuggestionData
+import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsData
 import org.don.onlineTrade.utils.SharedPref
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -78,7 +79,7 @@ interface ApiInterface {
         @Query("districtId") districtId: Int = -1,
         @Query("fromPrice") fromPrice: Int? = null,
         @Query("toPrice") toPrice: Int? = null
-    ): ModelPosts
+    ): GenericModel<Data>
 
 
     @GET("notification/pager")
@@ -95,7 +96,7 @@ interface ApiInterface {
         @Query("lat") page: Double,
         @Query("lon") size: Double,
         @Query("lang") lang: String
-    ): NeaPostModel
+    ): GenericModel<List<NearPostsData>>
 
     @GET("post/myPosts")
     suspend fun getMyPosts(
@@ -103,7 +104,7 @@ interface ApiInterface {
         @Query("page") page: Int,
         @Query("size") size: Int,
         @Query("lang") lang: String
-    ): ModelPosts
+    ): GenericModel<Data>
 
     @GET("categories")
     suspend fun getAllCategories(
@@ -147,7 +148,7 @@ interface ApiInterface {
         @Query("userId") userId: Int,
         @Part files: List<MultipartBody.Part>,
         @Part("post_params") postParams: RequestBody
-    ): PostModel
+    ): ModelSuccess
 
 
     @POST("post/prioritize")
@@ -155,14 +156,14 @@ interface ApiInterface {
         @Header("Authorization") token: String,
         @Query("postId") postId: Long,
         @Query("period") periodInHours: Int
-    ): PostModel
+    ): ModelSuccess
 
     @GET("post/{id}")
     suspend fun showProductModel(
         @Header("Authorization") token: String,
         @Path("id") id: Int,
         @Query("lang") language: String
-    ): PostDetailsModel
+    ): GenericModel<PostDetailsData>
 
     @DELETE("post/{id}")
     suspend fun deletePost(
@@ -175,7 +176,7 @@ interface ApiInterface {
         @Header("Authorization") token: String,
         @Path("id") id: Int,
         @Query("lang") language: String
-    ): PostDetailsModel
+    ): GenericModel<PostDetailsData>
 
     @GET("post/user/liked-posts")
     suspend fun getLikedProducts(
@@ -183,13 +184,13 @@ interface ApiInterface {
         @Query("page") page: Int,
         @Query("size") size: Int,
         @Query("lang") lang: String
-    ): ModelPosts
+    ): GenericModel<Data>
 
 
     @GET("user")
     suspend fun getProfile(
         @Header("Authorization") token: String,
-    ): ModelGetProfile
+    ): GenericModel<User>
 
     @POST("user/update-profile")
     suspend fun updateProfile(
@@ -217,7 +218,7 @@ interface ApiInterface {
         @Query("radius") radius: Int,
         @Query("lang") lang: String,
         @Header("Authorization") token: String = SharedPref.deviceToken,
-        ): SearchSuggestionResponse
+        ): GenericModel<SearchSuggestionData>
 
     @GET("post/search")
     suspend fun searchPosts(
@@ -233,7 +234,7 @@ interface ApiInterface {
         @Query("startDate") startDate: String?,
         @Query("endDate") endDate: String?,
         @Header("Authorization") token: String = SharedPref.deviceToken,
-        ): ModelPosts
+        ): GenericModel<Data>
 
     @GET
     suspend fun getLocationList(
