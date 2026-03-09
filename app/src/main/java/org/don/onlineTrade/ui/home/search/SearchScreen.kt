@@ -46,6 +46,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -150,11 +153,26 @@ fun SearchScreen(
         mutableStateOf(FilterClass())
     }
 
+    val snackbarHostState = remember { SnackbarHostState() }
+    val locationAndRadiusMsg = stringResource(R.string.location_updated)
+    val locationOnlyMsg = stringResource(R.string.location_only_updated)
+    val radiusOnlyMsg = stringResource(R.string.radius_only_updated)
+
     // Update location data when map data arrives
     LaunchedEffect(mapSearchData) {
         mapSearchData?.let {
             if (it.lat != null && it.lon != null) {
-                searchViewModel.updateSearchLocation(it.lat, it.lon, it.radiusKm.toInt())
+                val locationChanged =
+                    it.lat != searchViewModel.searchLat || it.lon != searchViewModel.searchLon
+                val radiusChanged = it.radiusKm != searchViewModel.searchRadiusKm
+                searchViewModel.updateSearchLocation(it.lat, it.lon, it.radiusKm)
+                val message = when {
+                    locationChanged && radiusChanged -> locationAndRadiusMsg
+                    locationChanged -> locationOnlyMsg
+                    radiusChanged -> radiusOnlyMsg
+                    else -> null
+                }
+                message?.let { msg -> snackbarHostState.showSnackbar(msg) }
             }
         }
     }
@@ -179,7 +197,6 @@ fun SearchScreen(
         }
     }
 
-    // Handle category selection from CategoriesRoute
     LaunchedEffect(categoryItem) {
         categoryItem?.let {
             myFilter = myFilter.copy(categoryId = it.id.toLong(), categoryName = it.title)
@@ -187,164 +204,169 @@ fun SearchScreen(
         }
     }
 
-    Box {
-        Column(modifier = modifier) {
-            Spacer(modifier = Modifier.windowInsetsTopHeight(WindowInsets.safeDrawing))
-            SearchToolbar(
-                onBackClick = onBackClick,
-                onSearchQueryChanged = {
-                    searchTextListener = it
-                    searchViewModel.onSuggestionQueryChanged(it)
-                    homeViewModel.resetPager()
-                },
-                onSearchTriggered = {
-                    searchTextListener = it
-                    triggerSearch(it)
-                },
-                searchQuery = searchTextListener,
-                onFilterClicked = {
-                    showBottomSheet = true
-                },
-                onMapClick = onMapClick,
-                isFilterIconVisible = suggestions.isEmpty() && pagerState.items.isNotEmpty()
-            )
-
-            // Show suggestions if available
-            if (suggestions.isNotEmpty()) {
-                SuggestionsList(
-                    query = queryText,
-                    suggestions = suggestions,
-                    onAllClick = {
-                        triggerSearch(searchTextListener)
-                    },
-                    onSuggestionClick = { suggestion ->
-                        myFilter = myFilter.copy(
-                            categoryId = suggestion.categoryId,
-                            categoryName = suggestion.name
-                        )
-                        triggerSearch(searchTextListener, suggestion.categoryId)
-                    }
-                )
-            }
-
-            // Filter chips
-            if (suggestions.isEmpty() && (pagerState.items.isNotEmpty() || pagerState.isLoading)) {
-                ActiveFilterChips(
-                    queryText = queryText,
-                    radiusKm = searchViewModel.searchRadiusKm,
-                    filter = myFilter,
-                    onQueryClick = {
-                        searchTextListener = ""
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        containerColor = Color.Transparent
+    ) { innerPadding ->
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(modifier = modifier) {
+                Spacer(modifier = Modifier.windowInsetsTopHeight(WindowInsets.safeDrawing))
+                SearchToolbar(
+                    onBackClick = onBackClick,
+                    onSearchQueryChanged = {
+                        searchTextListener = it
+                        searchViewModel.onSuggestionQueryChanged(it)
                         homeViewModel.resetPager()
-                        searchViewModel.fetchSuggestions("")
                     },
-                    onRadiusClick = onMapClick,
-                    onDateFromClick = { showBottomSheet = true },
-                    onDateToClick = { showBottomSheet = true },
-                    onRegionClick = { showBottomSheet = true },
-                    onPriceClick = { showBottomSheet = true },
-                    onCategoryClick = {
-                        if (myFilter.categoryId != null) {
-                            myFilter = myFilter.copy(categoryId = null, categoryName = null)
+                    onSearchTriggered = {
+                        searchTextListener = it
+                        triggerSearch(it)
+                    },
+                    searchQuery = searchTextListener,
+                    onFilterClicked = {
+                        showBottomSheet = true
+                    },
+                    onMapClick = onMapClick,
+                    isFilterIconVisible = suggestions.isEmpty() && pagerState.items.isNotEmpty()
+                )
+
+                // Show suggestions if available
+                if (suggestions.isNotEmpty()) {
+                    SuggestionsList(
+                        query = queryText,
+                        suggestions = suggestions,
+                        onAllClick = {
                             triggerSearch(searchTextListener)
-                        } else {
-                            onCategoryClick()
+                        },
+                        onSuggestionClick = { suggestion ->
+                            myFilter = myFilter.copy(
+                                categoryId = suggestion.categoryId,
+                                categoryName = suggestion.name
+                            )
+                            triggerSearch(searchTextListener, suggestion.categoryId)
                         }
+                    )
+                }
+
+                // Filter chips
+                if (suggestions.isEmpty() && (pagerState.items.isNotEmpty() || pagerState.isLoading)) {
+                    ActiveFilterChips(
+                        queryText = queryText,
+                        radiusKm = searchViewModel.searchRadiusKm,
+                        filter = myFilter,
+                        onQueryClick = {
+                            searchTextListener = ""
+                            homeViewModel.resetPager()
+                            searchViewModel.fetchSuggestions("")
+                        },
+                        onRadiusClick = onMapClick,
+                        onDateFromClick = { showBottomSheet = true },
+                        onDateToClick = { showBottomSheet = true },
+                        onRegionClick = { showBottomSheet = true },
+                        onPriceClick = { showBottomSheet = true },
+                        onCategoryClick = {
+                            if (myFilter.categoryId != null) {
+                                myFilter = myFilter.copy(categoryId = null, categoryName = null)
+                                triggerSearch(searchTextListener)
+                            } else {
+                                onCategoryClick()
+                            }
+                        }
+                    )
+                }
+
+                if (pagerState.isLoading && pagerState.items.isEmpty() && pagerState.page == 0) {
+                    ShimmerProductGrid(
+                        modifier = modifier
+                            .padding(end = MaterialTheme.spacing.dimen16Dp)
+                    )
+                } else {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        modifier = modifier
+                            .padding(end = MaterialTheme.spacing.dimen16Dp)
+                            .fillMaxSize(),
+                    ) {
+
+                        items(pagerState.items.size) { i ->
+                            val item = pagerState.items[i]
+                            LaunchedEffect(scrollState) {
+                                if (i >= pagerState.items.size - 1 && !pagerState.endReached && !pagerState.isLoading) {
+                                    homeViewModel.loadNextItems(
+                                        query = searchTextListener,
+                                        categoryId = myFilter.categoryId?.toInt(),
+                                        minPrice = myFilter.fromPrice,
+                                        maxPrice = myFilter.toPrice,
+                                        startDate = myFilter.titleTextFrom,
+                                        endDate = myFilter.titleTextTo,
+                                        regionId = myFilter.regionId,
+                                        districtId = myFilter.districtId
+                                    )
+                                }
+                            }
+                            ProductItem(
+                                item,
+                                onItemClicked = onItemClick,
+                                onItemLongLicked = {}
+                            )
+                        }
+                        item(span = { GridItemSpan(2) }) {
+                            if (pagerState.isLoading && pagerState.page != 0) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(8.dp),
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    CircularProgressIndicator()
+                                }
+                            }
+                        }
+
                     }
-                )
+                }
+
             }
+            if (!pagerState.isLoading && pagerState.endReached && pagerState.items.isEmpty()) {
+                ComposeLottieAnimation(Modifier)
+            }
+        }
 
-            if (pagerState.isLoading && pagerState.items.isEmpty() && pagerState.page == 0) {
-                ShimmerProductGrid(
-                    modifier = modifier
-                        .padding(end = MaterialTheme.spacing.dimen16Dp)
-                )
-            } else {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    modifier = modifier
-                        .padding(end = MaterialTheme.spacing.dimen16Dp)
-                        .fillMaxSize(),
-                ) {
 
-                    items(pagerState.items.size) { i ->
-                        val item = pagerState.items[i]
-                        LaunchedEffect(scrollState) {
-                            if (i >= pagerState.items.size - 1 && !pagerState.endReached && !pagerState.isLoading) {
+
+        if (showBottomSheet) {
+            ModalBottomSheet(
+                onDismissRequest = {
+                    showBottomSheet = false
+                },
+                sheetState = sheetState
+            ) {
+                BottomSheetContent(
+                    onClickListen = { filter ->
+                        scope.launch { sheetState.hide() }.invokeOnCompletion {
+                            if (!sheetState.isVisible) {
+                                myFilter = filter
+                                showBottomSheet = false
+                                homeViewModel.resetPager()
                                 homeViewModel.loadNextItems(
                                     query = searchTextListener,
-                                    categoryId = myFilter.categoryId?.toInt(),
-                                    minPrice = myFilter.fromPrice,
-                                    maxPrice = myFilter.toPrice,
-                                    startDate = myFilter.titleTextFrom,
-                                    endDate = myFilter.titleTextTo,
-                                    regionId = myFilter.regionId,
-                                    districtId = myFilter.districtId
+                                    categoryId = filter.categoryId?.toInt(),
+                                    minPrice = filter.fromPrice,
+                                    maxPrice = filter.toPrice,
+                                    startDate = filter.titleTextFrom,
+                                    endDate = filter.titleTextTo,
+                                    regionId = filter.regionId,
+                                    districtId = filter.districtId
                                 )
                             }
                         }
-                        ProductItem(
-                            item,
-                            onItemClicked = onItemClick,
-                            onItemLongLicked = {}
-                        )
                     }
-                    item(span = { GridItemSpan(2) }) {
-                        if (pagerState.isLoading && pagerState.page != 0) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(8.dp),
-                                horizontalArrangement = Arrangement.Center
-                            ) {
-                                CircularProgressIndicator()
-                            }
-                        }
-                    }
-
-                }
+                )
             }
+        }
 
-        }
-        if (!pagerState.isLoading && pagerState.endReached && pagerState.items.isEmpty()) {
-            ComposeLottieAnimation(Modifier)
-        }
+
     }
-
-
-
-    if (showBottomSheet) {
-        ModalBottomSheet(
-            onDismissRequest = {
-                showBottomSheet = false
-            },
-            sheetState = sheetState
-        ) {
-            BottomSheetContent(
-                onClickListen = { filter ->
-                    scope.launch { sheetState.hide() }.invokeOnCompletion {
-                        if (!sheetState.isVisible) {
-                            myFilter = filter
-                            showBottomSheet = false
-                            homeViewModel.resetPager()
-                            homeViewModel.loadNextItems(
-                                query = searchTextListener,
-                                categoryId = filter.categoryId?.toInt(),
-                                minPrice = filter.fromPrice,
-                                maxPrice = filter.toPrice,
-                                startDate = filter.titleTextFrom,
-                                endDate = filter.titleTextTo,
-                                regionId = filter.regionId,
-                                districtId = filter.districtId
-                            )
-                        }
-                    }
-                }
-            )
-        }
-    }
-
-
 }
 
 @Composable
@@ -492,12 +514,42 @@ fun ActiveFilterChips(
         if (queryText.isNotEmpty()) {
             add(ChipData(label = queryText, applied = true, onClick = onQueryClick))
         }
-        add(ChipData(label = filter.categoryName ?: stringResource(R.string.category), applied = isCategoryApplied, onClick = onCategoryClick))
-        add(ChipData(label = if (radiusKm > 0) "$radiusKm km" else stringResource(R.string.location), applied = radiusKm > 0, onClick = onRadiusClick))
+        add(
+            ChipData(
+                label = filter.categoryName ?: stringResource(R.string.category),
+                applied = isCategoryApplied,
+                onClick = onCategoryClick
+            )
+        )
+        add(
+            ChipData(
+                label = if (radiusKm > 0) "$radiusKm km" else stringResource(R.string.location),
+                applied = radiusKm > 0,
+                onClick = onRadiusClick
+            )
+        )
         add(ChipData(label = priceLabel, applied = isPriceApplied, onClick = onPriceClick))
-        add(ChipData(label = filter.titleTextFrom ?: stringResource(R.string.from), applied = filter.titleTextFrom != null, onClick = onDateFromClick))
-        add(ChipData(label = filter.titleTextTo ?: stringResource(R.string.to), applied = filter.titleTextTo != null, onClick = onDateToClick))
-        add(ChipData(label = stringResource(R.string.regions), applied = filter.regionId != -1, onClick = onRegionClick))
+        add(
+            ChipData(
+                label = filter.titleTextFrom ?: stringResource(R.string.from),
+                applied = filter.titleTextFrom != null,
+                onClick = onDateFromClick
+            )
+        )
+        add(
+            ChipData(
+                label = filter.titleTextTo ?: stringResource(R.string.to),
+                applied = filter.titleTextTo != null,
+                onClick = onDateToClick
+            )
+        )
+        add(
+            ChipData(
+                label = stringResource(R.string.regions),
+                applied = filter.regionId != -1,
+                onClick = onRegionClick
+            )
+        )
     }.sortedByDescending { it.applied }
 
     Row(

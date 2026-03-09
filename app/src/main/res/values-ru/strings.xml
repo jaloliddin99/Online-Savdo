@@ -146,6 +146,9 @@
     <string name="review_details">Детали</string>
     <string name="preview">Предпросмотр</string>
     <string name="search_screen_in">"В %s"</string>
+    <string name="location_updated">Местоположение и радиус обновлены</string>
+    <string name="location_only_updated">Местоположение обновлено</string>
+    <string name="radius_only_updated">Радиус обновлён</string>
 
 
 </resources>

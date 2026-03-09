@@ -39,6 +39,8 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -184,15 +186,20 @@ fun ProductItemDetails(
                     text = it,
                     modifier = Modifier
                         .clip(RoundedCornerShape(50))
-                        .background(MaterialTheme.colorScheme.primary)
+                        .background(MaterialTheme.colorScheme.primaryContainer)
                         .constrainAs(textRef) {
                             bottom.linkTo(parent.bottom, margin = 4.dp)
                             start.linkTo(parent.start, margin = 4.dp)
                         }
-                        .padding(start = 4.dp, end = 4.dp, top = 1.dp, bottom = 2.dp),
+                        .padding(horizontal = 4.dp, vertical = 4.dp),
                     color = Color.White,
                     fontFamily = robotoFontFamily,
-                    fontSize = 9.sp
+                    fontSize = 9.sp,
+                    style = TextStyle(
+                        platformStyle = PlatformTextStyle(
+                            includeFontPadding = false
+                        )
+                    )
                 )
             }
 
@@ -286,13 +293,18 @@ fun ProductItemDetails(
                 Text(
                     modifier = Modifier
                         .clip(RoundedCornerShape(50))
-                        .background(MaterialTheme.colorScheme.primary)
-                        .padding(start = 4.dp, end = 4.dp, top = 1.dp, bottom = 2.dp),
+                        .background(MaterialTheme.colorScheme.primaryContainer)
+                        .padding(horizontal = 4.dp, vertical = 2.dp),
                     text = "${formatNumberWithSpaces(data.price)} ${data.priceUnit}",
                     fontSize = 12.sp,
                     fontFamily = robotoFontFamily,
-                    fontWeight = FontWeight.Medium,
-                    color = Color.White
+                    fontWeight = FontWeight.Normal,
+                    color = Color.White,
+                    style = TextStyle(
+                        platformStyle = PlatformTextStyle(
+                            includeFontPadding = false
+                        )
+                    )
                 )
                 Text(
                     text = convertDate(data.createdDate),

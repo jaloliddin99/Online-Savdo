@@ -93,7 +93,6 @@ fun HomeScreen(
     ) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
-            contentPadding = PaddingValues(horizontal = MaterialTheme.spacing.dimen8Dp)
         ) {
             // ── Categories Section ──
             item(span = { GridItemSpan(2) }) {

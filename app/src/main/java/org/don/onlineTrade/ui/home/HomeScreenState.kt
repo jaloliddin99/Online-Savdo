@@ -10,6 +10,7 @@ import org.don.onlineTrade.data.remote.models.category.Category
 import org.don.onlineTrade.data.remote.models.category.ParentCategories
 import org.don.onlineTrade.data.remote.models.getProfile.User
 import org.don.onlineTrade.data.remote.models.leak.ModelLeak
+import org.don.onlineTrade.data.remote.models.nearPost.NearPostsData
 import org.don.onlineTrade.data.remote.models.region.RegionDistrict
 import org.don.onlineTrade.data.remote.models.reverse.FeatureMember
 import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsData
@@ -24,7 +25,7 @@ data class HomeScreenState(
 
 data class HomeScreenState2(
     val isLoading: Boolean = false,
-    var getNearPost: List<org.don.onlineTrade.data.remote.models.nearPost.NearPostsData>? = listOf(),
+    var getNearPost: List<NearPostsData>? = listOf(),
     val error: String = ""
 )
 

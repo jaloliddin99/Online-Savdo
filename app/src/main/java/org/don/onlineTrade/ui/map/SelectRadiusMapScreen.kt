@@ -77,7 +77,7 @@ fun SelectRadiusMapScreen(
     val gpsNotEnabled = !checkGpsEnabled(activity)
 
     var searchTextListener by remember { mutableStateOf("") }
-    var sliderPosition by remember { mutableFloatStateOf(sliderFromKm(10f)) }
+    var sliderPosition by remember { mutableFloatStateOf(sliderFromKm(SharedPref.radius.toFloat())) }
     val radiusKm = kmFromSlider(sliderPosition).toInt()
     var markerPosition by remember {
         mutableStateOf(
@@ -88,10 +88,6 @@ fun SelectRadiusMapScreen(
         )
     }
 
-    // Auto-navigate to user's current location on open
-    LaunchedEffect(Unit) {
-        turnOnGps(viewModel, hasNotPermission, activity, gpsNotEnabled)
-    }
 
     // Update marker when user location arrives
     LaunchedEffect(state.latLng) {
@@ -242,7 +238,9 @@ fun SelectRadiusMapScreen(
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
             Button(
                 onClick = {
-                    SharedPref.radius = sliderPosition.toInt()
+                    SharedPref.radius = radiusKm
+                    SharedPref.latitude = markerPosition.latitude.toString()
+                    SharedPref.longitude = markerPosition.longitude.toString()
                     onBackClick(
                         MapScreenData(
                             lat = markerPosition.latitude,

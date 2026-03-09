@@ -148,6 +148,9 @@
     <string name="preview">Ko\'rib chiqish</string>
     <string name="search_screen_in">"%s da"</string>
     <string name="price">Narx</string>
+    <string name="location_updated">Joylashuv va radius yangilandi</string>
+    <string name="location_only_updated">Joylashuv yangilandi</string>
+    <string name="radius_only_updated">Radius yangilandi</string>
 
 
 </resources>
