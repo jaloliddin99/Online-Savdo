@@ -15,37 +15,35 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsTopHeight
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.MyLocation
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -61,13 +59,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -84,11 +81,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.launch
 import org.don.onlineTrade.R
-
+import org.don.onlineTrade.data.remote.models.category.CategoryItem
 import org.don.onlineTrade.data.remote.models.region.District
 import org.don.onlineTrade.data.remote.models.region.RegionDistrict
 import org.don.onlineTrade.data.remote.models.searchSuggestion.CategorySuggestion
-import org.don.onlineTrade.data.remote.models.category.CategoryItem
 import org.don.onlineTrade.ui.filterCategory.ComposeLottieAnimation
 import org.don.onlineTrade.ui.home.HomeViewModel
 import org.don.onlineTrade.ui.home.ProductItem
@@ -108,6 +104,7 @@ fun SearchRoute(
     onCategoryClick: () -> Unit = {},
     mapSearchData: MapScreenData? = null,
     categoryItem: CategoryItem? = null,
+    searchBarModifier: Modifier = Modifier,
 ) {
 
     SearchScreen(
@@ -118,6 +115,7 @@ fun SearchRoute(
         onCategoryClick = onCategoryClick,
         mapSearchData = mapSearchData,
         categoryItem = categoryItem,
+        searchBarModifier = searchBarModifier,
     )
 }
 
@@ -132,6 +130,7 @@ fun SearchScreen(
     onCategoryClick: () -> Unit = {},
     mapSearchData: MapScreenData? = null,
     categoryItem: CategoryItem? = null,
+    searchBarModifier: Modifier = Modifier,
 ) {
 
     var searchTextListener by remember {
@@ -227,7 +226,8 @@ fun SearchScreen(
                         showBottomSheet = true
                     },
                     onMapClick = onMapClick,
-                    isFilterIconVisible = suggestions.isEmpty() && pagerState.items.isNotEmpty()
+                    isFilterIconVisible = suggestions.isEmpty() && pagerState.items.isNotEmpty(),
+                    searchBarModifier = searchBarModifier,
                 )
 
                 // Show suggestions if available
@@ -802,6 +802,7 @@ fun SearchToolbar(
     onMapClick: (() -> Unit)? = null,
     autoFocus: Boolean = true,
     isFilterIconVisible: Boolean = true,
+    searchBarModifier: Modifier = Modifier,
 ) {
 
     Row(
@@ -822,9 +823,10 @@ fun SearchToolbar(
             onSearchQueryChanged = onSearchQueryChanged,
             searchQuery = searchQuery,
             onSearchTriggered = onSearchTriggered,
-            modifier = modifier.weight(1f),
+            modifier = Modifier.weight(1f),
             onMapClick = onMapClick,
-            autoFocus = autoFocus
+            autoFocus = autoFocus,
+            searchBarModifier = searchBarModifier,
         )
 
         if (onFilterClicked != null && isFilterIconVisible) {
@@ -850,6 +852,7 @@ fun SearchTextField(
     onSearchTriggered: (String) -> Unit,
     onMapClick: (() -> Unit)? = null,
     autoFocus: Boolean = true,
+    searchBarModifier: Modifier = Modifier,
 ) {
     val focusRequest = remember {
         FocusRequester()
@@ -906,6 +909,7 @@ fun SearchTextField(
         },
         modifier = modifier
             .padding(vertical = 16.dp)
+            .then(searchBarModifier)
             .focusRequester(focusRequest)
             .onKeyEvent {
                 if (it.key == Key.Enter) {
@@ -935,4 +939,70 @@ fun SearchTextField(
         }
     }
 
+}
+
+@Composable
+fun HomeSearchBar(
+    onSearchClick: () -> Unit,
+    onMapClick: () -> Unit,
+    onNotificationClick: () -> Unit = {},
+    modifier: Modifier = Modifier,
+    searchBarModifier: Modifier = Modifier,
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = MaterialTheme.spacing.dimen16Dp)
+    ) {
+        Box(modifier = Modifier.weight(1f)) {
+            TextField(
+                value = "",
+                onValueChange = {},
+                enabled = false,
+                colors = TextFieldDefaults.colors(
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    disabledIndicatorColor = Color.Transparent,
+                ),
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.Search,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                },
+                trailingIcon = {
+                    IconButton(onClick = onMapClick) {
+                        Icon(
+                            imageVector = Icons.Filled.LocationOn,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                },
+                shape = RoundedCornerShape(32.dp),
+                singleLine = true,
+                modifier = searchBarModifier
+                    .padding(vertical = 16.dp)
+                    .fillMaxWidth()
+            )
+            // Overlay to intercept clicks on the text field area (excluding trailing icon)
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .padding(end = 48.dp)
+                    .padding(vertical = 16.dp)
+                    .clip(RoundedCornerShape(32.dp))
+                    .clickable(onClick = onSearchClick)
+            )
+        }
+        IconButton(onClick = onNotificationClick) {
+            Icon(
+                imageVector = Icons.Filled.Notifications,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurface
+            )
+        }
+    }
 }

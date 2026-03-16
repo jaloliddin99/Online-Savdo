@@ -3,6 +3,7 @@ package org.don.onlineTrade.app
 import android.app.Application
 import android.content.Context
 import com.chibatching.kotpref.Kotpref
+import com.google.android.gms.maps.MapsInitializer
 import dagger.hilt.android.HiltAndroidApp
 import org.don.onlineTrade.utils.LocaleManager
 import org.don.onlineTrade.utils.ModelPref
@@ -15,6 +16,7 @@ class App: Application() {
         super.onCreate()
         Kotpref.init(this)
         ModelPref.with(this)
+        MapsInitializer.initialize(this, MapsInitializer.Renderer.LATEST) {}
     }
 
 }

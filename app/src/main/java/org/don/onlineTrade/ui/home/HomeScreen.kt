@@ -3,6 +3,9 @@ package org.don.onlineTrade.ui.home
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,6 +14,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -31,6 +37,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
@@ -44,6 +55,7 @@ import androidx.compose.ui.unit.sp
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.location.GpsCheckHelper
 import org.don.onlineTrade.data.location.checkGpsEnabled
+import org.don.onlineTrade.ui.home.search.HomeSearchBar
 import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.LocaleManager.FLAG_HAS_DATA
@@ -56,13 +68,21 @@ fun HomeRoute(
     modifier: Modifier = Modifier,
     homeViewModel: HomeViewModel,
     navigateToProduct: (Int) -> Unit,
-    navigateToCategory: (Int) -> Unit
+    navigateToCategory: (Int) -> Unit,
+    onSearchClick: () -> Unit = {},
+    onMapClick: () -> Unit = {},
+    onNotificationClick: () -> Unit = {},
+    searchBarModifier: Modifier = Modifier,
 ) {
     HomeScreen(
         modifier = modifier,
         homeViewModel = homeViewModel,
         navigateToProduct = navigateToProduct,
-        navigateToCategory = navigateToCategory
+        navigateToCategory = navigateToCategory,
+        onSearchClick = onSearchClick,
+        onMapClick = onMapClick,
+        onNotificationClick = onNotificationClick,
+        searchBarModifier = searchBarModifier,
     )
 }
 
@@ -72,6 +92,10 @@ fun HomeScreen(
     homeViewModel: HomeViewModel,
     navigateToProduct: (Int) -> Unit,
     navigateToCategory: (Int) -> Unit,
+    onSearchClick: () -> Unit = {},
+    onMapClick: () -> Unit = {},
+    onNotificationClick: () -> Unit = {},
+    searchBarModifier: Modifier = Modifier,
 ) {
     val viewModel = homeViewModel
     val state = viewModel.state.value
@@ -83,16 +107,46 @@ fun HomeScreen(
     val pagerState = viewModel.pagerState
     val scrollState = rememberLazyGridState()
 
+    // Track scroll direction to show/hide the search bar
+    var previousScrollOffset by remember { mutableIntStateOf(0) }
+    var previousFirstVisibleItem by remember { mutableIntStateOf(0) }
+    val isSearchBarVisible by remember {
+        derivedStateOf {
+            val firstVisibleItem = scrollState.firstVisibleItemIndex
+            val scrollOffset = scrollState.firstVisibleItemScrollOffset
+            val scrollingDown = firstVisibleItem > previousFirstVisibleItem ||
+                    (firstVisibleItem == previousFirstVisibleItem && scrollOffset > previousScrollOffset)
+            previousFirstVisibleItem = firstVisibleItem
+            previousScrollOffset = scrollOffset
+            // Show when scrolling up or at the top
+            !scrollingDown || firstVisibleItem == 0
+        }
+    }
+
     LaunchedEffect(key1 = viewModel) {
         viewModel.loadNextItems()
         viewModel.getAllParentCategories()
     }
 
-    Box(
+    Column(
         modifier = modifier.fillMaxSize()
     ) {
+        Spacer(modifier = Modifier.windowInsetsTopHeight(WindowInsets.safeDrawing))
+        AnimatedVisibility(
+            visible = isSearchBarVisible,
+            enter = slideInVertically(initialOffsetY = { -it }),
+            exit = slideOutVertically(targetOffsetY = { -it }),
+        ) {
+            HomeSearchBar(
+                onSearchClick = onSearchClick,
+                onMapClick = onMapClick,
+                onNotificationClick = onNotificationClick,
+                searchBarModifier = searchBarModifier,
+            )
+        }
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
+            modifier = Modifier.weight(1f),
         ) {
             // ── Categories Section ──
             item(span = { GridItemSpan(2) }) {

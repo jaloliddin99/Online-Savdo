@@ -1,7 +1,8 @@
 package org.don.onlineTrade.ui
 
-import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -47,6 +48,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -54,7 +56,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import org.don.onlineTrade.data.remote.models.category.CategoryItem
-import org.don.onlineTrade.data.remote.models.region.Data
 import org.don.onlineTrade.ui.add.AddProductRoute
 import org.don.onlineTrade.ui.auth.forgotPassword.ForgotPasswordRoute
 import org.don.onlineTrade.ui.auth.forgotPassword.ResetPasswordRoute
@@ -67,6 +68,7 @@ import org.don.onlineTrade.ui.dialogs.settings.SettingsDialog
 import org.don.onlineTrade.ui.dialogs.settings.UserEditableSettings
 import org.don.onlineTrade.ui.filterCategory.FilterCategoryRoute
 import org.don.onlineTrade.ui.home.HomeRoute
+import org.don.onlineTrade.ui.home.HomeViewModel
 import org.don.onlineTrade.ui.home.search.SearchRoute
 import org.don.onlineTrade.ui.map.MapScreenData
 import org.don.onlineTrade.ui.map.MapShowLocationScreen
@@ -84,11 +86,9 @@ import org.don.onlineTrade.ui.saved.SavedRoute
 import org.don.onlineTrade.ui.theme.AppBackground
 import org.don.onlineTrade.ui.theme.AppGradientBackground
 import org.don.onlineTrade.ui.theme.GradientColors
-import org.don.onlineTrade.ui.home.HomeViewModel
 import org.don.onlineTrade.ui.theme.LocalGradientColors
 import org.don.onlineTrade.utils.AuthEvent
 import org.don.onlineTrade.utils.SharedPref
-import androidx.hilt.navigation.compose.hiltViewModel
 
 private val BOTTOM_BAR_ROUTES = setOf(
     Screen.Home.route,
@@ -212,33 +212,38 @@ fun MainScreenView(
                     val topBarContent: @Composable () -> Unit = {
                         val topBarDestination = lastDestination
                         if (topBarDestination != null) {
-                            val showBackArrow = topBarDestination.screenRoute in BACK_ARROW_ROUTES
+                            if (topBarDestination.screenRoute == Screen.Home.route) {
+                                // Search bar is rendered inside HomeScreen for shared element transition
+                            } else {
+                                val showBackArrow =
+                                    topBarDestination.screenRoute in BACK_ARROW_ROUTES
 
-                            TopAppBar(
-                                title = stringResource(id = topBarDestination.titleRes),
-                                navigationIcon = if (showBackArrow) Icons.Filled.ArrowBack else null,
-                                navigationIconContentDescription = null,
-                                actionIcon = when (topBarDestination.screenRoute) {
-                                    Screen.Profile.route -> Icons.Filled.Settings
-                                    in BACK_ARROW_ROUTES -> null
-                                    else -> Icons.Filled.Search
-                                },
-                                actionIconContentDescription = null,
-                                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                                    containerColor = Color.Transparent
-                                ),
-                                onActionClick = {
-                                    when (topBarDestination.screenRoute) {
-                                        Screen.Profile.route -> showSettingsDialog = true
-                                        else -> appState.navigateToSearch()
+                                TopAppBar(
+                                    title = stringResource(id = topBarDestination.titleRes),
+                                    navigationIcon = if (showBackArrow) Icons.Filled.ArrowBack else null,
+                                    navigationIconContentDescription = null,
+                                    actionIcon = when (topBarDestination.screenRoute) {
+                                        Screen.Profile.route -> Icons.Filled.Settings
+                                        in BACK_ARROW_ROUTES -> null
+                                        else -> Icons.Filled.Search
+                                    },
+                                    actionIconContentDescription = null,
+                                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                                        containerColor = Color.Transparent
+                                    ),
+                                    onActionClick = {
+                                        when (topBarDestination.screenRoute) {
+                                            Screen.Profile.route -> showSettingsDialog = true
+                                            else -> appState.navigateToSearch()
+                                        }
+                                    },
+                                    onNavigationClick = {
+                                        if (showBackArrow) {
+                                            appState.navController.popBackStack()
+                                        }
                                     }
-                                },
-                                onNavigationClick = {
-                                    if (showBackArrow) {
-                                        appState.navController.popBackStack()
-                                    }
-                                }
-                            )
+                                )
+                            }
                         }
                     }
 
@@ -314,381 +319,389 @@ fun BottomNavigation(
 }
 
 @Composable
+@OptIn(ExperimentalSharedTransitionApi::class)
 fun NavigationGraph(
     appState: ApplicationState,
     restartApp: () -> Unit
 ) {
     val navController = appState.navController
 
-    NavHost(
-        navController = navController,
-        startDestination = if (isUserHasRightToAccessToMainPart()) {
-            Screen.Home.route
-        } else {
-            Screen.Welcome.route
-        }
-    ) {
-
-        composable(route = Screen.Home.route) { entry ->
-            val graphEntry = remember(entry) {
-                navController.getBackStackEntry(navController.graph.id)
+    SharedTransitionLayout {
+        NavHost(
+            navController = navController,
+            startDestination = if (isUserHasRightToAccessToMainPart()) {
+                Screen.Home.route
+            } else {
+                Screen.Welcome.route
             }
-            val homeViewModel = hiltViewModel<HomeViewModel>(graphEntry)
-            HomeRoute(
-                homeViewModel = homeViewModel,
-                navigateToProduct = {
-                    navController.navigate(Screen.ProductDetails(it).route)
-                },
-                navigateToCategory = {
-                    navController.navigate(Screen.FilterCategory(it).route)
-                }
-            )
-        }
+        ) {
 
-        composable(
-            route = Screen.ProductDetails.ROUTE,
-            arguments = listOf(
-                navArgument("param") {
-                    type = NavType.IntType
-                    defaultValue = 0
+            composable(route = Screen.Home.route) { entry ->
+                val graphEntry = remember(entry) {
+                    navController.getBackStackEntry(navController.graph.id)
                 }
-            )
-        ) { backStackEntry ->
-            val graphEntry = remember(backStackEntry) {
-                navController.getBackStackEntry(navController.graph.id)
+                val homeViewModel = hiltViewModel<HomeViewModel>(graphEntry)
+                val searchBarModifier = Modifier.sharedBounds(
+                    sharedContentState = rememberSharedContentState(key = "search_bar"),
+                    animatedVisibilityScope = this@composable
+                )
+                HomeRoute(
+                    homeViewModel = homeViewModel,
+                    navigateToProduct = {
+                        navController.navigate(Screen.ProductDetails(it).route)
+                    },
+                    navigateToCategory = {
+                        navController.navigate(Screen.FilterCategory(it).route)
+                    },
+                    onSearchClick = { appState.navigateToSearch() },
+                    onMapClick = {
+                        navController.navigate(Screen.Search.route)
+                        navController.navigate(Screen.MapSearch.route)
+                    },
+                    onNotificationClick = {
+                        navController.navigate(Screen.Notifications.route)
+                    },
+                    searchBarModifier = searchBarModifier,
+                )
             }
-            val homeViewModel = hiltViewModel<HomeViewModel>(graphEntry)
-            val param = backStackEntry.arguments?.getInt("param")
-            ProductDetailsRoute(
-                param ?: 0,
-                homeViewModel = homeViewModel,
-                onSimilarItemClicked = {
-                    navController.navigate(Screen.ProductDetails(it).route)
-                },
-                {},
-                navController::popBackStack,
-                goToMapsPage = { lat, long ->
-                    navController.navigate(Screen.MapUserLocation(lat.toString(), long.toString()).route)
-                }
-            )
-        }
 
-        composable(
-            route = Screen.FilterCategory.ROUTE,
-            arguments = listOf(
-                navArgument("param") {
-                    type = NavType.IntType
-                    defaultValue = 0
-                }
-            )
-        ) { backStackEntry ->
-            val param = backStackEntry.arguments?.getInt("param")
-            FilterCategoryRoute(
-                onItemClicked = {
-                    navController.navigate(Screen.ProductDetails(it).route)
-                },
-                categoryId = param
-            )
-        }
-
-        composable(route = Screen.AddProduct.route) { entry ->
-            val item = entry.savedStateHandle.get<CategoryItem>("category_item")
-            val map = entry.savedStateHandle.get<MapScreenData>("map_item")
-            AddProductRoute(
-                navigateToCategories = {
-                    navController.navigate(Screen.Categories.route)
-                },
-                item = item,
-                map = map,
-                goToDetailsPage = {
-                    navController.popBackStack()
-                },
-                goToMapScreen = {
-                    navController.navigate(Screen.Map.route)
-                }
-            )
-        }
-
-        composable(route = Screen.Map.route) {
-            MapsScreen(
-                onBackClick = {
-                    navController.previousBackStackEntry
-                        ?.savedStateHandle
-                        ?.set("map_item", it)
-                    navController.popBackStack()
-                }
-            )
-        }
-
-        composable(route = Screen.MapSearch.route) {
-            SelectRadiusMapScreen(
-                onBackClick = {
-                    navController.previousBackStackEntry
-                        ?.savedStateHandle
-                        ?.set("map_search_data", it)
-                    navController.popBackStack()
-                }
-            )
-        }
-
-        composable(
-            route = Screen.MapUserLocation.ROUTE,
-            arguments = listOf(
-                navArgument("latitude") {
-                    type = NavType.StringType
-                },
-                navArgument("longitude") {
-                    type = NavType.StringType
-                }
-            )
-        ) { backStackEntry ->
-            val lat = (backStackEntry.arguments?.getString("latitude") ?: return@composable).toDouble()
-            val long = (backStackEntry.arguments?.getString("longitude") ?: return@composable).toDouble()
-            MapShowLocationScreen(
-                lat = lat, lon = long
-            )
-        }
-
-        composable(route = Screen.Notifications.route) {
-            NotificationsRoute()
-        }
-
-        composable(route = Screen.Saved.route) {
-            SavedRoute(
-                navigateToProduct = {
-                    navController.navigate(Screen.ProductDetails(it).route)
-                }
-            )
-        }
-
-        composable(route = Screen.Profile.route) { entry ->
-            val item = entry.savedStateHandle.get<Boolean>("refresh_profile") ?: false
-            if (item) {
-                entry.savedStateHandle.set("refresh_profile", false)
-            }
-            ProfileRoute(
-                toMyProducts = {
-                    navController.navigate(Screen.MyProducts.route)
-                },
-                toUpdateProfile = {
-                    navController.navigate(Screen.ProfileUpdate.route)
-                },
-                toUpdatePassword = {
-                    navController.navigate(Screen.PasswordUpdate.route)
-                },
-                refreshProfile = item,
-                toForgotPassword = {
-                    navController.navigate(Screen.ForgotPassword(it).route)
-                },
-                goToRegistration = {
-                    navController.navigate(Screen.Welcome.route) {
-                        popUpTo(navController.graph.id) {
-                            inclusive = true
-                        }
+            composable(
+                route = Screen.ProductDetails.ROUTE,
+                arguments = listOf(
+                    navArgument("param") {
+                        type = NavType.IntType
+                        defaultValue = 0
                     }
-                },
-                restartApp = {
-                    restartApp.invoke()
-                },
-                toNotifications = {
-                    navController.navigate(Screen.Notifications.route)
+                )
+            ) { backStackEntry ->
+                val graphEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry(navController.graph.id)
                 }
-            )
-        }
-
-        composable(route = Screen.ProfileUpdate.route) {
-            UpdateProfileRoute(
-                goBackAndRefresh = {
-                    navController.previousBackStackEntry
-                        ?.savedStateHandle
-                        ?.set("refresh_profile", true)
-                    navController.popBackStack()
-                }
-            )
-        }
-
-        composable(route = Screen.PasswordUpdate.route) {
-            UpdatePasswordRoute(
-                goBackAndRefresh = {
-                    navController.previousBackStackEntry
-                        ?.savedStateHandle
-                        ?.set("refresh_profile", true)
-                    navController.popBackStack()
-                }
-            )
-        }
-
-        composable(route = Screen.MyProducts.route) {
-            MyPostsScreenRoute(
-                onItemClicked = {
-                    navController.navigate(Screen.ProductDetails(it).route)
-                }
-            )
-        }
-
-        composable(
-            route = Screen.Search.route,
-            enterTransition = {
-                slideIntoContainer(
-                    towards = AnimatedContentTransitionScope.SlideDirection.Start,
-                    animationSpec = tween(300)
-                ) + fadeIn(animationSpec = tween(300))
-            },
-            exitTransition = {
-                slideOutOfContainer(
-                    towards = AnimatedContentTransitionScope.SlideDirection.End,
-                    animationSpec = tween(300)
-                ) + fadeOut(animationSpec = tween(300))
-            },
-            popEnterTransition = {
-                slideIntoContainer(
-                    towards = AnimatedContentTransitionScope.SlideDirection.End,
-                    animationSpec = tween(300)
-                ) + fadeIn(animationSpec = tween(300))
-            },
-            popExitTransition = {
-                slideOutOfContainer(
-                    towards = AnimatedContentTransitionScope.SlideDirection.End,
-                    animationSpec = tween(300)
-                ) + fadeOut(animationSpec = tween(300))
+                val homeViewModel = androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel<HomeViewModel>(graphEntry)
+                val param = backStackEntry.arguments?.getInt("param")
+                ProductDetailsRoute(
+                    param ?: 0,
+                    homeViewModel = homeViewModel,
+                    onSimilarItemClicked = {
+                        navController.navigate(Screen.ProductDetails(it).route)
+                    },
+                    {},
+                    navController::popBackStack,
+                    goToMapsPage = { lat, long ->
+                        navController.navigate(
+                            Screen.MapUserLocation(
+                                lat.toString(),
+                                long.toString()
+                            ).route
+                        )
+                    }
+                )
             }
-        ) { entry ->
-            val mapData = entry.savedStateHandle.get<MapScreenData>("map_search_data")
-            val categoryItem = entry.savedStateHandle.get<CategoryItem>("category_item")
-            SearchRoute(
-                onBackClick = navController::popBackStack,
-                onItemClick = {
-                    navController.navigate(Screen.ProductDetails(it).route)
-                },
-                onMapClick = {
-                    navController.navigate(Screen.MapSearch.route)
-                },
-                onCategoryClick = {
-                    navController.navigate(Screen.Categories.route)
-                },
-                mapSearchData = mapData,
-                categoryItem = categoryItem
-            )
-        }
 
-        composable(route = Screen.Welcome.route) {
-            SignUpRoute(
-                navigateToVerification = {
-                    navController.navigate(Screen.Verification(it).route)
-                },
-                onLoginPage = {
-                    navController.navigate(Screen.Login.route)
-                }
-            )
-        }
+            composable(
+                route = Screen.FilterCategory.ROUTE,
+                arguments = listOf(
+                    navArgument("param") {
+                        type = NavType.IntType
+                        defaultValue = 0
+                    }
+                )
+            ) { backStackEntry ->
+                val param = backStackEntry.arguments?.getInt("param")
+                FilterCategoryRoute(
+                    onItemClicked = {
+                        navController.navigate(Screen.ProductDetails(it).route)
+                    },
+                    categoryId = param
+                )
+            }
 
-        composable(route = Screen.Login.route) {
-            SignInRoute(
-                navigateToVerification = {
-                    navController.navigate(Screen.Verification(it).route)
-                },
-                forgotPassword = {
-                    navController.navigate(Screen.ForgotPassword(true).route)
-                }
-            )
-        }
+            composable(route = Screen.AddProduct.route) { entry ->
+                val item = entry.savedStateHandle.get<CategoryItem>("category_item")
+                val map = entry.savedStateHandle.get<MapScreenData>("map_item")
+                AddProductRoute(
+                    navigateToCategories = {
+                        navController.navigate(Screen.Categories.route)
+                    },
+                    item = item,
+                    map = map,
+                    goToDetailsPage = {
+                        navController.popBackStack()
+                    },
+                    goToMapScreen = {
+                        navController.navigate(Screen.Map.route)
+                    }
+                )
+            }
 
-        composable(
-            route = Screen.Verification.ROUTE,
-            arguments = listOf(
-                navArgument("email") {
-                    type = NavType.StringType
+            composable(route = Screen.Map.route) {
+                MapsScreen(
+                    onBackClick = {
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("map_item", it)
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            composable(route = Screen.MapSearch.route) {
+                SelectRadiusMapScreen(
+                    onBackClick = {
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("map_search_data", it)
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            composable(
+                route = Screen.MapUserLocation.ROUTE,
+                arguments = listOf(
+                    navArgument("latitude") {
+                        type = NavType.StringType
+                    },
+                    navArgument("longitude") {
+                        type = NavType.StringType
+                    }
+                )
+            ) { backStackEntry ->
+                val lat = (backStackEntry.arguments?.getString("latitude")
+                    ?: return@composable).toDouble()
+                val long = (backStackEntry.arguments?.getString("longitude")
+                    ?: return@composable).toDouble()
+                MapShowLocationScreen(
+                    lat = lat, lon = long
+                )
+            }
+
+            composable(route = Screen.Notifications.route) {
+                NotificationsRoute()
+            }
+
+            composable(route = Screen.Saved.route) {
+                SavedRoute(
+                    navigateToProduct = {
+                        navController.navigate(Screen.ProductDetails(it).route)
+                    }
+                )
+            }
+
+            composable(route = Screen.Profile.route) { entry ->
+                val item = entry.savedStateHandle.get<Boolean>("refresh_profile") ?: false
+                if (item) {
+                    entry.savedStateHandle.set("refresh_profile", false)
                 }
-            )
-        ) { backStackEntry ->
-            val emailParam = backStackEntry.arguments?.getString("email")
-            emailParam?.let {
-                VerificationRoute(
-                    emailParam = it,
-                    navigateToMainScreen = {
-                        navController.navigate(Screen.Home.route) {
+                ProfileRoute(
+                    toMyProducts = {
+                        navController.navigate(Screen.MyProducts.route)
+                    },
+                    toUpdateProfile = {
+                        navController.navigate(Screen.ProfileUpdate.route)
+                    },
+                    toUpdatePassword = {
+                        navController.navigate(Screen.PasswordUpdate.route)
+                    },
+                    refreshProfile = item,
+                    toForgotPassword = {
+                        navController.navigate(Screen.ForgotPassword(it).route)
+                    },
+                    goToRegistration = {
+                        navController.navigate(Screen.Welcome.route) {
                             popUpTo(navController.graph.id) {
                                 inclusive = true
                             }
                         }
                     },
-                    onBackPressed = navController::popBackStack
+                    restartApp = {
+                        restartApp.invoke()
+                    },
+                    toNotifications = {
+                        navController.navigate(Screen.Notifications.route)
+                    }
                 )
             }
-        }
 
-        composable(
-            route = Screen.ForgotPassword.ROUTE,
-            arguments = listOf(
-                navArgument("fromLoginPage") {
-                    type = NavType.BoolType
-                }
-            )
-        ) {
-            val fromLoginPage = it.arguments?.getBoolean("fromLoginPage") ?: true
-            ForgotPasswordRoute(
-                goToResetPage = { email ->
-                    navController.navigate(Screen.ResetPassword(email, fromLoginPage).route)
-                },
-            )
-        }
-
-        composable(
-            route = Screen.ResetPassword.ROUTE,
-            arguments = listOf(
-                navArgument("email") {
-                    type = NavType.StringType
-                },
-                navArgument("fromLoginPage") {
-                    type = NavType.BoolType
-                }
-            )
-        ) {
-            val email = it.arguments?.getString("email") ?: return@composable
-            val fromLoginPage = it.arguments?.getBoolean("fromLoginPage") ?: true
-
-            ResetPasswordRoute(
-                goToLoginPage = {
-                    navController.navigate(Screen.Login.route) {
-                        popUpTo(navController.graph.id) {
-                            inclusive = true
-                        }
+            composable(route = Screen.ProfileUpdate.route) {
+                UpdateProfileRoute(
+                    goBackAndRefresh = {
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("refresh_profile", true)
+                        navController.popBackStack()
                     }
-                },
-                mEmail = email,
-                fromLoginPage = fromLoginPage,
-                onBackPressed = {
-                    navController.navigate(Screen.Profile.route) {
-                        popUpTo(navController.graph.id) {
-                            inclusive = true
-                        }
-                    }
-                }
-            )
-        }
-
-        composable(route = Screen.Categories.route) { entry ->
-            val graphEntry = remember(entry) {
-                navController.getBackStackEntry(navController.graph.id)
+                )
             }
-            val homeViewModel = hiltViewModel<HomeViewModel>(graphEntry)
-            CategoriesRoute(
-                homeViewModel = homeViewModel,
-                onBackPressed = {
-                    navController.previousBackStackEntry
-                        ?.savedStateHandle
-                        ?.set("category_item", it)
-                    navController.popBackStack()
-                }
-            )
-        }
 
-        composable(route = Screen.Regions.route) {
-            RegionsRoute(
-                onRegionSelected = {
-                    navController.navigate("district/${it.id}/${it.name}")
+            composable(route = Screen.PasswordUpdate.route) {
+                UpdatePasswordRoute(
+                    goBackAndRefresh = {
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("refresh_profile", true)
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            composable(route = Screen.MyProducts.route) {
+                MyPostsScreenRoute(
+                    onItemClicked = {
+                        navController.navigate(Screen.ProductDetails(it).route)
+                    }
+                )
+            }
+
+            composable(
+                route = Screen.Search.route,
+                enterTransition = { fadeIn(animationSpec = tween(300)) },
+                exitTransition = { fadeOut(animationSpec = tween(300)) },
+                popEnterTransition = { fadeIn(animationSpec = tween(300)) },
+                popExitTransition = { fadeOut(animationSpec = tween(300)) }
+            ) { entry ->
+                val mapData = entry.savedStateHandle.get<MapScreenData>("map_search_data")
+                val categoryItem = entry.savedStateHandle.get<CategoryItem>("category_item")
+                val searchBarModifier = Modifier.sharedBounds(
+                    sharedContentState = rememberSharedContentState(key = "search_bar"),
+                    animatedVisibilityScope = this@composable
+                )
+                SearchRoute(
+                    onBackClick = navController::popBackStack,
+                    onItemClick = {
+                        navController.navigate(Screen.ProductDetails(it).route)
+                    },
+                    onMapClick = {
+                        navController.navigate(Screen.MapSearch.route)
+                    },
+                    onCategoryClick = {
+                        navController.navigate(Screen.Categories.route)
+                    },
+                    mapSearchData = mapData,
+                    categoryItem = categoryItem,
+                    searchBarModifier = searchBarModifier,
+                )
+            }
+
+            composable(route = Screen.Welcome.route) {
+                SignUpRoute(
+                    navigateToVerification = {
+                        navController.navigate(Screen.Verification(it).route)
+                    },
+                    onLoginPage = {
+                        navController.navigate(Screen.Login.route)
+                    }
+                )
+            }
+
+            composable(route = Screen.Login.route) {
+                SignInRoute(
+                    navigateToVerification = {
+                        navController.navigate(Screen.Verification(it).route)
+                    },
+                    forgotPassword = {
+                        navController.navigate(Screen.ForgotPassword(true).route)
+                    }
+                )
+            }
+
+            composable(
+                route = Screen.Verification.ROUTE,
+                arguments = listOf(
+                    navArgument("email") {
+                        type = NavType.StringType
+                    }
+                )
+            ) { backStackEntry ->
+                val emailParam = backStackEntry.arguments?.getString("email")
+                emailParam?.let {
+                    VerificationRoute(
+                        emailParam = it,
+                        navigateToMainScreen = {
+                            navController.navigate(Screen.Home.route) {
+                                popUpTo(navController.graph.id) {
+                                    inclusive = true
+                                }
+                            }
+                        },
+                        onBackPressed = navController::popBackStack
+                    )
                 }
-            )
+            }
+
+            composable(
+                route = Screen.ForgotPassword.ROUTE,
+                arguments = listOf(
+                    navArgument("fromLoginPage") {
+                        type = NavType.BoolType
+                    }
+                )
+            ) {
+                val fromLoginPage = it.arguments?.getBoolean("fromLoginPage") ?: true
+                ForgotPasswordRoute(
+                    goToResetPage = { email ->
+                        navController.navigate(Screen.ResetPassword(email, fromLoginPage).route)
+                    },
+                )
+            }
+
+            composable(
+                route = Screen.ResetPassword.ROUTE,
+                arguments = listOf(
+                    navArgument("email") {
+                        type = NavType.StringType
+                    },
+                    navArgument("fromLoginPage") {
+                        type = NavType.BoolType
+                    }
+                )
+            ) {
+                val email = it.arguments?.getString("email") ?: return@composable
+                val fromLoginPage = it.arguments?.getBoolean("fromLoginPage") ?: true
+
+                ResetPasswordRoute(
+                    goToLoginPage = {
+                        navController.navigate(Screen.Login.route) {
+                            popUpTo(navController.graph.id) {
+                                inclusive = true
+                            }
+                        }
+                    },
+                    mEmail = email,
+                    fromLoginPage = fromLoginPage,
+                    onBackPressed = {
+                        navController.navigate(Screen.Profile.route) {
+                            popUpTo(navController.graph.id) {
+                                inclusive = true
+                            }
+                        }
+                    }
+                )
+            }
+
+            composable(route = Screen.Categories.route) { entry ->
+                val graphEntry = remember(entry) {
+                    navController.getBackStackEntry(navController.graph.id)
+                }
+                val homeViewModel = hiltViewModel<HomeViewModel>(graphEntry)
+                CategoriesRoute(
+                    homeViewModel = homeViewModel,
+                    onBackPressed = {
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("category_item", it)
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            composable(route = Screen.Regions.route) {
+                RegionsRoute(
+                    onRegionSelected = {
+                        navController.navigate("district/${it.id}/${it.name}")
+                    }
+                )
+            }
         }
     }
 }
@@ -696,9 +709,9 @@ fun NavigationGraph(
 
 fun isUserHasRightToAccessToMainPart(
 ): Boolean {
-    return if (SharedPref.deviceToken.isNotEmpty()){
-        System.currentTimeMillis() < (SharedPref.loginTime  + 1000L *60*60*24*30)
-    }else{
+    return if (SharedPref.deviceToken.isNotEmpty()) {
+        System.currentTimeMillis() < (SharedPref.loginTime + 1000L * 60 * 60 * 24 * 30)
+    } else {
         false
     }
 }

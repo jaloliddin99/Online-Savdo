@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.luminance
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import com.google.android.gms.maps.model.MapStyleOptions
+import com.google.android.gms.maps.GoogleMapOptions
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
@@ -64,6 +65,7 @@ fun MapShowLocationScreen(
         GoogleMap(
             modifier = Modifier
                 .fillMaxSize(),
+            googleMapOptionsFactory = { GoogleMapOptions().liteMode(true) },
             properties = MapProperties(
                 mapType = MapType.NORMAL,
                 isBuildingEnabled = true,

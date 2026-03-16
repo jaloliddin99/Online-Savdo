@@ -36,6 +36,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
@@ -61,6 +62,11 @@ const val ZOOM_LEVEL = 12f
 const val ANIM_DURATION = 1000
 const val TILT = 0f
 const val BEARING = 0f
+
+val UZBEKISTAN_BOUNDS = LatLngBounds(
+    LatLng(37.1, 55.9),  // southwest corner
+    LatLng(45.6, 73.2)   // northeast corner
+)
 
 @Composable
 fun MapsScreen(
@@ -178,7 +184,8 @@ fun MapsScreen(
             properties = MapProperties(
                 mapType = MapType.NORMAL,
                 isBuildingEnabled = true,
-                mapStyleOptions = mapStyleOptions
+                mapStyleOptions = mapStyleOptions,
+                latLngBoundsForCameraTarget = UZBEKISTAN_BOUNDS
             ),
             cameraPositionState = cameraPositionState
         )

@@ -152,7 +152,8 @@ fun SelectRadiusMapScreen(
             properties = MapProperties(
                 mapType = MapType.NORMAL,
                 isBuildingEnabled = true,
-                mapStyleOptions = mapStyleOptions
+                mapStyleOptions = mapStyleOptions,
+                latLngBoundsForCameraTarget = UZBEKISTAN_BOUNDS
             ),
             uiSettings = MapUiSettings(zoomControlsEnabled = false),
             cameraPositionState = cameraPositionState,
