@@ -25,7 +25,7 @@ data class HomeScreenState(
 
 data class HomeScreenState2(
     val isLoading: Boolean = false,
-    var getNearPost: List<NearPostsData>? = listOf(),
+    var getNearPost: List<NearPostsData>? = null,
     val error: String = ""
 )
 

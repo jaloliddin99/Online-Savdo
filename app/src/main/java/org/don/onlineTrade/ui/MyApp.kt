@@ -10,6 +10,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
@@ -47,7 +48,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavType
@@ -253,8 +256,8 @@ fun MainScreenView(
                     } else if (useTopBarAnimation) {
                         AnimatedVisibility(
                             visible = showTopBar,
-                            enter = expandVertically() + fadeIn(),
-                            exit = shrinkVertically() + fadeOut()
+                            enter = fadeIn(animationSpec = tween(300)),
+                            exit = fadeOut(animationSpec = tween(300))
                         ) {
                             topBarContent()
                         }
@@ -325,6 +328,7 @@ fun NavigationGraph(
     restartApp: () -> Unit
 ) {
     val navController = appState.navController
+    val homeViewModel: HomeViewModel = hiltViewModel()
 
     SharedTransitionLayout {
         NavHost(
@@ -374,10 +378,6 @@ fun NavigationGraph(
                     }
                 )
             ) { backStackEntry ->
-                val graphEntry = remember(backStackEntry) {
-                    navController.getBackStackEntry(navController.graph.id)
-                }
-                val homeViewModel = androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel<HomeViewModel>(graphEntry)
                 val param = backStackEntry.arguments?.getInt("param")
                 ProductDetailsRoute(
                     param ?: 0,
@@ -480,7 +480,13 @@ fun NavigationGraph(
                 NotificationsRoute()
             }
 
-            composable(route = Screen.Saved.route) {
+            composable(
+                route = Screen.Saved.route,
+                enterTransition = { fadeIn(animationSpec = tween(300)) },
+                exitTransition = { fadeOut(animationSpec = tween(300)) },
+                popEnterTransition = { fadeIn(animationSpec = tween(300)) },
+                popExitTransition = { fadeOut(animationSpec = tween(300)) }
+            ) {
                 SavedRoute(
                     navigateToProduct = {
                         navController.navigate(Screen.ProductDetails(it).route)
@@ -488,7 +494,13 @@ fun NavigationGraph(
                 )
             }
 
-            composable(route = Screen.Profile.route) { entry ->
+            composable(
+                route = Screen.Profile.route,
+                enterTransition = { fadeIn(animationSpec = tween(300)) },
+                exitTransition = { fadeOut(animationSpec = tween(300)) },
+                popEnterTransition = { fadeIn(animationSpec = tween(300)) },
+                popExitTransition = { fadeOut(animationSpec = tween(300)) }
+            ) { entry ->
                 val item = entry.savedStateHandle.get<Boolean>("refresh_profile") ?: false
                 if (item) {
                     entry.savedStateHandle.set("refresh_profile", false)
@@ -680,10 +692,6 @@ fun NavigationGraph(
             }
 
             composable(route = Screen.Categories.route) { entry ->
-                val graphEntry = remember(entry) {
-                    navController.getBackStackEntry(navController.graph.id)
-                }
-                val homeViewModel = hiltViewModel<HomeViewModel>(graphEntry)
                 CategoriesRoute(
                     homeViewModel = homeViewModel,
                     onBackPressed = {

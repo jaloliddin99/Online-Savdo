@@ -37,11 +37,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
+import kotlinx.coroutines.flow.collectLatest
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
@@ -108,20 +109,7 @@ fun HomeScreen(
     val scrollState = rememberLazyGridState()
 
     // Track scroll direction to show/hide the search bar
-    var previousScrollOffset by remember { mutableIntStateOf(0) }
-    var previousFirstVisibleItem by remember { mutableIntStateOf(0) }
-    val isSearchBarVisible by remember {
-        derivedStateOf {
-            val firstVisibleItem = scrollState.firstVisibleItemIndex
-            val scrollOffset = scrollState.firstVisibleItemScrollOffset
-            val scrollingDown = firstVisibleItem > previousFirstVisibleItem ||
-                    (firstVisibleItem == previousFirstVisibleItem && scrollOffset > previousScrollOffset)
-            previousFirstVisibleItem = firstVisibleItem
-            previousScrollOffset = scrollOffset
-            // Show when scrolling up or at the top
-            !scrollingDown || firstVisibleItem == 0
-        }
-    }
+
 
     LaunchedEffect(key1 = viewModel) {
         viewModel.loadNextItems()
@@ -132,20 +120,15 @@ fun HomeScreen(
         modifier = modifier.fillMaxSize()
     ) {
         Spacer(modifier = Modifier.windowInsetsTopHeight(WindowInsets.safeDrawing))
-        AnimatedVisibility(
-            visible = isSearchBarVisible,
-            enter = slideInVertically(initialOffsetY = { -it }),
-            exit = slideOutVertically(targetOffsetY = { -it }),
-        ) {
-            HomeSearchBar(
-                onSearchClick = onSearchClick,
-                onMapClick = onMapClick,
-                onNotificationClick = onNotificationClick,
-                searchBarModifier = searchBarModifier,
-            )
-        }
+        HomeSearchBar(
+            onSearchClick = onSearchClick,
+            onMapClick = onMapClick,
+            onNotificationClick = onNotificationClick,
+            searchBarModifier = searchBarModifier,
+        )
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
+            state = scrollState,
             modifier = Modifier.weight(1f),
         ) {
             // ── Categories Section ──

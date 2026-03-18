@@ -953,7 +953,9 @@ fun HomeSearchBar(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .fillMaxWidth()
+            .background(Color.Red)
             .padding(horizontal = MaterialTheme.spacing.dimen16Dp)
+            .background(Color.Blue)
     ) {
         Box(modifier = Modifier.weight(1f)) {
             TextField(
