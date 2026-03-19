@@ -66,6 +66,7 @@ import org.don.onlineTrade.utils.FreeLoading
 import org.don.onlineTrade.utils.SharedPref
 import org.don.onlineTrade.utils.hasPermissionForLocation
 import kotlin.math.ln
+import androidx.core.graphics.toColorInt
 
 @Composable
 fun SelectRadiusMapScreen(
@@ -152,7 +153,7 @@ fun SelectRadiusMapScreen(
             modifier = Modifier.fillMaxSize(),
             googleMapOptionsFactory = {
                 if (isDarkTheme) {
-                    GoogleMapOptions().backgroundColor(android.graphics.Color.parseColor("#242f3e"))
+                    GoogleMapOptions().backgroundColor("#242f3e".toColorInt())
                 } else {
                     GoogleMapOptions()
                 }

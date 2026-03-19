@@ -1,8 +1,6 @@
 package org.don.onlineTrade.ui.home.search
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,41 +9,28 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsTopHeight
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.border
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -53,29 +38,21 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.launch
 import org.don.onlineTrade.R
+import org.don.onlineTrade.data.remote.models.category.Category
 import org.don.onlineTrade.data.remote.models.category.CategoryItem
-import org.don.onlineTrade.data.remote.models.searchSuggestion.CategorySuggestion
+import org.don.onlineTrade.ui.categoriesList.CategoriesScreen
 import org.don.onlineTrade.ui.filterCategory.ComposeLottieAnimation
+import org.don.onlineTrade.ui.home.HomeScreenState
+import org.don.onlineTrade.ui.home.HomeViewModel
 import org.don.onlineTrade.ui.home.ProductItem
 import org.don.onlineTrade.ui.home.homeItems.ShimmerProductGrid
 import org.don.onlineTrade.ui.home.search.filter.ActiveFilterChips
@@ -83,7 +60,6 @@ import org.don.onlineTrade.ui.home.search.filter.FilterClass
 import org.don.onlineTrade.ui.home.search.filter.SearchToolbar
 import org.don.onlineTrade.ui.home.search.filter.SuggestionsList
 import org.don.onlineTrade.ui.map.MapScreenData
-import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.spacing
 
 
@@ -124,27 +100,35 @@ fun SearchScreen(
     searchBarModifier: Modifier = Modifier,
 ) {
 
-    var searchTextListener by remember { mutableStateOf("") }
-
     val searchResultViewModel = hiltViewModel<SearchResultViewModel>()
     val searchViewModel = hiltViewModel<SearchViewModel>()
     val pagingItems = searchResultViewModel.searchResults.collectAsLazyPagingItems()
     val suggestions = searchViewModel.suggestions
     val queryText = searchViewModel.queryText
 
+    var searchTextListener by remember { mutableStateOf(searchResultViewModel.searchText) }
+    fun updateSearchText(value: String) {
+        searchTextListener = value
+        searchResultViewModel.searchText = value
+    }
+    var myFilter by searchResultViewModel::filter
+
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
-    var myFilter by remember { mutableStateOf(FilterClass()) }
+    var showCategoryDialog by remember { mutableStateOf(false) }
+
+    val homeViewModel = hiltViewModel<HomeViewModel>()
+    val homeState = homeViewModel.state.value
 
     val snackbarHostState = remember { SnackbarHostState() }
     val locationAndRadiusMsg = stringResource(R.string.location_updated)
     val locationOnlyMsg = stringResource(R.string.location_only_updated)
     val radiusOnlyMsg = stringResource(R.string.radius_only_updated)
 
-    fun triggerSearch(query: String, categoryId: Long? = null) {
+    fun triggerSearch(query: String) {
         searchViewModel.clearSuggestions()
-        val catId = categoryId ?: myFilter.categoryId
+        searchViewModel.queryText = query
         val lat = searchViewModel.searchLat
         val lon = searchViewModel.searchLon
         val radius = searchViewModel.searchRadiusKm.coerceAtLeast(10)
@@ -154,14 +138,11 @@ fun SearchScreen(
                 lat = lat,
                 lon = lon,
                 radius = radius,
-                categoryId = catId,
+                categoryIds = myFilter.categoryIds,
                 startDate = myFilter.titleTextFrom,
                 endDate = myFilter.titleTextTo,
             )
         )
-        if (categoryId != null) {
-            myFilter = myFilter.copy(categoryId = categoryId)
-        }
     }
 
     // Update location data when map data arrives and trigger search
@@ -188,8 +169,11 @@ fun SearchScreen(
 
     LaunchedEffect(categoryItem) {
         categoryItem?.let {
-            myFilter = myFilter.copy(categoryId = it.id.toLong(), categoryName = it.title)
-            triggerSearch(searchTextListener, it.id.toLong())
+            myFilter = myFilter.copy(
+                categoryIds = listOf(it.id.toLong()),
+                categoryNames = listOf(it.title)
+            )
+            triggerSearch(searchTextListener)
         }
     }
 
@@ -208,12 +192,18 @@ fun SearchScreen(
                 SearchToolbar(
                     onBackClick = onBackClick,
                     onSearchQueryChanged = {
-                        searchTextListener = it
-                        searchViewModel.onSuggestionQueryChanged(it)
+                        updateSearchText(it)
+                        if (!hasSearched) {
+                            searchViewModel.onSuggestionQueryChanged(it)
+                        }
                     },
                     onSearchTriggered = {
-                        searchTextListener = it
-                        triggerSearch(it)
+                        updateSearchText(it)
+                        if (hasSearched) {
+                            triggerSearch(it)
+                        } else {
+                            searchViewModel.fetchSuggestions(it)
+                        }
                     },
                     searchQuery = searchTextListener,
                     onFilterClicked = {
@@ -234,10 +224,10 @@ fun SearchScreen(
                         },
                         onSuggestionClick = { suggestion ->
                             myFilter = myFilter.copy(
-                                categoryId = suggestion.categoryId,
-                                categoryName = suggestion.name
+                                categoryIds = listOf(suggestion.categoryId),
+                                categoryNames = listOf(suggestion.name)
                             )
-                            triggerSearch(searchTextListener, suggestion.categoryId)
+                            triggerSearch(searchTextListener)
                         }
                     )
                 }
@@ -249,19 +239,19 @@ fun SearchScreen(
                         radiusKm = searchViewModel.searchRadiusKm,
                         filter = myFilter,
                         onQueryClick = {
-                            searchTextListener = ""
-                            searchViewModel.fetchSuggestions("")
+                            updateSearchText("")
+                            triggerSearch("")
                         },
                         onRadiusClick = onMapClick,
                         onDateFromClick = { showBottomSheet = true },
                         onDateToClick = { showBottomSheet = true },
                         onPriceClick = { showBottomSheet = true },
                         onCategoryClick = {
-                            if (myFilter.categoryId != null) {
-                                myFilter = myFilter.copy(categoryId = null, categoryName = null)
+                            if (myFilter.hasCategoryFilter) {
+                                myFilter = myFilter.copy(categoryIds = emptyList(), categoryNames = emptyList())
                                 triggerSearch(searchTextListener)
                             } else {
-                                onCategoryClick()
+                                showCategoryDialog = true
                             }
                         }
                     )
@@ -272,13 +262,12 @@ fun SearchScreen(
                 } else if (isLoading && pagingItems.itemCount == 0) {
                     ShimmerProductGrid(
                         modifier = modifier
-                            .padding(end = MaterialTheme.spacing.dimen16Dp)
+                            .padding(horizontal = MaterialTheme.spacing.dimen12Dp)
                     )
                 } else {
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(2),
                         modifier = modifier
-                            .padding(end = MaterialTheme.spacing.dimen16Dp)
                             .fillMaxSize(),
                     ) {
                         items(pagingItems.itemCount) { i ->
@@ -340,6 +329,381 @@ fun SearchScreen(
                         onMapClick()
                     }
                 )
+            }
+        }
+
+        if (showCategoryDialog) {
+            LaunchedEffect(Unit) {
+                if (homeState.categoryList == null) {
+                    homeViewModel.getAllCategories()
+                }
+            }
+            CategoryPickerDialog(
+                categories = homeState.categoryList,
+                isLoading = homeState.isLoading,
+                initialSelectedIds = myFilter.categoryIds.map { it.toInt() }.toSet(),
+                onDismiss = { showCategoryDialog = false },
+                onApply = { selectedItems ->
+                    showCategoryDialog = false
+                    myFilter = myFilter.copy(
+                        categoryIds = selectedItems.map { it.id.toLong() },
+                        categoryNames = selectedItems.map { it.title }
+                    )
+                    triggerSearch(searchTextListener)
+                }
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CategoryPickerDialog(
+    categories: Category?,
+    isLoading: Boolean,
+    initialSelectedIds: Set<Int>,
+    onDismiss: () -> Unit,
+    onApply: (List<CategoryItem>) -> Unit
+) {
+    val dialogSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val selectedIds = remember { mutableStateOf(initialSelectedIds.toMutableSet()) }
+
+    fun toggleCategory(item: CategoryItem) {
+        val ids = selectedIds.value.toMutableSet()
+        if (ids.contains(item.id)) {
+            ids.remove(item.id)
+        } else {
+            ids.add(item.id)
+        }
+        selectedIds.value = ids
+    }
+
+    fun toggleParent(item: CategoryItem) {
+        val ids = selectedIds.value.toMutableSet()
+        val childIds = item.children.map { it.id }.toSet()
+        val allChildIds = collectAllChildIds(item)
+        if (allChildIds.all { it in ids }) {
+            ids.removeAll(allChildIds)
+        } else {
+            ids.addAll(allChildIds)
+        }
+        selectedIds.value = ids
+    }
+
+    fun collectSelectedItems(cats: List<CategoryItem>): List<CategoryItem> {
+        val result = mutableListOf<CategoryItem>()
+        for (cat in cats) {
+            if (cat.id in selectedIds.value) result.add(cat)
+            result.addAll(collectSelectedItems(cat.children))
+        }
+        return result
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = dialogSheetState,
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp, vertical = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.select_category_without),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                )
+                val count = selectedIds.value.size
+                if (count > 0) {
+                    Text(
+                        text = "$count selected",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+
+            if (isLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                        horizontal = 12.dp, vertical = 8.dp
+                    )
+                ) {
+                    categories?.let { cats ->
+                        items(cats, key = { it.id }) { item ->
+                            CheckboxCategoryCard(
+                                item = item,
+                                selectedIds = selectedIds.value,
+                                onToggleLeaf = { toggleCategory(it) },
+                                onToggleParent = { toggleParent(it) }
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+                    }
+                }
+            }
+
+            androidx.compose.material3.Button(
+                onClick = {
+                    onApply(collectSelectedItems(categories ?: emptyList()))
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp, vertical = 12.dp)
+                    .height(48.dp),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp)
+            ) {
+                Text(stringResource(R.string.txt_apply_filter))
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+    }
+}
+
+private fun collectAllChildIds(item: CategoryItem): Set<Int> {
+    val result = mutableSetOf<Int>()
+    if (item.children.isEmpty()) {
+        result.add(item.id)
+    } else {
+        for (child in item.children) {
+            result.addAll(collectAllChildIds(child))
+        }
+    }
+    return result
+}
+
+@Composable
+private fun CheckboxCategoryCard(
+    item: CategoryItem,
+    selectedIds: Set<Int>,
+    onToggleLeaf: (CategoryItem) -> Unit,
+    onToggleParent: (CategoryItem) -> Unit
+) {
+    val hasChildren = item.children.isNotEmpty()
+    var isExpanded by remember { mutableStateOf(false) }
+    val allChildIds = remember(item) { collectAllChildIds(item) }
+    val allSelected = allChildIds.all { it in selectedIds }
+    val someSelected = !allSelected && allChildIds.any { it in selectedIds }
+
+    val rotationAngle by androidx.compose.animation.core.animateFloatAsState(
+        targetValue = if (isExpanded) 180f else 0f,
+        animationSpec = androidx.compose.animation.core.tween(300),
+        label = "chevron"
+    )
+
+    androidx.compose.material3.Card(
+        shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+        colors = androidx.compose.material3.CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 1.dp)
+    ) {
+        Column {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        if (hasChildren) isExpanded = !isExpanded
+                        else onToggleLeaf(item)
+                    }
+                    .padding(horizontal = 8.dp, vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                androidx.compose.material3.TriStateCheckbox(
+                    state = when {
+                        allSelected -> androidx.compose.ui.state.ToggleableState.On
+                        someSelected -> androidx.compose.ui.state.ToggleableState.Indeterminate
+                        else -> androidx.compose.ui.state.ToggleableState.Off
+                    },
+                    onClick = {
+                        if (hasChildren) onToggleParent(item)
+                        else onToggleLeaf(item)
+                    }
+                )
+
+                if (item.image != null) {
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(androidx.compose.foundation.shape.CircleShape)
+                            .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        val url = "${org.don.onlineTrade.BuildConfig.BASE_URL}categories/image/${item.image}"
+                        coil.compose.AsyncImage(
+                            modifier = Modifier.size(22.dp),
+                            model = url,
+                            contentDescription = null
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+
+                Text(
+                    text = item.title,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
+                    maxLines = 1,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+
+                if (hasChildren) {
+                    androidx.compose.material3.Icon(
+                        imageVector = androidx.compose.material.icons.Icons.Default.ExpandMore,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier
+                            .size(24.dp)
+                            .rotate(rotationAngle)
+                    )
+                }
+            }
+
+            androidx.compose.animation.AnimatedVisibility(
+                visible = isExpanded,
+                enter = androidx.compose.animation.expandVertically(
+                    animationSpec = androidx.compose.animation.core.tween(300)
+                ),
+                exit = androidx.compose.animation.shrinkVertically(
+                    animationSpec = androidx.compose.animation.core.tween(300)
+                )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+                ) {
+                    item.children.forEachIndexed { index, child ->
+                        CheckboxChildItem(
+                            item = child,
+                            selectedIds = selectedIds,
+                            onToggleLeaf = onToggleLeaf,
+                            onToggleParent = onToggleParent
+                        )
+                        if (index < item.children.lastIndex) {
+                            androidx.compose.material3.HorizontalDivider(
+                                modifier = Modifier.padding(horizontal = 24.dp),
+                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CheckboxChildItem(
+    item: CategoryItem,
+    selectedIds: Set<Int>,
+    onToggleLeaf: (CategoryItem) -> Unit,
+    onToggleParent: (CategoryItem) -> Unit
+) {
+    val hasChildren = item.children.isNotEmpty()
+    var isExpanded by remember { mutableStateOf(false) }
+    val allChildIds = remember(item) { collectAllChildIds(item) }
+    val allSelected = allChildIds.all { it in selectedIds }
+    val someSelected = !allSelected && allChildIds.any { it in selectedIds }
+
+    Column {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    if (hasChildren) isExpanded = !isExpanded
+                    else onToggleLeaf(item)
+                }
+                .padding(horizontal = 16.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (hasChildren) {
+                androidx.compose.material3.TriStateCheckbox(
+                    state = when {
+                        allSelected -> androidx.compose.ui.state.ToggleableState.On
+                        someSelected -> androidx.compose.ui.state.ToggleableState.Indeterminate
+                        else -> androidx.compose.ui.state.ToggleableState.Off
+                    },
+                    onClick = { onToggleParent(item) }
+                )
+            } else {
+                androidx.compose.material3.Checkbox(
+                    checked = item.id in selectedIds,
+                    onCheckedChange = { onToggleLeaf(item) }
+                )
+            }
+
+            if (item.image != null) {
+                val url = "${org.don.onlineTrade.BuildConfig.BASE_URL}categories/image/${item.image}"
+                coil.compose.AsyncImage(
+                    modifier = Modifier.size(18.dp),
+                    model = url,
+                    contentDescription = null
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+            }
+
+            Text(
+                text = item.title,
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = 1,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f)
+            )
+
+            if (hasChildren) {
+                val angle by androidx.compose.animation.core.animateFloatAsState(
+                    targetValue = if (isExpanded) 180f else 0f,
+                    label = "child_chevron"
+                )
+                androidx.compose.material3.Icon(
+                    imageVector = androidx.compose.material.icons.Icons.Default.ExpandMore,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .size(20.dp)
+                        .rotate(angle)
+                )
+            }
+        }
+
+        androidx.compose.animation.AnimatedVisibility(visible = isExpanded) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp)
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.15f))
+            ) {
+                item.children.forEachIndexed { index, grandChild ->
+                    CheckboxChildItem(
+                        item = grandChild,
+                        selectedIds = selectedIds,
+                        onToggleLeaf = onToggleLeaf,
+                        onToggleParent = onToggleParent
+                    )
+                    if (index < item.children.lastIndex) {
+                        androidx.compose.material3.HorizontalDivider(
+                            modifier = Modifier.padding(horizontal = 24.dp),
+                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
+                        )
+                    }
+                }
             }
         }
     }

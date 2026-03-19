@@ -224,7 +224,7 @@ interface ApiInterface {
         @Query("lat") lat: Double,
         @Query("lon") lon: Double,
         @Query("radius") radius: Int,
-        @Query("category_id") categoryId: Long?,
+        @Query("category_id") categoryIds: List<Long>?,
         @Query("status") status: Int = 1,
         @Query("startDate") startDate: String?,
         @Query("endDate") endDate: String?,

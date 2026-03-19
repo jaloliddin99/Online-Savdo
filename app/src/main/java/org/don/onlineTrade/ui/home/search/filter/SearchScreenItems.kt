@@ -183,7 +183,7 @@ fun ActiveFilterChips(
         val onClick: () -> Unit
     )
 
-    val isCategoryApplied = filter.categoryId != null
+    val isCategoryApplied = filter.hasCategoryFilter
     val isPriceApplied = filter.fromPrice != null || filter.toPrice != null
     val priceLabel = if (isPriceApplied) {
         buildString {
@@ -199,7 +199,7 @@ fun ActiveFilterChips(
         }
         add(
             ChipData(
-                label = filter.categoryName ?: stringResource(R.string.category),
+                label = if (filter.hasCategoryFilter) filter.categoryDisplayName else stringResource(R.string.category),
                 applied = isCategoryApplied,
                 onClick = onCategoryClick
             )
@@ -232,7 +232,7 @@ fun ActiveFilterChips(
         modifier = Modifier
             .fillMaxWidth()
             .horizontalScroll(rememberScrollState())
-            .padding(horizontal = MaterialTheme.spacing.dimen16Dp, vertical = 4.dp),
+            .padding(horizontal = MaterialTheme.spacing.dimen12Dp, vertical = 4.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         chips.forEach { chip ->
@@ -298,9 +298,19 @@ data class FilterClass(
     val displayDateTo: String? = null,
     val fromPrice: Int? = null,
     val toPrice: Int? = null,
-    val categoryId: Long? = null,
-    val categoryName: String? = null
-)
+    val categoryIds: List<Long> = emptyList(),
+    val categoryNames: List<String> = emptyList(),
+) {
+    // Convenience for single category backward compat
+    val categoryId: Long? get() = categoryIds.firstOrNull()
+    val categoryName: String? get() = categoryNames.firstOrNull()
+    val hasCategoryFilter: Boolean get() = categoryIds.isNotEmpty()
+    val categoryDisplayName: String get() = when {
+        categoryNames.isEmpty() -> ""
+        categoryNames.size == 1 -> categoryNames.first()
+        else -> "${categoryNames.first()} +${categoryNames.size - 1}"
+    }
+}
 
 @Composable
 fun SearchToolbar(

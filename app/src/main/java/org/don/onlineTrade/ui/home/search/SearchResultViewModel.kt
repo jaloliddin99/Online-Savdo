@@ -20,6 +20,7 @@ import org.don.onlineTrade.data.paging.SearchPagingSource
 import org.don.onlineTrade.data.remote.ApiInterface
 import org.don.onlineTrade.data.remote.models.category.CategoryParent
 import org.don.onlineTrade.data.remote.models.getPublicProducts.Content
+import org.don.onlineTrade.ui.home.search.filter.FilterClass
 import org.don.onlineTrade.utils.SharedPref
 import javax.inject.Inject
 
@@ -28,7 +29,7 @@ data class SearchParams(
     val lat: Double = 0.0,
     val lon: Double = 0.0,
     val radius: Int = 0,
-    val categoryId: Long? = null,
+    val categoryIds: List<Long> = emptyList(),
     val startDate: String? = null,
     val endDate: String? = null,
 )
@@ -41,6 +42,10 @@ class SearchResultViewModel @Inject constructor(
 
     var hasSearched by mutableStateOf(false)
         private set
+
+    var filter by mutableStateOf(FilterClass())
+
+    var searchText by mutableStateOf("")
 
     var categories by mutableStateOf<List<CategoryParent>>(emptyList())
         private set
@@ -80,7 +85,7 @@ class SearchResultViewModel @Inject constructor(
                             lat = params.lat,
                             lon = params.lon,
                             radius = params.radius,
-                            categoryId = params.categoryId,
+                            categoryIds = params.categoryIds,
                             startDate = params.startDate,
                             endDate = params.endDate,
                         )

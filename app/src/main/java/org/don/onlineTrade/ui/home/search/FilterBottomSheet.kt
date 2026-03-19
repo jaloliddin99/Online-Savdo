@@ -83,8 +83,8 @@ fun FilterBottomSheetContent(
 
     var fromPrice by remember { mutableStateOf(initialFilter.fromPrice?.toString() ?: "") }
     var toPrice by remember { mutableStateOf(initialFilter.toPrice?.toString() ?: "") }
-    var selectedCategoryId by remember { mutableStateOf(initialFilter.categoryId) }
-    var selectedCategoryName by remember { mutableStateOf(initialFilter.categoryName) }
+    var selectedCategoryIds by remember { mutableStateOf(initialFilter.categoryIds) }
+    var selectedCategoryNames by remember { mutableStateOf(initialFilter.categoryNames) }
 
     val datePickerState = rememberDatePickerState()
     val showDatePicker = rememberSaveable { mutableIntStateOf(0) }
@@ -121,7 +121,7 @@ fun FilterBottomSheetContent(
     }
 
     val hasAnyFilter = dateFromApi != null || dateToApi != null ||
-            fromPrice.isNotBlank() || toPrice.isNotBlank() || selectedCategoryId != null
+            fromPrice.isNotBlank() || toPrice.isNotBlank() || selectedCategoryIds.isNotEmpty()
 
     Column(
         modifier = Modifier
@@ -149,8 +149,8 @@ fun FilterBottomSheetContent(
                     dateToDisplay = null
                     fromPrice = ""
                     toPrice = ""
-                    selectedCategoryId = null
-                    selectedCategoryName = null
+                    selectedCategoryIds = emptyList()
+                    selectedCategoryNames = emptyList()
                     onReset()
                 }) {
                     Text("Reset all", color = MaterialTheme.colorScheme.error)
@@ -227,18 +227,19 @@ fun FilterBottomSheetContent(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 categories.forEach { category ->
-                    val isSelected = selectedCategoryId == category.id.toLong()
+                    val catId = category.id.toLong()
+                    val isSelected = catId in selectedCategoryIds
                     SelectableCategoryChip(
                         title = category.title,
                         imageUrl = category.image?.let { "${BuildConfig.BASE_URL}categories/image/$it" },
                         isSelected = isSelected,
                         onClick = {
                             if (isSelected) {
-                                selectedCategoryId = null
-                                selectedCategoryName = null
+                                selectedCategoryIds = selectedCategoryIds - catId
+                                selectedCategoryNames = selectedCategoryNames - category.title
                             } else {
-                                selectedCategoryId = category.id.toLong()
-                                selectedCategoryName = category.title
+                                selectedCategoryIds = selectedCategoryIds + catId
+                                selectedCategoryNames = selectedCategoryNames + category.title
                             }
                         }
                     )
@@ -326,8 +327,8 @@ fun FilterBottomSheetContent(
                         displayDateTo = dateToDisplay,
                         fromPrice = fromPrice.toIntOrNull(),
                         toPrice = toPrice.toIntOrNull(),
-                        categoryId = selectedCategoryId,
-                        categoryName = selectedCategoryName,
+                        categoryIds = selectedCategoryIds,
+                        categoryNames = selectedCategoryNames,
                     )
                 )
             },

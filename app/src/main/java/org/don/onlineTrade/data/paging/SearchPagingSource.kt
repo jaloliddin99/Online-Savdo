@@ -12,7 +12,7 @@ class SearchPagingSource(
     private val lat: Double,
     private val lon: Double,
     private val radius: Int,
-    private val categoryId: Long?,
+    private val categoryIds: List<Long>,
     private val startDate: String?,
     private val endDate: String?,
 ) : PagingSource<Int, Content>() {
@@ -35,7 +35,7 @@ class SearchPagingSource(
                 lat = lat,
                 lon = lon,
                 radius = radius,
-                categoryId = categoryId,
+                categoryIds = categoryIds.ifEmpty { null },
                 startDate = startDate,
                 endDate = endDate,
             )
