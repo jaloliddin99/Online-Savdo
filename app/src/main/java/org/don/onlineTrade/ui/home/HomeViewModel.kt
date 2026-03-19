@@ -116,9 +116,10 @@ class HomeViewModel @Inject constructor(
                       maxPrice: Int?,
                       startDate: String?,
                       endDate: String?,
-                      regionId: Int,
-                      districtId: Int,
-                      isMyPosts: Boolean ->
+                      isMyPosts: Boolean,
+                      lat: Double?,
+                      lon: Double?,
+                      radius: Int? ->
             if (isMyPosts) {
                 myPostsUseCase.getItems(
                     page = nextPage,
@@ -132,10 +133,11 @@ class HomeViewModel @Inject constructor(
                     query = query,
                     startDate = startDate,
                     endDate = endDate,
-                    regionId = regionId,
-                    districtId = districtId,
                     fromPrice = minPrice,
-                    toPrice = maxPrice
+                    toPrice = maxPrice,
+                    lat = lat,
+                    lon = lon,
+                    radius = radius
                     )
             }
         },
@@ -163,9 +165,10 @@ class HomeViewModel @Inject constructor(
         maxPrice: Int? = null,
         startDate: String? = null,
         endDate: String? = null,
-        regionId: Int = -1,
-        districtId: Int = -1,
-        isMyPosts: Boolean = false
+        isMyPosts: Boolean = false,
+        lat: Double? = null,
+        lon: Double? = null,
+        radius: Int? = null
     ) {
         viewModelScope.launch {
             paginator.loadNextItems(
@@ -176,8 +179,9 @@ class HomeViewModel @Inject constructor(
                 isMyPosts = isMyPosts,
                 startDate = startDate,
                 endDate = endDate,
-                regionId = regionId,
-                districtId = districtId
+                lat = lat,
+                lon = lon,
+                radius = radius
             )
         }
     }

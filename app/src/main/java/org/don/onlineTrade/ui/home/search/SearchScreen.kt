@@ -82,8 +82,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.launch
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.category.CategoryItem
-import org.don.onlineTrade.data.remote.models.region.District
-import org.don.onlineTrade.data.remote.models.region.RegionDistrict
 import org.don.onlineTrade.data.remote.models.searchSuggestion.CategorySuggestion
 import org.don.onlineTrade.ui.filterCategory.ComposeLottieAnimation
 import org.don.onlineTrade.ui.home.HomeViewModel
@@ -157,7 +155,30 @@ fun SearchScreen(
     val locationOnlyMsg = stringResource(R.string.location_only_updated)
     val radiusOnlyMsg = stringResource(R.string.radius_only_updated)
 
-    // Update location data when map data arrives
+    fun triggerSearch(query: String, categoryId: Long? = null) {
+        searchViewModel.clearSuggestions()
+        homeViewModel.resetPager()
+        val catId = categoryId ?: myFilter.categoryId
+        val lat = searchViewModel.searchLat.takeIf { searchViewModel.searchRadiusKm > 0 }
+        val lon = searchViewModel.searchLon.takeIf { searchViewModel.searchRadiusKm > 0 }
+        val radius = searchViewModel.searchRadiusKm.takeIf { it > 0 }
+        homeViewModel.loadNextItems(
+            query = query,
+            categoryId = catId?.toInt(),
+            minPrice = myFilter.fromPrice,
+            maxPrice = myFilter.toPrice,
+            startDate = myFilter.titleTextFrom,
+            endDate = myFilter.titleTextTo,
+            lat = lat,
+            lon = lon,
+            radius = radius
+        )
+        if (categoryId != null) {
+            myFilter = myFilter.copy(categoryId = categoryId)
+        }
+    }
+
+    // Update location data when map data arrives and trigger search
     LaunchedEffect(mapSearchData) {
         mapSearchData?.let {
             if (it.lat != null && it.lon != null) {
@@ -165,6 +186,9 @@ fun SearchScreen(
                     it.lat != searchViewModel.searchLat || it.lon != searchViewModel.searchLon
                 val radiusChanged = it.radiusKm != searchViewModel.searchRadiusKm
                 searchViewModel.updateSearchLocation(it.lat, it.lon, it.radiusKm)
+                if (locationChanged || radiusChanged) {
+                    triggerSearch(searchTextListener)
+                }
                 val message = when {
                     locationChanged && radiusChanged -> locationAndRadiusMsg
                     locationChanged -> locationOnlyMsg
@@ -173,26 +197,6 @@ fun SearchScreen(
                 }
                 message?.let { msg -> snackbarHostState.showSnackbar(msg) }
             }
-        }
-    }
-
-
-    fun triggerSearch(query: String, categoryId: Long? = null) {
-        searchViewModel.clearSuggestions()
-        homeViewModel.resetPager()
-        val catId = categoryId ?: myFilter.categoryId
-        homeViewModel.loadNextItems(
-            query = query,
-            categoryId = catId?.toInt(),
-            minPrice = myFilter.fromPrice,
-            maxPrice = myFilter.toPrice,
-            startDate = myFilter.titleTextFrom,
-            endDate = myFilter.titleTextTo,
-            regionId = myFilter.regionId,
-            districtId = myFilter.districtId
-        )
-        if (categoryId != null) {
-            myFilter = myFilter.copy(categoryId = categoryId)
         }
     }
 
@@ -262,7 +266,6 @@ fun SearchScreen(
                         onRadiusClick = onMapClick,
                         onDateFromClick = { showBottomSheet = true },
                         onDateToClick = { showBottomSheet = true },
-                        onRegionClick = { showBottomSheet = true },
                         onPriceClick = { showBottomSheet = true },
                         onCategoryClick = {
                             if (myFilter.categoryId != null) {
@@ -292,6 +295,9 @@ fun SearchScreen(
                             val item = pagerState.items[i]
                             LaunchedEffect(scrollState) {
                                 if (i >= pagerState.items.size - 1 && !pagerState.endReached && !pagerState.isLoading) {
+                                    val lat = searchViewModel.searchLat.takeIf { searchViewModel.searchRadiusKm > 0 }
+                                    val lon = searchViewModel.searchLon.takeIf { searchViewModel.searchRadiusKm > 0 }
+                                    val radius = searchViewModel.searchRadiusKm.takeIf { it > 0 }
                                     homeViewModel.loadNextItems(
                                         query = searchTextListener,
                                         categoryId = myFilter.categoryId?.toInt(),
@@ -299,8 +305,9 @@ fun SearchScreen(
                                         maxPrice = myFilter.toPrice,
                                         startDate = myFilter.titleTextFrom,
                                         endDate = myFilter.titleTextTo,
-                                        regionId = myFilter.regionId,
-                                        districtId = myFilter.districtId
+                                        lat = lat,
+                                        lon = lon,
+                                        radius = radius
                                     )
                                 }
                             }
@@ -348,6 +355,9 @@ fun SearchScreen(
                                 myFilter = filter
                                 showBottomSheet = false
                                 homeViewModel.resetPager()
+                                val lat = searchViewModel.searchLat.takeIf { searchViewModel.searchRadiusKm > 0 }
+                                val lon = searchViewModel.searchLon.takeIf { searchViewModel.searchRadiusKm > 0 }
+                                val radius = searchViewModel.searchRadiusKm.takeIf { it > 0 }
                                 homeViewModel.loadNextItems(
                                     query = searchTextListener,
                                     categoryId = filter.categoryId?.toInt(),
@@ -355,8 +365,9 @@ fun SearchScreen(
                                     maxPrice = filter.toPrice,
                                     startDate = filter.titleTextFrom,
                                     endDate = filter.titleTextTo,
-                                    regionId = filter.regionId,
-                                    districtId = filter.districtId
+                                    lat = lat,
+                                    lon = lon,
+                                    radius = radius
                                 )
                             }
                         }
@@ -490,7 +501,6 @@ fun ActiveFilterChips(
     onRadiusClick: () -> Unit,
     onDateFromClick: () -> Unit,
     onDateToClick: () -> Unit,
-    onRegionClick: () -> Unit,
     onPriceClick: () -> Unit,
     onCategoryClick: () -> Unit
 ) {
@@ -541,13 +551,6 @@ fun ActiveFilterChips(
                 label = filter.titleTextTo ?: stringResource(R.string.to),
                 applied = filter.titleTextTo != null,
                 onClick = onDateToClick
-            )
-        )
-        add(
-            ChipData(
-                label = stringResource(R.string.regions),
-                applied = filter.regionId != -1,
-                onClick = onRegionClick
             )
         )
     }.sortedByDescending { it.applied }
@@ -618,8 +621,6 @@ fun FilterChip(
 data class FilterClass(
     val titleTextFrom: String? = null,
     val titleTextTo: String? = null,
-    val regionId: Int = -1,
-    val districtId: Int = -1,
     val fromPrice: Int? = null,
     val toPrice: Int? = null,
     val categoryId: Long? = null,
@@ -640,27 +641,9 @@ fun BottomSheetContent(
     var titleTextTo by remember {
         mutableStateOf<String?>(null)
     }
-    val showRegionDistrictDialog = remember {
-        mutableStateOf(false)
-    }
-    var regionId by remember {
-        mutableStateOf<RegionDistrict?>(null)
-    }
-    var districtId by remember {
-        mutableStateOf<District?>(null)
-    }
     var fromPrice by remember { mutableStateOf("") }
     var toPrice by remember { mutableStateOf("") }
 
-    if (showRegionDistrictDialog.value) {
-        ShowRegionsDialog(onDismissRequest = {
-            showRegionDistrictDialog.value = false
-        }, onSelectRequest = { region, district ->
-            regionId = region
-            districtId = district
-            showRegionDistrictDialog.value = false
-        })
-    }
     if (showDialog.intValue != 0) {
         DatePickerDialog(
             onDismissRequest = { showDialog.intValue = 0 },
@@ -755,27 +738,12 @@ fun BottomSheetContent(
             )
         }
 
-        TextButton(
-            onClick = {
-                showRegionDistrictDialog.value = true
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 12.dp)
-                .border(1.dp, Color.Gray, RoundedCornerShape(50)),
-            shape = RoundedCornerShape(50)
-        ) {
-            Text(regionId?.name ?: stringResource(id = R.string.txt_select_region_and_district))
-        }
-
         Button(
             onClick = {
                 onClickListen.invoke(
                     FilterClass(
                         titleTextFrom = titleTextFrom,
                         titleTextTo = titleTextTo,
-                        regionId = (regionId?.id ?: -1),
-                        districtId = (districtId?.id ?: -1),
                         fromPrice = fromPrice.toIntOrNull(),
                         toPrice = toPrice.toIntOrNull()
                     )
@@ -953,9 +921,7 @@ fun HomeSearchBar(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .fillMaxWidth()
-            .background(Color.Red)
-            .padding(horizontal = MaterialTheme.spacing.dimen16Dp)
-            .background(Color.Blue)
+            .padding(horizontal = MaterialTheme.spacing.dimen8Dp)
     ) {
         Box(modifier = Modifier.weight(1f)) {
             TextField(

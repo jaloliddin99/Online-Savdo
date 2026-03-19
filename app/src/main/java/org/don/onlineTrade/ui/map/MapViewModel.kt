@@ -19,7 +19,6 @@ import org.don.onlineTrade.domain.repository.LocationTracker
 import org.don.onlineTrade.domain.state.Resource
 import org.don.onlineTrade.data.remote.models.reverse.FeatureMember
 import org.don.onlineTrade.domain.useCase.LocationReverseUseCase
-import org.don.onlineTrade.domain.useCase.regionUseCase.RegionsDistrictsUseCase
 import org.don.onlineTrade.ui.home.MapScreenScreenState
 import org.don.onlineTrade.utils.LOCATION_REVERSE_URL
 import org.don.onlineTrade.utils.SharedPref
@@ -30,7 +29,6 @@ import javax.inject.Inject
 class MapViewModel @Inject constructor(
     private val locationReverseUseCase: LocationReverseUseCase,
     private val locationTrackerRepository: LocationTracker,
-    private val regionsDistrictsUseCase: RegionsDistrictsUseCase
 ) :
     ViewModel() {
 
@@ -46,7 +44,6 @@ class MapViewModel @Inject constructor(
 
 
     init {
-        getRegionDistricts()
         viewModelScope.launch {
             _query
                 .filter {
@@ -85,43 +82,6 @@ class MapViewModel @Inject constructor(
                         )
                     }
 
-                    is Resource.Error -> {
-                        _state.value =
-                            _state.value.copy(
-                                isLoading = false,
-                                error = result.message ?: "An unexpected error occurred"
-                            )
-                    }
-
-                    is Resource.Loading -> {
-                        _state.value = _state.value.copy(
-                            isLoading = true,
-                            error = ""
-                        )
-                    }
-                }
-            }.launchIn(viewModelScope)
-    }
-
-
-    private fun getRegionDistricts(
-        lang: String = SharedPref.language,
-    ) {
-
-        regionsDistrictsUseCase
-            .invoke(
-                SharedPref.deviceToken,
-                lang
-            )
-            .onEach { result ->
-                when (result) {
-                    is Resource.Success -> {
-                        _state.value = _state.value.copy(
-                            isLoading = false,
-                            error = "",
-                            regionDistrictData = result.data
-                        )
-                    }
                     is Resource.Error -> {
                         _state.value =
                             _state.value.copy(

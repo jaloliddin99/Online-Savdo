@@ -19,7 +19,6 @@ import org.don.onlineTrade.data.remote.models.getPublicProducts.Data
 import org.don.onlineTrade.data.remote.models.leak.ModelLeak
 import org.don.onlineTrade.data.remote.models.nearPost.NearPostsData
 import org.don.onlineTrade.data.remote.models.post.PostModel
-import org.don.onlineTrade.data.remote.models.region.ModelGetRegionAndDistricts
 import org.don.onlineTrade.data.remote.models.reverse.ModelAddressReverse
 import org.don.onlineTrade.data.remote.models.searchSuggestion.SearchSuggestionData
 import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsData
@@ -92,21 +91,11 @@ class NetworkRepositoryImpl @Inject constructor(
         return apiInterface.getCategories(token, categoryId)
     }
 
-    override suspend fun getAllRegionDistrict(
-        token: String,
-        language: String
-    ): ModelGetRegionAndDistricts {
-        return apiInterface.getAllRegionDistrict(token, language)
-    }
-
-
     override suspend fun newProduct(
         token: String,
         title: String,
         description: String,
         categoryId: Long,
-        regionId: Int,
-        districtId: Int,
         lat: Double,
         lon: Double,
         addressName: String,
@@ -120,8 +109,6 @@ class NetworkRepositoryImpl @Inject constructor(
             title,
             description,
             categoryId,
-            regionId,
-            districtId,
             lat,
             lon,
             addressName,
@@ -196,10 +183,11 @@ class NetworkRepositoryImpl @Inject constructor(
         query: String?,
         startDate: String?,
         endDate: String?,
-        regionId: Int,
-        districtId: Int,
         fromPrice: Int?,
-        toPrice: Int?
+        toPrice: Int?,
+        lat: Double?,
+        lon: Double?,
+        radius: Int?
     ): GenericModel<Data> {
         return apiInterface.getPublicProducts(
             token = token,
@@ -210,10 +198,11 @@ class NetworkRepositoryImpl @Inject constructor(
             query = query,
             startDate,
             endDate,
-            regionId,
-            districtId,
             fromPrice,
-            toPrice
+            toPrice,
+            lat,
+            lon,
+            radius
         )
     }
 

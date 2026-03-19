@@ -16,7 +16,6 @@ import org.don.onlineTrade.data.remote.models.getPublicProducts.Data
 import org.don.onlineTrade.data.remote.models.leak.ModelLeak
 import org.don.onlineTrade.data.remote.models.nearPost.NearPostsData
 import org.don.onlineTrade.data.remote.models.post.PostModel
-import org.don.onlineTrade.data.remote.models.region.ModelGetRegionAndDistricts
 import org.don.onlineTrade.data.remote.models.reverse.ModelAddressReverse
 import org.don.onlineTrade.data.remote.models.searchSuggestion.SearchSuggestionData
 import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsData
@@ -65,18 +64,11 @@ interface NetworkRepository {
     ): ModelLeak
 
 
-    suspend fun getAllRegionDistrict(
-        token: String,
-        language: String
-    ): ModelGetRegionAndDistricts
-
     suspend fun newProduct(
         token: String,
         title: String,
         description: String,
         categoryId: Long,
-        regionId: Int,
-        districtId: Int,
         lat: Double,
         lon: Double,
         addressName: String,
@@ -147,10 +139,11 @@ interface NetworkRepository {
         query: String?,
         startDate: String?,
         endDate: String?,
-        regionId: Int = -1,
-        districtId: Int = -1,
         fromPrice: Int? = null,
-        toPrice: Int? = null
+        toPrice: Int? = null,
+        lat: Double? = null,
+        lon: Double? = null,
+        radius: Int? = null
     ): GenericModel<Data>
 
     suspend fun getNearPosts(

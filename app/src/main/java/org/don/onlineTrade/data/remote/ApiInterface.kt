@@ -18,7 +18,6 @@ import org.don.onlineTrade.data.remote.models.getPublicProducts.Data
 import org.don.onlineTrade.data.remote.models.leak.ModelLeak
 import org.don.onlineTrade.data.remote.models.nearPost.NearPostsData
 import org.don.onlineTrade.data.remote.models.post.PostModel
-import org.don.onlineTrade.data.remote.models.region.ModelGetRegionAndDistricts
 import org.don.onlineTrade.data.remote.models.reverse.ModelAddressReverse
 import org.don.onlineTrade.data.remote.models.searchSuggestion.SearchSuggestionData
 import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsData
@@ -75,10 +74,11 @@ interface ApiInterface {
         @Query("query") query: String?,
         @Query("startDate") startDate: String?,
         @Query("endDate") endDate: String?,
-        @Query("regionId") regionId: Int = -1,
-        @Query("districtId") districtId: Int = -1,
         @Query("fromPrice") fromPrice: Int? = null,
-        @Query("toPrice") toPrice: Int? = null
+        @Query("toPrice") toPrice: Int? = null,
+        @Query("lat") lat: Double? = null,
+        @Query("lon") lon: Double? = null,
+        @Query("radius") radius: Int? = null
     ): GenericModel<Data>
 
 
@@ -124,14 +124,6 @@ interface ApiInterface {
         @Path("categoryId") categoryId: Int,
     ): ModelLeak
 
-    @GET("getRegions/all")
-    suspend fun getAllRegionDistrict(
-        @Header("Authorization") token: String,
-        @Query("lang") language: String,
-    ): ModelGetRegionAndDistricts
-
-
-
     @Multipart
     @POST("post")
     suspend fun newProduct(
@@ -139,8 +131,6 @@ interface ApiInterface {
         @Query("title") title: String,
         @Query("description") description: String,
         @Query("category_id") categoryId: Long,
-        @Query("region_id") regionId: Int,
-        @Query("district_id") districtId: Int,
         @Query("lat") lat: Double,
         @Query("lon") lon: Double,
         @Query("addressName") addressName: String,

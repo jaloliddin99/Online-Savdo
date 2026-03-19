@@ -37,8 +37,6 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import org.don.onlineTrade.R
-import org.don.onlineTrade.data.remote.models.region.RegionDistrict
-import org.don.onlineTrade.data.remote.models.reverse.Component
 import org.don.onlineTrade.data.remote.models.reverse.FeatureMember
 import org.don.onlineTrade.data.remote.models.reverse.GeoObject
 import org.don.onlineTrade.ui.theme.robotoFontFamily
@@ -203,42 +201,20 @@ fun MarkerMainBox(singleLocation: GeoObject?) {
     }
 }
 
-val getLocation: (GeoObject?, List<RegionDistrict>?) -> MapScreenData? = { obj, list ->
-    if (obj == null || list == null)
+val getLocation: (GeoObject?) -> MapScreenData? = { obj ->
+    if (obj == null)
         null
     else {
         val long = obj.Point.pos.split(" ")[0].toDouble()
         val lat = obj.Point.pos.split(" ")[1].toDouble()
         val addressName = obj.name
         val addressDescription = obj.description
-        val regionList = list
-        val districtList = list.flatMap { it.districts }
-
-        val mapRegionList = obj.metaDataProperty.GeocoderMetaData.Address.Components
-        var regionId = -1
-        var districtId = -1
-        mapRegionList.find { it.kind == "province" }?.let {
-            regionList.find { region ->
-                it.name.contains(region.name.trim().split(" ")[0].lowercase())
-            }?.let {
-                regionId = it.id
-            }
-        }
-        mapRegionList.find { it.kind == "area" }?.let {
-            districtList.find { region ->
-                it.name.contains(region.name.trim().split(" ")[0].lowercase())
-            }?.let {
-                districtId = it.id
-            }
-        }
 
         MapScreenData(
             lat = lat,
             lon = long,
             addressName = addressName,
-            addressDescription = addressDescription,
-            regionId = regionId,
-            districtId = districtId
+            addressDescription = addressDescription
         )
     }
 }

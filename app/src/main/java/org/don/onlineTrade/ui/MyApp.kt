@@ -84,7 +84,6 @@ import org.don.onlineTrade.ui.profile.ProfileRoute
 import org.don.onlineTrade.ui.profile.myPosts.MyPostsScreenRoute
 import org.don.onlineTrade.ui.profile.update.UpdateProfileRoute
 import org.don.onlineTrade.ui.profile.updatePassword.UpdatePasswordRoute
-import org.don.onlineTrade.ui.region.RegionsRoute
 import org.don.onlineTrade.ui.saved.SavedRoute
 import org.don.onlineTrade.ui.theme.AppBackground
 import org.don.onlineTrade.ui.theme.AppGradientBackground
@@ -101,7 +100,6 @@ private val BOTTOM_BAR_ROUTES = setOf(
 
 private val BACK_ARROW_ROUTES = setOf(
     Screen.Categories.route,
-    Screen.Regions.route,
     Screen.ProfileUpdate.route,
     Screen.PasswordUpdate.route,
     Screen.ProductDetails.ROUTE,
@@ -703,13 +701,6 @@ fun NavigationGraph(
                 )
             }
 
-            composable(route = Screen.Regions.route) {
-                RegionsRoute(
-                    onRegionSelected = {
-                        navController.navigate("district/${it.id}/${it.name}")
-                    }
-                )
-            }
         }
     }
 }

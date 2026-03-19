@@ -41,7 +41,6 @@ class ApplicationState(
             Screen.Profile.route -> NavItems.Profile
             Screen.Categories.route -> NavItems.Categories
             Screen.MyProducts.route -> NavItems.MyPosts
-            Screen.Regions.route -> NavItems.Regions
             Screen.ProfileUpdate.route -> NavItems.ProfileUpdate
             Screen.PasswordUpdate.route -> NavItems.PasswordUpdate
             Screen.Notifications.route -> NavItems.Notifications

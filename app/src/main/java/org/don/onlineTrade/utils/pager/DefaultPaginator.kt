@@ -11,9 +11,10 @@ class DefaultPaginator<Key, Item>(
         maxPrice: Int?,
         startDate: String?,
         endDate: String?,
-        regionId: Int,
-        districtId: Int,
-        isMyPosts: Boolean
+        isMyPosts: Boolean,
+        lat: Double?,
+        lon: Double?,
+        radius: Int?
     ) -> Result<List<Item>>,
     private val getNextKey: suspend (List<Item>) -> Key,
     private val onError: suspend (Throwable?) -> Unit,
@@ -30,9 +31,10 @@ class DefaultPaginator<Key, Item>(
         maxPrice: Int?,
         startDate: String?,
         endDate: String?,
-        regionId: Int,
-        districtId: Int,
-        isMyPosts: Boolean
+        isMyPosts: Boolean,
+        lat: Double?,
+        lon: Double?,
+        radius: Int?
     ) {
         if (isMakingRequest) {
             return
@@ -45,8 +47,9 @@ class DefaultPaginator<Key, Item>(
             categoryId,
             minPrice,
             maxPrice,
-            startDate, endDate, regionId, districtId,
-            isMyPosts
+            startDate, endDate,
+            isMyPosts,
+            lat, lon, radius
         )
         isMakingRequest = false
         val items = result.getOrElse {

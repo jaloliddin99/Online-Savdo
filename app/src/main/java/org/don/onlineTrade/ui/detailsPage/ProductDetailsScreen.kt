@@ -343,10 +343,7 @@ fun ItemDescription(
             modifier = Modifier
                 .padding(vertical = MaterialTheme.spacing.dimen10Dp)
         )
-        val region = data?.region?.name
-        val district = data?.district?.name
-        val address = if (region != null && district != null) "$region, $district"
-        else if (data?.addressName != null) data.addressName else ""
+        val address = data?.addressName ?: ""
         DescriptionItems(
             desc = address,
             onClicked = {

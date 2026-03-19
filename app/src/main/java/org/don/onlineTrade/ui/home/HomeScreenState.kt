@@ -3,15 +3,11 @@ package org.don.onlineTrade.ui.home
 import com.google.android.gms.maps.model.LatLng
 import org.don.onlineTrade.data.remote.models.ModelSuccess
 import org.don.onlineTrade.data.remote.models.post.PostModel
-import org.don.onlineTrade.data.remote.models.region.Data
-import org.don.onlineTrade.data.remote.models.region.DataDistrict
-import org.don.onlineTrade.ui.region.MyLocation
 import org.don.onlineTrade.data.remote.models.category.Category
 import org.don.onlineTrade.data.remote.models.category.ParentCategories
 import org.don.onlineTrade.data.remote.models.getProfile.User
 import org.don.onlineTrade.data.remote.models.leak.ModelLeak
 import org.don.onlineTrade.data.remote.models.nearPost.NearPostsData
-import org.don.onlineTrade.data.remote.models.region.RegionDistrict
 import org.don.onlineTrade.data.remote.models.reverse.FeatureMember
 import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsData
 
@@ -31,11 +27,8 @@ data class HomeScreenState2(
 
 data class RegionsScreenState(
     val isLoading: Boolean = false,
-    val regions: List<Data>? = null,
-    val districts: List<DataDistrict>? = null,
     val error: String = "",
     val showAlertDialog: Boolean = false,
-    val myLocation: MyLocation? = null,
 )
 
 
@@ -54,7 +47,6 @@ data class MapScreenScreenState(
     val featureMember: List<FeatureMember>? = null,
     val singleFutureMember: List<FeatureMember>? = null,
     val latLng: LatLng? = null,
-    val regionDistrictData: List<RegionDistrict> ?= null
 )
 
 data class PresentProductState(

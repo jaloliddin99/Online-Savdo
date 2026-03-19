@@ -17,10 +17,11 @@ class ProductsPagerUseCase @Inject constructor(
         query: String?,
         startDate: String?,
         endDate: String?,
-        regionId: Int = -1,
-        districtId: Int = -1,
         fromPrice: Int? = null,
-        toPrice: Int? = null
+        toPrice: Int? = null,
+        lat: Double? = null,
+        lon: Double? = null,
+        radius: Int? = null
     ): Result<List<Content>> {
         try {
             val networkPager = repository.getProductsPager(
@@ -32,10 +33,11 @@ class ProductsPagerUseCase @Inject constructor(
                 query = query,
                 startDate,
                 endDate,
-                regionId,
-                districtId,
                 fromPrice,
-                toPrice
+                toPrice,
+                lat,
+                lon,
+                radius
             ).data.content
             return Result.success(
                 networkPager
@@ -43,14 +45,6 @@ class ProductsPagerUseCase @Inject constructor(
         }catch (e: Exception){
             return Result.failure(Throwable("Error occurred!"))
         }
-
-//        return if (startingIndex + pageSize <= networkPager.size) {
-//            Result.success(
-//                networkPager.slice(startingIndex until startingIndex + pageSize)
-//            )
-//        } else {
-//            Result.success(emptyList())
-//        }
     }
 
 

@@ -149,8 +149,6 @@ class AddProductScreenViewModel @Inject constructor(
                 titleProduct,
                 descriptionProduct,
                 categoryId.toLong(),
-                mapData.regionId,
-                mapData.districtId,
                 mapData.lat ?: 0.0,
                 mapData.lon ?: 0.0,
                 mapData.addressName,

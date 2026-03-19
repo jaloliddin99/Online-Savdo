@@ -233,7 +233,7 @@ fun MapsScreen(
                 enabled = singleLocation != null,
                 onClick = {
                     onBackClick(
-                        getLocation(singleLocation, state.regionDistrictData)
+                        getLocation(singleLocation)
                     )
                 },
                 modifier = Modifier
@@ -303,8 +303,6 @@ data class MapScreenData(
     val lon: Double? = null,
     val addressName: String = "",
     val addressDescription: String = "",
-    val regionId: Int = -1,
-    val districtId: Int = -1,
     val radiusKm: Int = 10
 ) : Serializable
 

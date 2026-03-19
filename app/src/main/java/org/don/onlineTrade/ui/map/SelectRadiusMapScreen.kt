@@ -46,6 +46,7 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.Circle
+import com.google.android.gms.maps.GoogleMapOptions
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
@@ -149,6 +150,13 @@ fun SelectRadiusMapScreen(
     Box(modifier = Modifier.fillMaxWidth()) {
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
+            googleMapOptionsFactory = {
+                if (isDarkTheme) {
+                    GoogleMapOptions().backgroundColor(android.graphics.Color.parseColor("#242f3e"))
+                } else {
+                    GoogleMapOptions()
+                }
+            },
             properties = MapProperties(
                 mapType = MapType.NORMAL,
                 isBuildingEnabled = true,

@@ -8,9 +8,10 @@ interface Paginator<Key, Item> {
         maxPrice: Int?,
         startDate: String?,
         endDate: String?,
-        regionId: Int,
-        districtId: Int,
-        isMyPosts: Boolean
+        isMyPosts: Boolean,
+        lat: Double? = null,
+        lon: Double? = null,
+        radius: Int? = null
     )
     fun reset()
 }

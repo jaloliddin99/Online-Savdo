@@ -270,13 +270,8 @@ fun ProductItemDetails(
                 fontWeight = FontWeight.Medium,
                 color = colorWithAlpha,
             )
-            val region = data.region?.name
-            val district = data.district?.name
-            val name = data.addressName
-
             Text(
-                text = if (region != null && district != null) "$region, $district"
-                else name,
+                text = data.addressName,
                 fontSize = 12.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

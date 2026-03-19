@@ -10,7 +10,6 @@ sealed class Screen(val route: String) {
     data object PasswordUpdate : Screen("passwordUpdate")
     data object Categories : Screen("categories")
     data object MyProducts : Screen("myProducts")
-    data object Regions : Screen("regions")
     data object Notifications : Screen("notifications")
     data object Search : Screen("search_route")
     data object Login : Screen("loginScreen")
