@@ -214,14 +214,14 @@ fun ActiveFilterChips(
         add(ChipData(label = priceLabel, applied = isPriceApplied, onClick = onPriceClick))
         add(
             ChipData(
-                label = filter.titleTextFrom ?: stringResource(R.string.from),
+                label = filter.displayDateFrom ?: stringResource(R.string.from),
                 applied = filter.titleTextFrom != null,
                 onClick = onDateFromClick
             )
         )
         add(
             ChipData(
-                label = filter.titleTextTo ?: stringResource(R.string.to),
+                label = filter.displayDateTo ?: stringResource(R.string.to),
                 applied = filter.titleTextTo != null,
                 onClick = onDateToClick
             )
@@ -294,6 +294,8 @@ fun FilterChip(
 data class FilterClass(
     val titleTextFrom: String? = null,
     val titleTextTo: String? = null,
+    val displayDateFrom: String? = null,
+    val displayDateTo: String? = null,
     val fromPrice: Int? = null,
     val toPrice: Int? = null,
     val categoryId: Long? = null,

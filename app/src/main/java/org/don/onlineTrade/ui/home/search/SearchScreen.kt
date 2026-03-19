@@ -132,7 +132,7 @@ fun SearchScreen(
     val suggestions = searchViewModel.suggestions
     val queryText = searchViewModel.queryText
 
-    val sheetState = rememberModalBottomSheetState()
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
     var myFilter by remember { mutableStateOf(FilterClass()) }
@@ -220,7 +220,7 @@ fun SearchScreen(
                         showBottomSheet = true
                     },
                     onMapClick = onMapClick,
-                    isFilterIconVisible = suggestions.isEmpty() && pagingItems.itemCount > 0,
+                    isFilterIconVisible = hasSearched && suggestions.isEmpty(),
                     searchBarModifier = searchBarModifier,
                 )
 
@@ -243,7 +243,7 @@ fun SearchScreen(
                 }
 
                 // Filter chips
-                if (hasSearched && suggestions.isEmpty() && (pagingItems.itemCount > 0 || isLoading)) {
+                if (hasSearched && suggestions.isEmpty()) {
                     ActiveFilterChips(
                         queryText = queryText,
                         radiusKm = searchViewModel.searchRadiusKm,

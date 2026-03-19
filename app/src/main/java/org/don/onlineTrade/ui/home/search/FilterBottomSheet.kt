@@ -62,6 +62,7 @@ import org.don.onlineTrade.ui.home.search.filter.FilterClass
 import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.convertLongToDateString
+import org.don.onlineTrade.utils.convertLongToDisplayDate
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -73,8 +74,13 @@ fun FilterBottomSheetContent(
     onReset: () -> Unit,
     onLocationClick: () -> Unit,
 ) {
-    var titleTextFrom by remember { mutableStateOf(initialFilter.titleTextFrom) }
-    var titleTextTo by remember { mutableStateOf(initialFilter.titleTextTo) }
+    // API format (yyyy-MM-dd) for sending to backend
+    var dateFromApi by remember { mutableStateOf(initialFilter.titleTextFrom) }
+    var dateToApi by remember { mutableStateOf(initialFilter.titleTextTo) }
+    // Display format (Mar 19, 2026) for showing in UI
+    var dateFromDisplay by remember { mutableStateOf(initialFilter.displayDateFrom) }
+    var dateToDisplay by remember { mutableStateOf(initialFilter.displayDateTo) }
+
     var fromPrice by remember { mutableStateOf(initialFilter.fromPrice?.toString() ?: "") }
     var toPrice by remember { mutableStateOf(initialFilter.toPrice?.toString() ?: "") }
     var selectedCategoryId by remember { mutableStateOf(initialFilter.categoryId) }
@@ -88,10 +94,16 @@ fun FilterBottomSheetContent(
             onDismissRequest = { showDatePicker.intValue = 0 },
             confirmButton = {
                 TextButton(onClick = {
-                    datePickerState.selectedDateMillis?.let {
-                        val date = convertLongToDateString(it)
-                        if (showDatePicker.intValue == 1) titleTextFrom = date
-                        else titleTextTo = date
+                    datePickerState.selectedDateMillis?.let { millis ->
+                        val apiDate = convertLongToDateString(millis)
+                        val displayDate = convertLongToDisplayDate(millis)
+                        if (showDatePicker.intValue == 1) {
+                            dateFromApi = apiDate
+                            dateFromDisplay = displayDate
+                        } else {
+                            dateToApi = apiDate
+                            dateToDisplay = displayDate
+                        }
                     }
                     showDatePicker.intValue = 0
                 }) {
@@ -108,7 +120,7 @@ fun FilterBottomSheetContent(
         }
     }
 
-    val hasAnyFilter = titleTextFrom != null || titleTextTo != null ||
+    val hasAnyFilter = dateFromApi != null || dateToApi != null ||
             fromPrice.isNotBlank() || toPrice.isNotBlank() || selectedCategoryId != null
 
     Column(
@@ -131,8 +143,10 @@ fun FilterBottomSheetContent(
             )
             if (hasAnyFilter) {
                 TextButton(onClick = {
-                    titleTextFrom = null
-                    titleTextTo = null
+                    dateFromApi = null
+                    dateToApi = null
+                    dateFromDisplay = null
+                    dateToDisplay = null
                     fromPrice = ""
                     toPrice = ""
                     selectedCategoryId = null
@@ -284,16 +298,16 @@ fun FilterBottomSheetContent(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             DateChip(
-                label = titleTextFrom ?: stringResource(R.string.from),
-                isSet = titleTextFrom != null,
-                onClear = { titleTextFrom = null },
+                label = dateFromDisplay ?: stringResource(R.string.from),
+                isSet = dateFromApi != null,
+                onClear = { dateFromApi = null; dateFromDisplay = null },
                 onClick = { showDatePicker.intValue = 1 },
                 modifier = Modifier.weight(1f)
             )
             DateChip(
-                label = titleTextTo ?: stringResource(R.string.to),
-                isSet = titleTextTo != null,
-                onClear = { titleTextTo = null },
+                label = dateToDisplay ?: stringResource(R.string.to),
+                isSet = dateToApi != null,
+                onClear = { dateToApi = null; dateToDisplay = null },
                 onClick = { showDatePicker.intValue = 2 },
                 modifier = Modifier.weight(1f)
             )
@@ -306,8 +320,10 @@ fun FilterBottomSheetContent(
             onClick = {
                 onApply(
                     FilterClass(
-                        titleTextFrom = titleTextFrom,
-                        titleTextTo = titleTextTo,
+                        titleTextFrom = dateFromApi,
+                        titleTextTo = dateToApi,
+                        displayDateFrom = dateFromDisplay,
+                        displayDateTo = dateToDisplay,
                         fromPrice = fromPrice.toIntOrNull(),
                         toPrice = toPrice.toIntOrNull(),
                         categoryId = selectedCategoryId,
