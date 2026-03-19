@@ -46,7 +46,6 @@ class MainActivity : ComponentActivity(), OnRunTimePermissionListener {
         super.onCreate(savedInstanceState)
         RunTimePermission().permissionList(this, this)
 
-        // Refresh access token on app open if user is logged in
         if (SharedPref.refreshToken.isNotBlank()) {
             TokenRefreshScheduler.refreshNow(this)
         }

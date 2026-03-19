@@ -1,7 +1,6 @@
 package org.don.onlineTrade.ui.detailsPage
 
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,7 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import org.don.onlineTrade.ui.home.ShimmerProductItem
+import org.don.onlineTrade.ui.home.homeItems.ShimmerProductItem
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.shimmerEffect
 

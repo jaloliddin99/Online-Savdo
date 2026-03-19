@@ -94,6 +94,8 @@ dependencies {
 
 
     implementation("androidx.work:work-runtime-ktx:2.11.1")
+    implementation("androidx.paging:paging-runtime-ktx:3.4.2")
+    implementation("androidx.paging:paging-compose:3.4.2")
 
     implementation("androidx.navigation:navigation-compose:2.9.7")
     implementation("androidx.compose.runtime:runtime-tracing:1.10.5")

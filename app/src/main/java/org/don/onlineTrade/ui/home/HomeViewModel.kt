@@ -32,10 +32,8 @@ class HomeViewModel @Inject constructor(
 ) :
     ViewModel() {
 
-
     private val _state = mutableStateOf(HomeScreenState())
     val state: State<HomeScreenState> = _state
-
 
     fun getAllCategories(
         token: String = SharedPref.deviceToken,
@@ -47,12 +45,13 @@ class HomeViewModel @Inject constructor(
         ).onEach { result ->
             when (result) {
                 is Resource.Success -> {
-                    _state.value = HomeScreenState(categoryList = result.data)
+                    _state.value = _state.value.copy(categoryList = result.data, isLoading = false, error = "")
                 }
 
                 is Resource.Error -> {
-                    _state.value = HomeScreenState(
-                        error = result.message ?: "An unexpected error occured"
+                    _state.value = _state.value.copy(
+                        error = result.message ?: "An unexpected error occurred",
+                        isLoading = false
                     )
                 }
 
@@ -77,24 +76,24 @@ class HomeViewModel @Inject constructor(
                 is Resource.Success -> {
                     val data = result.data
                     data?.sortBy { it.position }
-                    _state.value = HomeScreenState(parentCategoryList = data)
+                    _state.value = _state.value.copy(parentCategoryList = data, isLoading = false, error = "")
                 }
 
                 is Resource.Error -> {
-                    _state.value = HomeScreenState(
-                        error = result.message ?: "An unexpected error occured"
+                    _state.value = _state.value.copy(
+                        error = result.message ?: "An unexpected error occurred",
+                        isLoading = false
                     )
                 }
 
                 is Resource.Loading -> {
-                    if (_state.value.categoryList == null) {
+                    if (_state.value.parentCategoryList == null) {
                         _state.value = _state.value.copy(isLoading = true, error = "")
                     }
                 }
             }
         }.launchIn(viewModelScope)
     }
-
 
 
     fun resetPager() {
@@ -157,6 +156,10 @@ class HomeViewModel @Inject constructor(
         }
     )
 
+    init {
+        getAllParentCategories()
+        loadNextItems()
+    }
 
     fun loadNextItems(
         query: String? = null,
@@ -191,7 +194,6 @@ class HomeViewModel @Inject constructor(
         locationTrackerRepository.getCurrentLocation().collectLatest {
             stopLocationUpdates()
             getNearPosts(lat = it.latitude, lon = it.longitude)
-            //_state.value = _state.value.copy(getLocation = true)
         }
     }
 

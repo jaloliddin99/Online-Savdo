@@ -1,17 +1,11 @@
 package org.don.onlineTrade.ui.home
 
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -37,12 +31,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
-import kotlinx.coroutines.flow.collectLatest
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
@@ -56,7 +47,11 @@ import androidx.compose.ui.unit.sp
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.location.GpsCheckHelper
 import org.don.onlineTrade.data.location.checkGpsEnabled
-import org.don.onlineTrade.ui.home.search.HomeSearchBar
+import org.don.onlineTrade.ui.categoriesList.Categories
+import org.don.onlineTrade.ui.home.homeItems.HomeSearchBar
+import org.don.onlineTrade.ui.home.homeItems.ShimmerCategoriesRow
+import org.don.onlineTrade.ui.home.homeItems.ShimmerNearPostsRow
+import org.don.onlineTrade.ui.home.homeItems.ShimmerProductGrid
 import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.LocaleManager.FLAG_HAS_DATA
@@ -98,22 +93,33 @@ fun HomeScreen(
     onNotificationClick: () -> Unit = {},
     searchBarModifier: Modifier = Modifier,
 ) {
-    val viewModel = homeViewModel
-    val state = viewModel.state.value
-    val stateNear = viewModel.stateNear.value
-    val isFeedLoading = state.isLoading
+    val state = homeViewModel.state.value
+    val stateNear = homeViewModel.stateNear.value
+    val pagerState = homeViewModel.pagerState
+    val scrollState = rememberLazyGridState()
 
     val context = LocalContext.current
 
-    val pagerState = viewModel.pagerState
-    val scrollState = rememberLazyGridState()
+    // Single pagination trigger using derivedStateOf instead of per-item LaunchedEffect
+    val shouldLoadMore by remember {
+        derivedStateOf {
+            val lastVisibleIndex = scrollState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            val totalItems = scrollState.layoutInfo.totalItemsCount
+            lastVisibleIndex >= totalItems - 3 && !pagerState.endReached && !pagerState.isLoading
+        }
+    }
 
-    // Track scroll direction to show/hide the search bar
+    LaunchedEffect(shouldLoadMore) {
+        if (shouldLoadMore) {
+            homeViewModel.loadNextItems()
+        }
+    }
 
-
-    LaunchedEffect(key1 = viewModel) {
-        viewModel.loadNextItems()
-        viewModel.getAllParentCategories()
+    // Show error as a one-time side effect
+    LaunchedEffect(state.error) {
+        if (state.error.isNotBlank()) {
+            android.widget.Toast.makeText(context, state.error, android.widget.Toast.LENGTH_SHORT).show()
+        }
     }
 
     Column(
@@ -180,14 +186,14 @@ fun HomeScreen(
                         onPermissionClicked = {
                             if (!hasNotPermission) {
                                 GpsCheckHelper(activity).turnOnGpsDialogRequest()
-                                viewModel.locationObserve()
-                                viewModel.startLocationUpdates()
+                                homeViewModel.locationObserve()
+                                homeViewModel.startLocationUpdates()
                             }
                             RunTimePermission().locationPermission(
                                 onPermissionEnabled = {
                                     GpsCheckHelper(activity).turnOnGpsDialogRequest()
-                                    viewModel.locationObserve()
-                                    viewModel.startLocationUpdates()
+                                    homeViewModel.locationObserve()
+                                    homeViewModel.startLocationUpdates()
                                 },
                                 onPermissionNotEnabled = {},
                                 activity
@@ -195,25 +201,23 @@ fun HomeScreen(
                         },
                         onTurnOnClicked = {
                             GpsCheckHelper(activity).turnOnGpsDialogRequest()
-                            viewModel.locationObserve()
-                            viewModel.startLocationUpdates()
+                            homeViewModel.locationObserve()
+                            homeViewModel.startLocationUpdates()
                         },
                         hasNotPermission
                     )
                 } else {
                     if (!FLAG_HAS_DATA) {
                         FLAG_HAS_DATA = true
-                        viewModel.locationObserve()
-                        viewModel.startLocationUpdates()
+                        homeViewModel.locationObserve()
+                        homeViewModel.startLocationUpdates()
                     }
-                    if (stateNear.getNearPost != null) {
+                    stateNear.getNearPost?.let { nearPosts ->
                         NearPosts(
-                            state = stateNear.getNearPost!!,
+                            state = nearPosts,
                             navigateToCategory = navigateToProduct
                         )
-                    } else {
-                        ShimmerNearPostsRow()
-                    }
+                    } ?: ShimmerNearPostsRow()
                 }
             }
 
@@ -235,16 +239,11 @@ fun HomeScreen(
                     ShimmerProductGrid()
                 }
             } else {
-                items(count = pagerState.items.size,
-                    key = {
-                        pagerState.items[it].image.imagePath
-                    }) { i ->
+                items(
+                    count = pagerState.items.size,
+                    key = { pagerState.items[it].id }
+                ) { i ->
                     val item = pagerState.items[i]
-                    LaunchedEffect(scrollState) {
-                        if (i >= pagerState.items.size - 1 && !pagerState.endReached && !pagerState.isLoading) {
-                            viewModel.loadNextItems()
-                        }
-                    }
                     ProductItem(item, onItemClicked = navigateToProduct, onItemLongLicked = {})
                 }
                 item(span = { GridItemSpan(2) }) {
@@ -264,11 +263,6 @@ fun HomeScreen(
                 }
             }
         }
-    }
-
-
-    if (state.error.isNotBlank()) {
-        Toast.makeText(context, state.error, Toast.LENGTH_SHORT).show()
     }
 }
 
@@ -336,4 +330,3 @@ fun GPSEnableView(
         }
     }
 }
-

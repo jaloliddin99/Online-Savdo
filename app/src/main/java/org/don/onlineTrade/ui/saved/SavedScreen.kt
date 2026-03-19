@@ -21,7 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import org.don.onlineTrade.ui.home.ProductItem
-import org.don.onlineTrade.ui.home.ShimmerProductGrid
+import org.don.onlineTrade.ui.home.homeItems.ShimmerProductGrid
 import org.don.onlineTrade.ui.theme.spacing
 
 

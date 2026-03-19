@@ -1,6 +1,5 @@
-package org.don.onlineTrade.ui.home
+package org.don.onlineTrade.ui.home.homeItems
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box

@@ -3,6 +3,7 @@ package org.don.onlineTrade.ui.map
 import android.app.Activity
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -47,7 +48,7 @@ import org.don.onlineTrade.R
 import org.don.onlineTrade.data.location.GpsCheckHelper
 import org.don.onlineTrade.data.location.checkGpsEnabled
 import org.don.onlineTrade.ui.add.AskLocationDialog
-import org.don.onlineTrade.ui.home.search.SearchToolbar
+import org.don.onlineTrade.ui.home.search.filter.SearchToolbar
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.FreeLoading
 import org.don.onlineTrade.utils.SharedPref
@@ -74,7 +75,7 @@ fun MapsScreen(
     viewModel: MapViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.value
-    val activity = LocalContext.current as ComponentActivity
+    val activity = LocalActivity.current as ComponentActivity
     val hasNotPermission = !hasPermissionForLocation(activity)
     val gpsNotEnabled = !checkGpsEnabled(activity)
 
