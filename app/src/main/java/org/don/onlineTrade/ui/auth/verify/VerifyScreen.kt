@@ -1,11 +1,8 @@
 package org.don.onlineTrade.ui.auth.verify
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -16,13 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
@@ -33,13 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -49,9 +35,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ozcanalasalvar.otp_view.compose.OtpView
 import org.don.onlineTrade.R
-import org.don.onlineTrade.ui.auth.register.Branding
+import org.don.onlineTrade.data.worker.TokenRefreshScheduler
 import org.don.onlineTrade.ui.auth.register.Logo
-import org.don.onlineTrade.ui.auth.register.RegistrationState
 import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.FreeLoading
@@ -193,7 +178,7 @@ fun VerificationScreen(
             SharedPref.loginTime = System.currentTimeMillis()
             SharedPref.deviceToken = "Bearer ${state.registerMain.token}"
             SharedPref.refreshToken = state.registerMain.refreshToken ?: ""
-            org.don.onlineTrade.data.worker.TokenRefreshScheduler.scheduleDailyRefresh(context)
+            TokenRefreshScheduler.scheduleDailyRefresh(context)
             onMainScreen.invoke()
         }else{
             Toast.makeText(context, stringResource(id = R.string.invalid_password), Toast.LENGTH_SHORT).show()
