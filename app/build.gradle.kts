@@ -129,6 +129,9 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-messaging-ktx:24.1.2")
 
+    implementation("androidx.work:work-runtime-ktx:2.10.1")
+    implementation("androidx.hilt:hilt-work:1.3.0")
+
 
 
 }

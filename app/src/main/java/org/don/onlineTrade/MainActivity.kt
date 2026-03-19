@@ -28,6 +28,7 @@ import org.don.onlineTrade.ui.theme.OnlineMarketTheme
 import org.don.onlineTrade.utils.LocaleManager
 import org.don.onlineTrade.utils.ModelPref
 import org.don.onlineTrade.utils.SharedPref
+import org.don.onlineTrade.data.worker.TokenRefreshScheduler
 import org.don.onlineTrade.utils.runTimePermission.OnRunTimePermissionListener
 import org.don.onlineTrade.utils.runTimePermission.RunTimePermission
 
@@ -44,6 +45,11 @@ class MainActivity : ComponentActivity(), OnRunTimePermissionListener {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         RunTimePermission().permissionList(this, this)
+
+        // Refresh access token on app open if user is logged in
+        if (SharedPref.refreshToken.isNotBlank()) {
+            TokenRefreshScheduler.refreshNow(this)
+        }
         val userSetting = ModelPref.get<UserEditableSettings>(SETTINGS_UI_STATE)
         val settingsUiState = if (userSetting != null) userSetting
         else {

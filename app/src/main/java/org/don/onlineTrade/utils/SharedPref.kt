@@ -9,6 +9,7 @@ object SharedPref: KotprefModel() {
     var radius by intPref(10)
 
     var deviceToken by stringPref()
+    var refreshToken by stringPref()
 
     var loginTime by longPref()
 

@@ -16,7 +16,8 @@ data class LoginBody(
 data class VerificationRes(
     val status: Boolean,
     val message: String,
-    val token: String
+    val token: String,
+    val refreshToken: String? = null
 )
 
 data class ModelSuccess(

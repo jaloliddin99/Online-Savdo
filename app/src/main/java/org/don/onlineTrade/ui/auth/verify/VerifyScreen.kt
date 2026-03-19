@@ -192,6 +192,8 @@ fun VerificationScreen(
         if (state.registerMain.status){
             SharedPref.loginTime = System.currentTimeMillis()
             SharedPref.deviceToken = "Bearer ${state.registerMain.token}"
+            SharedPref.refreshToken = state.registerMain.refreshToken ?: ""
+            org.don.onlineTrade.data.worker.TokenRefreshScheduler.scheduleDailyRefresh(context)
             onMainScreen.invoke()
         }else{
             Toast.makeText(context, stringResource(id = R.string.invalid_password), Toast.LENGTH_SHORT).show()

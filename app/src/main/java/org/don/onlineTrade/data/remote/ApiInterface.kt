@@ -64,6 +64,11 @@ interface ApiInterface {
         @Query("password") password: String
     ): ModelSuccess
 
+    @POST("auth/refresh-token")
+    suspend fun refreshToken(
+        @Body body: Map<String, String>
+    ): GenericModel<Map<String, String>>
+
     @GET("post")
     suspend fun getPublicProducts(
         @Header("Authorization") token: String,
