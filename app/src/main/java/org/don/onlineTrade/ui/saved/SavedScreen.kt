@@ -55,8 +55,7 @@ fun SavedScreen(
         modifier = modifier.fillMaxSize()
     ) {
         LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            contentPadding = PaddingValues(horizontal = MaterialTheme.spacing.dimen8Dp)
+            columns = GridCells.Fixed(2)
         ) {
             if (pagerState.isLoading && pagerState.items.isEmpty() && pagerState.page == 0) {
                 item(span = { GridItemSpan(2) }) {
