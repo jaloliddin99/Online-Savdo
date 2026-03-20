@@ -57,9 +57,8 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import androidx.compose.ui.graphics.luminance
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import org.don.onlineTrade.R
-import org.don.onlineTrade.data.location.GpsCheckHelper
 import org.don.onlineTrade.data.location.checkGpsEnabled
-import org.don.onlineTrade.ui.home.search.filter.SearchToolbar
+import org.don.onlineTrade.ui.main.home.search.filter.SearchToolbar
 import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.FreeLoading

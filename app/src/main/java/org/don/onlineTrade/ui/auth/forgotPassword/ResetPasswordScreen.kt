@@ -17,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,14 +34,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ozcanalasalvar.otp_view.compose.OtpView
 import org.don.onlineTrade.R
 import org.don.onlineTrade.ui.auth.ConfirmPasswordState
-import org.don.onlineTrade.ui.auth.Email
-import org.don.onlineTrade.ui.auth.EmailState
-import org.don.onlineTrade.ui.auth.EmailStateSaver
 import org.don.onlineTrade.ui.auth.Password
 import org.don.onlineTrade.ui.auth.PasswordState
 import org.don.onlineTrade.ui.auth.register.Branding
-import org.don.onlineTrade.ui.home.ForgotPasswordState
-import org.don.onlineTrade.ui.home.ResetNewPasswordState
+import org.don.onlineTrade.ui.main.home.ResetNewPasswordState
 import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.FreeLoading

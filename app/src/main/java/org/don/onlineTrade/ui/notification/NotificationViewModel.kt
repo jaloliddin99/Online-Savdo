@@ -9,8 +9,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import org.don.onlineTrade.data.remote.models.getNotifications.Content
 import org.don.onlineTrade.domain.NotificationsUseCase
-import org.don.onlineTrade.ui.home.ScreenState
-import org.don.onlineTrade.utils.pager.DefaultPaginator
 import org.don.onlineTrade.utils.pager.NotificationPaginator
 import javax.inject.Inject
 

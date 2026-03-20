@@ -150,6 +150,7 @@
     <string name="location_updated">Location and radius updated</string>
     <string name="location_only_updated">Location updated</string>
     <string name="radius_only_updated">Radius updated</string>
+    <string name="section_log_out">Logout</string>
 
 
 </resources>

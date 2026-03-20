@@ -6,21 +6,26 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,18 +33,29 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import org.don.onlineTrade.R
-import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.phone.PhoneNumberVisualTransformation
 
+private val AuthFieldShape = RoundedCornerShape(14.dp)
+
+@Composable
+private fun authFieldColors() = TextFieldDefaults.colors(
+    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+    errorContainerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f),
+    focusedIndicatorColor = Color.Transparent,
+    unfocusedIndicatorColor = Color.Transparent,
+    errorIndicatorColor = Color.Transparent,
+)
 
 @Composable
 fun PhoneNumber(
@@ -48,22 +64,26 @@ fun PhoneNumber(
     onImeAction: () -> Unit = {},
     modifier: Modifier,
     @StringRes resId: Int = R.string.phone_number
-){
-    val cornerSize = with(LocalDensity.current) { MaterialTheme.spacing.dimen8Dp }
-
-    OutlinedTextField(
+) {
+    TextField(
         value = phoneState.text,
         onValueChange = {
-            Log.d("TAG", "PhoneNumberdwadawdawdawdawdawd $it , ${it.length}")
-            if (it.length <= 13){
+            if (it.length <= 13) {
                 phoneState.text = it
             }
         },
         singleLine = true,
-        label = {
+        placeholder = {
             Text(
                 text = stringResource(id = resId),
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyLarge,
+            )
+        },
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Outlined.Phone,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         },
         modifier = modifier
@@ -74,28 +94,22 @@ fun PhoneNumber(
                     phoneState.enableShowErrors()
                 }
             },
-        shape = MaterialTheme.shapes.medium.copy(
-            topStart = CornerSize(cornerSize),
-            topEnd = CornerSize(cornerSize),
-            bottomStart = CornerSize(cornerSize),
-            bottomEnd = CornerSize(cornerSize)
-        ),
-        textStyle = MaterialTheme.typography.bodyMedium,
+        shape = AuthFieldShape,
+        colors = authFieldColors(),
+        textStyle = MaterialTheme.typography.bodyLarge,
         isError = phoneState.showErrors(),
         keyboardOptions = KeyboardOptions.Default.copy(
             imeAction = imeAction,
             keyboardType = KeyboardType.Phone
         ),
         keyboardActions = KeyboardActions(
-            onDone = {
-                onImeAction()
-            }
+            onDone = { onImeAction() }
         ),
         visualTransformation = PhoneNumberVisualTransformation(),
-        )
-
+    )
     phoneState.getError()?.let { error -> TextFieldError(textError = error) }
 }
+
 @Composable
 fun NameField(
     nameState: TextFieldState = remember { TextFieldState() },
@@ -103,18 +117,22 @@ fun NameField(
     onImeAction: () -> Unit = {},
     modifier: Modifier,
     @StringRes resId: Int = R.string.firstName
-){
-    val cornerSize = with(LocalDensity.current) { MaterialTheme.spacing.dimen8Dp }
-
-    OutlinedTextField(
+) {
+    TextField(
         value = nameState.text,
-        onValueChange = {
-            nameState.text = it
-        },
-        label = {
+        onValueChange = { nameState.text = it },
+        singleLine = true,
+        placeholder = {
             Text(
                 text = stringResource(id = resId),
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyLarge,
+            )
+        },
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Outlined.Person,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         },
         modifier = modifier
@@ -125,27 +143,21 @@ fun NameField(
                     nameState.enableShowErrors()
                 }
             },
-        shape = MaterialTheme.shapes.medium.copy(
-            topStart = CornerSize(cornerSize),
-            topEnd = CornerSize(cornerSize),
-            bottomStart = CornerSize(cornerSize),
-            bottomEnd = CornerSize(cornerSize)
-        ),
-        textStyle = MaterialTheme.typography.bodyMedium,
+        shape = AuthFieldShape,
+        colors = authFieldColors(),
+        textStyle = MaterialTheme.typography.bodyLarge,
         isError = nameState.showErrors(),
         keyboardOptions = KeyboardOptions.Default.copy(
             imeAction = imeAction,
             keyboardType = KeyboardType.Text
         ),
         keyboardActions = KeyboardActions(
-            onDone = {
-                onImeAction()
-            }
+            onDone = { onImeAction() }
         ),
     )
-
     nameState.getError()?.let { error -> TextFieldError(textError = error) }
 }
+
 @Composable
 fun Email(
     emailState: TextFieldState = remember { EmailState() },
@@ -153,17 +165,21 @@ fun Email(
     onImeAction: () -> Unit = {},
     modifier: Modifier
 ) {
-    val cornerSize = with(LocalDensity.current) { MaterialTheme.spacing.dimen8Dp }
-
-    OutlinedTextField(
+    TextField(
         value = emailState.text,
-        onValueChange = {
-            emailState.text = it
-        },
-        label = {
+        onValueChange = { emailState.text = it },
+        singleLine = true,
+        placeholder = {
             Text(
                 text = stringResource(id = R.string.email),
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyLarge,
+            )
+        },
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Outlined.Email,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         },
         modifier = modifier
@@ -174,43 +190,32 @@ fun Email(
                     emailState.enableShowErrors()
                 }
             },
-        shape = MaterialTheme.shapes.medium.copy(
-            topStart = CornerSize(cornerSize),
-            topEnd = CornerSize(cornerSize),
-            bottomStart = CornerSize(cornerSize),
-            bottomEnd = CornerSize(cornerSize)
-        ),
-        textStyle = MaterialTheme.typography.bodyMedium,
+        shape = AuthFieldShape,
+        colors = authFieldColors(),
+        textStyle = MaterialTheme.typography.bodyLarge,
         isError = emailState.showErrors(),
         keyboardOptions = KeyboardOptions.Default.copy(
             imeAction = imeAction,
             keyboardType = KeyboardType.Email
         ),
         keyboardActions = KeyboardActions(
-            onDone = {
-                onImeAction()
-            }
+            onDone = { onImeAction() }
         ),
     )
-
     emailState.getError()?.let { error -> TextFieldError(textError = error) }
 }
 
-/**
- * To be removed when [TextField]s support error
- */
 @Composable
 fun TextFieldError(textError: String) {
-    Row(modifier = Modifier.fillMaxWidth()) {
-        Spacer(modifier = Modifier.width(16.dp))
+    Row(modifier = Modifier.fillMaxWidth().padding(start = 16.dp, top = 4.dp)) {
         Text(
             text = textError,
             modifier = Modifier.fillMaxWidth(),
+            style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.error
         )
     }
 }
-
 
 @Composable
 fun OrSignInAsGuest(
@@ -225,7 +230,7 @@ fun OrSignInAsGuest(
             text = stringResource(id = R.string.or),
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-            modifier = Modifier.paddingFromBaseline(top = 16.dp)
+            modifier = Modifier.padding(top = 16.dp)
         )
         OutlinedButton(
             onClick = onSignInAsGuest,
@@ -247,13 +252,26 @@ fun Password(
     onImeAction: () -> Unit = {}
 ) {
     val showPassword = rememberSaveable { mutableStateOf(false) }
-    val cornerSize = with(LocalDensity.current) { MaterialTheme.spacing.dimen8Dp }
 
-    OutlinedTextField(
+    TextField(
         value = passwordState.text,
         onValueChange = {
             passwordState.text = it
             passwordState.enableShowErrors()
+        },
+        singleLine = true,
+        placeholder = {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyLarge,
+            )
+        },
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Outlined.Lock,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         },
         modifier = modifier
             .fillMaxWidth()
@@ -263,52 +281,31 @@ fun Password(
                     passwordState.enableShowErrors()
                 }
             },
-        shape = MaterialTheme.shapes.medium.copy(
-            topStart = CornerSize(cornerSize),
-            topEnd = CornerSize(cornerSize),
-            bottomStart = CornerSize(cornerSize),
-            bottomEnd = CornerSize(cornerSize)
-        ),
-        textStyle = MaterialTheme.typography.bodyMedium,
-        label = {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.bodyMedium,
-            )
-        },
+        shape = AuthFieldShape,
+        colors = authFieldColors(),
+        textStyle = MaterialTheme.typography.bodyLarge,
         trailingIcon = {
-            if (showPassword.value) {
-                IconButton(onClick = { showPassword.value = false }) {
-                    Icon(
-                        imageVector = Icons.Filled.Visibility,
-                        contentDescription = stringResource(id = R.string.hide_password)
-                    )
-                }
-            } else {
-                IconButton(onClick = { showPassword.value = true }) {
-                    Icon(
-                        imageVector = Icons.Filled.VisibilityOff,
-                        contentDescription = stringResource(id = R.string.show_password)
-                    )
-                }
+            IconButton(onClick = { showPassword.value = !showPassword.value }) {
+                Icon(
+                    imageVector = if (showPassword.value)
+                        Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                    contentDescription = if (showPassword.value)
+                        stringResource(R.string.hide_password)
+                    else stringResource(R.string.show_password),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         },
-        visualTransformation = if (showPassword.value) {
-            VisualTransformation.None
-        } else {
-            PasswordVisualTransformation()
-        },
+        visualTransformation = if (showPassword.value)
+            VisualTransformation.None else PasswordVisualTransformation(),
         isError = passwordState.showErrors(),
         keyboardOptions = KeyboardOptions.Default.copy(
             imeAction = imeAction,
             keyboardType = KeyboardType.Password
         ),
         keyboardActions = KeyboardActions(
-            onDone = {
-                onImeAction()
-            }
+            onDone = { onImeAction() }
         ),
     )
     passwordState.getError()?.let { error -> TextFieldError(textError = error) }
-
 }

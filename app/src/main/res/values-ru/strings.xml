@@ -149,6 +149,7 @@
     <string name="location_updated">Местоположение и радиус обновлены</string>
     <string name="location_only_updated">Местоположение обновлено</string>
     <string name="radius_only_updated">Радиус обновлён</string>
+    <string name="section_log_out">Logout</string>
 
 
 </resources>

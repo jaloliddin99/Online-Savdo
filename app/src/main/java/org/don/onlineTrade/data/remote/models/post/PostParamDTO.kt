@@ -1,6 +1,7 @@
 package org.don.onlineTrade.data.remote.models.post
 
-import org.don.onlineTrade.ui.add.dynamic.DynamicViewData
+import org.don.onlineTrade.ui.main.add.dynamic.DynamicViewData
+
 
 data class PostParamDTO(
     val code: String,

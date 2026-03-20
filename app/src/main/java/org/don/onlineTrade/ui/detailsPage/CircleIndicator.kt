@@ -1,12 +1,10 @@
 package org.don.onlineTrade.ui.detailsPage
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,9 +14,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,8 +33,7 @@ import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import org.don.onlineTrade.BuildConfig
 import org.don.onlineTrade.R
-import org.don.onlineTrade.ui.home.PresentProductState
-import org.don.onlineTrade.ui.theme.spacing
+import org.don.onlineTrade.ui.main.home.PresentProductState
 
 @Composable
 fun ImagePager(
@@ -84,7 +79,7 @@ fun ImagePager(
                     modifier = Modifier
                         .fillMaxSize(),
                     contentScale = ContentScale.Crop,
-                    painter = if (isError.not()) imageLoader else painterResource(R.drawable.logo),
+                    painter = if (isError.not()) imageLoader else painterResource(R.drawable.sotiq_icon),
                 )
             }
         }

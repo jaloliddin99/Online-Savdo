@@ -24,6 +24,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Delete
@@ -38,6 +39,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -50,6 +52,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -59,13 +62,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsData
 import org.don.onlineTrade.data.remote.models.showProducts.PostParam
-import org.don.onlineTrade.ui.add.TextBold16
-import org.don.onlineTrade.ui.add.TextNormal16
-import org.don.onlineTrade.ui.add.TextThin
-import org.don.onlineTrade.ui.home.HomeViewModel
-import org.don.onlineTrade.ui.home.PresentProductState
-import org.don.onlineTrade.ui.home.ProductItemForDetailsPage
-import org.don.onlineTrade.ui.home.ScreenState
+import org.don.onlineTrade.ui.main.add.TextBold16
+import org.don.onlineTrade.ui.main.add.TextNormal16
+import org.don.onlineTrade.ui.main.add.TextThin
+import org.don.onlineTrade.ui.main.home.HomeViewModel
+import org.don.onlineTrade.ui.main.home.PresentProductState
+import org.don.onlineTrade.ui.main.home.ProductItemForDetailsPage
+import org.don.onlineTrade.ui.main.home.ScreenState
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.SharedPref
 import org.don.onlineTrade.utils.callTo
@@ -105,6 +108,7 @@ fun ProductDetailsRoute(
 
     ProductDetailsScreen(
         pagerState,
+        modifier = Modifier.fillMaxSize(),
         state = state,
         onSimilarItemClicked = onSimilarItemClicked,
         onItemClicked = {

@@ -4,14 +4,11 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -22,10 +19,6 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -34,7 +27,6 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -45,12 +37,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavType
@@ -59,7 +48,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import org.don.onlineTrade.data.remote.models.category.CategoryItem
-import org.don.onlineTrade.ui.add.AddProductRoute
 import org.don.onlineTrade.ui.auth.forgotPassword.ForgotPasswordRoute
 import org.don.onlineTrade.ui.auth.forgotPassword.ResetPasswordRoute
 import org.don.onlineTrade.ui.auth.login.SignInRoute
@@ -70,9 +58,10 @@ import org.don.onlineTrade.ui.detailsPage.ProductDetailsRoute
 import org.don.onlineTrade.ui.dialogs.settings.SettingsDialog
 import org.don.onlineTrade.ui.dialogs.settings.UserEditableSettings
 import org.don.onlineTrade.ui.filterCategory.FilterCategoryRoute
-import org.don.onlineTrade.ui.home.HomeRoute
-import org.don.onlineTrade.ui.home.HomeViewModel
-import org.don.onlineTrade.ui.home.search.SearchRoute
+import org.don.onlineTrade.ui.main.add.AddProductRoute
+import org.don.onlineTrade.ui.main.home.HomeRoute
+import org.don.onlineTrade.ui.main.home.HomeViewModel
+import org.don.onlineTrade.ui.main.home.search.SearchRoute
 import org.don.onlineTrade.ui.map.MapScreenData
 import org.don.onlineTrade.ui.map.MapShowLocationScreen
 import org.don.onlineTrade.ui.map.MapsScreen
@@ -80,11 +69,11 @@ import org.don.onlineTrade.ui.map.SelectRadiusMapScreen
 import org.don.onlineTrade.ui.navigation.NavigationDefaults
 import org.don.onlineTrade.ui.navigation.Screen
 import org.don.onlineTrade.ui.notification.NotificationsRoute
-import org.don.onlineTrade.ui.profile.ProfileRoute
-import org.don.onlineTrade.ui.profile.myPosts.MyPostsScreenRoute
-import org.don.onlineTrade.ui.profile.update.UpdateProfileRoute
-import org.don.onlineTrade.ui.profile.updatePassword.UpdatePasswordRoute
-import org.don.onlineTrade.ui.saved.SavedRoute
+import org.don.onlineTrade.ui.main.profile.ProfileRoute
+import org.don.onlineTrade.ui.main.myPosts.MyPostsScreenRoute
+import org.don.onlineTrade.ui.main.profile.update.UpdateProfileRoute
+import org.don.onlineTrade.ui.main.profile.updatePassword.UpdatePasswordRoute
+import org.don.onlineTrade.ui.main.saved.SavedRoute
 import org.don.onlineTrade.ui.theme.AppBackground
 import org.don.onlineTrade.ui.theme.AppGradientBackground
 import org.don.onlineTrade.ui.theme.GradientColors
@@ -100,17 +89,6 @@ private val BOTTOM_BAR_ROUTES = setOf(
     Screen.Profile.route
 )
 
-private val BACK_ARROW_ROUTES = setOf(
-    Screen.Categories.route,
-    Screen.ProfileUpdate.route,
-    Screen.PasswordUpdate.route,
-    Screen.ProductDetails.ROUTE,
-    Screen.Notifications.route,
-    Screen.FilterCategory.ROUTE,
-    Screen.Map.route,
-    Screen.MapUserLocation.ROUTE
-)
-
 @OptIn(
     ExperimentalMaterial3Api::class,
     ExperimentalLayoutApi::class, ExperimentalComposeUiApi::class
@@ -120,9 +98,7 @@ fun MainScreenView(
     state: UserEditableSettings,
     appState: ApplicationState = rememberNiaAppState(),
     restartApp: () -> Unit
-
 ) {
-
     val currentRoute = appState.currentDestination?.route
     val showBottomBar = currentRoute in BOTTOM_BAR_ROUTES
 
@@ -159,19 +135,6 @@ fun MainScreenView(
                 GradientColors()
             },
         ) {
-            val destination = appState.currentTopLevelDestination
-            val currentRoute = appState.currentDestination
-
-            // Before NavHost initializes, currentRoute is null.
-            // Default to Home toolbar so it's visible from the very first frame.
-            val startsOnTopLevel = remember { isUserHasRightToAccessToMainPart() }
-            var lastDestination by remember {
-                mutableStateOf(destination ?: if (startsOnTopLevel) NavItems.Home else null)
-            }
-            if (destination != null && destination != NavItems.Home) {
-                lastDestination = destination
-            }
-
             Scaffold(
                 modifier = Modifier.semantics {
                     testTagsAsResourceId = true
@@ -189,7 +152,7 @@ fun MainScreenView(
                     }
                 }
             ) { padding ->
-                Column(
+                Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(padding)
@@ -200,74 +163,15 @@ fun MainScreenView(
                             )
                         )
                 ) {
-                    // Show toolbar on top-level screens that use the global AppBar.
-                    // Home has its own search bar, so exclude it — this lets
-                    // AnimatedVisibility fade out the previous screen's AppBar
-                    // smoothly instead of collapsing it instantly.
-                    val showTopBar = destination != null && destination != NavItems.Home
-                    var useTopBarAnimation by remember { mutableStateOf(false) }
-
-                    LaunchedEffect(showTopBar) {
-                        if (showTopBar) useTopBarAnimation = true
-                    }
-
-                    val topBarContent: @Composable () -> Unit = {
-                        val topBarDestination = lastDestination
-                        if (topBarDestination != null) {
-                            if (topBarDestination.screenRoute == Screen.Home.route) {
-                                // Search bar is rendered inside HomeScreen for shared element transition
-                            } else {
-                                val showBackArrow =
-                                    topBarDestination.screenRoute in BACK_ARROW_ROUTES
-
-                                TopAppBar(
-                                    title = stringResource(id = topBarDestination.titleRes),
-                                    navigationIcon = if (showBackArrow) Icons.Filled.ArrowBack else null,
-                                    navigationIconContentDescription = null,
-                                    actionIcon = when (topBarDestination.screenRoute) {
-                                        Screen.Profile.route -> Icons.Filled.Settings
-                                        Screen.AddProduct.route -> null
-                                        in BACK_ARROW_ROUTES -> null
-                                        else -> Icons.Filled.Search
-                                    },
-                                    actionIconContentDescription = null,
-                                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                                        containerColor = Color.Transparent
-                                    ),
-                                    onActionClick = {
-                                        when (topBarDestination.screenRoute) {
-                                            Screen.Profile.route -> showSettingsDialog = true
-                                            else -> appState.navigateToSearch()
-                                        }
-                                    },
-                                    onNavigationClick = {
-                                        if (showBackArrow) {
-                                            appState.navController.popBackStack()
-                                        }
-                                    }
-                                )
-                            }
-                        }
-                    }
-
-                    // First appearance: show instantly. After that: animate.
-                    if (!useTopBarAnimation && showTopBar) {
-                        topBarContent()
-                    } else if (useTopBarAnimation) {
-                        AnimatedVisibility(
-                            visible = showTopBar,
-                            enter = fadeIn(animationSpec = tween(300)),
-                            exit = fadeOut(animationSpec = tween(300))
-                        ) {
-                            topBarContent()
-                        }
-                    }
-                    NavigationGraph(appState, restartApp)
+                    NavigationGraph(
+                        appState = appState,
+                        restartApp = restartApp,
+                        onSettingsClick = { showSettingsDialog = true }
+                    )
                 }
             }
         }
     }
-
 }
 
 
@@ -324,7 +228,8 @@ fun BottomNavigation(
 @OptIn(ExperimentalSharedTransitionApi::class)
 fun NavigationGraph(
     appState: ApplicationState,
-    restartApp: () -> Unit
+    restartApp: () -> Unit,
+    onSettingsClick: () -> Unit
 ) {
     val navController = appState.navController
     val homeViewModel: HomeViewModel = hiltViewModel()
@@ -411,7 +316,8 @@ fun NavigationGraph(
                     onItemClicked = {
                         navController.navigate(Screen.ProductDetails(it).route)
                     },
-                    categoryId = param
+                    categoryId = param,
+                    onBackClick = navController::popBackStack
                 )
             }
 
@@ -476,7 +382,9 @@ fun NavigationGraph(
             }
 
             composable(route = Screen.Notifications.route) {
-                NotificationsRoute()
+                NotificationsRoute(
+                    onBackClick = navController::popBackStack
+                )
             }
 
             composable(
@@ -505,6 +413,7 @@ fun NavigationGraph(
                     entry.savedStateHandle.set("refresh_profile", false)
                 }
                 ProfileRoute(
+                    onSettingsClick = onSettingsClick,
                     toMyProducts = {
                         navController.navigate(Screen.MyProducts.route)
                     },
@@ -698,7 +607,8 @@ fun NavigationGraph(
                             ?.savedStateHandle
                             ?.set("category_item", it)
                         navController.popBackStack()
-                    }
+                    },
+                    onBackClick = navController::popBackStack
                 )
             }
 

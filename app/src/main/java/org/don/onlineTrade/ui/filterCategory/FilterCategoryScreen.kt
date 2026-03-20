@@ -14,25 +14,31 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import org.don.onlineTrade.R
-import org.don.onlineTrade.ui.home.HomeViewModel
-import org.don.onlineTrade.ui.home.ProductItem
+import org.don.onlineTrade.ui.TopAppBar
+import org.don.onlineTrade.ui.main.home.HomeViewModel
+import org.don.onlineTrade.ui.main.home.ProductItem
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.FreeLoading
 
@@ -41,13 +47,24 @@ import org.don.onlineTrade.utils.FreeLoading
 fun FilterCategoryRoute(
     modifier: Modifier = Modifier,
     onItemClicked: (Int) -> Unit,
-    categoryId: Int?
+    categoryId: Int?,
+    onBackClick: () -> Unit,
 ) {
-    FilterCategoryScreen(
-        modifier = modifier,
-        onItemClicked = onItemClicked,
-        categoryId = categoryId
-    )
+    Column(modifier = Modifier.fillMaxSize()) {
+        TopAppBar(
+            title = stringResource(R.string.categories),
+            navigationIcon = Icons.Filled.ArrowBack,
+            onNavigationClick = onBackClick,
+            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                containerColor = Color.Transparent
+            )
+        )
+        FilterCategoryScreen(
+            modifier = modifier.weight(1f),
+            onItemClicked = onItemClicked,
+            categoryId = categoryId
+        )
+    }
 }
 
 
@@ -71,7 +88,6 @@ fun FilterCategoryScreen(
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             modifier = modifier
-                .padding(horizontal = MaterialTheme.spacing.dimen8Dp)
                 .fillMaxSize(),
         ) {
             items(pagerState.items.size) { i ->
@@ -133,5 +149,18 @@ fun ComposeLottieAnimation(modifier: Modifier) {
                 style = MaterialTheme.typography.titleSmall
             )
         }
+    }
+}
+
+
+@Preview
+@Composable
+fun FilterCategoryRoutePreview(modifier: Modifier = Modifier) {
+    MaterialTheme {
+        FilterCategoryRoute(
+            onItemClicked = {},
+            categoryId = 1,
+            onBackClick = {}
+        )
     }
 }

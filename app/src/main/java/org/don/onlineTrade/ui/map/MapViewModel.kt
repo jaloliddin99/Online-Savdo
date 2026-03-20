@@ -19,7 +19,7 @@ import org.don.onlineTrade.domain.repository.LocationTracker
 import org.don.onlineTrade.domain.state.Resource
 import org.don.onlineTrade.data.remote.models.reverse.FeatureMember
 import org.don.onlineTrade.domain.useCase.LocationReverseUseCase
-import org.don.onlineTrade.ui.home.MapScreenScreenState
+import org.don.onlineTrade.ui.main.home.MapScreenScreenState
 import org.don.onlineTrade.utils.LOCATION_REVERSE_URL
 import org.don.onlineTrade.utils.SharedPref
 import javax.inject.Inject

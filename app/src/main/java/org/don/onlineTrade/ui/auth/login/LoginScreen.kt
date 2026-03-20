@@ -3,7 +3,6 @@ package org.don.onlineTrade.ui.auth.login
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -13,14 +12,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,26 +35,22 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import org.don.onlineTrade.R
 import org.don.onlineTrade.ui.auth.Email
 import org.don.onlineTrade.ui.auth.EmailState
 import org.don.onlineTrade.ui.auth.EmailStateSaver
-import org.don.onlineTrade.ui.auth.OrSignInAsGuest
 import org.don.onlineTrade.ui.auth.Password
 import org.don.onlineTrade.ui.auth.PasswordState
 import org.don.onlineTrade.ui.auth.register.Branding
 import org.don.onlineTrade.ui.auth.register.DoYouHaveAccount
-import org.don.onlineTrade.ui.auth.register.RegistrationState
-import org.don.onlineTrade.ui.auth.register.SignUpScreen
 import org.don.onlineTrade.ui.theme.OnlineMarketTheme
 import org.don.onlineTrade.ui.theme.robotoFontFamily
-import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.FreeLoading
-import org.don.onlineTrade.utils.SharedPref
-import java.util.Date
+
+private val BrandGreen = Color(0xFF1A6B3C)
 
 @Composable
 fun SignInScreen(
@@ -65,17 +59,19 @@ fun SignInScreen(
     loginSuccess: (email: String) -> Unit,
     forgotPassword: () -> Unit
 ) {
-    var showBranding by remember {
-        mutableStateOf(true)
-    }
+    var showBranding by remember { mutableStateOf(true) }
 
-    Box(modifier = Modifier.fillMaxSize().statusBarsPadding()){
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
+                .padding(horizontal = 24.dp)
         ) {
-
             Spacer(
                 modifier = Modifier
                     .weight(1f, fill = showBranding)
@@ -94,68 +90,65 @@ fun SignInScreen(
                     .weight(1f, fill = showBranding)
                     .animateContentSize()
             )
+
             SignInToLoginAccount(
                 onSignInSignUp = onSignInSignUp,
-                onSignInAsGuest = {},
                 onFocusChange = { hasFocus -> showBranding = !hasFocus },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp)
-                    .padding(bottom = 100.dp),
-                forgotPassword
+                    .padding(bottom = 48.dp),
+                forgotPassword = forgotPassword
             )
         }
-        if (state.registerMain!= null){
+
+        if (state.registerMain != null) {
             loginSuccess.invoke(state.email)
         }
 
         val context = LocalContext.current
         val rememberedContext = remember { { context } }
         SideEffect {
-            if (state.error.isNotBlank()){
+            if (state.error.isNotBlank()) {
                 Toast.makeText(rememberedContext(), state.error, Toast.LENGTH_SHORT).show()
             }
         }
         FreeLoading(state.isLoading, paddingTop = 64.dp)
     }
-
-
 }
-
 
 @Composable
 fun SignInToLoginAccount(
     onSignInSignUp: (email: String, password: String) -> Unit,
-    onSignInAsGuest: () -> Unit,
     onFocusChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     forgotPassword: () -> Unit
 ) {
     val focusManager = LocalFocusManager.current
-
     val focusRequester = remember { FocusRequester() }
 
     val emailState by rememberSaveable(stateSaver = EmailStateSaver) {
         mutableStateOf(EmailState())
     }
-    val passwordState = remember {
-        PasswordState()
-    }
+    val passwordState = remember { PasswordState() }
 
     Column(
-        modifier = modifier
-            .fillMaxWidth(),
-
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = modifier.fillMaxWidth(),
     ) {
+        // Heading
         Text(
             text = stringResource(id = R.string.login_account),
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(top = 24.dp, bottom = 12.dp),
             fontFamily = robotoFontFamily,
-            fontWeight = FontWeight.Medium,
-            fontSize = MaterialTheme.spacing.dimen16Sp
+            fontWeight = FontWeight.Bold,
+            fontSize = 26.sp,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Text(
+            text = stringResource(id = R.string.please_login),
+            fontFamily = robotoFontFamily,
+            fontWeight = FontWeight.Normal,
+            fontSize = 15.sp,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+            modifier = Modifier.padding(top = 6.dp, bottom = 28.dp)
         )
 
         val onSubmit = {
@@ -167,63 +160,74 @@ fun SignInToLoginAccount(
             }
         }
         onFocusChange(emailState.isFocused || passwordState.isFocused)
+
         Email(
             emailState = emailState,
             imeAction = ImeAction.Next,
-            onImeAction = {
-                focusRequester.requestFocus()
-            },
+            onImeAction = { focusRequester.requestFocus() },
             modifier = Modifier
         )
-        Spacer(modifier = Modifier.height(24.dp))
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         Password(
             label = stringResource(id = R.string.password),
             passwordState = passwordState,
             imeAction = ImeAction.Done,
             modifier = Modifier.focusRequester(focusRequester),
-            onImeAction = {
-                focusManager.clearFocus()
-            }
+            onImeAction = { focusManager.clearFocus() }
         )
 
-        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
-        DoYouHaveAccount(onTextClicked = {
-            forgotPassword()
-        },
-            text = R.string.forgot_password)
+        // Forgot password link
+        DoYouHaveAccount(
+            onTextClicked = { forgotPassword() },
+            text = R.string.forgot_password,
+            modifier = Modifier.padding(top = 12.dp)
+        )
 
-        val isEnabled = emailState.isValid &&
-                passwordState.isValid
-
+        // Sign In button
+        val isEnabled = emailState.isValid && passwordState.isValid
 
         Button(
             onClick = onSubmit,
             enabled = isEnabled,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 28.dp, bottom = 3.dp)
+                .padding(top = 32.dp)
+                .height(52.dp),
+            shape = RoundedCornerShape(14.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = BrandGreen,
+                contentColor = Color.White,
+                disabledContainerColor = BrandGreen.copy(alpha = 0.4f),
+                disabledContentColor = Color.White.copy(alpha = 0.7f)
+            )
         ) {
             Text(
                 text = stringResource(id = R.string.continuee),
-                style = MaterialTheme.typography.titleSmall
+                fontFamily = robotoFontFamily,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 16.sp
             )
         }
-//        OrSignInAsGuest(
-//            onSignInAsGuest = onSignInAsGuest,
-//            modifier = Modifier.fillMaxWidth()
-//        )
 
+        // Sign Up link
+        DoYouHaveAccount(
+            onTextClicked = { forgotPassword() },
+            text = R.string.do_you_already_have_account,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(top = 20.dp)
+        )
     }
-
-
 }
 
 @Preview
 @Composable
 private fun WelcomeScreenPreview() {
     OnlineMarketTheme {
-        SignInScreen(onSignInSignUp = { s: String, s1: String -> },
+        SignInScreen(
+            onSignInSignUp = { _: String, _: String -> },
             state = LoginState(),
             loginSuccess = {},
             forgotPassword = {}

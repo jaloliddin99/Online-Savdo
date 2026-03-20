@@ -47,8 +47,8 @@ import androidx.compose.ui.graphics.luminance
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.location.GpsCheckHelper
 import org.don.onlineTrade.data.location.checkGpsEnabled
-import org.don.onlineTrade.ui.add.AskLocationDialog
-import org.don.onlineTrade.ui.home.search.filter.SearchToolbar
+import org.don.onlineTrade.ui.main.add.AskLocationDialog
+import org.don.onlineTrade.ui.main.home.search.filter.SearchToolbar
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.FreeLoading
 import org.don.onlineTrade.utils.SharedPref

@@ -11,7 +11,7 @@ import org.don.onlineTrade.domain.state.Resource
 import org.don.onlineTrade.domain.useCase.presentUseCase.DeletePostUseCase
 import org.don.onlineTrade.domain.useCase.presentUseCase.LikeDislikeUseCase
 import org.don.onlineTrade.domain.useCase.presentUseCase.PresentProductUseCase
-import org.don.onlineTrade.ui.home.PresentProductState
+import org.don.onlineTrade.ui.main.home.PresentProductState
 import org.don.onlineTrade.utils.SharedPref
 import javax.inject.Inject
 

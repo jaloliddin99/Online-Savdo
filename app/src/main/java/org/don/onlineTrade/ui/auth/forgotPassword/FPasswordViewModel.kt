@@ -7,13 +7,11 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import org.don.onlineTrade.data.remote.models.LoginBody
 import org.don.onlineTrade.domain.state.Resource
 import org.don.onlineTrade.domain.useCase.auth.ForgotPasswordUseCase
 import org.don.onlineTrade.domain.useCase.auth.ResetNewPasswordUseCase
-import org.don.onlineTrade.ui.auth.login.LoginState
-import org.don.onlineTrade.ui.home.ForgotPasswordState
-import org.don.onlineTrade.ui.home.ResetNewPasswordState
+import org.don.onlineTrade.ui.main.home.ForgotPasswordState
+import org.don.onlineTrade.ui.main.home.ResetNewPasswordState
 import javax.inject.Inject
 
 @HiltViewModel

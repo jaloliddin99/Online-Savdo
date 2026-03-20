@@ -5,10 +5,10 @@ import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,12 +18,12 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -43,13 +43,9 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -66,9 +62,9 @@ import org.don.onlineTrade.ui.auth.PhoneNumberState
 import org.don.onlineTrade.ui.auth.TextFieldState
 import org.don.onlineTrade.ui.auth.removeFirstCharacterAndAllSpaces
 import org.don.onlineTrade.ui.theme.robotoFontFamily
-import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.FreeLoading
 
+private val BrandGreen = Color(0xFF1A6B3C)
 
 @Composable
 fun SignUpScreen(
@@ -77,18 +73,19 @@ fun SignUpScreen(
     registrationSuccess: (email: String) -> Unit,
     onLoginPage: () -> Unit
 ) {
+    var showBranding by remember { mutableStateOf(true) }
 
-    var showBranding by remember {
-        mutableStateOf(true)
-    }
-
-    Box(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
+                .padding(horizontal = 24.dp)
         ) {
-
             Spacer(
                 modifier = Modifier
                     .weight(1f, fill = showBranding)
@@ -107,17 +104,15 @@ fun SignUpScreen(
                     .weight(1f, fill = showBranding)
                     .animateContentSize()
             )
+
             SignUpCreateAccount(
                 onSignInSignUp = onSignInSignUp,
-                onSignInAsGuest = {},
                 onFocusChange = { hasFocus -> showBranding = !hasFocus },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp)
-                    .padding(bottom = 100.dp),
+                    .padding(bottom = 48.dp),
                 onLoginPage = onLoginPage
             )
-
         }
 
         if (state.registerMain != null) {
@@ -128,7 +123,6 @@ fun SignUpScreen(
         }
 
         FreeLoading(isFeedLoading = state.isLoading, paddingTop = 64.dp)
-
     }
 }
 
@@ -138,29 +132,24 @@ fun Branding(
     @StringRes text: Int = R.string.please_login
 ) {
     Column(
-        modifier = modifier
-            .wrapContentWidth(align = Alignment.CenterHorizontally)
+        modifier = modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
-
         Logo(
             modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(top = 48.dp)
-                .width(100.dp)
-                .height(100.dp)
+                .padding(top = 32.dp)
+                .width(110.dp)
+                .height(110.dp)
         )
-
         Text(
             text = stringResource(id = text),
-            style = MaterialTheme.typography.titleMedium,
+            fontFamily = robotoFontFamily,
+            fontWeight = FontWeight.Medium,
+            fontSize = 16.sp,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
             textAlign = TextAlign.Center,
-            modifier = Modifier
-                .padding(top = 24.dp)
-                .fillMaxWidth()
+            modifier = Modifier.padding(top = 16.dp)
         )
-
-
     }
 }
 
@@ -169,15 +158,9 @@ fun Logo(
     modifier: Modifier = Modifier,
     lightTheme: Boolean = LocalContentColor.current.luminance() < 0.5f,
 ) {
-    val assetId = if (lightTheme) {
-        R.drawable.logo
-    } else {
-        R.drawable.logo
-    }
     Image(
-        painter = painterResource(id = assetId),
-        modifier = modifier
-            .padding(top = MaterialTheme.spacing.dimen12Dp),
+        painter = painterResource(id = R.drawable.sotiq_icon),
+        modifier = modifier,
         contentDescription = null,
     )
 }
@@ -186,12 +169,10 @@ fun Logo(
 @Composable
 fun SignUpCreateAccount(
     onSignInSignUp: (name: String, email: String, password: String, phoneNumber: String) -> Unit,
-    onSignInAsGuest: () -> Unit,
     onFocusChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     onLoginPage: () -> Unit
 ) {
-
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
 
@@ -211,19 +192,23 @@ fun SignUpCreateAccount(
     val phoneState = remember { PhoneNumberState() }
 
     Column(
-        modifier = modifier
-            .fillMaxWidth(),
-
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = modifier.fillMaxWidth(),
     ) {
+        // Heading
         Text(
             text = stringResource(id = R.string.sign_in_or_create_account),
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(top = 24.dp, bottom = 12.dp),
             fontFamily = robotoFontFamily,
-            fontWeight = FontWeight.Medium,
-            fontSize = MaterialTheme.spacing.dimen16Sp
+            fontWeight = FontWeight.Bold,
+            fontSize = 26.sp,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Text(
+            text = stringResource(id = R.string.please_login),
+            fontFamily = robotoFontFamily,
+            fontWeight = FontWeight.Normal,
+            fontSize = 15.sp,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+            modifier = Modifier.padding(top = 6.dp, bottom = 24.dp)
         )
 
         val onSubmit = {
@@ -246,44 +231,40 @@ fun SignUpCreateAccount(
                     || nameState.isFocused
                     || phoneState.isFocused
         )
+
         NameField(
             modifier = Modifier,
             nameState = nameState,
             imeAction = ImeAction.Next,
-            onImeAction = {
-                firstNameFocus.requestFocus()
-            },
+            onImeAction = { firstNameFocus.requestFocus() },
         )
+        Spacer(modifier = Modifier.height(12.dp))
 
-        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
         Email(
             emailState = emailState,
             imeAction = ImeAction.Next,
-            onImeAction = {
-                focusRequester.requestFocus()
-            },
+            onImeAction = { focusRequester.requestFocus() },
             modifier = Modifier.focusRequester(firstNameFocus)
         )
-        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
+        Spacer(modifier = Modifier.height(12.dp))
+
         Password(
             label = stringResource(id = R.string.password),
             passwordState = passwordState,
             imeAction = ImeAction.Next,
             modifier = Modifier.focusRequester(focusRequester),
-            onImeAction = {
-                confirmationPasswordFocusRequest.requestFocus()
-            }
+            onImeAction = { confirmationPasswordFocusRequest.requestFocus() }
         )
-        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
+        Spacer(modifier = Modifier.height(12.dp))
+
         Password(
             label = stringResource(id = R.string.confirm_password),
             passwordState = confirmPasswordState,
             modifier = Modifier.focusRequester(confirmationPasswordFocusRequest),
-            onImeAction = {
-                phoneNumberRequester.requestFocus()
-            }
+            onImeAction = { phoneNumberRequester.requestFocus() }
         )
-        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
+        Spacer(modifier = Modifier.height(12.dp))
+
         PhoneNumber(
             phoneState = phoneState,
             modifier = Modifier.focusRequester(phoneNumberRequester),
@@ -292,11 +273,8 @@ fun SignUpCreateAccount(
                 keyboardController?.hide()
             }
         )
-        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
-        DoYouHaveAccount(onTextClicked = {
-            onLoginPage()
-        })
 
+        // Sign Up button
         val isEnabled = emailState.isValid &&
                 passwordState.isValid &&
                 confirmPasswordState.isValid &&
@@ -308,55 +286,56 @@ fun SignUpCreateAccount(
             enabled = isEnabled,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 20.dp, bottom = 3.dp)
+                .padding(top = 28.dp)
+                .height(52.dp),
+            shape = RoundedCornerShape(14.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = BrandGreen,
+                contentColor = Color.White,
+                disabledContainerColor = BrandGreen.copy(alpha = 0.4f),
+                disabledContentColor = Color.White.copy(alpha = 0.7f)
+            )
         ) {
             Text(
                 text = stringResource(id = R.string.continuee),
-                style = MaterialTheme.typography.titleSmall
+                fontFamily = robotoFontFamily,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 16.sp
             )
         }
-//        OrSignInAsGuest(
-//            onSignInAsGuest = onSignInAsGuest,
-//            modifier = Modifier.fillMaxWidth()
-//        )
 
+        // Login link
+        DoYouHaveAccount(
+            onTextClicked = { onLoginPage() },
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(top = 20.dp)
+        )
     }
 }
 
 @Composable
 fun DoYouHaveAccount(
     onTextClicked: () -> Unit,
-    @StringRes text: Int = R.string.do_you_already_have_account
+    @StringRes text: Int = R.string.do_you_already_have_account,
+    modifier: Modifier = Modifier
 ) {
-    val getString = stringResource(id = text)
-    val annotatedString = buildAnnotatedString {
-        withStyle(
-            style = SpanStyle(
-                fontWeight = FontWeight.Normal,
-                textDecoration = TextDecoration.Underline
-            )
-        ) {
-            append(getString)
-        }
-    }
-    Box(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = annotatedString,
-            color = MaterialTheme.colorScheme.onSurface,
-            fontFamily = robotoFontFamily,
-            fontWeight = FontWeight.Normal,
-            fontSize = 14.sp,
-            modifier = Modifier.clickable {
-                onTextClicked()
-            }
-        )
-    }
+    val label = stringResource(id = text)
+    Text(
+        text = label,
+        color = BrandGreen,
+        fontFamily = robotoFontFamily,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 14.sp,
+        modifier = modifier.clickable { onTextClicked() }
+    )
 }
 
 @Preview
 @Composable
 private fun WelcomeScreenPreview() {
-    SignUpScreen(onSignInSignUp = { firstName: String, s: String, s1: String, s2: String -> },
+    SignUpScreen(
+        onSignInSignUp = { _: String, _: String, _: String, _: String -> },
         state = RegistrationState(),
         registrationSuccess = {},
         onLoginPage = {}

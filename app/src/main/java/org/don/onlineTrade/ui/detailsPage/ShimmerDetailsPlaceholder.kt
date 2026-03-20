@@ -16,7 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import org.don.onlineTrade.ui.home.homeItems.ShimmerProductItem
+import org.don.onlineTrade.ui.main.home.homeItems.ShimmerProductItem
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.shimmerEffect
 

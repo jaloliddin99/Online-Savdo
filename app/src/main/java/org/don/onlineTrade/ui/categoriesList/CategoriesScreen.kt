@@ -24,6 +24,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.Card
@@ -32,6 +33,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -42,15 +44,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import org.don.onlineTrade.BuildConfig
+import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.category.CategoryItem
-import org.don.onlineTrade.ui.home.HomeScreenState
-import org.don.onlineTrade.ui.home.HomeViewModel
+import org.don.onlineTrade.ui.TopAppBar
+import org.don.onlineTrade.ui.main.home.HomeScreenState
+import org.don.onlineTrade.ui.main.home.HomeViewModel
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.FreeLoading
 
@@ -58,18 +64,29 @@ import org.don.onlineTrade.utils.FreeLoading
 fun CategoriesRoute(
     modifier: Modifier = Modifier,
     homeViewModel: HomeViewModel,
-    onBackPressed: (CategoryItem) -> Unit
+    onBackPressed: (CategoryItem) -> Unit,
+    onBackClick: () -> Unit,
 ) {
     val state = homeViewModel.state.value
     LaunchedEffect(key1 = homeViewModel) {
         homeViewModel.getAllCategories()
     }
 
-    CategoriesScreen(
-        modifier = modifier,
-        state = state,
-        onBackPressed = onBackPressed
-    )
+    Column(modifier = Modifier.fillMaxSize()) {
+        TopAppBar(
+            title = stringResource(R.string.select_category_without),
+            navigationIcon = Icons.Filled.ArrowBack,
+            onNavigationClick = onBackClick,
+            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                containerColor = Color.Transparent
+            )
+        )
+        CategoriesScreen(
+            modifier = modifier.weight(1f),
+            state = state,
+            onBackPressed = onBackPressed
+        )
+    }
 }
 
 @Composable
