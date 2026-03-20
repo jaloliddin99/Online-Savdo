@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Internet Savdo</string>
+    <string name="app_name">Sotiq</string>
     <string name="top_home">Bosh sahifa</string>
     <string name="chat_page">Mahsulot yaratish</string>
     <string name="settings_page">Sozlamalar sahifasi</string>

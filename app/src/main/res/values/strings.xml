@@ -1,7 +1,7 @@
 <resources>
 
 
-    <string name="app_name">Internet Savdo</string>
+    <string name="app_name">Sotiq</string>
     <string name="top_home">Main Page</string>
     <string name="chat_page">Create Product</string>
     <string name="settings_page">Settings Page</string>

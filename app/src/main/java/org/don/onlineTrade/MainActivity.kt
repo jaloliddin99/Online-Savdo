@@ -8,6 +8,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -21,6 +25,7 @@ import kotlinx.coroutines.launch
 import org.don.onlineTrade.domain.model.DarkThemeConfig
 import org.don.onlineTrade.domain.model.ThemeBrand
 import org.don.onlineTrade.ui.MainScreenView
+import org.don.onlineTrade.ui.splash.SplashScreen
 import org.don.onlineTrade.ui.dialogs.settings.SETTINGS_UI_STATE
 import org.don.onlineTrade.ui.dialogs.settings.SettingsDialogViewModel
 import org.don.onlineTrade.ui.dialogs.settings.UserEditableSettings
@@ -70,6 +75,8 @@ class MainActivity : ComponentActivity(), OnRunTimePermissionListener {
                 }
             }
         }
+        var showSplash by mutableStateOf(true)
+
         setContent {
             val darkTheme = shouldUseDarkTheme(state.darkThemeConfig)
             OnlineMarketTheme(
@@ -77,11 +84,17 @@ class MainActivity : ComponentActivity(), OnRunTimePermissionListener {
                 androidTheme = shouldUseAndroidTheme(state.brand),
                 disableDynamicTheming = shouldDisableDynamicTheming(state.useDynamicColor)
             ) {
-                MainScreenView(state,
-                    restartApp = {
-                        finish()
-                        startActivity(Intent(this, MainActivity::class.java))
-                    })
+                if (showSplash) {
+                    SplashScreen(
+                        onAnimationEnd = { showSplash = false }
+                    )
+                } else {
+                    MainScreenView(state,
+                        restartApp = {
+                            finish()
+                            startActivity(Intent(this, MainActivity::class.java))
+                        })
+                }
             }
         }
     }
