@@ -1,5 +1,6 @@
 package org.don.onlineTrade.ui.home
 
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
@@ -31,6 +32,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -93,6 +95,12 @@ fun HomeScreen(
     onNotificationClick: () -> Unit = {},
     searchBarModifier: Modifier = Modifier,
 ) {
+    val recomposeCount = remember { object { var value = 0 } }
+    SideEffect {
+        recomposeCount.value++
+        Log.d("HomeScreen", "Recomposition #${recomposeCount.value}")
+    }
+
     val state = homeViewModel.state.value
     val stateNear = homeViewModel.stateNear.value
     val pagerState = homeViewModel.pagerState

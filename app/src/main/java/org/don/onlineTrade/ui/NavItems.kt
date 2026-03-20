@@ -2,14 +2,18 @@ package org.don.onlineTrade.ui
 
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.LibraryAdd
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material.icons.outlined.LibraryAdd
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Person
@@ -39,10 +43,10 @@ sealed class NavItems(
     )
     object AddProduct: NavItems(
         title = "Add",
-        selectedIcon = Icons.Filled.LibraryAdd,
-        unselectedIcon = Icons.Outlined.LibraryAdd,
+        selectedIcon = Icons.Filled.Add,
+        unselectedIcon = Icons.Outlined.Add,
         hasNews = false,
-        badgeCount = 45,
+        badgeCount = null,
         Screen.AddProduct.route,
         titleRes = R.string.chat_page
     )
@@ -98,9 +102,9 @@ sealed class NavItems(
 
     object MyPosts: NavItems(
         title = "My Posts",
-        selectedIcon = Icons.Filled.Category,
-        unselectedIcon = Icons.Outlined.Category,
-        hasNews = true,
+        selectedIcon = Icons.Filled.Inventory2,
+        unselectedIcon = Icons.Outlined.Inventory2,
+        hasNews = false,
         badgeCount = null,
         Screen.MyProducts.route,
         titleRes = R.string.my_orders

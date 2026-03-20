@@ -62,6 +62,7 @@ class ApplicationState(
 
         when (topLevelDestination) {
             NavItems.Home -> navController.navigate(Screen.Home.route, topLevelNavOptions)
+            NavItems.MyPosts -> navController.navigate(Screen.MyProducts.route, topLevelNavOptions)
             NavItems.AddProduct -> navController.navigate(Screen.AddProduct.route, topLevelNavOptions)
             NavItems.Saved -> navController.navigate(Screen.Saved.route, topLevelNavOptions)
             NavItems.Profile -> navController.navigate(Screen.Profile.route, topLevelNavOptions)

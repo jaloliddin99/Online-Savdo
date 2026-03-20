@@ -62,7 +62,6 @@ fun MyPostsScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
     myPostVM: MyPostViewModel = hiltViewModel(),
 ) {
-    val paddingValues = WindowInsets.systemBars.asPaddingValues()
 
     val pagerState = homeViewModel.pagerState
     val updateState = myPostVM.state.value
@@ -85,12 +84,10 @@ fun MyPostsScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .padding(bottom = paddingValues.calculateBottomPadding())
     ) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             modifier = modifier
-                .padding(horizontal = MaterialTheme.spacing.dimen8Dp)
                 .fillMaxSize(),
         ) {
             items(pagerState.items.size) { i ->

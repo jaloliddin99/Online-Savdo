@@ -94,6 +94,8 @@ import org.don.onlineTrade.utils.SharedPref
 
 private val BOTTOM_BAR_ROUTES = setOf(
     Screen.Home.route,
+    Screen.MyProducts.route,
+    Screen.AddProduct.route,
     Screen.Saved.route,
     Screen.Profile.route
 )
@@ -104,9 +106,7 @@ private val BACK_ARROW_ROUTES = setOf(
     Screen.PasswordUpdate.route,
     Screen.ProductDetails.ROUTE,
     Screen.Notifications.route,
-    Screen.MyProducts.route,
     Screen.FilterCategory.ROUTE,
-    Screen.AddProduct.route,
     Screen.Map.route,
     Screen.MapUserLocation.ROUTE
 )
@@ -168,7 +168,7 @@ fun MainScreenView(
             var lastDestination by remember {
                 mutableStateOf(destination ?: if (startsOnTopLevel) NavItems.Home else null)
             }
-            if (destination != null) {
+            if (destination != null && destination != NavItems.Home) {
                 lastDestination = destination
             }
 
@@ -200,10 +200,11 @@ fun MainScreenView(
                             )
                         )
                 ) {
-                    // Show toolbar on top-level screens, OR before NavHost
-                    // initializes if we know the start screen is top-level
-                    val navNotReady = currentRoute == null
-                    val showTopBar = destination != null || (navNotReady && startsOnTopLevel)
+                    // Show toolbar on top-level screens that use the global AppBar.
+                    // Home has its own search bar, so exclude it — this lets
+                    // AnimatedVisibility fade out the previous screen's AppBar
+                    // smoothly instead of collapsing it instantly.
+                    val showTopBar = destination != null && destination != NavItems.Home
                     var useTopBarAnimation by remember { mutableStateOf(false) }
 
                     LaunchedEffect(showTopBar) {
@@ -225,6 +226,7 @@ fun MainScreenView(
                                     navigationIconContentDescription = null,
                                     actionIcon = when (topBarDestination.screenRoute) {
                                         Screen.Profile.route -> Icons.Filled.Settings
+                                        Screen.AddProduct.route -> null
                                         in BACK_ARROW_ROUTES -> null
                                         else -> Icons.Filled.Search
                                     },
@@ -282,6 +284,7 @@ fun BottomNavigation(
     ) {
         val items = listOf(
             NavItems.Home,
+            NavItems.MyPosts,
             NavItems.AddProduct,
             NavItems.Saved,
             NavItems.Profile
@@ -298,12 +301,10 @@ fun BottomNavigation(
                     appState.navigateToTopLevelDestination(item)
                 },
                 label = { Text(text = item.title) },
-
                 icon = {
                     Icon(
                         imageVector = if (isSelected)
                             item.selectedIcon else item.unselectedIcon,
-
                         contentDescription = item.title
                     )
                 },
