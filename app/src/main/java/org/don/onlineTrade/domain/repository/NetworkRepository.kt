@@ -172,17 +172,5 @@ interface NetworkRepository {
         lang: String
     ): GenericModel<SearchSuggestionData>
 
-    suspend fun searchPosts(
-        lang: String,
-        page: Int,
-        size: Int,
-        query: String,
-        lat: Double,
-        lon: Double,
-        radius: Int,
-        categoryId: Long?,
-        startDate: String?,
-        endDate: String?
-    ): GenericModel<Data>
 
 }

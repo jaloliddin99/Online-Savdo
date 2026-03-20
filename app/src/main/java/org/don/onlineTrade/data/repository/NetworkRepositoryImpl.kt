@@ -250,19 +250,6 @@ class NetworkRepositoryImpl @Inject constructor(
         return apiInterface.getSearchSuggestions(query, lat, lon, radius, lang)
     }
 
-    override suspend fun searchPosts(
-        lang: String,
-        page: Int,
-        size: Int,
-        query: String,
-        lat: Double,
-        lon: Double,
-        radius: Int,
-        categoryId: Long?,
-        startDate: String?,
-        endDate: String?
-    ): GenericModel<Data> {
-        return apiInterface.searchPosts(lang, page, size, query, lat, lon, radius, categoryId, 1, startDate, endDate)
-    }
+
 
 }
