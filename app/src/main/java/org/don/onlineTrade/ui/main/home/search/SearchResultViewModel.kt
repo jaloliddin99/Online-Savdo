@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import org.don.onlineTrade.data.paging.SearchPagingSource
 import org.don.onlineTrade.data.remote.ApiInterface
+import org.don.onlineTrade.data.remote.models.category.Category
 import org.don.onlineTrade.data.remote.models.category.CategoryParent
 import org.don.onlineTrade.data.remote.models.getPublicProducts.Content
 import org.don.onlineTrade.ui.main.home.search.filter.FilterClass
@@ -50,6 +51,12 @@ class SearchResultViewModel @Inject constructor(
     var categories by mutableStateOf<List<CategoryParent>>(emptyList())
         private set
 
+    var allCategories by mutableStateOf<Category?>(null)
+        private set
+
+    var isCategoriesLoading by mutableStateOf(false)
+        private set
+
     init {
         loadCategories()
     }
@@ -63,6 +70,20 @@ class SearchResultViewModel @Inject constructor(
                 )
                 categories = result.sortedBy { it.position }
             } catch (_: Exception) { }
+        }
+    }
+
+    fun loadAllCategories() {
+        if (allCategories != null) return
+        isCategoriesLoading = true
+        viewModelScope.launch {
+            try {
+                allCategories = apiInterface.getAllCategories(
+                    SharedPref.deviceToken,
+                    SharedPref.language
+                )
+            } catch (_: Exception) { }
+            isCategoriesLoading = false
         }
     }
 

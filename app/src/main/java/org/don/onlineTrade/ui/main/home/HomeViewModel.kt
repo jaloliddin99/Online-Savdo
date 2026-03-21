@@ -1,29 +1,49 @@
 package org.don.onlineTrade.ui.main.home
 
 import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import org.don.onlineTrade.data.paging.ProductsPagingSource
+import org.don.onlineTrade.data.remote.ApiInterface
 import org.don.onlineTrade.data.remote.models.getPublicProducts.Content
 import org.don.onlineTrade.domain.repository.LocationTracker
 import org.don.onlineTrade.domain.state.Resource
 import org.don.onlineTrade.domain.useCase.NearPostsUseCase
-import org.don.onlineTrade.domain.useCase.ProductsPagerUseCase
 import org.don.onlineTrade.domain.useCase.allCategoriesUseCase.AllCategoriesUseCase
 import org.don.onlineTrade.utils.SharedPref
 import javax.inject.Inject
 
+data class ProductsParams(
+    val categoryId: Int? = null,
+    val query: String? = null,
+    val startDate: String? = null,
+    val endDate: String? = null,
+    val fromPrice: Int? = null,
+    val toPrice: Int? = null,
+    val lat: Double? = null,
+    val lon: Double? = null,
+    val radius: Int? = null,
+)
+
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val categoryUseCase: AllCategoriesUseCase,
-    private val productsPagerUseCase: ProductsPagerUseCase,
+    private val apiInterface: ApiInterface,
     private val locationTrackerRepository: LocationTracker,
     private val nearPostsUseCase: NearPostsUseCase
 ) :
@@ -93,68 +113,34 @@ class HomeViewModel @Inject constructor(
     }
 
 
-    fun resetPager() {
-        pagerState = ScreenState()
-        isMakingRequest = false
-    }
+    private val _productsParams = MutableStateFlow(ProductsParams())
 
-    var pagerState by mutableStateOf(ScreenState())
-
-    private var isMakingRequest = false
+    val productsFlow: Flow<PagingData<Content>> = _productsParams
+        .flatMapLatest { params ->
+            Pager(
+                config = PagingConfig(
+                    pageSize = 20,
+                    enablePlaceholders = false
+                ),
+                pagingSourceFactory = {
+                    ProductsPagingSource(
+                        apiInterface = apiInterface,
+                        categoryId = params.categoryId,
+                        query = params.query,
+                        startDate = params.startDate,
+                        endDate = params.endDate,
+                        fromPrice = params.fromPrice,
+                        toPrice = params.toPrice,
+                        lat = params.lat,
+                        lon = params.lon,
+                        radius = params.radius,
+                    )
+                }
+            ).flow
+        }.cachedIn(viewModelScope)
 
     init {
         getAllParentCategories()
-        loadNextItems()
-    }
-
-    fun loadNextItems(
-        query: String? = null,
-        categoryId: Int? = null,
-        minPrice: Int? = null,
-        maxPrice: Int? = null,
-        startDate: String? = null,
-        endDate: String? = null,
-        lat: Double? = null,
-        lon: Double? = null,
-        radius: Int? = null
-    ) {
-        if (isMakingRequest || pagerState.endReached) return
-        isMakingRequest = true
-        pagerState = pagerState.copy(isLoading = true)
-
-        viewModelScope.launch {
-            val result = runCatching {
-                productsPagerUseCase.getItems(
-                    page = pagerState.page,
-                    pageSize = 20,
-                    categoryId = categoryId,
-                    query = query,
-                    startDate = startDate,
-                    endDate = endDate,
-                    fromPrice = minPrice,
-                    toPrice = maxPrice,
-                    lat = lat,
-                    lon = lon,
-                    radius = radius
-                ).getOrThrow()
-            }
-
-            result.onSuccess { items ->
-                pagerState = pagerState.copy(
-                    items = pagerState.items + items,
-                    page = pagerState.page + 1,
-                    endReached = items.isEmpty(),
-                    isLoading = false,
-                    error = null
-                )
-            }.onFailure { e ->
-                pagerState = pagerState.copy(
-                    isLoading = false,
-                    error = e.localizedMessage
-                )
-            }
-            isMakingRequest = false
-        }
     }
 
 
@@ -206,10 +192,3 @@ class HomeViewModel @Inject constructor(
 
 }
 
-data class ScreenState(
-    val isLoading: Boolean = false,
-    val items: List<Content> = emptyList(),
-    val error: String? = null,
-    val endReached: Boolean = false,
-    val page: Int = 0
-)

@@ -1,5 +1,13 @@
 package org.don.onlineTrade.ui.main.home.search
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,19 +16,29 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.windowInsetsTopHeight
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,18 +47,23 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.launch
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.category.CategoryItem
 import org.don.onlineTrade.ui.filterCategory.ComposeLottieAnimation
-import org.don.onlineTrade.ui.main.home.HomeViewModel
 import org.don.onlineTrade.ui.main.home.ProductItem
 import org.don.onlineTrade.ui.main.home.homeItems.ShimmerProductGrid
 import org.don.onlineTrade.ui.main.home.search.filter.ActiveFilterChips
@@ -106,20 +129,28 @@ fun SearchScreen(
     var showBottomSheet by remember { mutableStateOf(false) }
     var showCategoryDialog by remember { mutableStateOf(false) }
 
-    val homeViewModel = hiltViewModel<HomeViewModel>()
-    val homeState = homeViewModel.state.value
-
-    val snackbarHostState = remember { SnackbarHostState() }
+    var snackbarMessage by remember { mutableStateOf<String?>(null) }
+    var snackbarVisible by remember { mutableStateOf(false) }
     val locationAndRadiusMsg = stringResource(R.string.location_updated)
     val locationOnlyMsg = stringResource(R.string.location_only_updated)
     val radiusOnlyMsg = stringResource(R.string.radius_only_updated)
+
+    LaunchedEffect(snackbarMessage) {
+        if (snackbarMessage != null) {
+            snackbarVisible = true
+            delay(3000)
+            snackbarVisible = false
+            delay(400)
+            snackbarMessage = null
+        }
+    }
 
     fun triggerSearch(query: String) {
         searchViewModel.clearSuggestions()
         searchViewModel.queryText = query
         val lat = searchViewModel.searchLat
         val lon = searchViewModel.searchLon
-        val radius = searchViewModel.searchRadiusKm.coerceAtLeast(10)
+        val radius = searchViewModel.searchRadiusKm
         searchResultViewModel.search(
             SearchParams(
                 query = query,
@@ -150,7 +181,7 @@ fun SearchScreen(
                     radiusChanged -> radiusOnlyMsg
                     else -> null
                 }
-                message?.let { msg -> snackbarHostState.showSnackbar(msg) }
+                message?.let { msg -> snackbarMessage = msg }
             }
         }
     }
@@ -170,10 +201,7 @@ fun SearchScreen(
     val isAppending = pagingItems.loadState.append is LoadState.Loading
     val isEmpty = hasSearched && pagingItems.itemCount == 0 && !isLoading
 
-    Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = Color.Transparent
-    ) { innerPadding ->
+    Box(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(modifier = modifier) {
                 Spacer(modifier = Modifier.windowInsetsTopHeight(WindowInsets.safeDrawing))
@@ -245,8 +273,52 @@ fun SearchScreen(
                     )
                 }
 
-                if (!hasSearched) {
-                    // Initial state: show nothing, suggestions are above
+                if (!hasSearched && suggestions.isEmpty() && searchViewModel.hasFetchedSuggestions && !searchViewModel.isLoadingSuggestions) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.padding(horizontal = 32.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.LocationOn,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                                modifier = Modifier
+                                    .width(64.dp)
+                                    .height(64.dp)
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = stringResource(R.string.no_posts_for_location),
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.Center,
+                                fontWeight = FontWeight.Medium,
+                            )
+                            Spacer(modifier = Modifier.height(24.dp))
+                            Button(
+                                onClick = onMapClick,
+                                shape = RoundedCornerShape(28.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.LocationOn,
+                                    contentDescription = null,
+                                    modifier = Modifier.padding(end = 8.dp)
+                                )
+                                Text(
+                                    text = stringResource(R.string.update_location),
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
+                        }
+                    }
+                } else if (!hasSearched) {
+                    // Still loading suggestions or haven't fetched yet
                 } else if (isLoading && pagingItems.itemCount == 0) {
                     ShimmerProductGrid(
                         modifier = modifier
@@ -288,6 +360,51 @@ fun SearchScreen(
             }
         }
 
+        // Custom animated snackbar
+        AnimatedVisibility(
+            visible = snackbarVisible,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(horizontal = 24.dp, vertical = 16.dp),
+            enter = slideInVertically(
+                initialOffsetY = { it },
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessMedium
+                )
+            ) + fadeIn(),
+            exit = slideOutVertically(
+                targetOffsetY = { it },
+                animationSpec = spring(stiffness = Spring.StiffnessMedium)
+            ) + fadeOut()
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .shadow(8.dp, RoundedCornerShape(14.dp))
+                    .background(
+                        color = Color(0xFF1A6B3C),
+                        shape = RoundedCornerShape(14.dp)
+                    )
+                    .padding(horizontal = 16.dp, vertical = 14.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.CheckCircle,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(22.dp)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    text = snackbarMessage ?: "",
+                    color = Color.White,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
 
         if (showBottomSheet) {
             ModalBottomSheet(
@@ -322,13 +439,11 @@ fun SearchScreen(
 
         if (showCategoryDialog) {
             LaunchedEffect(Unit) {
-                if (homeState.categoryList == null) {
-                    homeViewModel.getAllCategories()
-                }
+                searchResultViewModel.loadAllCategories()
             }
             CategoryPickerDialog(
-                categories = homeState.categoryList,
-                isLoading = homeState.isLoading,
+                categories = searchResultViewModel.allCategories,
+                isLoading = searchResultViewModel.isCategoriesLoading,
                 initialSelectedIds = myFilter.categoryIds.map { it.toInt() }.toSet(),
                 onDismiss = { showCategoryDialog = false },
                 onApply = { selectedItems ->

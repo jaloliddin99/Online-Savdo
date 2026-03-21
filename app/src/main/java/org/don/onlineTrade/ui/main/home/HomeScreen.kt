@@ -34,9 +34,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.paging.LoadState
+import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
@@ -96,35 +96,14 @@ fun HomeScreen(
     onNotificationClick: () -> Unit = {},
     searchBarModifier: Modifier = Modifier,
 ) {
-    val recomposeCount = remember { object { var value = 0 } }
-    SideEffect {
-        recomposeCount.value++
-        Log.d("HomeScreen", "Recomposition #${recomposeCount.value}")
-    }
 
     val state = homeViewModel.state.value
     val stateNear = homeViewModel.stateNear.value
-    val pagerState = homeViewModel.pagerState
+    val products = homeViewModel.productsFlow.collectAsLazyPagingItems()
     val scrollState = remember { LazyGridState() }
 
     val context = LocalContext.current
 
-    // Single pagination trigger using derivedStateOf instead of per-item LaunchedEffect
-    val shouldLoadMore by remember {
-        derivedStateOf {
-            val lastVisibleIndex = scrollState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-            val totalItems = scrollState.layoutInfo.totalItemsCount
-            lastVisibleIndex >= totalItems - 3 && !pagerState.endReached && !pagerState.isLoading
-        }
-    }
-
-    LaunchedEffect(shouldLoadMore) {
-        if (shouldLoadMore) {
-            homeViewModel.loadNextItems()
-        }
-    }
-
-    // Show error as a one-time side effect
     LaunchedEffect(state.error) {
         if (state.error.isNotBlank()) {
             Toast.makeText(context, state.error, Toast.LENGTH_SHORT).show()
@@ -243,20 +222,21 @@ fun HomeScreen(
                     fontSize = MaterialTheme.spacing.dimen16Sp
                 )
             }
-            if (pagerState.items.isEmpty() && !pagerState.endReached) {
+            if (products.loadState.refresh is LoadState.Loading) {
                 item(span = { GridItemSpan(2) }) {
                     ShimmerProductGrid()
                 }
             } else {
                 items(
-                    count = pagerState.items.size,
-                    key = { pagerState.items[it].id }
+                    count = products.itemCount,
+                    key = { products[it]?.id ?: it }
                 ) { i ->
-                    val item = pagerState.items[i]
-                    ProductItem(item, onItemClicked = navigateToProduct, onItemLongLicked = {})
+                    products[i]?.let { item ->
+                        ProductItem(item, onItemClicked = navigateToProduct, onItemLongLicked = {})
+                    }
                 }
-                item(span = { GridItemSpan(2) }) {
-                    if (pagerState.isLoading && pagerState.page != 0) {
+                if (products.loadState.append is LoadState.Loading) {
+                    item(span = { GridItemSpan(2) }) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()

@@ -41,11 +41,11 @@ class ProductDescriptionState(val description: String? = null) :
  * Returns an error to be displayed or null if no error was found
  */
 private fun descriptionValidationError(description: String): String {
-    return "At least 100 character, you have ${description.length}"
+    return "At least 10 character, you have ${description.length}"
 }
 
 private fun isValidDescription(description: String): Boolean {
-    return description.length > 100
+    return description.length > 10
 }
 
 class PostAddressState(val address: String? = null) :

@@ -27,6 +27,12 @@ class SearchViewModel @Inject constructor(
     var suggestions by mutableStateOf<List<CategorySuggestion>>(emptyList())
         private set
 
+    var hasFetchedSuggestions by mutableStateOf(false)
+        private set
+
+    var isLoadingSuggestions by mutableStateOf(false)
+        private set
+
     var queryText by mutableStateOf("")
     var searchLat by mutableStateOf(SharedPref.latitude.toDoubleOrNull() ?: 0.0)
         private set
@@ -38,10 +44,9 @@ class SearchViewModel @Inject constructor(
     private val _suggestionQuery = MutableStateFlow("")
 
     init {
-        fetchSuggestions("")
         viewModelScope.launch {
             _suggestionQuery
-                .debounce(1000)
+                .debounce(300)
                 .collectLatest { query ->
                     fetchSuggestionsInternal(query)
                 }
@@ -59,18 +64,24 @@ class SearchViewModel @Inject constructor(
             query = query,
             lat = searchLat,
             lon = searchLon,
-            radius = searchRadiusKm.coerceAtLeast(10),
+            radius = searchRadiusKm,
             lang = SharedPref.language
         ).collect { result ->
             when (result) {
                 is Resource.Success -> {
                     queryText = result.data?.queryText ?: ""
                     suggestions = result.data?.categories ?: emptyList()
+                    hasFetchedSuggestions = true
+                    isLoadingSuggestions = false
                 }
                 is Resource.Error -> {
                     suggestions = emptyList()
+                    hasFetchedSuggestions = true
+                    isLoadingSuggestions = false
                 }
-                is Resource.Loading -> {}
+                is Resource.Loading -> {
+                    isLoadingSuggestions = true
+                }
             }
         }
     }

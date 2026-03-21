@@ -42,13 +42,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -58,17 +58,15 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import org.don.onlineTrade.R
 import org.don.onlineTrade.data.remote.models.showProducts.PostDetailsData
 import org.don.onlineTrade.data.remote.models.showProducts.PostParam
 import org.don.onlineTrade.ui.main.add.TextBold16
 import org.don.onlineTrade.ui.main.add.TextNormal16
 import org.don.onlineTrade.ui.main.add.TextThin
-import org.don.onlineTrade.ui.main.home.HomeViewModel
 import org.don.onlineTrade.ui.main.home.PresentProductState
 import org.don.onlineTrade.ui.main.home.ProductItemForDetailsPage
-import org.don.onlineTrade.ui.main.home.ScreenState
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.SharedPref
 import org.don.onlineTrade.utils.callTo
@@ -78,15 +76,13 @@ import org.don.onlineTrade.utils.openSmsApp
 @Composable
 fun ProductDetailsRoute(
     productId: Int,
-    homeViewModel: HomeViewModel,
     onSimilarItemClicked: (Int) -> Unit,
     onEditClicked: (Int) -> Unit,
     navigateBack: () -> Unit,
     goToMapsPage: (lat: Double, lon: Double) -> Unit
 ) {
     val detailsViewModel = hiltViewModel<PresentViewModel>()
-    val homeViewMode = homeViewModel
-    val pagerState = homeViewMode.pagerState
+    val similarProducts = detailsViewModel.similarProducts.collectAsLazyPagingItems()
 
     LaunchedEffect(productId) {
         detailsViewModel.getProductDetail(
@@ -96,26 +92,18 @@ fun ProductDetailsRoute(
         )
     }
 
-    // Defer similar items loading so it doesn't block navigation
-    LaunchedEffect(Unit) {
-        homeViewMode.loadNextItems()
-    }
-
     val state = detailsViewModel.state.value
     if (state.delete != null) {
         navigateBack.invoke()
     }
 
     ProductDetailsScreen(
-        pagerState,
+        similarProducts = similarProducts,
         modifier = Modifier.fillMaxSize(),
         state = state,
         onSimilarItemClicked = onSimilarItemClicked,
         onItemClicked = {
             detailsViewModel.likePost(it)
-        },
-        loadItems = {
-            homeViewMode.loadNextItems()
         },
         onDeleteClicked = {
             detailsViewModel.deletePost(it)
@@ -129,12 +117,11 @@ fun ProductDetailsRoute(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ProductDetailsScreen(
-    mPagerState: ScreenState,
+    similarProducts: androidx.paging.compose.LazyPagingItems<org.don.onlineTrade.data.remote.models.getPublicProducts.Content>,
     modifier: Modifier = Modifier,
     state: PresentProductState,
     onSimilarItemClicked: (Int) -> Unit,
     onItemClicked: (Int) -> Unit,
-    loadItems: () -> Unit,
     onDeleteClicked: (Int) -> Unit,
     onEditClicked: (Int) -> Unit,
     onBackPressed: () -> Unit,
@@ -154,15 +141,6 @@ fun ProductDetailsScreen(
     }
     var deletePostId by rememberSaveable {
         mutableIntStateOf(-1)
-    }
-
-    // Pagination: trigger once when we approach the end of similar items
-    val shouldLoadMore by remember {
-        derivedStateOf {
-            mPagerState.items.isNotEmpty()
-                    && !mPagerState.endReached
-                    && !mPagerState.isLoading
-        }
     }
 
     if (isFeedLoading && data == null) {
@@ -201,18 +179,14 @@ fun ProductDetailsScreen(
                 // Similar items row
                 item(key = "similar_items") {
                     LazyRow(modifier = Modifier.wrapContentHeight()) {
-                        items(count = mPagerState.items.size) { i ->
-                            val item = mPagerState.items[i]
-                            if (i >= mPagerState.items.size - 1 && shouldLoadMore) {
-                                LaunchedEffect(mPagerState.items.size) {
-                                    loadItems.invoke()
-                                }
+                        items(count = similarProducts.itemCount) { i ->
+                            similarProducts[i]?.let { item ->
+                                ProductItemForDetailsPage(
+                                    data = item,
+                                    onItemClicked = onSimilarItemClicked
+                                )
                             }
-                            ProductItemForDetailsPage(
-                                data = item,
-                                onItemClicked = onItemClicked
-                            )
-                            if (mPagerState.items.lastIndex == i) {
+                            if (i == similarProducts.itemCount - 1) {
                                 Spacer(modifier = Modifier.width(16.dp))
                             }
                         }

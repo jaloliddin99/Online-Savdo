@@ -13,7 +13,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.LoadState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
@@ -21,7 +22,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,7 +37,6 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import org.don.onlineTrade.R
 import org.don.onlineTrade.ui.TopAppBar
-import org.don.onlineTrade.ui.main.home.HomeViewModel
 import org.don.onlineTrade.ui.main.home.ProductItem
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.FreeLoading
@@ -75,13 +74,8 @@ fun FilterCategoryScreen(
     categoryId: Int?
 ) {
 
-    val homeViewModel = hiltViewModel<HomeViewModel>()
-    val pagerState = homeViewModel.pagerState
-
-    val scrollState = rememberLazyGridState()
-    LaunchedEffect(key1 = homeViewModel) {
-        homeViewModel.loadNextItems(categoryId = categoryId)
-    }
+    val viewModel = hiltViewModel<FilterCategoryViewModel>()
+    val products = viewModel.products.collectAsLazyPagingItems()
     Box(
         modifier = modifier.fillMaxSize()
     ) {
@@ -90,20 +84,16 @@ fun FilterCategoryScreen(
             modifier = modifier
                 .fillMaxSize(),
         ) {
-            items(pagerState.items.size) { i ->
-                val item = pagerState.items[i]
-                LaunchedEffect(scrollState) {
-                    if (i >= pagerState.items.size - 1 && !pagerState.endReached && !pagerState.isLoading) {
-                        homeViewModel.loadNextItems(
-                            categoryId = categoryId
-                        )
-                    }
+            items(
+                count = products.itemCount,
+                key = { products[it]?.id ?: it }
+            ) { i ->
+                products[i]?.let { item ->
+                    ProductItem(item, onItemClicked = onItemClicked, onItemLongLicked = {})
                 }
-                ProductItem(item, onItemClicked = onItemClicked, onItemLongLicked = {})
             }
-            item(span = { GridItemSpan(2) }) {
-
-                if (pagerState.isLoading && pagerState.page != 0) {
+            if (products.loadState.append is LoadState.Loading) {
+                item(span = { GridItemSpan(2) }) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -118,10 +108,10 @@ fun FilterCategoryScreen(
                 Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen16Dp))
             }
         }
-        if (!pagerState.isLoading && pagerState.endReached && pagerState.items.isEmpty()) {
+        if (products.loadState.refresh is LoadState.NotLoading && products.itemCount == 0) {
             ComposeLottieAnimation(Modifier)
         }
-        FreeLoading(pagerState.isLoading)
+        FreeLoading(products.loadState.refresh is LoadState.Loading)
     }
 
 }

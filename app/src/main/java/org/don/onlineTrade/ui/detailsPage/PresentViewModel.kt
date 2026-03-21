@@ -4,9 +4,17 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import org.don.onlineTrade.data.paging.ProductsPagingSource
+import org.don.onlineTrade.data.remote.ApiInterface
+import org.don.onlineTrade.data.remote.models.getPublicProducts.Content
 import org.don.onlineTrade.domain.state.Resource
 import org.don.onlineTrade.domain.useCase.presentUseCase.DeletePostUseCase
 import org.don.onlineTrade.domain.useCase.presentUseCase.LikeDislikeUseCase
@@ -20,7 +28,13 @@ class PresentViewModel @Inject constructor(
     private val presentProductUseCase: PresentProductUseCase,
     private val likeDislikeUseCase: LikeDislikeUseCase,
     private val deleteProductUseCase: DeletePostUseCase,
+    private val apiInterface: ApiInterface,
 ): ViewModel() {
+
+    val similarProducts: Flow<PagingData<Content>> = Pager(
+        config = PagingConfig(pageSize = 20, enablePlaceholders = false),
+        pagingSourceFactory = { ProductsPagingSource(apiInterface) }
+    ).flow.cachedIn(viewModelScope)
 
     private val _state = mutableStateOf(PresentProductState())
     val state: State<PresentProductState> = _state

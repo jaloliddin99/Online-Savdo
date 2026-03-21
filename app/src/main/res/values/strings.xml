@@ -71,6 +71,8 @@
     <string name="technical_assistance">Help</string>
     <string name="logout">Log out</string>
     <string name="nothing_found_for_for_search">Nothing found for your search</string>
+    <string name="no_posts_for_location">No posts found in your area. Try updating your location or setting a broader radius.</string>
+    <string name="update_location">Update location</string>
     <string name="all_posts">All posts</string>
     <string name="firstName">Name</string>
     <string name="lastName">Last name</string>

@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -21,8 +20,6 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -42,6 +39,8 @@ import org.don.onlineTrade.ui.filterCategory.ComposeLottieAnimation
 import org.don.onlineTrade.ui.main.home.ProductItem
 import org.don.onlineTrade.ui.theme.spacing
 import org.don.onlineTrade.utils.FreeLoading
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.LoadState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,7 +69,7 @@ fun MyPostsScreen(
     onItemClicked: (Int) -> Unit,
     myPostVM: MyPostViewModel = hiltViewModel(),
 ) {
-    val pagerState = myPostVM.pagerState
+    val myPosts = myPostVM.myPostsFlow.collectAsLazyPagingItems()
     val updateState = myPostVM.state.value
 
     val sheetState = rememberModalBottomSheetState(
@@ -82,54 +81,37 @@ fun MyPostsScreen(
     val context = LocalContext.current
     val prioritized: String = stringResource(id = R.string.it_is_already_prioritized)
 
-    val scrollState = rememberLazyGridState()
-
-    val shouldLoadMore by remember {
-        derivedStateOf {
-            val lastVisibleIndex = scrollState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-            val totalItems = scrollState.layoutInfo.totalItemsCount
-            lastVisibleIndex >= totalItems - 3 && !pagerState.endReached && !pagerState.isLoading
-        }
-    }
-
-    LaunchedEffect(shouldLoadMore) {
-        if (shouldLoadMore) {
-            myPostVM.loadNextItems()
-        }
-    }
-
     Box(
         modifier = modifier.fillMaxSize()
     ) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
-            state = scrollState,
             modifier = Modifier
-                .padding(horizontal = MaterialTheme.spacing.dimen8Dp)
                 .fillMaxSize(),
         ) {
             items(
-                count = pagerState.items.size,
-                key = { pagerState.items[it].id }
+                count = myPosts.itemCount,
+                key = { myPosts[it]?.id ?: it }
             ) { i ->
-                val item = pagerState.items[i]
-                ProductItem(
-                    item,
-                    onItemClicked = onItemClicked,
-                    isMyPosts = true,
-                    onItemLongLicked = {
-                        if (!item.isPrioritized && item.status == 1) {
-                            postId = it
-                            showBottomSheet = true
+                myPosts[i]?.let { item ->
+                    ProductItem(
+                        item,
+                        onItemClicked = onItemClicked,
+                        isMyPosts = true,
+                        onItemLongLicked = {
+                            if (!item.isPrioritized && item.status == 1) {
+                                postId = it
+                                showBottomSheet = true
+                            }
+                            if (item.isPrioritized) {
+                                Toast.makeText(context, prioritized, Toast.LENGTH_SHORT).show()
+                            }
                         }
-                        if (item.isPrioritized) {
-                            Toast.makeText(context, prioritized, Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                )
+                    )
+                }
             }
-            item(span = { GridItemSpan(2) }) {
-                if (pagerState.isLoading && pagerState.page != 0) {
+            if (myPosts.loadState.append is LoadState.Loading) {
+                item(span = { GridItemSpan(2) }) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -144,11 +126,11 @@ fun MyPostsScreen(
                 Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen16Dp))
             }
         }
-        if (!pagerState.isLoading && pagerState.endReached && pagerState.items.isEmpty()) {
+        if (myPosts.loadState.refresh is LoadState.NotLoading && myPosts.itemCount == 0) {
             ComposeLottieAnimation(Modifier)
         }
         FreeLoading(updateState.isLoading)
-        FreeLoading(pagerState.isLoading && pagerState.page == 0)
+        FreeLoading(myPosts.loadState.refresh is LoadState.Loading)
     }
 
     if (showBottomSheet) {

@@ -284,13 +284,12 @@ fun NavigationGraph(
             ) { backStackEntry ->
                 val param = backStackEntry.arguments?.getInt("param")
                 ProductDetailsRoute(
-                    param ?: 0,
-                    homeViewModel = homeViewModel,
+                    productId = param ?: 0,
                     onSimilarItemClicked = {
                         navController.navigate(Screen.ProductDetails(it).route)
                     },
-                    {},
-                    navController::popBackStack,
+                    onEditClicked = {},
+                    navigateBack = navController::popBackStack,
                     goToMapsPage = { lat, long ->
                         navController.navigate(
                             Screen.MapUserLocation(

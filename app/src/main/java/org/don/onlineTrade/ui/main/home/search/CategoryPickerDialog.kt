@@ -208,96 +208,92 @@ private fun CheckboxCategoryCard(
         label = "chevron"
     )
 
-    Card(
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+    Column(
+        Modifier
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
     ) {
-        Column {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        if (hasChildren) isExpanded = !isExpanded
-                        else onToggleLeaf(item)
-                    }
-                    .padding(horizontal = 16.dp, vertical = 14.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                TriStateCheckbox(
-                    state = when {
-                        allSelected -> ToggleableState.On
-                        someSelected -> ToggleableState.Indeterminate
-                        else -> ToggleableState.Off
-                    },
-                    onClick = {
-                        if (hasChildren) onToggleParent(item) else onToggleLeaf(item)
-                    }
-                )
-
-                if (item.image != null) {
-                    Box(
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        AsyncImage(
-                            modifier = Modifier.size(24.dp),
-                            model = "${BuildConfig.BASE_URL}categories/image/${item.image}",
-                            contentDescription = null
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(12.dp))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    if (hasChildren) isExpanded = !isExpanded
+                    else onToggleLeaf(item)
                 }
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            TriStateCheckbox(
+                state = when {
+                    allSelected -> ToggleableState.On
+                    someSelected -> ToggleableState.Indeterminate
+                    else -> ToggleableState.Off
+                },
+                onClick = {
+                    if (hasChildren) onToggleParent(item) else onToggleLeaf(item)
+                }
+            )
 
-                Text(
-                    text = item.title,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Medium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f)
-                )
-
-                if (hasChildren) {
-                    Icon(
-                        imageVector = Icons.Default.ExpandMore,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier
-                            .size(24.dp)
-                            .rotate(rotationAngle)
+            if (item.image != null) {
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    AsyncImage(
+                        modifier = Modifier.size(24.dp),
+                        model = "${BuildConfig.BASE_URL}categories/image/${item.image}",
+                        contentDescription = null
                     )
                 }
+                Spacer(modifier = Modifier.width(12.dp))
             }
 
-            AnimatedVisibility(
-                visible = isExpanded,
-                enter = expandVertically(animationSpec = tween(300)),
-                exit = shrinkVertically(animationSpec = tween(300))
-            ) {
-                Column(
+            Text(
+                text = item.title,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f)
+            )
+
+            if (hasChildren) {
+                Icon(
+                    imageVector = Icons.Default.ExpandMore,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
-                ) {
-                    item.children.forEachIndexed { index, child ->
-                        CheckboxChildItem(
-                            item = child,
-                            selectedIds = selectedIds,
-                            onToggleLeaf = onToggleLeaf,
-                            onToggleParent = onToggleParent
+                        .size(24.dp)
+                        .rotate(rotationAngle)
+                )
+            }
+        }
+
+        AnimatedVisibility(
+            visible = isExpanded,
+            enter = expandVertically(animationSpec = tween(300)),
+            exit = shrinkVertically(animationSpec = tween(300))
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+            ) {
+                item.children.forEachIndexed { index, child ->
+                    CheckboxChildItem(
+                        item = child,
+                        selectedIds = selectedIds,
+                        onToggleLeaf = onToggleLeaf,
+                        onToggleParent = onToggleParent
+                    )
+                    if (index < item.children.lastIndex) {
+                        HorizontalDivider(
+                            modifier = Modifier.padding(horizontal = 24.dp),
+                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
                         )
-                        if (index < item.children.lastIndex) {
-                            HorizontalDivider(
-                                modifier = Modifier.padding(horizontal = 24.dp),
-                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-                            )
-                        }
                     }
                 }
             }
