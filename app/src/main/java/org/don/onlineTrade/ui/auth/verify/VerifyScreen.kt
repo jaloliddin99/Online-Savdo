@@ -35,7 +35,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ozcanalasalvar.otp_view.compose.OtpView
 import org.don.onlineTrade.R
-import org.don.onlineTrade.BuildConfig
 import org.don.onlineTrade.data.worker.TokenRefreshScheduler
 import org.don.onlineTrade.ui.auth.register.Logo
 import org.don.onlineTrade.ui.theme.robotoFontFamily
@@ -180,27 +179,6 @@ fun VerificationScreen(
             SharedPref.deviceToken = "Bearer ${state.registerMain.token}"
             SharedPref.refreshToken = state.registerMain.refreshToken ?: ""
             TokenRefreshScheduler.scheduleDailyRefresh(context)
-            // Send FCM token to backend
-            val fcmToken = SharedPref.fcmToken
-            if (fcmToken.isNotBlank()) {
-                val deviceToken = SharedPref.deviceToken
-                Thread {
-                    try {
-                        val client = okhttp3.OkHttpClient()
-                        val json = """{"fcmToken":"$fcmToken"}"""
-                        val body = okhttp3.RequestBody.create(
-                            okhttp3.MediaType.parse("application/json"),
-                            json
-                        )
-                        val request = okhttp3.Request.Builder()
-                            .url(BuildConfig.BASE_URL + "user/fcm-token")
-                            .post(body)
-                            .addHeader("Authorization", deviceToken)
-                            .build()
-                        client.newCall(request).execute().close()
-                    } catch (_: Exception) {}
-                }.start()
-            }
             onMainScreen.invoke()
         }else{
             Toast.makeText(context, stringResource(id = R.string.invalid_password), Toast.LENGTH_SHORT).show()

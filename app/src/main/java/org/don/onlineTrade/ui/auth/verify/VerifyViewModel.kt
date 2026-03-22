@@ -7,15 +7,16 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import org.don.onlineTrade.data.remote.models.RegistrationBody
+import kotlinx.coroutines.launch
 import org.don.onlineTrade.domain.state.Resource
 import org.don.onlineTrade.domain.useCase.auth.verify.VerifyUseCase
-import org.don.onlineTrade.ui.auth.register.RegistrationState
+import org.don.onlineTrade.utils.SharedPref
 import javax.inject.Inject
 
 @HiltViewModel
-class VerifyViewModel @Inject constructor(private val verifyUseCase: VerifyUseCase)
-    : ViewModel(){
+class VerifyViewModel @Inject constructor(
+    private val verifyUseCase: VerifyUseCase,
+) : ViewModel(){
 
 
 

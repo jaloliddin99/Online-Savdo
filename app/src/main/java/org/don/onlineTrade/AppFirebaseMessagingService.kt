@@ -9,14 +9,27 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import org.don.onlineTrade.data.remote.ApiInterface
 import org.don.onlineTrade.utils.SharedPref
 
 class AppFirebaseMessagingService : FirebaseMessagingService() {
 
+    @EntryPoint
+    @InstallIn(SingletonComponent::class)
+    interface ApiEntryPoint {
+        fun apiInterface(): ApiInterface
+    }
+
     override fun onNewToken(token: String) {
         super.onNewToken(token)
         SharedPref.fcmToken = token
-        // Send to backend if logged in
         if (SharedPref.deviceToken.isNotBlank()) {
             sendTokenToServer(token)
         }
@@ -41,7 +54,6 @@ class AppFirebaseMessagingService : FirebaseMessagingService() {
 
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        // Create channel for Android O+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 channelId,
@@ -54,7 +66,7 @@ class AppFirebaseMessagingService : FirebaseMessagingService() {
         }
 
         val notification = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.drawable.sotiq_icon)
             .setContentTitle(title)
             .setContentText(body)
             .setAutoCancel(true)
@@ -66,23 +78,19 @@ class AppFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     private fun sendTokenToServer(token: String) {
-        // Use OkHttp directly since we can't use Hilt in a Service easily
-        val client = okhttp3.OkHttpClient()
-        val json = """{"fcmToken":"$token"}"""
-        val body = okhttp3.RequestBody.create(
-            okhttp3.MediaType.parse("application/json"),
-            json
+        val entryPoint = EntryPointAccessors.fromApplication(
+            applicationContext,
+            ApiEntryPoint::class.java
         )
-        val request = okhttp3.Request.Builder()
-            .url(BuildConfig.BASE_URL + "user/fcm-token")
-            .post(body)
-            .addHeader("Authorization", SharedPref.deviceToken)
-            .build()
+        val apiInterface = entryPoint.apiInterface()
 
-        Thread {
+        CoroutineScope(Dispatchers.IO).launch {
             try {
-                client.newCall(request).execute().close()
+                apiInterface.sendFcmToken(
+                    SharedPref.deviceToken,
+                    mapOf("fcmToken" to token)
+                )
             } catch (_: Exception) {}
-        }.start()
+        }
     }
 }

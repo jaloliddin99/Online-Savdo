@@ -79,7 +79,7 @@ object AppModule {
         return Room.databaseBuilder(
             context,
             AppDatabase::class.java,
-            "online_trade_db"
+            "selling_uz_db"
         ).build()
     }
 
