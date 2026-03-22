@@ -58,6 +58,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.launch
@@ -68,6 +69,7 @@ import org.don.onlineTrade.ui.main.home.ProductItem
 import org.don.onlineTrade.ui.main.home.homeItems.ShimmerProductGrid
 import org.don.onlineTrade.ui.main.home.search.filter.ActiveFilterChips
 import org.don.onlineTrade.ui.main.home.search.filter.FilterClass
+import org.don.onlineTrade.ui.main.home.search.filter.SearchHistoryList
 import org.don.onlineTrade.ui.main.home.search.filter.SearchToolbar
 import org.don.onlineTrade.ui.main.home.search.filter.SuggestionsList
 import org.don.onlineTrade.ui.map.MapScreenData
@@ -116,6 +118,8 @@ fun SearchScreen(
     val pagingItems = searchResultViewModel.searchResults.collectAsLazyPagingItems()
     val suggestions = searchViewModel.suggestions
     val queryText = searchViewModel.queryText
+    val history by searchViewModel.searchHistory.collectAsStateWithLifecycle()
+    val isTyping = searchViewModel.isTyping
 
     var searchTextListener by remember { mutableStateOf(searchResultViewModel.searchText) }
     fun updateSearchText(value: String) {
@@ -230,20 +234,43 @@ fun SearchScreen(
                     searchBarModifier = searchBarModifier,
                 )
 
-                // Show suggestions if available
+                // Show suggestions or history
                 if (suggestions.isNotEmpty()) {
                     SuggestionsList(
                         query = queryText,
                         suggestions = suggestions,
                         onAllClick = {
+                            searchViewModel.saveToHistory(searchTextListener, null, null)
                             triggerSearch(searchTextListener)
                         },
                         onSuggestionClick = { suggestion ->
+                            searchViewModel.saveToHistory(
+                                searchTextListener,
+                                suggestion.name,
+                                suggestion.categoryId
+                            )
                             myFilter = myFilter.copy(
                                 categoryIds = listOf(suggestion.categoryId),
                                 categoryNames = listOf(suggestion.name)
                             )
                             triggerSearch(searchTextListener)
+                        }
+                    )
+                } else if (!hasSearched && !isTyping && history.isNotEmpty()) {
+                    SearchHistoryList(
+                        history = history,
+                        onHistoryClick = { item ->
+                            updateSearchText(item.query)
+                            if (item.categoryId != null && item.categoryName != null) {
+                                myFilter = myFilter.copy(
+                                    categoryIds = listOf(item.categoryId),
+                                    categoryNames = listOf(item.categoryName)
+                                )
+                            }
+                            triggerSearch(item.query)
+                        },
+                        onClearHistory = {
+                            searchViewModel.clearHistory()
                         }
                     )
                 }
@@ -273,7 +300,7 @@ fun SearchScreen(
                     )
                 }
 
-                if (!hasSearched && suggestions.isEmpty() && searchViewModel.hasFetchedSuggestions && !searchViewModel.isLoadingSuggestions) {
+                if (!hasSearched && suggestions.isEmpty() && !isTyping && history.isEmpty() && searchViewModel.hasFetchedSuggestions && !searchViewModel.isLoadingSuggestions) {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -322,7 +349,6 @@ fun SearchScreen(
                 } else if (isLoading && pagingItems.itemCount == 0) {
                     ShimmerProductGrid(
                         modifier = modifier
-                            .padding(horizontal = MaterialTheme.spacing.dimen12Dp)
                     )
                 } else {
                     LazyVerticalGrid(

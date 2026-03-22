@@ -9,9 +9,13 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import org.don.onlineTrade.data.local.SearchHistoryDao
+import org.don.onlineTrade.data.local.SearchHistoryEntity
 import org.don.onlineTrade.data.remote.models.searchSuggestion.CategorySuggestion
 import org.don.onlineTrade.domain.state.Resource
 import org.don.onlineTrade.domain.useCase.SearchSuggestionsUseCase
@@ -21,7 +25,8 @@ import javax.inject.Inject
 @OptIn(FlowPreview::class)
 @HiltViewModel
 class SearchViewModel @Inject constructor(
-    private val searchSuggestionsUseCase: SearchSuggestionsUseCase
+    private val searchSuggestionsUseCase: SearchSuggestionsUseCase,
+    private val searchHistoryDao: SearchHistoryDao
 ) : ViewModel() {
 
     var suggestions by mutableStateOf<List<CategorySuggestion>>(emptyList())
@@ -41,6 +46,13 @@ class SearchViewModel @Inject constructor(
     var searchRadiusKm by mutableIntStateOf(SharedPref.radius)
         private set
 
+    // Search history
+    val searchHistory = searchHistoryDao.getRecentHistory()
+        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+
+    var isTyping by mutableStateOf(false)
+        private set
+
     private val _suggestionQuery = MutableStateFlow("")
 
     init {
@@ -48,7 +60,9 @@ class SearchViewModel @Inject constructor(
             _suggestionQuery
                 .debounce(300)
                 .collectLatest { query ->
-                    fetchSuggestionsInternal(query)
+                    if (query.isNotEmpty()) {
+                        fetchSuggestionsInternal(query)
+                    }
                 }
         }
     }
@@ -86,6 +100,25 @@ class SearchViewModel @Inject constructor(
         }
     }
 
+    fun saveToHistory(query: String, categoryName: String?, categoryId: Long?) {
+        if (query.isBlank()) return
+        viewModelScope.launch {
+            searchHistoryDao.upsert(
+                SearchHistoryEntity(
+                    query = query,
+                    categoryName = categoryName,
+                    categoryId = categoryId
+                )
+            )
+        }
+    }
+
+    fun clearHistory() {
+        viewModelScope.launch {
+            searchHistoryDao.clearAll()
+        }
+    }
+
     fun updateSearchLocation(lat: Double, lon: Double, radiusKm: Int) {
         searchLat = lat
         searchLon = lon
@@ -93,10 +126,15 @@ class SearchViewModel @Inject constructor(
     }
 
     fun onSuggestionQueryChanged(query: String) {
+        isTyping = query.isNotEmpty()
         _suggestionQuery.value = query
+        if (query.isEmpty()) {
+            suggestions = emptyList()
+        }
     }
 
     fun clearSuggestions() {
         suggestions = emptyList()
+        isTyping = false
     }
 }

@@ -2,12 +2,12 @@ package org.don.onlineTrade.di
 
 import android.app.Application
 import android.content.Context
+import androidx.room.Room
 import com.chuckerteam.chucker.api.ChuckerCollector
 import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.chuckerteam.chucker.api.RetentionManager
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,10 +16,10 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.don.onlineTrade.BuildConfig
-import org.don.onlineTrade.data.location.DefaultLocationTracker
+import org.don.onlineTrade.data.local.AppDatabase
+import org.don.onlineTrade.data.local.SearchHistoryDao
 import org.don.onlineTrade.data.remote.ApiInterface
 import org.don.onlineTrade.data.remote.AuthInterceptor
-import org.don.onlineTrade.domain.repository.LocationTracker
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
@@ -73,4 +73,18 @@ object AppModule {
         return LocationServices.getFusedLocationProviderClient(app)
     }
 
+    @Provides
+    @Singleton
+    fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
+        return Room.databaseBuilder(
+            context,
+            AppDatabase::class.java,
+            "online_trade_db"
+        ).build()
+    }
+
+    @Provides
+    fun provideSearchHistoryDao(db: AppDatabase): SearchHistoryDao {
+        return db.searchHistoryDao()
+    }
 }

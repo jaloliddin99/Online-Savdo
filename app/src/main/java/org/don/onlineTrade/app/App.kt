@@ -5,6 +5,7 @@ import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import com.chibatching.kotpref.Kotpref
 import com.google.android.gms.maps.MapsInitializer
+import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.HiltAndroidApp
 import org.don.onlineTrade.data.worker.TokenRefreshScheduler
 import org.don.onlineTrade.utils.ModelPref
@@ -26,6 +27,11 @@ class App: Application(), Configuration.Provider {
         if (SharedPref.refreshToken.isNotBlank()) {
             TokenRefreshScheduler.scheduleDailyRefresh(this)
         }
+
+        FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
+            SharedPref.fcmToken = token
+        }
+        FirebaseMessaging.getInstance().subscribeToTopic("all")
     }
 
     override val workManagerConfiguration: Configuration

@@ -27,12 +27,12 @@ android {
     buildTypes {
 
         debug {
-            buildConfigField("String", "BASE_URL", "\"http://95.169.201.165:8080/api/v1/\"")
+            buildConfigField("String", "BASE_URL", "\"https://selling.uz/api/v1/\"")
         }
 
 
         release {
-            buildConfigField("String", "BASE_URL", "\"http://95.169.201.165:8080/api/v1/\"")
+            buildConfigField("String", "BASE_URL", "\"https://selling.uz/api/v1/\"")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -96,6 +96,10 @@ dependencies {
     implementation("androidx.work:work-runtime-ktx:2.11.1")
     implementation("androidx.paging:paging-runtime-ktx:3.4.2")
     implementation("androidx.paging:paging-compose:3.4.2")
+
+    implementation("androidx.room:room-runtime:2.7.1")
+    implementation("androidx.room:room-ktx:2.7.1")
+    ksp("androidx.room:room-compiler:2.7.1")
 
     implementation("androidx.navigation:navigation-compose:2.9.7")
     implementation("androidx.compose.runtime:runtime-tracing:1.10.5")

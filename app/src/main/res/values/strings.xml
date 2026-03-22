@@ -72,6 +72,10 @@
     <string name="logout">Log out</string>
     <string name="nothing_found_for_for_search">Nothing found for your search</string>
     <string name="no_posts_for_location">No posts found in your area. Try updating your location or setting a broader radius.</string>
+    <string name="search_hint_location">Search in %1$s in %2$d km</string>
+    <string name="search_hint_default">Search</string>
+    <string name="recent_searches">Recent searches</string>
+    <string name="clear_history">Clear</string>
     <string name="update_location">Update location</string>
     <string name="all_posts">All posts</string>
     <string name="firstName">Name</string>

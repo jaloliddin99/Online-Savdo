@@ -7,6 +7,7 @@ import org.don.onlineTrade.ui.map.LONGITUDE
 object SharedPref: KotprefModel() {
 
     var radius by intPref(10)
+    var locationName by stringPref("")
 
     var deviceToken by stringPref()
     var refreshToken by stringPref()
@@ -21,5 +22,6 @@ object SharedPref: KotprefModel() {
 
     var permissionCounter by intPref(0)
 
+    var fcmToken by stringPref()
 
 }

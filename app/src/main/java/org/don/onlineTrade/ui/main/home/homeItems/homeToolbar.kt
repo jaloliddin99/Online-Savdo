@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -20,8 +21,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import org.don.onlineTrade.R
 import org.don.onlineTrade.ui.theme.spacing
+import org.don.onlineTrade.utils.SharedPref
 
 @Composable
 fun HomeSearchBar(
@@ -38,10 +42,24 @@ fun HomeSearchBar(
             .padding(horizontal = MaterialTheme.spacing.dimen8Dp)
     ) {
         Box(modifier = Modifier.weight(1f)) {
+            val searchHint = if (SharedPref.locationName.isNotBlank()) {
+                stringResource(R.string.search_hint_location, SharedPref.locationName, SharedPref.radius)
+            } else {
+                stringResource(R.string.search_hint_default)
+            }
+
             TextField(
                 value = "",
                 onValueChange = {},
                 enabled = false,
+                placeholder = {
+                    Text(
+                        text = searchHint,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                        maxLines = 1,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                    )
+                },
                 colors = TextFieldDefaults.colors(
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,

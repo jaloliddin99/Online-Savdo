@@ -95,7 +95,8 @@ fun SelectRadiusMapScreen(
         state.latLng?.let { markerPosition = it }
     }
 
-    // Update marker when a search result is selected
+    // Update marker only when user picks a search result (not from reverse geocode)
+    var lastSearchSelection by remember { mutableStateOf<LatLng?>(null) }
     val destinationLatLng =
         if (state.singleFutureMember?.isNotEmpty() == true) {
             val obj = state.singleFutureMember[0].GeoObject.Point.pos
@@ -105,7 +106,11 @@ fun SelectRadiusMapScreen(
         } else null
 
     LaunchedEffect(destinationLatLng) {
-        destinationLatLng?.let { markerPosition = it }
+        // Only move marker for search selections, not for reverse geocode responses
+        if (destinationLatLng != null && destinationLatLng != lastSearchSelection) {
+            lastSearchSelection = destinationLatLng
+            markerPosition = destinationLatLng
+        }
     }
 
     LaunchedEffect(searchTextListener) {
@@ -167,6 +172,7 @@ fun SelectRadiusMapScreen(
             cameraPositionState = cameraPositionState,
             onMapClick = { latLng ->
                 markerPosition = latLng
+                viewModel.reverseGeocodeFromCamera(latLng)
             }
         ) {
             Marker(
@@ -245,11 +251,25 @@ fun SelectRadiusMapScreen(
                 Icon(imageVector = Icons.Default.GpsFixed, contentDescription = null)
             }
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
+
+            // Extract location name from reverse geocode Components
+            val locationName = remember(state.singleFutureMember) {
+                val components = state.singleFutureMember?.firstOrNull()
+                    ?.GeoObject?.metaDataProperty?.GeocoderMetaData?.Address?.Components
+                val raw = components?.firstOrNull { it.kind == "area" }?.name
+                    ?: components?.firstOrNull { it.kind == "province" }?.name
+                    ?: ""
+                raw.removeSuffix(" tumani").removeSuffix(" район").removeSuffix(" District")
+            }
+
             Button(
                 onClick = {
                     SharedPref.radius = radiusKm
                     SharedPref.latitude = markerPosition.latitude.toString()
                     SharedPref.longitude = markerPosition.longitude.toString()
+                    if (locationName.isNotBlank()) {
+                        SharedPref.locationName = locationName
+                    }
                     onBackClick(
                         MapScreenData(
                             lat = markerPosition.latitude,

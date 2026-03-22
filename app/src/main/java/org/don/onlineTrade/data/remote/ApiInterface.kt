@@ -236,7 +236,10 @@ interface ApiInterface {
         @Url url: String
     ): ModelAddressReverse
 
-
-
+    @POST("user/fcm-token")
+    suspend fun sendFcmToken(
+        @Header("Authorization") token: String,
+        @Body body: Map<String, String>
+    ): GenericModel<Any>
 
 }

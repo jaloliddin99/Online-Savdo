@@ -48,10 +48,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.compose.material.icons.filled.History
 import org.don.onlineTrade.R
+import org.don.onlineTrade.data.local.SearchHistoryEntity
 import org.don.onlineTrade.data.remote.models.searchSuggestion.CategorySuggestion
 import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.spacing
+import org.don.onlineTrade.utils.SharedPref
 
 @Composable
 fun SuggestionsList(
@@ -159,6 +162,84 @@ fun SuggestionsList(
                 )
             }
             if (index != suggestions.lastIndex) {
+                HorizontalDivider()
+            }
+        }
+    }
+}
+
+@Composable
+fun SearchHistoryList(
+    history: List<SearchHistoryEntity>,
+    onHistoryClick: (SearchHistoryEntity) -> Unit,
+    onClearHistory: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = MaterialTheme.spacing.dimen16Dp)
+            .background(
+                color = MaterialTheme.colorScheme.surface,
+                shape = RoundedCornerShape(MaterialTheme.spacing.dimen12Dp)
+            )
+            .padding(horizontal = MaterialTheme.spacing.dimen12Dp)
+    ) {
+        // Header
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(R.string.recent_searches),
+                style = MaterialTheme.typography.titleSmall,
+                fontFamily = robotoFontFamily,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.weight(1f)
+            )
+            Text(
+                text = stringResource(R.string.clear_history),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.clickable { onClearHistory() }
+            )
+        }
+        HorizontalDivider()
+
+        history.forEachIndexed { index, item ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onHistoryClick(item) }
+                    .padding(vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.History,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(end = 12.dp)
+                )
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(
+                        text = item.query,
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontFamily = robotoFontFamily,
+                    )
+                    if (item.categoryName != null) {
+                        Text(
+                            text = item.categoryName,
+                            fontFamily = robotoFontFamily,
+                            fontWeight = FontWeight.Normal,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface.copy(0.5f)
+                        )
+                    }
+                }
+            }
+            if (index != history.lastIndex) {
                 HorizontalDivider()
             }
         }
@@ -386,12 +467,26 @@ fun SearchTextField(
         onSearchTriggered(searchQuery)
     }
 
+    val searchHint = if (SharedPref.locationName.isNotBlank()) {
+        stringResource(R.string.search_hint_location, SharedPref.locationName, SharedPref.radius)
+    } else {
+        stringResource(R.string.search_hint_default)
+    }
+
     TextField(
         colors = TextFieldDefaults.colors(
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
             disabledIndicatorColor = Color.Transparent,
         ),
+        placeholder = {
+            Text(
+                text = searchHint,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                maxLines = 1,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+            )
+        },
         leadingIcon = {
             Icon(
                 imageVector = Icons.Filled.Search,
