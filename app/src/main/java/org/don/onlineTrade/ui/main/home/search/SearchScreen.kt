@@ -441,7 +441,9 @@ fun SearchScreen(
             ) {
                 FilterBottomSheetContent(
                     currentRadiusKm = searchViewModel.searchRadiusKm,
-                    categories = searchResultViewModel.categories,
+                    allCategories = searchResultViewModel.allCategories,
+                    isCategoriesLoading = searchResultViewModel.isCategoriesLoading,
+                    onLoadCategories = { searchResultViewModel.loadAllCategories() },
                     initialFilter = myFilter,
                     onApply = { filter ->
                         scope.launch { sheetState.hide() }.invokeOnCompletion {

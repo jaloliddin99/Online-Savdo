@@ -14,7 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -48,16 +48,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
-import org.don.onlineTrade.BuildConfig
 import org.don.onlineTrade.R
-import org.don.onlineTrade.data.remote.models.category.CategoryParent
+import org.don.onlineTrade.data.remote.models.category.Category
 import org.don.onlineTrade.ui.main.home.search.filter.FilterClass
 import org.don.onlineTrade.ui.theme.robotoFontFamily
 import org.don.onlineTrade.ui.theme.spacing
@@ -68,7 +65,9 @@ import org.don.onlineTrade.utils.convertLongToDisplayDate
 @Composable
 fun FilterBottomSheetContent(
     currentRadiusKm: Int,
-    categories: List<CategoryParent>,
+    allCategories: Category?,
+    isCategoriesLoading: Boolean,
+    onLoadCategories: () -> Unit,
     initialFilter: FilterClass,
     onApply: (FilterClass) -> Unit,
     onReset: () -> Unit,
@@ -220,37 +219,96 @@ fun FilterBottomSheetContent(
         )
         Spacer(modifier = Modifier.height(10.dp))
 
-        if (categories.isNotEmpty()) {
+        var showCategoryPicker by remember { mutableStateOf(false) }
+
+        // "Select Category" button
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
+                .clickable {
+                    onLoadCategories()
+                    showCategoryPicker = true
+                }
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = stringResource(R.string.select_category_without),
+                fontFamily = robotoFontFamily,
+                fontWeight = FontWeight.Medium,
+                fontSize = 14.sp
+            )
+            if (selectedCategoryIds.isNotEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(50))
+                        .background(MaterialTheme.colorScheme.primary)
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        text = "${selectedCategoryIds.size}",
+                        fontSize = 12.sp,
+                        fontFamily = robotoFontFamily,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
+            }
+        }
+
+        // Show selected category names as chips
+        if (selectedCategoryNames.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(8.dp))
             FlowRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                categories.forEach { category ->
-                    val catId = category.id.toLong()
-                    val isSelected = catId in selectedCategoryIds
-                    SelectableCategoryChip(
-                        title = category.title,
-                        imageUrl = category.image?.let { "${BuildConfig.BASE_URL}categories/image/$it" },
-                        isSelected = isSelected,
-                        onClick = {
-                            if (isSelected) {
-                                selectedCategoryIds = selectedCategoryIds - catId
-                                selectedCategoryNames = selectedCategoryNames - category.title
-                            } else {
-                                selectedCategoryIds = selectedCategoryIds + catId
-                                selectedCategoryNames = selectedCategoryNames + category.title
+                selectedCategoryNames.forEachIndexed { index, name ->
+                    Row(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(50))
+                            .background(MaterialTheme.colorScheme.primary)
+                            .clickable {
+                                selectedCategoryIds = selectedCategoryIds.toMutableList().also { it.removeAt(index) }
+                                selectedCategoryNames = selectedCategoryNames.toMutableList().also { it.removeAt(index) }
                             }
-                        }
-                    )
+                            .padding(start = 12.dp, end = 8.dp, top = 6.dp, bottom = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = name,
+                            fontFamily = robotoFontFamily,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Icon(
+                            imageVector = Icons.Filled.Close,
+                            contentDescription = null,
+                            modifier = Modifier.size(14.dp),
+                            tint = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
                 }
             }
-        } else {
-            Text(
-                text = stringResource(R.string.filter_loading_categories),
-                fontSize = 13.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(vertical = 8.dp)
+        }
+
+        if (showCategoryPicker) {
+            CategoryPickerDialog(
+                categories = allCategories,
+                isLoading = isCategoriesLoading,
+                initialSelectedIds = selectedCategoryIds.map { it.toInt() }.toSet(),
+                onDismiss = { showCategoryPicker = false },
+                onApply = { selectedItems ->
+                    showCategoryPicker = false
+                    selectedCategoryIds = selectedItems.map { it.id.toLong() }
+                    selectedCategoryNames = selectedItems.map { it.title }
+                }
             )
         }
 
@@ -366,59 +424,6 @@ private fun FilterSectionHeader(icon: ImageVector, title: String) {
             fontWeight = FontWeight.SemiBold,
             fontSize = 15.sp
         )
-    }
-}
-
-@Composable
-private fun SelectableCategoryChip(
-    title: String,
-    imageUrl: String?,
-    isSelected: Boolean,
-    onClick: () -> Unit
-) {
-    val bgColor = if (isSelected) MaterialTheme.colorScheme.primary
-    else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-    val contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary
-    else MaterialTheme.colorScheme.onSurface
-
-    Row(
-        modifier = Modifier
-            .clip(RoundedCornerShape(50))
-            .background(bgColor)
-            .clickable { onClick() }
-            .padding(start = 4.dp, end = 12.dp, top = 4.dp, bottom = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        if (imageUrl != null) {
-            AsyncImage(
-                model = imageUrl,
-                contentDescription = title,
-                modifier = Modifier
-                    .size(28.dp)
-                    .clip(CircleShape)
-                    .background(Color.White.copy(alpha = 0.2f)),
-                contentScale = ContentScale.Crop
-            )
-            Spacer(modifier = Modifier.width(6.dp))
-        } else {
-            Spacer(modifier = Modifier.width(8.dp))
-        }
-        Text(
-            text = title,
-            fontFamily = robotoFontFamily,
-            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-            fontSize = 13.sp,
-            color = contentColor
-        )
-        if (isSelected) {
-            Spacer(modifier = Modifier.width(4.dp))
-            Icon(
-                imageVector = Icons.Filled.Check,
-                contentDescription = null,
-                modifier = Modifier.size(14.dp),
-                tint = contentColor
-            )
-        }
     }
 }
 
