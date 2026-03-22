@@ -15,11 +15,16 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -71,6 +76,7 @@ fun MyPostsScreen(
 ) {
     val myPosts = myPostVM.myPostsFlow.collectAsLazyPagingItems()
     val updateState = myPostVM.state.value
+    val selectedStatus by myPostVM.selectedStatus.collectAsState()
 
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true,
@@ -81,56 +87,66 @@ fun MyPostsScreen(
     val context = LocalContext.current
     val prioritized: String = stringResource(id = R.string.it_is_already_prioritized)
 
-    Box(
-        modifier = modifier.fillMaxSize()
-    ) {
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            modifier = Modifier
-                .fillMaxSize(),
+    val isRefreshing = myPosts.loadState.refresh is LoadState.Loading
+
+    Column(modifier = modifier.fillMaxSize()) {
+        // Status filter tabs
+        StatusFilterRow(
+            selectedStatus = selectedStatus,
+            onStatusSelected = { myPostVM.setStatusFilter(it) }
+        )
+
+        PullToRefreshBox(
+            isRefreshing = isRefreshing,
+            onRefresh = { myPosts.refresh() },
+            modifier = Modifier.fillMaxSize()
         ) {
-            items(
-                count = myPosts.itemCount,
-                key = { myPosts[it]?.id ?: it }
-            ) { i ->
-                myPosts[i]?.let { item ->
-                    ProductItem(
-                        item,
-                        onItemClicked = onItemClicked,
-                        isMyPosts = true,
-                        onItemLongLicked = {
-                            if (!item.isPrioritized && item.status == 1) {
-                                postId = it
-                                showBottomSheet = true
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                items(
+                    count = myPosts.itemCount,
+                    key = { myPosts[it]?.id ?: it }
+                ) { i ->
+                    myPosts[i]?.let { item ->
+                        ProductItem(
+                            item,
+                            onItemClicked = onItemClicked,
+                            isMyPosts = true,
+                            onItemLongLicked = {
+                                if (!item.isPrioritized && item.status == 1) {
+                                    postId = it
+                                    showBottomSheet = true
+                                }
+                                if (item.isPrioritized) {
+                                    Toast.makeText(context, prioritized, Toast.LENGTH_SHORT).show()
+                                }
                             }
-                            if (item.isPrioritized) {
-                                Toast.makeText(context, prioritized, Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    )
-                }
-            }
-            if (myPosts.loadState.append is LoadState.Loading) {
-                item(span = { GridItemSpan(2) }) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        CircularProgressIndicator()
+                        )
                     }
                 }
+                if (myPosts.loadState.append is LoadState.Loading) {
+                    item(span = { GridItemSpan(2) }) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
+                }
+                item {
+                    Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen16Dp))
+                }
             }
-            item {
-                Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen16Dp))
+            if (myPosts.loadState.refresh is LoadState.NotLoading && myPosts.itemCount == 0) {
+                ComposeLottieAnimation(Modifier)
             }
+            FreeLoading(updateState.isLoading)
         }
-        if (myPosts.loadState.refresh is LoadState.NotLoading && myPosts.itemCount == 0) {
-            ComposeLottieAnimation(Modifier)
-        }
-        FreeLoading(updateState.isLoading)
-        FreeLoading(myPosts.loadState.refresh is LoadState.Loading)
     }
 
     if (showBottomSheet) {
@@ -148,6 +164,40 @@ fun MyPostsScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun StatusFilterRow(
+    selectedStatus: Int?,
+    onStatusSelected: (Int?) -> Unit
+) {
+    data class StatusTab(val status: Int?, val labelResId: Int)
+
+    val tabs = listOf(
+        StatusTab(null, R.string.all),
+        StatusTab(1, R.string.published),
+        StatusTab(0, R.string.pending),
+        StatusTab(2, R.string.rejected),
+    )
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        tabs.forEach { tab ->
+            FilterChip(
+                selected = selectedStatus == tab.status,
+                onClick = { onStatusSelected(tab.status) },
+                label = { Text(stringResource(tab.labelResId)) },
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = MaterialTheme.colorScheme.primary,
+                    selectedLabelColor = Color.White
+                )
+            )
         }
     }
 }

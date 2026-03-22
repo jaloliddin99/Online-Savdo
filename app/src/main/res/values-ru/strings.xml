@@ -121,6 +121,8 @@
     <string name="address">Адрес</string>
     <string name="likePulural">лайки</string>
     <string name="likeSingular">лайк</string>
+    <string name="all">Все</string>
+    <string name="published">Опубликовано</string>
     <string name="pending">Проверка</string>
     <string name="rejected">Отклонено</string>
     <string name="top">Топ</string>
@@ -131,6 +133,15 @@
     <string name="section_account">Аккаунт</string>
     <string name="section_support">Поддержка</string>
 
+    <string name="filter_title">Фильтры</string>
+    <string name="filter_reset_all">Сбросить все</string>
+    <string name="filter_km_radius">%d км радиус</string>
+    <string name="filter_no_location">Местоположение не задано</string>
+    <string name="filter_tap_change_location">Нажмите, чтобы изменить местоположение и радиус</string>
+    <string name="filter_loading_categories">Загрузка категорий…</string>
+    <string name="filter_date_range">Диапазон дат</string>
+    <string name="filter_clear">Очистить</string>
+    <string name="cancel">Отмена</string>
     <string name="txt_apply_filter">Применить фильтр</string>
     <string name="txt_select_region_and_district">Выберите регион и район</string>
     <string name="from">От</string>

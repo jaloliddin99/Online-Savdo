@@ -127,6 +127,8 @@
     <string name="address">Address</string>
     <string name="likePulural">likes</string>
     <string name="likeSingular">like</string>
+    <string name="all">All</string>
+    <string name="published">Published</string>
     <string name="pending">Checking</string>
     <string name="rejected">Rejected</string>
     <string name="top">Top</string>
@@ -137,6 +139,15 @@
     <string name="section_account">Account</string>
     <string name="section_support">Support</string>
 
+    <string name="filter_title">Filters</string>
+    <string name="filter_reset_all">Reset all</string>
+    <string name="filter_km_radius">%d km radius</string>
+    <string name="filter_no_location">No location set</string>
+    <string name="filter_tap_change_location">Tap to change location &amp; radius</string>
+    <string name="filter_loading_categories">Loading categories…</string>
+    <string name="filter_date_range">Date Range</string>
+    <string name="filter_clear">Clear</string>
+    <string name="cancel">Cancel</string>
     <string name="txt_apply_filter">Apply Filter</string>
     <string name="txt_select_region_and_district">Select Region and District</string>
     <string name="from">From</string>

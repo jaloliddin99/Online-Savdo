@@ -107,12 +107,12 @@ fun FilterBottomSheetContent(
                     }
                     showDatePicker.intValue = 0
                 }) {
-                    Text("OK")
+                    Text(stringResource(R.string.ok))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDatePicker.intValue = 0 }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         ) {
@@ -136,7 +136,7 @@ fun FilterBottomSheetContent(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Filters",
+                text = stringResource(R.string.filter_title),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 fontFamily = robotoFontFamily
@@ -153,7 +153,7 @@ fun FilterBottomSheetContent(
                     selectedCategoryNames = emptyList()
                     onReset()
                 }) {
-                    Text("Reset all", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.filter_reset_all), color = MaterialTheme.colorScheme.error)
                 }
             }
         }
@@ -187,14 +187,14 @@ fun FilterBottomSheetContent(
                 Spacer(modifier = Modifier.width(8.dp))
                 Column {
                     Text(
-                        text = if (currentRadiusKm > 0) "${currentRadiusKm} km radius"
-                        else "No location set",
+                        text = if (currentRadiusKm > 0) stringResource(R.string.filter_km_radius, currentRadiusKm)
+                        else stringResource(R.string.filter_no_location),
                         fontFamily = robotoFontFamily,
                         fontWeight = FontWeight.Medium,
                         fontSize = 14.sp
                     )
                     Text(
-                        text = "Tap to change location & radius",
+                        text = stringResource(R.string.filter_tap_change_location),
                         fontFamily = robotoFontFamily,
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -247,7 +247,7 @@ fun FilterBottomSheetContent(
             }
         } else {
             Text(
-                text = "Loading categories...",
+                text = stringResource(R.string.filter_loading_categories),
                 fontSize = 13.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(vertical = 8.dp)
@@ -290,7 +290,7 @@ fun FilterBottomSheetContent(
         // ── Section 4: Date Range ──
         FilterSectionHeader(
             icon = Icons.Filled.CalendarMonth,
-            title = "Date Range"
+            title = stringResource(R.string.filter_date_range)
         )
         Spacer(modifier = Modifier.height(10.dp))
 
@@ -495,7 +495,7 @@ private fun DateChip(
         if (isSet) {
             Icon(
                 imageVector = Icons.Filled.Close,
-                contentDescription = "Clear",
+                contentDescription = stringResource(R.string.filter_clear),
                 modifier = Modifier
                     .size(16.dp)
                     .clickable { onClear() },

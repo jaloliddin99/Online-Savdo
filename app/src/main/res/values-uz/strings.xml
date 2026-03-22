@@ -122,6 +122,8 @@
     <string name="address">Address</string>
     <string name="likePulural">likes</string>
     <string name="likeSingular">like</string>
+    <string name="all">Barchasi</string>
+    <string name="published">Chop etilgan</string>
     <string name="pending">Tekshiruvda</string>
     <string name="rejected">Rad etildi</string>
     <string name="top">Top</string>
@@ -132,6 +134,15 @@
     <string name="section_account">Akkaunt</string>
     <string name="section_support">Yordam</string>
 
+    <string name="filter_title">Filterlar</string>
+    <string name="filter_reset_all">Hammasini tiklash</string>
+    <string name="filter_km_radius">%d km radius</string>
+    <string name="filter_no_location">Joylashuv belgilanmagan</string>
+    <string name="filter_tap_change_location">Joylashuv va radiusni o\'zgartirish</string>
+    <string name="filter_loading_categories">Toifalar yuklanmoqda…</string>
+    <string name="filter_date_range">Sana oralig\'i</string>
+    <string name="filter_clear">Tozalash</string>
+    <string name="cancel">Bekor qilish</string>
     <string name="txt_apply_filter">Filterlash</string>
     <string name="txt_select_region_and_district">Viloyat Tuman</string>
     <string name="from">Dan</string>

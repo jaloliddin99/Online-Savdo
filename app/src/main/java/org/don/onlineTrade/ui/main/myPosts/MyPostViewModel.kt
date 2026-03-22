@@ -9,7 +9,12 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import org.don.onlineTrade.data.paging.MyPostsPagingSource
@@ -30,13 +35,24 @@ class MyPostViewModel @Inject constructor(
     private val _state = mutableStateOf(MyProfileScreen())
     val state: State<MyProfileScreen> = _state
 
-    val myPostsFlow: Flow<PagingData<Content>> = Pager(
-        config = PagingConfig(
-            pageSize = 20,
-            enablePlaceholders = false
-        ),
-        pagingSourceFactory = { MyPostsPagingSource(apiInterface) }
-    ).flow.cachedIn(viewModelScope)
+    private val _selectedStatus = MutableStateFlow<Int?>(null)
+    val selectedStatus: StateFlow<Int?> = _selectedStatus.asStateFlow()
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val myPostsFlow: Flow<PagingData<Content>> = _selectedStatus
+        .flatMapLatest { status ->
+            Pager(
+                config = PagingConfig(
+                    pageSize = 20,
+                    enablePlaceholders = false
+                ),
+                pagingSourceFactory = { MyPostsPagingSource(apiInterface, status) }
+            ).flow
+        }.cachedIn(viewModelScope)
+
+    fun setStatusFilter(status: Int?) {
+        _selectedStatus.value = status
+    }
 
     fun updateValues(
         token: String = SharedPref.deviceToken,

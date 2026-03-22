@@ -8,6 +8,7 @@ import org.don.onlineTrade.utils.SharedPref
 
 class MyPostsPagingSource(
     private val apiInterface: ApiInterface,
+    private val status: Int? = null,
 ) : PagingSource<Int, Content>() {
 
     override fun getRefreshKey(state: PagingState<Int, Content>): Int? {
@@ -24,7 +25,8 @@ class MyPostsPagingSource(
                 token = SharedPref.deviceToken,
                 page = page,
                 size = params.loadSize,
-                lang = SharedPref.language
+                lang = SharedPref.language,
+                status = status
             )
             val data = response.data
             LoadResult.Page(

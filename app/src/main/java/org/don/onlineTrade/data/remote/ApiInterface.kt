@@ -108,7 +108,8 @@ interface ApiInterface {
         @Header("Authorization") token: String,
         @Query("page") page: Int,
         @Query("size") size: Int,
-        @Query("lang") lang: String
+        @Query("lang") lang: String,
+        @Query("status") status: Int? = null
     ): GenericModel<Data>
 
     @GET("categories")
