@@ -1,0 +1,41 @@
+package uz.don.selling.domain.useCase.presentUseCase
+
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import uz.don.selling.data.remote.models.GenericModel
+import uz.don.selling.data.remote.models.showProducts.PostDetailsData
+import uz.don.selling.domain.repository.NetworkRepository
+import uz.don.selling.domain.state.Resource
+import java.io.IOException
+import javax.inject.Inject
+
+class PresentProductUseCase @Inject constructor(
+    private val repository: NetworkRepository
+) {
+
+
+    operator fun invoke(
+        id: Int,
+        token: String,
+        language: String
+    ): Flow<Resource<GenericModel<PostDetailsData>>> = flow {
+        try {
+            emit(Resource.Loading())
+            delay(1300)
+
+            val data = repository.showProductModel(id, token, language)
+            if (data.success){
+                emit(Resource.Success(data))
+            }else{
+                emit(Resource.Error(data.message))
+            }
+        } catch (e: Exception) {
+            emit(Resource.Error(e.localizedMessage ?: "An unexpected error occured"))
+        } catch (e: IOException) {
+            emit(Resource.Error("Couldn't reach server. Check your internet connection."))
+        }
+    }
+
+
+}

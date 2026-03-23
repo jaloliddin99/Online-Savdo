@@ -11,8 +11,8 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        namespace = "uz.don.onlineTrade"
-        applicationId = "uz.don.onlineTrade"
+        namespace = "uz.don.selling"
+        applicationId = "uz.don.selling"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
