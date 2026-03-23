@@ -1,71 +1,41 @@
 {
   "project_info": {
-    "project_number": "437168697626",
-    "firebase_url": "https://abiturient-2021-default-rtdb.firebaseio.com",
-    "project_id": "abiturient-2021",
-    "storage_bucket": "abiturient-2021.appspot.com"
+    "project_number": "222346931020",
+    "project_id": "selling-uz",
+    "storage_bucket": "selling-uz.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:437168697626:android:b11eac58d1f67b7ff4bca3",
-        "android_client_info": {
-          "package_name": "com.jaloliddinabdullaev.abiturient2021"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "437168697626-f7cq6hbn8l9pa5hrhbmnsrsoqu18n771.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.jaloliddinabdullaev.abiturient2021",
-            "certificate_hash": "76be3001cc908aa44d5d10a4256e9c31e2a489e3"
-          }
-        },
-        {
-          "client_id": "437168697626-tc3b43n0ttnvnjqk44o29plhtcq246je.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyC86_idXvUqjGwryIKFWA88FrHMjrAITYA"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "437168697626-tc3b43n0ttnvnjqk44o29plhtcq246je.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:437168697626:android:69b44d255f9f2198f4bca3",
+        "mobilesdk_app_id": "1:222346931020:android:d913336c1104560682bde9",
         "android_client_info": {
           "package_name": "uz.don.selling"
         }
       },
       "oauth_client": [
         {
-          "client_id": "437168697626-tc3b43n0ttnvnjqk44o29plhtcq246je.apps.googleusercontent.com",
+          "client_id": "222346931020-obhh1blnce3a58igh9o69rm919gvosvt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "uz.don.selling",
+            "certificate_hash": "2b1cf0d1abab747a0f2999073c83374c78db3475"
+          }
+        },
+        {
+          "client_id": "222346931020-0r6ocsnjkj9hfhm7ocaca7du7q6glph5.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyC86_idXvUqjGwryIKFWA88FrHMjrAITYA"
+          "current_key": "AIzaSyCtY2DgPHhFcCT5QdMsufYvTDP2nhRmLEQ"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "437168697626-tc3b43n0ttnvnjqk44o29plhtcq246je.apps.googleusercontent.com",
+              "client_id": "222346931020-0r6ocsnjkj9hfhm7ocaca7du7q6glph5.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

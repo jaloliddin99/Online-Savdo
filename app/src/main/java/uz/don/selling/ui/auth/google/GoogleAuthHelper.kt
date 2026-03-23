@@ -11,7 +11,7 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 object GoogleAuthHelper {
 
     // Web client ID from google-services.json (client_type: 3)
-    private const val WEB_CLIENT_ID = "437168697626-tc3b43n0ttnvnjqk44o29plhtcq246je.apps.googleusercontent.com"
+    private const val WEB_CLIENT_ID = "222346931020-0r6ocsnjkj9hfhm7ocaca7du7q6glph5.apps.googleusercontent.com"
 
     suspend fun signIn(context: Context): Result<String> {
         return try {
