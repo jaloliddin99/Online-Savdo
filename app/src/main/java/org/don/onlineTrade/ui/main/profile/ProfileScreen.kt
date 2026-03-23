@@ -221,7 +221,7 @@ fun ProfileScreen(
             if (state.getProfile != null) {
                 val user = state.getProfile
                 TextBold16(title = user.name)
-                TextNormal16(title = user.phoneNumber)
+                TextNormal16(title = user.phoneNumber ?: "")
             }
 
             Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen12Dp))

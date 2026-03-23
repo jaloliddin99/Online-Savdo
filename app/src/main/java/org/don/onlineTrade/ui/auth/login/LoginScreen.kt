@@ -44,6 +44,8 @@ import org.don.onlineTrade.ui.auth.EmailState
 import org.don.onlineTrade.ui.auth.EmailStateSaver
 import org.don.onlineTrade.ui.auth.Password
 import org.don.onlineTrade.ui.auth.PasswordState
+import org.don.onlineTrade.ui.auth.google.GoogleSignInButton
+import org.don.onlineTrade.ui.auth.google.OrDivider
 import org.don.onlineTrade.ui.auth.register.Branding
 import org.don.onlineTrade.ui.auth.register.DoYouHaveAccount
 import org.don.onlineTrade.ui.theme.OnlineMarketTheme
@@ -57,7 +59,8 @@ fun SignInScreen(
     onSignInSignUp: (email: String, password: String) -> Unit,
     state: LoginState,
     loginSuccess: (email: String) -> Unit,
-    forgotPassword: () -> Unit
+    forgotPassword: () -> Unit,
+    onGoogleSignIn: () -> Unit = {}
 ) {
     var showBranding by remember { mutableStateOf(true) }
 
@@ -97,7 +100,8 @@ fun SignInScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 48.dp),
-                forgotPassword = forgotPassword
+                forgotPassword = forgotPassword,
+                onGoogleSignIn = onGoogleSignIn
             )
         }
 
@@ -121,7 +125,8 @@ fun SignInToLoginAccount(
     onSignInSignUp: (email: String, password: String) -> Unit,
     onFocusChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    forgotPassword: () -> Unit
+    forgotPassword: () -> Unit,
+    onGoogleSignIn: () -> Unit = {}
 ) {
     val focusManager = LocalFocusManager.current
     val focusRequester = remember { FocusRequester() }
@@ -210,6 +215,13 @@ fun SignInToLoginAccount(
                 fontSize = 16.sp
             )
         }
+
+        OrDivider(modifier = Modifier.padding(top = 24.dp))
+
+        GoogleSignInButton(
+            onClick = onGoogleSignIn,
+            modifier = Modifier.padding(top = 16.dp)
+        )
 
         // Sign Up link
         DoYouHaveAccount(

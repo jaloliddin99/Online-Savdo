@@ -28,6 +28,7 @@ import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -62,6 +63,17 @@ interface ApiInterface {
         @Query("email") email: String,
         @Query("code") code: Int,
         @Query("password") password: String
+    ): ModelSuccess
+
+    @POST("auth/google")
+    suspend fun googleAuth(
+        @Body body: Map<String, String>
+    ): VerificationRes
+
+    @PUT("auth/complete-profile")
+    suspend fun completeProfile(
+        @Header("Authorization") token: String,
+        @Body body: Map<String, String>
     ): ModelSuccess
 
     @POST("auth/refresh-token")

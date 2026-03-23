@@ -32,6 +32,7 @@ fun TopAppBar(
     colors: TopAppBarColors = TopAppBarDefaults.centerAlignedTopAppBarColors(),
     onNavigationClick: () -> Unit = {},
     onActionClick: () -> Unit = {},
+    actionContent: @Composable (() -> Unit)? = null,
 ) {
     CenterAlignedTopAppBar(
         title = {
@@ -53,7 +54,9 @@ fun TopAppBar(
             }
         },
         actions = {
-            if (actionIcon != null) {
+            if (actionContent != null) {
+                actionContent()
+            } else if (actionIcon != null) {
                 IconButton(onClick = onActionClick) {
                     Icon(
                         imageVector = actionIcon,

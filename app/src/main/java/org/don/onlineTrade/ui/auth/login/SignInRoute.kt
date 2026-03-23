@@ -1,6 +1,5 @@
 package org.don.onlineTrade.ui.auth.login
 
-import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import org.don.onlineTrade.data.remote.models.LoginBody
@@ -9,7 +8,8 @@ import org.don.onlineTrade.data.remote.models.LoginBody
 @Composable
 fun SignInRoute(
     navigateToVerification: (email: String) -> Unit,
-    forgotPassword: () -> Unit
+    forgotPassword: () -> Unit,
+    onGoogleSignIn: () -> Unit = {}
 ) {
     val welcomeViewModel = hiltViewModel<LoginViewModel>()
     val state = welcomeViewModel.state
@@ -23,6 +23,7 @@ fun SignInRoute(
         },
         state = state.value,
         loginSuccess = navigateToVerification,
-        forgotPassword
+        forgotPassword = forgotPassword,
+        onGoogleSignIn = onGoogleSignIn
     )
 }

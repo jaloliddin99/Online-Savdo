@@ -127,6 +127,11 @@
     <string name="rejected">Отклонено</string>
     <string name="top">Топ</string>
     <string name="it_is_already_prioritized">Этот пост уже в приоритете</string>
+    <string name="sign_in_with_google">Войти через Google</string>
+    <string name="or">или</string>
+    <string name="complete_profile_title">Ещё один шаг</string>
+    <string name="complete_profile_subtitle">Почти готово!</string>
+    <string name="complete_profile_description">Введите номер телефона для завершения регистрации</string>
 
     <string name="section_general">Общие</string>
     <string name="section_my_content">Мой контент</string>

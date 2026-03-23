@@ -133,6 +133,11 @@
     <string name="rejected">Rejected</string>
     <string name="top">Top</string>
     <string name="it_is_already_prioritized">This post is already prioritized</string>
+    <string name="sign_in_with_google">Sign in with Google</string>
+    <string name="or">or</string>
+    <string name="complete_profile_title">One more step</string>
+    <string name="complete_profile_subtitle">Almost there!</string>
+    <string name="complete_profile_description">Please enter your phone number to complete registration</string>
     
     <string name="section_general">General</string>
     <string name="section_my_content">My Content</string>

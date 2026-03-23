@@ -50,6 +50,8 @@ import androidx.navigation.navArgument
 import org.don.onlineTrade.data.remote.models.category.CategoryItem
 import org.don.onlineTrade.ui.auth.forgotPassword.ForgotPasswordRoute
 import org.don.onlineTrade.ui.auth.forgotPassword.ResetPasswordRoute
+import org.don.onlineTrade.ui.auth.google.CompleteProfileScreen
+import org.don.onlineTrade.ui.auth.google.GoogleAuthViewModel
 import org.don.onlineTrade.ui.auth.login.SignInRoute
 import org.don.onlineTrade.ui.auth.register.SignUpRoute
 import org.don.onlineTrade.ui.auth.verify.VerificationRoute
@@ -503,24 +505,80 @@ fun NavigationGraph(
             }
 
             composable(route = Screen.Welcome.route) {
+                val googleAuthVM = hiltViewModel<GoogleAuthViewModel>()
+                val googleState = googleAuthVM.state.value
+                val context = androidx.compose.ui.platform.LocalContext.current
+
+                LaunchedEffect(googleState.result) {
+                    if (googleState.result != null && googleState.result.status) {
+                        if (googleState.needsPhone) {
+                            navController.navigate(Screen.CompleteProfile.route) {
+                                popUpTo(navController.graph.id) { inclusive = true }
+                            }
+                        } else {
+                            navController.navigate(Screen.Home.route) {
+                                popUpTo(navController.graph.id) { inclusive = true }
+                            }
+                        }
+                    }
+                }
+
                 SignUpRoute(
                     navigateToVerification = {
                         navController.navigate(Screen.Verification(it).route)
                     },
                     onLoginPage = {
                         navController.navigate(Screen.Login.route)
-                    }
+                    },
+                    onGoogleSignIn = { googleAuthVM.signInWithGoogle(context) }
                 )
             }
 
             composable(route = Screen.Login.route) {
+                val googleAuthVM = hiltViewModel<GoogleAuthViewModel>()
+                val googleState = googleAuthVM.state.value
+                val context = androidx.compose.ui.platform.LocalContext.current
+
+                LaunchedEffect(googleState.result) {
+                    if (googleState.result != null && googleState.result.status) {
+                        if (googleState.needsPhone) {
+                            navController.navigate(Screen.CompleteProfile.route) {
+                                popUpTo(navController.graph.id) { inclusive = true }
+                            }
+                        } else {
+                            navController.navigate(Screen.Home.route) {
+                                popUpTo(navController.graph.id) { inclusive = true }
+                            }
+                        }
+                    }
+                }
+
                 SignInRoute(
                     navigateToVerification = {
                         navController.navigate(Screen.Verification(it).route)
                     },
                     forgotPassword = {
                         navController.navigate(Screen.ForgotPassword(true).route)
+                    },
+                    onGoogleSignIn = { googleAuthVM.signInWithGoogle(context) }
+                )
+            }
+
+            composable(route = Screen.CompleteProfile.route) {
+                val googleAuthVM = hiltViewModel<GoogleAuthViewModel>()
+                val googleState = googleAuthVM.state.value
+
+                LaunchedEffect(googleState.needsPhone) {
+                    if (googleState.result != null && !googleState.needsPhone) {
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(navController.graph.id) { inclusive = true }
+                        }
                     }
+                }
+
+                CompleteProfileScreen(
+                    isLoading = googleState.isLoading,
+                    onSubmit = { phone -> googleAuthVM.completeProfile(phone) }
                 )
             }
 

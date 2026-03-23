@@ -73,10 +73,8 @@ fun FilterBottomSheetContent(
     onReset: () -> Unit,
     onLocationClick: () -> Unit,
 ) {
-    // API format (yyyy-MM-dd) for sending to backend
     var dateFromApi by remember { mutableStateOf(initialFilter.titleTextFrom) }
     var dateToApi by remember { mutableStateOf(initialFilter.titleTextTo) }
-    // Display format (Mar 19, 2026) for showing in UI
     var dateFromDisplay by remember { mutableStateOf(initialFilter.displayDateFrom) }
     var dateToDisplay by remember { mutableStateOf(initialFilter.displayDateTo) }
 

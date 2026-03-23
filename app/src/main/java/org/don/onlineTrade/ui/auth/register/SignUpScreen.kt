@@ -50,6 +50,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.don.onlineTrade.R
+import org.don.onlineTrade.ui.auth.google.GoogleSignInButton
+import org.don.onlineTrade.ui.auth.google.OrDivider
 import org.don.onlineTrade.ui.auth.ConfirmPasswordState
 import org.don.onlineTrade.ui.auth.Email
 import org.don.onlineTrade.ui.auth.EmailState
@@ -71,7 +73,8 @@ fun SignUpScreen(
     onSignInSignUp: (firstName: String, email: String, password: String, phoneNumber: String) -> Unit,
     state: RegistrationState,
     registrationSuccess: (email: String) -> Unit,
-    onLoginPage: () -> Unit
+    onLoginPage: () -> Unit,
+    onGoogleSignIn: () -> Unit = {}
 ) {
     var showBranding by remember { mutableStateOf(true) }
 
@@ -111,7 +114,8 @@ fun SignUpScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 48.dp),
-                onLoginPage = onLoginPage
+                onLoginPage = onLoginPage,
+                onGoogleSignIn = onGoogleSignIn
             )
         }
 
@@ -171,7 +175,8 @@ fun SignUpCreateAccount(
     onSignInSignUp: (name: String, email: String, password: String, phoneNumber: String) -> Unit,
     onFocusChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    onLoginPage: () -> Unit
+    onLoginPage: () -> Unit,
+    onGoogleSignIn: () -> Unit = {}
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
@@ -303,6 +308,13 @@ fun SignUpCreateAccount(
                 fontSize = 16.sp
             )
         }
+
+        OrDivider(modifier = Modifier.padding(top = 24.dp))
+
+        GoogleSignInButton(
+            onClick = onGoogleSignIn,
+            modifier = Modifier.padding(top = 16.dp)
+        )
 
         // Login link
         DoYouHaveAccount(
