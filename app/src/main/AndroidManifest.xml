@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="org.don.onlineTrade">
+    package="uz.don.onlineTrade">
 
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
@@ -54,7 +54,7 @@
 
         <!--        <provider-->
 <!--            android:name="androidx.core.content.FileProvider"-->
-<!--            android:authorities="org.don.onlineTrade.provider"-->
+<!--            android:authorities="uz.don.onlineTrade.provider"-->
 <!--            android:exported="false"-->
 <!--            android:grantUriPermissions="true">-->
 <!--            <meta-data-->
@@ -83,7 +83,7 @@
 
         <provider
             android:name=".utils.ComposeFileProvider"
-            android:authorities="org.don.onlineTrade.fileprovider"
+            android:authorities="uz.don.onlineTrade.fileprovider"
             android:grantUriPermissions="true"
             android:exported="false">
             <meta-data

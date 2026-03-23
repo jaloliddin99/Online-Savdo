@@ -19,5 +19,5 @@
 -keep class * implements java.io.Serializable
 
 
--keep class org.don.onlineTrade.data.remote.models.** { *; }
--keepclassmembers enum org.don.onlineTrade.** { *; }
+-keep class uz.don.onlineTrade.data.remote.models.** { *; }
+-keepclassmembers enum uz.don.onlineTrade.** { *; }
