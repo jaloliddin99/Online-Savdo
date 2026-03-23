@@ -68,7 +68,8 @@ fun CompleteProfileScreen(
 
         PhoneNumber(
             phoneState = phoneState,
-            onImeAction = {}
+            onImeAction = {},
+            modifier = Modifier
         )
 
         Button(

@@ -17,6 +17,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Internet Savdo"
+rootProject.name = "Selling"
 include(":app")
  

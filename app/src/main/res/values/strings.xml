@@ -1,7 +1,7 @@
 <resources>
 
 
-    <string name="app_name">Sotiq</string>
+    <string name="app_name" translatable="false">Selling</string>
     <string name="top_home">Main Page</string>
     <string name="chat_page">Create Product</string>
     <string name="settings_page">Settings Page</string>
@@ -26,7 +26,6 @@
     <string name="sign_in_or_create_account">Create account</string>
     <string name="email">Email</string>
     <string name="continuee">Continue</string>
-    <string name="or">or</string>
     <string name="sign_in_guest">Sign in as guest</string>
     <string name="hide_password">Hide Password</string>
     <string name="show_password">Show Password</string>
