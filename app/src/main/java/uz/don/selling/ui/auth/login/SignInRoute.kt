@@ -1,6 +1,7 @@
 package uz.don.selling.ui.auth.login
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import uz.don.selling.data.remote.models.LoginBody
 
@@ -9,7 +10,8 @@ import uz.don.selling.data.remote.models.LoginBody
 fun SignInRoute(
     navigateToVerification: (email: String) -> Unit,
     forgotPassword: () -> Unit,
-    onGoogleSignIn: () -> Unit = {}
+    onGoogleSignIn: () -> Unit = {},
+    brandingModifier: Modifier = Modifier
 ) {
     val welcomeViewModel = hiltViewModel<LoginViewModel>()
     val state = welcomeViewModel.state
@@ -24,6 +26,7 @@ fun SignInRoute(
         state = state.value,
         loginSuccess = navigateToVerification,
         forgotPassword = forgotPassword,
-        onGoogleSignIn = onGoogleSignIn
+        onGoogleSignIn = onGoogleSignIn,
+        brandingModifier = brandingModifier
     )
 }

@@ -63,7 +63,7 @@ class GoogleAuthViewModel @Inject constructor(
         }
     }
 
-    fun completeProfile(phoneNumber: String) {
+    fun completeProfile(phoneNumber: String, onSuccess: () -> Unit = {}) {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true)
             try {
@@ -72,6 +72,7 @@ class GoogleAuthViewModel @Inject constructor(
                     body = mapOf("phoneNumber" to phoneNumber)
                 )
                 _state.value = _state.value.copy(isLoading = false, needsPhone = false)
+                onSuccess()
             } catch (e: Exception) {
                 _state.value = _state.value.copy(
                     isLoading = false,

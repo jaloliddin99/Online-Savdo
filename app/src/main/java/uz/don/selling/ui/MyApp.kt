@@ -510,7 +510,13 @@ fun NavigationGraph(
                 )
             }
 
-            composable(route = Screen.Welcome.route) {
+            composable(
+                route = Screen.Welcome.route,
+                enterTransition = { fadeIn(animationSpec = tween(300)) },
+                exitTransition = { fadeOut(animationSpec = tween(300)) },
+                popEnterTransition = { fadeIn(animationSpec = tween(300)) },
+                popExitTransition = { fadeOut(animationSpec = tween(300)) }
+            ) {
                 val googleAuthVM = hiltViewModel<GoogleAuthViewModel>()
                 val googleState = googleAuthVM.state.value
                 val context = androidx.compose.ui.platform.LocalContext.current
@@ -528,6 +534,11 @@ fun NavigationGraph(
                         }
                     }
                 }
+
+                val brandingModifier = Modifier.sharedBounds(
+                    sharedContentState = rememberSharedContentState(key = "auth_branding"),
+                    animatedVisibilityScope = this@composable
+                )
 
                 SignUpRoute(
                     navigateToVerification = {
@@ -536,11 +547,18 @@ fun NavigationGraph(
                     onLoginPage = {
                         navController.navigate(Screen.Login.route)
                     },
-                    onGoogleSignIn = { googleAuthVM.signInWithGoogle(context) }
+                    onGoogleSignIn = { googleAuthVM.signInWithGoogle(context) },
+                    brandingModifier = brandingModifier
                 )
             }
 
-            composable(route = Screen.Login.route) {
+            composable(
+                route = Screen.Login.route,
+                enterTransition = { fadeIn(animationSpec = tween(300)) },
+                exitTransition = { fadeOut(animationSpec = tween(300)) },
+                popEnterTransition = { fadeIn(animationSpec = tween(300)) },
+                popExitTransition = { fadeOut(animationSpec = tween(300)) }
+            ) {
                 val googleAuthVM = hiltViewModel<GoogleAuthViewModel>()
                 val googleState = googleAuthVM.state.value
                 val context = androidx.compose.ui.platform.LocalContext.current
@@ -559,6 +577,11 @@ fun NavigationGraph(
                     }
                 }
 
+                val brandingModifier = Modifier.sharedBounds(
+                    sharedContentState = rememberSharedContentState(key = "auth_branding"),
+                    animatedVisibilityScope = this@composable
+                )
+
                 SignInRoute(
                     navigateToVerification = {
                         navController.navigate(Screen.Verification(it).route)
@@ -566,7 +589,8 @@ fun NavigationGraph(
                     forgotPassword = {
                         navController.navigate(Screen.ForgotPassword(true).route)
                     },
-                    onGoogleSignIn = { googleAuthVM.signInWithGoogle(context) }
+                    onGoogleSignIn = { googleAuthVM.signInWithGoogle(context) },
+                    brandingModifier = brandingModifier
                 )
             }
 
@@ -574,17 +598,15 @@ fun NavigationGraph(
                 val googleAuthVM = hiltViewModel<GoogleAuthViewModel>()
                 val googleState = googleAuthVM.state.value
 
-                LaunchedEffect(googleState.needsPhone) {
-                    if (googleState.result != null && !googleState.needsPhone) {
-                        navController.navigate(Screen.Home.route) {
-                            popUpTo(navController.graph.id) { inclusive = true }
-                        }
-                    }
-                }
-
                 CompleteProfileScreen(
                     isLoading = googleState.isLoading,
-                    onSubmit = { phone -> googleAuthVM.completeProfile(phone) }
+                    onSubmit = { phone ->
+                        googleAuthVM.completeProfile(phone) {
+                            navController.navigate(Screen.Home.route) {
+                                popUpTo(navController.graph.id) { inclusive = true }
+                            }
+                        }
+                    }
                 )
             }
 

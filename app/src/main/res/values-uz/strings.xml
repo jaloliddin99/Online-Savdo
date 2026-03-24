@@ -92,6 +92,8 @@
     <string name="delete_post">O\'chirish</string>
     <string name="edit_post">Tahrirlash</string>
     <string name="call">Qo\'ng\'iroq</string>
+    <string name="sms">SMS</string>
+    <string name="description">Tavsif</string>
     <string name="send_msg">Xabar yuborish</string>
     <string name="are_you_really_sure">Siz rostdan ham ushbu e\'lonni o\'chirmoqchimisiz? Bu amalni bekor qilish mumkin emas.</string>
     <string name="success">Muvaffaqiyat</string>

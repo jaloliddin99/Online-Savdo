@@ -1,6 +1,7 @@
 package uz.don.selling.ui.auth.register
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import uz.don.selling.data.remote.models.RegistrationBody
 
@@ -9,7 +10,8 @@ import uz.don.selling.data.remote.models.RegistrationBody
 fun SignUpRoute(
     navigateToVerification: (email: String) -> Unit,
     onLoginPage: () -> Unit,
-    onGoogleSignIn: () -> Unit = {}
+    onGoogleSignIn: () -> Unit = {},
+    brandingModifier: Modifier = Modifier
 ) {
     val welcomeViewModel = hiltViewModel<WelcomeViewModel>()
     val state = welcomeViewModel.state
@@ -26,6 +28,7 @@ fun SignUpRoute(
         state = state.value,
         registrationSuccess = navigateToVerification,
         onLoginPage = onLoginPage,
-        onGoogleSignIn = onGoogleSignIn
+        onGoogleSignIn = onGoogleSignIn,
+        brandingModifier = brandingModifier
     )
 }

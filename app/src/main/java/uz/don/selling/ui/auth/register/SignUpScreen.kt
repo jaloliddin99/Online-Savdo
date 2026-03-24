@@ -72,7 +72,8 @@ fun SignUpScreen(
     state: RegistrationState,
     registrationSuccess: (email: String) -> Unit,
     onLoginPage: () -> Unit,
-    onGoogleSignIn: () -> Unit = {}
+    onGoogleSignIn: () -> Unit = {},
+    brandingModifier: Modifier = Modifier
 ) {
     var showBranding by remember { mutableStateOf(true) }
 
@@ -97,7 +98,7 @@ fun SignUpScreen(
                 visible = showBranding,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Branding()
+                Branding(modifier = brandingModifier)
             }
 
             Spacer(

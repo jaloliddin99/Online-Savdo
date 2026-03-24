@@ -92,6 +92,8 @@
     <string name="delete_post">Удалить</string>
     <string name="edit_post">Редактировать</string>
     <string name="call">Позвонить</string>
+    <string name="sms">SMS</string>
+    <string name="description">Описание</string>
     <string name="send_msg">Отправить сообщение</string>
     <string name="are_you_really_sure">Вы уверены, что хотите удалить этот пост? Это действие нельзя отменить.</string>
     <string name="success">Успех</string>

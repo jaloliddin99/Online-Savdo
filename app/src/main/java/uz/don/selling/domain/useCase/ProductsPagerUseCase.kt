@@ -9,7 +9,6 @@ class ProductsPagerUseCase @Inject constructor(
     private val repository: NetworkRepository
 ) {
     suspend fun getItems(
-        token: String = SharedPref.deviceToken,
         page: Int,
         pageSize: Int,
         lang: String = SharedPref.language,
@@ -25,7 +24,6 @@ class ProductsPagerUseCase @Inject constructor(
     ): Result<List<Content>> {
         try {
             val networkPager = repository.getProductsPager(
-                token = token,
                 page = page,
                 count = pageSize,
                 lang = lang,

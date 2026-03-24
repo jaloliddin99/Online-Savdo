@@ -60,7 +60,8 @@ fun SignInScreen(
     state: LoginState,
     loginSuccess: (email: String) -> Unit,
     forgotPassword: () -> Unit,
-    onGoogleSignIn: () -> Unit = {}
+    onGoogleSignIn: () -> Unit = {},
+    brandingModifier: Modifier = Modifier
 ) {
     var showBranding by remember { mutableStateOf(true) }
 
@@ -85,7 +86,7 @@ fun SignInScreen(
                 visible = showBranding,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Branding()
+                Branding(modifier = brandingModifier)
             }
 
             Spacer(
