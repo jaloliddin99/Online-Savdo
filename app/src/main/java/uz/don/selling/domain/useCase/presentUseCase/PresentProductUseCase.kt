@@ -17,14 +17,13 @@ class PresentProductUseCase @Inject constructor(
 
     operator fun invoke(
         id: Int,
-        token: String,
         language: String
     ): Flow<Resource<GenericModel<PostDetailsData>>> = flow {
         try {
             emit(Resource.Loading())
             delay(1300)
 
-            val data = repository.showProductModel(id, token, language)
+            val data = repository.showProductModel(id, language)
             if (data.success){
                 emit(Resource.Success(data))
             }else{

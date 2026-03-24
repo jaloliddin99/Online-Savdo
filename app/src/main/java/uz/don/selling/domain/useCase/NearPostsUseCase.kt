@@ -15,7 +15,6 @@ class NearPostsUseCase @Inject constructor(
 
 
     operator fun invoke(
-        token: String,
         lat: Double,
         lon: Double,
         lang: String
@@ -25,7 +24,6 @@ class NearPostsUseCase @Inject constructor(
             emit(
                 Resource.Success(
                     repository.getNearPosts(
-                        token,
                         lat,
                         lon,
                         lang

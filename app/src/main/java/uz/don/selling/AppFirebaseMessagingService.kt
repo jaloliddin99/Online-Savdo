@@ -87,8 +87,7 @@ class AppFirebaseMessagingService : FirebaseMessagingService() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 apiInterface.sendFcmToken(
-                    SharedPref.deviceToken,
-                    mapOf("fcmToken" to token)
+                    body = mapOf("fcmToken" to token)
                 )
             } catch (_: Exception) {}
         }

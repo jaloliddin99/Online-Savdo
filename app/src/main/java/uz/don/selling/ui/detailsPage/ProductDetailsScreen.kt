@@ -75,7 +75,8 @@ fun ProductDetailsRoute(
     onSimilarItemClicked: (Int) -> Unit,
     onEditClicked: (Int) -> Unit,
     navigateBack: () -> Unit,
-    goToMapsPage: (lat: Double, lon: Double) -> Unit
+    goToMapsPage: (lat: Double, lon: Double) -> Unit,
+    onLoginRequired: () -> Unit = {}
 ) {
     val detailsViewModel = hiltViewModel<PresentViewModel>()
     val similarProducts = detailsViewModel.similarProducts.collectAsLazyPagingItems()
@@ -84,7 +85,6 @@ fun ProductDetailsRoute(
         detailsViewModel.getProductDetail(
             id = productId,
             language = SharedPref.language,
-            token = SharedPref.deviceToken
         )
     }
 
@@ -99,7 +99,11 @@ fun ProductDetailsRoute(
         state = state,
         onSimilarItemClicked = onSimilarItemClicked,
         onItemClicked = {
-            detailsViewModel.likePost(it)
+            if (SharedPref.deviceToken.isEmpty()) {
+                onLoginRequired()
+            } else {
+                detailsViewModel.likePost(it)
+            }
         },
         onDeleteClicked = {
             detailsViewModel.deletePost(it)

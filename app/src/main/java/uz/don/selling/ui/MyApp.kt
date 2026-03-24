@@ -106,10 +106,13 @@ fun MainScreenView(
 
     LaunchedEffect(Unit) {
         AuthEvent.unauthorizedFlow.collect {
-            SharedPref.deviceToken = ""
-            appState.navController.navigate(Screen.Welcome.route) {
-                popUpTo(appState.navController.graph.id) {
-                    inclusive = true
+            if (SharedPref.deviceToken.isNotEmpty()) {
+                SharedPref.deviceToken = ""
+                SharedPref.refreshToken = ""
+                appState.navController.navigate(Screen.Welcome.route) {
+                    popUpTo(appState.navController.graph.id) {
+                        inclusive = true
+                    }
                 }
             }
         }
@@ -239,11 +242,7 @@ fun NavigationGraph(
     SharedTransitionLayout {
         NavHost(
             navController = navController,
-            startDestination = if (isUserHasRightToAccessToMainPart()) {
-                Screen.Home.route
-            } else {
-                Screen.Welcome.route
-            }
+            startDestination = Screen.Home.route
         ) {
 
             composable(route = Screen.Home.route) { entry ->
@@ -269,7 +268,11 @@ fun NavigationGraph(
                         navController.navigate(Screen.MapSearch.route)
                     },
                     onNotificationClick = {
-                        navController.navigate(Screen.Notifications.route)
+                        if (isUserLoggedIn()) {
+                            navController.navigate(Screen.Notifications.route)
+                        } else {
+                            navController.navigate(Screen.Welcome.route)
+                        }
                     },
                     searchBarModifier = searchBarModifier,
                 )
@@ -299,6 +302,9 @@ fun NavigationGraph(
                                 long.toString()
                             ).route
                         )
+                    },
+                    onLoginRequired = {
+                        navController.navigate(Screen.Welcome.route)
                     }
                 )
             }
@@ -674,11 +680,7 @@ fun NavigationGraph(
 }
 
 
-fun isUserHasRightToAccessToMainPart(
-): Boolean {
-    return if (SharedPref.deviceToken.isNotEmpty()) {
-        System.currentTimeMillis() < (SharedPref.loginTime + 1000L * 60 * 60 * 24 * 30)
-    } else {
-        false
-    }
+fun isUserLoggedIn(): Boolean {
+    return SharedPref.deviceToken.isNotEmpty() &&
+            System.currentTimeMillis() < (SharedPref.loginTime + 1000L * 60 * 60 * 24 * 30)
 }

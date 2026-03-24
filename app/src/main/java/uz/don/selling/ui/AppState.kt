@@ -49,10 +49,16 @@ class ApplicationState(
         }
 
     fun navigateToTopLevelDestination(topLevelDestination: NavItems) {
+        // Auth-required tabs: redirect to Welcome if not logged in
+        val requiresAuth = topLevelDestination in setOf(
+            NavItems.MyPosts, NavItems.AddProduct, NavItems.Saved, NavItems.Profile
+        )
+        if (requiresAuth && !isUserLoggedIn()) {
+            navController.navigate(Screen.Welcome.route)
+            return
+        }
+
         val topLevelNavOptions = navOptions {
-            // Pop up to the start destination of the graph to
-            // avoid building up a large stack of destinations
-            // on the back stack as users select items
             popUpTo(navController.graph.findStartDestination().id) {
                 saveState = true
             }

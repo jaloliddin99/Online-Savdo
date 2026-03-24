@@ -82,7 +82,6 @@ interface ApiInterface {
 
     @GET("post")
     suspend fun getPublicProducts(
-        @Header("Authorization") token: String,
         @Query("page") page: Int,
         @Query("size") size: Int,
         @Query("lang") lang: String,
@@ -100,7 +99,6 @@ interface ApiInterface {
 
     @GET("notification/pager")
     suspend fun getAllNotifications(
-        @Header("Authorization") token: String,
         @Query("page") page: Int,
         @Query("size") size: Int,
         @Query("lang") lang: String,
@@ -108,7 +106,6 @@ interface ApiInterface {
 
     @GET("post/near")
     suspend fun getNearPosts(
-        @Header("Authorization") token: String,
         @Query("lat") page: Double,
         @Query("lon") size: Double,
         @Query("lang") lang: String
@@ -125,19 +122,16 @@ interface ApiInterface {
 
     @GET("categories")
     suspend fun getAllCategories(
-        @Header("Authorization") token: String,
         @Query("lang") language: String,
     ): Category
 
     @GET("categories/parents")
     suspend fun getAllParentCategories(
-        @Header("Authorization") token: String,
         @Query("lang") language: String,
     ): ParentCategories
 
     @GET("categories/{categoryId}")
     suspend fun getCategories(
-        @Header("Authorization") token: String,
         @Path("categoryId") categoryId: Int,
     ): ModelLeak
 
@@ -167,9 +161,9 @@ interface ApiInterface {
 
     @GET("post/{id}")
     suspend fun showProductModel(
-        @Header("Authorization") token: String,
         @Path("id") id: Int,
-        @Query("lang") language: String
+        @Query("lang") language: String,
+        @Header("Authorization") token: String = SharedPref.deviceToken,
     ): GenericModel<PostDetailsData>
 
     @DELETE("post/{id}")
@@ -250,8 +244,8 @@ interface ApiInterface {
 
     @POST("user/fcm-token")
     suspend fun sendFcmToken(
-        @Header("Authorization") token: String,
-        @Body body: Map<String, String>
+        @Body body: Map<String, String>,
+        @Header("Authorization") token: String = SharedPref.deviceToken,
     ): GenericModel<Any>
 
 }

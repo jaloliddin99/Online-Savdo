@@ -48,17 +48,14 @@ interface NetworkRepository {
 
 
     suspend fun getAllCategories(
-        token: String,
         language: String
     ): uz.don.selling.data.remote.models.category.Category
 
     suspend fun getAllParentCategories(
-        token: String,
         language: String
     ): ParentCategories
 
     suspend fun getCategoryDetails(
-        token: String,
         categoryId: Int
     ): ModelLeak
 
@@ -78,7 +75,6 @@ interface NetworkRepository {
     ): ModelSuccess
 
     suspend fun getNotifications(
-        token: String,
         page: Int,
         size: Int,
         lang: String
@@ -86,7 +82,6 @@ interface NetworkRepository {
 
     suspend fun showProductModel(
         id: Int,
-        token: String,
         language: String
     ): GenericModel<PostDetailsData>
 
@@ -130,7 +125,6 @@ interface NetworkRepository {
     ): ModelSuccess
 
     suspend fun getProductsPager(
-        token: String,
         page: Int,
         count: Int,
         lang: String,
@@ -146,7 +140,6 @@ interface NetworkRepository {
     ): GenericModel<Data>
 
     suspend fun getNearPosts(
-        token: String,
         lat: Double,
         lon: Double,
         lang: String

@@ -53,11 +53,9 @@ class HomeViewModel @Inject constructor(
     val state: State<HomeScreenState> = _state
 
     fun getAllCategories(
-        token: String = SharedPref.deviceToken,
         language: String = SharedPref.language,
     ) {
         categoryUseCase(
-            token,
             language,
         ).onEach { result ->
             when (result) {
@@ -82,11 +80,9 @@ class HomeViewModel @Inject constructor(
     }
 
     fun getAllParentCategories(
-        token: String = SharedPref.deviceToken,
         language: String = SharedPref.language,
     ) {
         categoryUseCase.parentCategories(
-            token,
             language,
         ).onEach { result ->
             when (result) {
@@ -162,13 +158,11 @@ class HomeViewModel @Inject constructor(
     private val _stateNear = mutableStateOf(HomeScreenState2())
     val stateNear: State<HomeScreenState2> = _stateNear
     private fun getNearPosts(
-        token: String = SharedPref.deviceToken,
         language: String = SharedPref.language,
         lat: Double,
         lon: Double
     ) {
         nearPostsUseCase(
-            token,
             lat,
             lon,
             language,

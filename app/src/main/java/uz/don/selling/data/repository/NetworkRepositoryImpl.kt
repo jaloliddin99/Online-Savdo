@@ -78,16 +78,16 @@ class NetworkRepositoryImpl @Inject constructor(
 //        ).flow
 //    }
 
-    override suspend fun getAllCategories(token: String, language: String): Category {
-        return apiInterface.getAllCategories(token, language)
+    override suspend fun getAllCategories(language: String): Category {
+        return apiInterface.getAllCategories(language)
     }
 
-    override suspend fun getAllParentCategories(token: String, language: String): ParentCategories {
-        return apiInterface.getAllParentCategories(token, language)
+    override suspend fun getAllParentCategories(language: String): ParentCategories {
+        return apiInterface.getAllParentCategories(language)
     }
 
-    override suspend fun getCategoryDetails(token: String, categoryId: Int): ModelLeak {
-        return apiInterface.getCategories(token, categoryId)
+    override suspend fun getCategoryDetails(categoryId: Int): ModelLeak {
+        return apiInterface.getCategories(categoryId)
     }
 
     override suspend fun newProduct(
@@ -119,20 +119,18 @@ class NetworkRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getNotifications(
-        token: String,
         page: Int,
         size: Int,
         lang: String
     ): NotificationData {
-        return apiInterface.getAllNotifications(token, page, size, lang)
+        return apiInterface.getAllNotifications(page, size, lang)
     }
 
     override suspend fun showProductModel(
         id: Int,
-        token: String,
         language: String
     ): GenericModel<PostDetailsData> {
-        return apiInterface.showProductModel(token, id, language)
+        return apiInterface.showProductModel(id, language)
     }
 
     override suspend fun deletePost(id: Int, token: String): ModelSuccess {
@@ -174,7 +172,6 @@ class NetworkRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getProductsPager(
-        token: String,
         page: Int,
         count: Int,
         lang: String,
@@ -189,7 +186,6 @@ class NetworkRepositoryImpl @Inject constructor(
         radius: Int?
     ): GenericModel<Data> {
         return apiInterface.getPublicProducts(
-            token = token,
             page = page,
             size = count,
             lang = lang,
@@ -206,13 +202,12 @@ class NetworkRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getNearPosts(
-        token: String,
         lat: Double,
         lon: Double,
         lang: String
     ): GenericModel<List<NearPostsData>> {
         return apiInterface.getNearPosts(
-            token, lat, lon, lang
+            lat, lon, lang
         )
     }
 

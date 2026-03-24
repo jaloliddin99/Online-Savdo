@@ -30,7 +30,6 @@ class ProductsPagingSource(
         val page = params.key ?: 0
         return try {
             val response = apiInterface.getPublicProducts(
-                token = SharedPref.deviceToken,
                 page = page,
                 size = params.loadSize,
                 lang = SharedPref.language,

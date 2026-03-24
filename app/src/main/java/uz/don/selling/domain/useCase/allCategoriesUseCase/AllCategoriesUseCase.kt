@@ -14,7 +14,6 @@ class AllCategoriesUseCase @Inject constructor(
     private val repository: NetworkRepository
 ) {
     operator fun invoke(
-        token: String,
         language: String
     ): Flow<Resource<Category>> = flow {
         try {
@@ -22,7 +21,6 @@ class AllCategoriesUseCase @Inject constructor(
             emit(
                 Resource.Success(
                     repository.getAllCategories(
-                        token,
                         language,
                     )
                 )
@@ -35,7 +33,6 @@ class AllCategoriesUseCase @Inject constructor(
     }
 
     fun parentCategories(
-        token: String,
         language: String
     ): Flow<Resource<ParentCategories>> = flow {
         try {
@@ -43,7 +40,6 @@ class AllCategoriesUseCase @Inject constructor(
             emit(
                 Resource.Success(
                     repository.getAllParentCategories(
-                        token,
                         language,
                     )
                 )

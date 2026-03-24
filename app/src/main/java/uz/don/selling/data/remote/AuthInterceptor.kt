@@ -52,10 +52,12 @@ class AuthInterceptor : Interceptor {
                 } else {
                     refreshResponse.close()
                 }
+                // Refresh failed - session expired, redirect to login
+                AuthEvent.emitUnauthorized()
+                return response.newBuilder().code(401).build()
             }
-
-            AuthEvent.emitUnauthorized()
-            return response.newBuilder().code(401).build()
+            // User not logged in, just return the 401 response without redirecting
+            return response
         }
         return response
     }

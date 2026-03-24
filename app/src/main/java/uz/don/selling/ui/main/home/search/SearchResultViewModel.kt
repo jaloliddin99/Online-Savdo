@@ -65,7 +65,6 @@ class SearchResultViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val result = apiInterface.getAllParentCategories(
-                    SharedPref.deviceToken,
                     SharedPref.language
                 )
                 categories = result.sortedBy { it.position }
@@ -79,7 +78,6 @@ class SearchResultViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 allCategories = apiInterface.getAllCategories(
-                    SharedPref.deviceToken,
                     SharedPref.language
                 )
             } catch (_: Exception) { }

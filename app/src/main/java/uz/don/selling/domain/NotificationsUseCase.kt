@@ -10,14 +10,12 @@ class NotificationsUseCase @Inject constructor(
 ) {
 
     suspend fun getItems(
-        token: String = SharedPref.deviceToken,
         page: Int,
         pageSize: Int,
         lang: String = SharedPref.language,
     ): Result<List<Content>> {
         return try {
             val networkPager = repository.getNotifications(
-                token = token,
                 page = page,
                 size = pageSize,
                 lang = lang

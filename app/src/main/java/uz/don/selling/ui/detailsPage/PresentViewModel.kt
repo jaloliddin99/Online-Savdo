@@ -41,12 +41,10 @@ class PresentViewModel @Inject constructor(
 
     fun getProductDetail(
         id: Int,
-        token: String,
         language: String
     ) {
         presentProductUseCase(
             id,
-            token,
             language
         ).onEach { result ->
             when (result) {

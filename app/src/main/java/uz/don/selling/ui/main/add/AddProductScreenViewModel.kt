@@ -85,7 +85,6 @@ class AddProductScreenViewModel @Inject constructor(
 
     fun getCategoryDerails(categoryId: Int) {
         categoryMainUseCase.invoke(
-            token = SharedPref.deviceToken,
             categoryId = categoryId
         ).onEach { result ->
             when (result) {
