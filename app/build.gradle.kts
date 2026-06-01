@@ -11,8 +11,8 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        namespace = "uz.don.selling"
-        applicationId = "uz.don.selling"
+        namespace = "uz.promo.selling"
+        applicationId = "uz.promo.selling"
         minSdk = 24
         targetSdk = 36
         versionCode = 1

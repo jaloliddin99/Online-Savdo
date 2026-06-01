@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="uz.don.selling">
+    package="uz.promo.selling">
 
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
@@ -20,7 +20,7 @@
 
 
     <application
-        android:name="uz.don.selling.app.App"
+        android:name="uz.promo.selling.app.App"
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -33,7 +33,7 @@
         android:theme="@style/Theme.BottomAppbar"
         tools:targetApi="31">
         <activity
-            android:name="uz.don.selling.MainActivity"
+            android:name="uz.promo.selling.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.BottomAppbar">
             <intent-filter>
@@ -74,7 +74,7 @@
         </provider>
 
         <service
-            android:name="uz.don.selling.AppFirebaseMessagingService"
+            android:name="uz.promo.selling.AppFirebaseMessagingService"
             android:exported="true">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
@@ -82,8 +82,8 @@
         </service>
 
         <provider
-            android:name="uz.don.selling.utils.ComposeFileProvider"
-            android:authorities="uz.don.selling.fileprovider"
+            android:name="uz.promo.selling.utils.ComposeFileProvider"
+            android:authorities="uz.promo.selling.fileprovider"
             android:grantUriPermissions="true"
             android:exported="false">
             <meta-data
