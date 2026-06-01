@@ -616,7 +616,11 @@ fun NavigationGraph(
                     navArgument("email") {
                         type = NavType.StringType
                     }
-                )
+                ),
+                enterTransition = { fadeIn(animationSpec = tween(300)) },
+                exitTransition = { fadeOut(animationSpec = tween(300)) },
+                popEnterTransition = { fadeIn(animationSpec = tween(300)) },
+                popExitTransition = { fadeOut(animationSpec = tween(300)) }
             ) { backStackEntry ->
                 val emailParam = backStackEntry.arguments?.getString("email")
                 emailParam?.let {

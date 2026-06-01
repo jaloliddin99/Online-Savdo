@@ -118,9 +118,6 @@ fun SignUpScreen(
             )
         }
 
-        if (state.registerMain != null) {
-            registrationSuccess.invoke(state.email)
-        }
         if (state.error.isNotBlank()) {
             Toast.makeText(LocalContext.current, state.error, Toast.LENGTH_SHORT).show()
         }

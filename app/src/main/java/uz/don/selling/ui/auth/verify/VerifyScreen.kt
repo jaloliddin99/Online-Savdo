@@ -13,7 +13,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.activity.compose.BackHandler
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -54,6 +59,8 @@ fun VerificationScreen(
     onSubmit: (email: String, code: Int) -> Unit
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
+
+    BackHandler(onBack = onBackPressed)
 
     val otpCodeState = remember {
         mutableStateOf("")
@@ -169,6 +176,17 @@ fun VerificationScreen(
 
         FreeLoading(state.isLoading, paddingTop = 64.dp)
 
+        IconButton(
+            onClick = onBackPressed,
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(4.dp)
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = "Back"
+            )
+        }
     }
 
     val context = LocalContext.current

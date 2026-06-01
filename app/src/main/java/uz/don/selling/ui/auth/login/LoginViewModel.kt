@@ -52,5 +52,8 @@ class LoginViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-
+    /** Clear the one-shot login result so returning to this screen doesn't re-navigate. */
+    fun consumeLoginResult() {
+        _state.value = _state.value.copy(registerMain = null)
+    }
 }

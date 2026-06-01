@@ -49,4 +49,9 @@ class WelcomeViewModel @Inject constructor(
             }
         }.launchIn(viewModelScope)
     }
+
+    /** Clear the one-shot result so returning to this screen doesn't re-navigate. */
+    fun consumeRegisterResult() {
+        _state.value = _state.value.copy(registerMain = null)
+    }
 }

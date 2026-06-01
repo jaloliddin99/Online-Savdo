@@ -106,10 +106,6 @@ fun SignInScreen(
             )
         }
 
-        if (state.registerMain != null) {
-            loginSuccess.invoke(state.email)
-        }
-
         val context = LocalContext.current
         val rememberedContext = remember { { context } }
         SideEffect {
