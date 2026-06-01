@@ -503,7 +503,7 @@ private fun ParamCard(param: PostParam, modifier: Modifier = Modifier) {
                 MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
                 RoundedCornerShape(10.dp)
             )
-            .padding(12.dp)
+            .padding(8.dp)
     ) {
         Text(
             text = param.label,
@@ -514,7 +514,6 @@ private fun ParamCard(param: PostParam, modifier: Modifier = Modifier) {
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
-        Spacer(modifier = Modifier.height(2.dp))
         Text(
             text = displayValue,
             fontFamily = robotoFontFamily,
