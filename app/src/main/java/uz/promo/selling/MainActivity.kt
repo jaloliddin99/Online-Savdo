@@ -43,9 +43,18 @@ class MainActivity : ComponentActivity(), OnRunTimePermissionListener {
 
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(
-            LocaleManager.setLocale(newBase, SharedPref.language.ifEmpty { language })
+            LocaleManager.setLocale(newBase, SharedPref.language.ifEmpty {
+                val lan = when(language){
+                    "en" -> "en"
+                    "ru" -> "ru"
+                    else -> "uz"
+                }
+                SharedPref.language = lan
+                language
+            })
         )
     }
+
     private val viewModel: SettingsDialogViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -90,7 +99,8 @@ class MainActivity : ComponentActivity(), OnRunTimePermissionListener {
                         onAnimationEnd = { showSplash = false }
                     )
                 } else {
-                    MainScreenView(state,
+                    MainScreenView(
+                        state,
                         restartApp = {
                             finish()
                             startActivity(Intent(this, MainActivity::class.java))
