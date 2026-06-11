@@ -69,6 +69,7 @@ fun HomeRoute(
     onSearchClick: () -> Unit = {},
     onMapClick: () -> Unit = {},
     onNotificationClick: () -> Unit = {},
+    onMessagesClick: () -> Unit = {},
     searchBarModifier: Modifier = Modifier,
 ) {
     HomeScreen(
@@ -79,6 +80,7 @@ fun HomeRoute(
         onSearchClick = onSearchClick,
         onMapClick = onMapClick,
         onNotificationClick = onNotificationClick,
+        onMessagesClick = onMessagesClick,
         searchBarModifier = searchBarModifier,
     )
 }
@@ -92,6 +94,7 @@ fun HomeScreen(
     onSearchClick: () -> Unit = {},
     onMapClick: () -> Unit = {},
     onNotificationClick: () -> Unit = {},
+    onMessagesClick: () -> Unit = {},
     searchBarModifier: Modifier = Modifier,
 ) {
 
@@ -101,6 +104,14 @@ fun HomeScreen(
     val scrollState = remember { LazyGridState() }
 
     val context = LocalContext.current
+
+    val chatUnreadViewModel: uz.promo.selling.ui.chat.ChatUnreadViewModel = androidx.hilt.navigation.compose.hiltViewModel()
+    LaunchedEffect(Unit) {
+        while (true) {
+            chatUnreadViewModel.refresh()
+            kotlinx.coroutines.delay(15000)
+        }
+    }
 
     LaunchedEffect(state.error) {
         if (state.error.isNotBlank()) {
@@ -116,6 +127,8 @@ fun HomeScreen(
             onSearchClick = onSearchClick,
             onMapClick = onMapClick,
             onNotificationClick = onNotificationClick,
+            onMessagesClick = onMessagesClick,
+            unreadCount = chatUnreadViewModel.count,
             searchBarModifier = searchBarModifier,
         )
         LazyVerticalGrid(

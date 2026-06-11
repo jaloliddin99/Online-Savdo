@@ -7,9 +7,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -32,6 +35,8 @@ fun HomeSearchBar(
     onSearchClick: () -> Unit,
     onMapClick: () -> Unit,
     onNotificationClick: () -> Unit = {},
+    onMessagesClick: () -> Unit = {},
+    unreadCount: Int = 0,
     modifier: Modifier = Modifier,
     searchBarModifier: Modifier = Modifier,
 ) {
@@ -95,6 +100,23 @@ fun HomeSearchBar(
                     .clip(RoundedCornerShape(32.dp))
                     .clickable(onClick = onSearchClick)
             )
+        }
+        IconButton(onClick = onMessagesClick) {
+            BadgedBox(
+                badge = {
+                    if (unreadCount > 0) {
+                        Badge {
+                            Text(text = if (unreadCount > 99) "99+" else unreadCount.toString())
+                        }
+                    }
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Chat,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
         }
         IconButton(onClick = onNotificationClick) {
             Icon(

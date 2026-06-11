@@ -35,6 +35,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Sms
 import androidx.compose.material.icons.outlined.AccessTime
@@ -76,7 +77,9 @@ import uz.promo.selling.data.remote.models.showProducts.PostParam
 import uz.promo.selling.ui.main.home.PresentProductState
 import uz.promo.selling.ui.main.home.ProductItemForDetailsPage
 import uz.promo.selling.ui.theme.robotoFontFamily
+import uz.promo.selling.ui.chat.ChatStartViewModel
 import uz.promo.selling.utils.SharedPref
+import android.widget.Toast
 import uz.promo.selling.utils.callTo
 import uz.promo.selling.utils.openSmsApp
 import java.time.LocalDateTime
@@ -91,9 +94,12 @@ fun ProductDetailsRoute(
     onEditClicked: (Int) -> Unit,
     navigateBack: () -> Unit,
     goToMapsPage: (lat: Double, lon: Double) -> Unit,
-    onLoginRequired: () -> Unit = {}
+    onLoginRequired: () -> Unit = {},
+    navigateToChat: (Long) -> Unit = {}
 ) {
     val detailsViewModel = hiltViewModel<PresentViewModel>()
+    val chatStartViewModel = hiltViewModel<ChatStartViewModel>()
+    val routeContext = LocalContext.current
     val similarProducts = detailsViewModel.similarProducts.collectAsLazyPagingItems()
 
     LaunchedEffect(productId) {
@@ -125,7 +131,27 @@ fun ProductDetailsRoute(
         },
         onEditClicked = onEditClicked,
         onBackPressed = navigateBack,
-        goToMapsPage = goToMapsPage
+        goToMapsPage = goToMapsPage,
+        onMessageClicked = {
+            val pid = state.registerMain?.id
+            if (pid != null) {
+                if (SharedPref.deviceToken.isEmpty()) {
+                    onLoginRequired()
+                } else {
+                    chatStartViewModel.start(
+                        postId = pid,
+                        onSuccess = { navigateToChat(it) },
+                        onError = {
+                            Toast.makeText(
+                                routeContext,
+                                routeContext.getString(R.string.chat_self_error),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    )
+                }
+            }
+        }
     )
 }
 
@@ -140,7 +166,8 @@ fun ProductDetailsScreen(
     onDeleteClicked: (Int) -> Unit,
     onEditClicked: (Int) -> Unit,
     onBackPressed: () -> Unit,
-    goToMapsPage: (lat: Double, lon: Double) -> Unit
+    goToMapsPage: (lat: Double, lon: Double) -> Unit,
+    onMessageClicked: () -> Unit = {}
 ) {
 
     val isFeedLoading = state.isLoading
@@ -201,7 +228,7 @@ fun ProductDetailsScreen(
 
                 // Seller
                 item(key = "seller") {
-                    SellerSection(data, context)
+                    SellerSection(data, context, onMessageClicked)
                 }
 
                 // Similar items
@@ -602,7 +629,8 @@ private fun LocationSection(
 @Composable
 private fun SellerSection(
     data: PostDetailsData?,
-    context: android.content.Context
+    context: android.content.Context,
+    onMessageClicked: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -673,6 +701,17 @@ private fun SellerSection(
         }
 
         Spacer(modifier = Modifier.height(12.dp))
+
+        // Message seller (hidden on your own listing)
+        if (data != null && data.user.id != SharedPref.userId) {
+            ContactActionButton(
+                icon = Icons.AutoMirrored.Filled.Chat,
+                label = stringResource(R.string.message_seller),
+                modifier = Modifier.fillMaxWidth(),
+                onClick = onMessageClicked
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+        }
 
         // Action buttons
         Row(

@@ -56,6 +56,8 @@ import uz.promo.selling.ui.auth.login.SignInRoute
 import uz.promo.selling.ui.auth.register.SignUpRoute
 import uz.promo.selling.ui.auth.verify.VerificationRoute
 import uz.promo.selling.ui.categoriesList.CategoriesRoute
+import uz.promo.selling.ui.chat.ChatDetailRoute
+import uz.promo.selling.ui.chat.ChatListRoute
 import uz.promo.selling.ui.detailsPage.ProductDetailsRoute
 import uz.promo.selling.ui.dialogs.settings.SettingsDialog
 import uz.promo.selling.ui.dialogs.settings.UserEditableSettings
@@ -274,6 +276,13 @@ fun NavigationGraph(
                             navController.navigate(Screen.Welcome.route)
                         }
                     },
+                    onMessagesClick = {
+                        if (isUserLoggedIn()) {
+                            navController.navigate(Screen.Chat.route)
+                        } else {
+                            navController.navigate(Screen.Welcome.route)
+                        }
+                    },
                     searchBarModifier = searchBarModifier,
                 )
             }
@@ -305,6 +314,9 @@ fun NavigationGraph(
                     },
                     onLoginRequired = {
                         navController.navigate(Screen.Welcome.route)
+                    },
+                    navigateToChat = {
+                        navController.navigate(Screen.ChatDetail(it).route)
                     }
                 )
             }
@@ -698,6 +710,31 @@ fun NavigationGraph(
                         navController.popBackStack()
                     },
                     onBackClick = navController::popBackStack
+                )
+            }
+
+            composable(route = Screen.Chat.route) {
+                ChatListRoute(
+                    onBackClick = navController::popBackStack,
+                    onConversationClick = {
+                        navController.navigate(Screen.ChatDetail(it).route)
+                    }
+                )
+            }
+
+            composable(
+                route = Screen.ChatDetail.ROUTE,
+                arguments = listOf(
+                    navArgument("conversationId") {
+                        type = NavType.LongType
+                    }
+                )
+            ) { backStackEntry ->
+                val conversationId = backStackEntry.arguments?.getLong("conversationId")
+                    ?: return@composable
+                ChatDetailRoute(
+                    conversationId = conversationId,
+                    navigateBack = navController::popBackStack
                 )
             }
 

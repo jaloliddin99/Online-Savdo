@@ -17,6 +17,13 @@ sealed class Screen(val route: String) {
     data object Map : Screen("mapNavigationRoute")
     data object MapSearch : Screen("mapSearchRoute")
     data object CompleteProfile : Screen("completeProfile")
+    data object Chat : Screen("chat")
+
+    data class ChatDetail(val conversationId: Long) : Screen("chatDetail/$conversationId") {
+        companion object {
+            const val ROUTE = "chatDetail/{conversationId}"
+        }
+    }
 
     // Routes with arguments
     data class ProductDetails(val productId: Int) : Screen("productDetails/$productId") {

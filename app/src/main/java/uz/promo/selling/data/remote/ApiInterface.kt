@@ -10,6 +10,14 @@ import uz.promo.selling.data.remote.models.RegistrationBody
 import uz.promo.selling.data.remote.models.VerificationRes
 import uz.promo.selling.data.remote.models.category.Category
 import uz.promo.selling.data.remote.models.category.ParentCategories
+import uz.promo.selling.data.remote.models.chat.ChatMessage
+import uz.promo.selling.data.remote.models.chat.Conversation
+import uz.promo.selling.data.remote.models.chat.ConversationPage
+import uz.promo.selling.data.remote.models.chat.MessagePage
+import uz.promo.selling.data.remote.models.chat.ReportBody
+import uz.promo.selling.data.remote.models.chat.SendMessageBody
+import uz.promo.selling.data.remote.models.chat.StartConversationBody
+import uz.promo.selling.data.remote.models.chat.UnreadCount
 import uz.promo.selling.data.remote.models.getNotifications.NotificationData
 import uz.promo.selling.data.remote.models.getProfile.UpdatePasswordModel
 import uz.promo.selling.data.remote.models.getProfile.UpdateProfileModel
@@ -245,6 +253,82 @@ interface ApiInterface {
     @POST("user/fcm-token")
     suspend fun sendFcmToken(
         @Body body: Map<String, String>,
+        @Header("Authorization") token: String = SharedPref.deviceToken,
+    ): GenericModel<Any>
+
+    // ---------------- Chat ----------------
+
+    @POST("chat/conversations")
+    suspend fun startConversation(
+        @Body body: StartConversationBody,
+        @Query("lang") lang: String = SharedPref.language,
+        @Header("Authorization") token: String = SharedPref.deviceToken,
+    ): GenericModel<Conversation>
+
+    @GET("chat/conversations")
+    suspend fun getConversations(
+        @Query("page") page: Int,
+        @Query("size") size: Int,
+        @Query("lang") lang: String = SharedPref.language,
+        @Header("Authorization") token: String = SharedPref.deviceToken,
+    ): GenericModel<ConversationPage>
+
+    @GET("chat/conversations/{id}")
+    suspend fun getConversation(
+        @Path("id") id: Long,
+        @Query("lang") lang: String = SharedPref.language,
+        @Header("Authorization") token: String = SharedPref.deviceToken,
+    ): GenericModel<Conversation>
+
+    @GET("chat/conversations/{id}/messages")
+    suspend fun getChatMessages(
+        @Path("id") id: Long,
+        @Query("page") page: Int,
+        @Query("size") size: Int,
+        @Query("lang") lang: String = SharedPref.language,
+        @Header("Authorization") token: String = SharedPref.deviceToken,
+    ): GenericModel<MessagePage>
+
+    @POST("chat/conversations/{id}/messages")
+    suspend fun sendChatMessage(
+        @Path("id") id: Long,
+        @Body body: SendMessageBody,
+        @Query("lang") lang: String = SharedPref.language,
+        @Header("Authorization") token: String = SharedPref.deviceToken,
+    ): GenericModel<ChatMessage>
+
+    @GET("chat/unread-count")
+    suspend fun getChatUnreadCount(
+        @Query("lang") lang: String = SharedPref.language,
+        @Header("Authorization") token: String = SharedPref.deviceToken,
+    ): GenericModel<UnreadCount>
+
+    @POST("chat/conversations/{id}/report")
+    suspend fun reportConversation(
+        @Path("id") id: Long,
+        @Body body: ReportBody,
+        @Query("lang") lang: String = SharedPref.language,
+        @Header("Authorization") token: String = SharedPref.deviceToken,
+    ): GenericModel<Any>
+
+    @POST("chat/conversations/{id}/block")
+    suspend fun blockConversation(
+        @Path("id") id: Long,
+        @Query("lang") lang: String = SharedPref.language,
+        @Header("Authorization") token: String = SharedPref.deviceToken,
+    ): GenericModel<Any>
+
+    @POST("chat/conversations/{id}/unblock")
+    suspend fun unblockConversation(
+        @Path("id") id: Long,
+        @Query("lang") lang: String = SharedPref.language,
+        @Header("Authorization") token: String = SharedPref.deviceToken,
+    ): GenericModel<Any>
+
+    @POST("chat/conversations/{id}/delete")
+    suspend fun deleteConversation(
+        @Path("id") id: Long,
+        @Query("lang") lang: String = SharedPref.language,
         @Header("Authorization") token: String = SharedPref.deviceToken,
     ): GenericModel<Any>
 
