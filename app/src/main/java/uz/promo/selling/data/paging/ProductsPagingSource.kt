@@ -14,6 +14,7 @@ class ProductsPagingSource(
     private val endDate: String? = null,
     private val fromPrice: Int? = null,
     private val toPrice: Int? = null,
+    private val sort: String? = null,
     private val lat: Double? = null,
     private val lon: Double? = null,
     private val radius: Int? = null,
@@ -39,6 +40,7 @@ class ProductsPagingSource(
                 endDate = endDate,
                 fromPrice = fromPrice,
                 toPrice = toPrice,
+                sort = sort,
                 lat = lat,
                 lon = lon,
                 radius = radius

@@ -381,6 +381,7 @@ data class FilterClass(
     val toPrice: Int? = null,
     val categoryIds: List<Long> = emptyList(),
     val categoryNames: List<String> = emptyList(),
+    val sort: String? = null, // null/newest | price_asc | price_desc | popular
 ) {
     // Convenience for single category backward compat
     val categoryId: Long? get() = categoryIds.firstOrNull()

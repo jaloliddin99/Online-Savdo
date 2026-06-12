@@ -18,9 +18,13 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.FilterList
+import androidx.compose.material.icons.outlined.Refresh
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -121,11 +125,18 @@ fun MyPostsScreen(
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true,
     )
+    val actionSheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true,
+    )
     val scope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
     var postId by remember { mutableIntStateOf(-1) }
+    var actionPost by remember { mutableStateOf<uz.promo.selling.data.remote.models.getPublicProducts.Content?>(null) }
     val context = LocalContext.current
     val prioritized: String = stringResource(id = R.string.it_is_already_prioritized)
+    val markedSoldMsg = stringResource(id = R.string.marked_as_sold_success)
+    val reactivatedMsg = stringResource(id = R.string.reactivated_success)
+    val errorMsg = stringResource(id = R.string.something_went_wrong)
 
     val isRefreshing = myPosts.loadState.refresh is LoadState.Loading
 
@@ -148,12 +159,8 @@ fun MyPostsScreen(
                         onItemClicked = onItemClicked,
                         isMyPosts = true,
                         onItemLongLicked = {
-                            if (!item.isPrioritized && item.status == 1) {
-                                postId = it
-                                showBottomSheet = true
-                            }
-                            if (item.isPrioritized) {
-                                Toast.makeText(context, prioritized, Toast.LENGTH_SHORT).show()
+                            if (item.status == 1 || item.status == 3 || item.status == 4) {
+                                actionPost = item
                             }
                         }
                     )
@@ -181,6 +188,49 @@ fun MyPostsScreen(
         FreeLoading(updateState.isLoading)
     }
 
+    actionPost?.let { post ->
+        ModalBottomSheet(
+            onDismissRequest = { actionPost = null },
+            sheetState = actionSheetState
+        ) {
+            PostActionsSheetContent(
+                status = post.status,
+                isPrioritized = post.isPrioritized,
+                onMarkSold = {
+                    actionPost = null
+                    myPostVM.markPostSold(post.id.toLong()) { ok ->
+                        Toast.makeText(
+                            context,
+                            if (ok) markedSoldMsg else errorMsg,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        if (ok) myPosts.refresh()
+                    }
+                },
+                onActivate = {
+                    actionPost = null
+                    myPostVM.activatePost(post.id.toLong()) { ok ->
+                        Toast.makeText(
+                            context,
+                            if (ok) reactivatedMsg else errorMsg,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        if (ok) myPosts.refresh()
+                    }
+                },
+                onPrioritize = {
+                    actionPost = null
+                    if (post.isPrioritized) {
+                        Toast.makeText(context, prioritized, Toast.LENGTH_SHORT).show()
+                    } else {
+                        postId = post.id
+                        showBottomSheet = true
+                    }
+                }
+            )
+        }
+    }
+
     if (showBottomSheet) {
         ModalBottomSheet(
             onDismissRequest = {
@@ -201,6 +251,73 @@ fun MyPostsScreen(
 }
 
 @Composable
+private fun PostActionsSheetContent(
+    status: Int,
+    isPrioritized: Boolean,
+    onMarkSold: () -> Unit,
+    onActivate: () -> Unit,
+    onPrioritize: () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 20.dp, end = 20.dp, bottom = 32.dp)
+    ) {
+        if (status == 1) {
+            PostActionRow(
+                icon = Icons.Outlined.CheckCircle,
+                label = stringResource(R.string.mark_as_sold),
+                onClick = onMarkSold
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            PostActionRow(
+                icon = Icons.Outlined.Star,
+                label = stringResource(R.string.prioritize),
+                onClick = onPrioritize
+            )
+        }
+        if (status == 3 || status == 4) {
+            PostActionRow(
+                icon = Icons.Outlined.Refresh,
+                label = stringResource(R.string.reactivate_post),
+                onClick = onActivate
+            )
+        }
+    }
+}
+
+@Composable
+private fun PostActionRow(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
+            .clickable { onClick() }
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(22.dp)
+        )
+        Spacer(modifier = Modifier.width(12.dp))
+        Text(
+            text = label,
+            fontFamily = robotoFontFamily,
+            fontWeight = FontWeight.Medium,
+            fontSize = 15.sp
+        )
+    }
+}
+
+@Composable
 fun StatusFilterDropdown(
     expanded: Boolean,
     selectedStatus: Int?,
@@ -213,6 +330,8 @@ fun StatusFilterDropdown(
         StatusOption(null, R.string.all, Color.Unspecified),
         StatusOption(1, R.string.published, Color(0xFF4CAF50)),
         StatusOption(0, R.string.pending, Color(0xFFFFA726)),
+        StatusOption(3, R.string.sold, Color(0xFF42A5F5)),
+        StatusOption(4, R.string.expired, Color(0xFF9E9E9E)),
         StatusOption(2, R.string.rejected, Color(0xFFEF5350)),
     )
 

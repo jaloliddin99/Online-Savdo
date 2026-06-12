@@ -191,13 +191,13 @@ class NetworkRepositoryImpl @Inject constructor(
             lang = lang,
             categoryId = categoryId,
             query = query,
-            startDate,
-            endDate,
-            fromPrice,
-            toPrice,
-            lat,
-            lon,
-            radius
+            startDate = startDate,
+            endDate = endDate,
+            fromPrice = fromPrice,
+            toPrice = toPrice,
+            lat = lat,
+            lon = lon,
+            radius = radius
         )
     }
 

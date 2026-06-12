@@ -160,6 +160,9 @@ fun SearchScreen(
                 categoryIds = myFilter.categoryIds,
                 startDate = myFilter.titleTextFrom,
                 endDate = myFilter.titleTextTo,
+                priceMin = myFilter.fromPrice,
+                priceMax = myFilter.toPrice,
+                sort = myFilter.sort,
             )
         )
     }

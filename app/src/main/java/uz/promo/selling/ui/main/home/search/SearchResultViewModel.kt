@@ -33,6 +33,9 @@ data class SearchParams(
     val categoryIds: List<Long> = emptyList(),
     val startDate: String? = null,
     val endDate: String? = null,
+    val priceMin: Int? = null,
+    val priceMax: Int? = null,
+    val sort: String? = null,
 )
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -107,6 +110,9 @@ class SearchResultViewModel @Inject constructor(
                             categoryIds = params.categoryIds,
                             startDate = params.startDate,
                             endDate = params.endDate,
+                            priceMin = params.priceMin,
+                            priceMax = params.priceMax,
+                            sort = params.sort,
                         )
                     }
                 ).flow

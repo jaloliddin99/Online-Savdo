@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import uz.promo.selling.data.paging.MyPostsPagingSource
 import uz.promo.selling.data.remote.ApiInterface
 import uz.promo.selling.data.remote.models.getPublicProducts.Content
@@ -52,6 +53,32 @@ class MyPostViewModel @Inject constructor(
 
     fun setStatusFilter(status: Int?) {
         _selectedStatus.value = status
+    }
+
+    fun markPostSold(postId: Long, onDone: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            _state.value = MyProfileScreen(isLoading = true)
+            val ok = try {
+                apiInterface.markPostSold(SharedPref.deviceToken, postId).success
+            } catch (e: Exception) {
+                false
+            }
+            _state.value = MyProfileScreen()
+            onDone(ok)
+        }
+    }
+
+    fun activatePost(postId: Long, onDone: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            _state.value = MyProfileScreen(isLoading = true)
+            val ok = try {
+                apiInterface.activatePost(SharedPref.deviceToken, postId).success
+            } catch (e: Exception) {
+                false
+            }
+            _state.value = MyProfileScreen()
+            onDone(ok)
+        }
     }
 
     fun updateValues(

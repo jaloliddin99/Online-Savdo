@@ -97,8 +97,9 @@ interface ApiInterface {
         @Query("query") query: String?,
         @Query("startDate") startDate: String?,
         @Query("endDate") endDate: String?,
-        @Query("fromPrice") fromPrice: Int? = null,
-        @Query("toPrice") toPrice: Int? = null,
+        @Query("priceMin") fromPrice: Int? = null,
+        @Query("priceMax") toPrice: Int? = null,
+        @Query("sort") sort: String? = null,
         @Query("lat") lat: Double? = null,
         @Query("lon") lon: Double? = null,
         @Query("radius") radius: Int? = null
@@ -165,6 +166,20 @@ interface ApiInterface {
         @Header("Authorization") token: String,
         @Query("postId") postId: Long,
         @Query("period") periodInHours: Int
+    ): ModelSuccess
+
+    @POST("post/{id}/mark-sold")
+    suspend fun markPostSold(
+        @Header("Authorization") token: String,
+        @Path("id") postId: Long,
+        @Query("lang") lang: String = SharedPref.language
+    ): ModelSuccess
+
+    @POST("post/{id}/activate")
+    suspend fun activatePost(
+        @Header("Authorization") token: String,
+        @Path("id") postId: Long,
+        @Query("lang") lang: String = SharedPref.language
     ): ModelSuccess
 
     @GET("post/{id}")
@@ -242,6 +257,9 @@ interface ApiInterface {
         @Query("status") status: Int = 1,
         @Query("startDate") startDate: String?,
         @Query("endDate") endDate: String?,
+        @Query("priceMin") priceMin: Int? = null,
+        @Query("priceMax") priceMax: Int? = null,
+        @Query("sort") sort: String? = null,
         @Header("Authorization") token: String = SharedPref.deviceToken,
         ): GenericModel<Data>
 

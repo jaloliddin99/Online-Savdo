@@ -13,5 +13,7 @@ data class PostDetailsData(
     val likes: Int,
     val longitude: Double,
     val title: String,
-    val user: User
+    val user: User,
+    val status: Int = 1,
+    val viewCount: Int = 0
 )

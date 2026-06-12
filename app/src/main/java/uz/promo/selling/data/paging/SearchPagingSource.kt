@@ -15,6 +15,9 @@ class SearchPagingSource(
     private val categoryIds: List<Long>,
     private val startDate: String?,
     private val endDate: String?,
+    private val priceMin: Int? = null,
+    private val priceMax: Int? = null,
+    private val sort: String? = null,
 ) : PagingSource<Int, Content>() {
 
     override fun getRefreshKey(state: PagingState<Int, Content>): Int? {
@@ -38,6 +41,9 @@ class SearchPagingSource(
                 categoryIds = categoryIds.ifEmpty { null },
                 startDate = startDate,
                 endDate = endDate,
+                priceMin = priceMin,
+                priceMax = priceMax,
+                sort = sort,
             )
             val data = response.data
             LoadResult.Page(

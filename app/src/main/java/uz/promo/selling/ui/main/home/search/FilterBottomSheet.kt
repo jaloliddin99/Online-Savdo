@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
@@ -82,6 +83,7 @@ fun FilterBottomSheetContent(
     var toPrice by remember { mutableStateOf(initialFilter.toPrice?.toString() ?: "") }
     var selectedCategoryIds by remember { mutableStateOf(initialFilter.categoryIds) }
     var selectedCategoryNames by remember { mutableStateOf(initialFilter.categoryNames) }
+    var selectedSort by remember { mutableStateOf(initialFilter.sort) }
 
     val datePickerState = rememberDatePickerState()
     val showDatePicker = rememberSaveable { mutableIntStateOf(0) }
@@ -118,7 +120,8 @@ fun FilterBottomSheetContent(
     }
 
     val hasAnyFilter = dateFromApi != null || dateToApi != null ||
-            fromPrice.isNotBlank() || toPrice.isNotBlank() || selectedCategoryIds.isNotEmpty()
+            fromPrice.isNotBlank() || toPrice.isNotBlank() || selectedCategoryIds.isNotEmpty() ||
+            selectedSort != null
 
     Column(
         modifier = Modifier
@@ -148,6 +151,7 @@ fun FilterBottomSheetContent(
                     toPrice = ""
                     selectedCategoryIds = emptyList()
                     selectedCategoryNames = emptyList()
+                    selectedSort = null
                     onReset()
                 }) {
                     Text(stringResource(R.string.filter_reset_all), color = MaterialTheme.colorScheme.error)
@@ -343,6 +347,52 @@ fun FilterBottomSheetContent(
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
         Spacer(modifier = Modifier.height(20.dp))
 
+        // ── Section: Sorting ──
+        FilterSectionHeader(
+            icon = Icons.AutoMirrored.Filled.Sort,
+            title = stringResource(R.string.sort_by)
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+
+        val sortOptions = listOf(
+            null to stringResource(R.string.sort_newest),
+            "price_asc" to stringResource(R.string.sort_price_low),
+            "price_desc" to stringResource(R.string.sort_price_high),
+            "popular" to stringResource(R.string.sort_popular),
+        )
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            sortOptions.forEach { (value, label) ->
+                val isSelected = selectedSort == value
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(50))
+                        .background(
+                            if (isSelected) MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+                        )
+                        .clickable { selectedSort = value }
+                        .padding(horizontal = 14.dp, vertical = 8.dp)
+                ) {
+                    Text(
+                        text = label,
+                        fontFamily = robotoFontFamily,
+                        fontSize = 13.sp,
+                        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                        color = if (isSelected) MaterialTheme.colorScheme.onPrimary
+                        else MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+        Spacer(modifier = Modifier.height(20.dp))
+
         // ── Section 4: Date Range ──
         FilterSectionHeader(
             icon = Icons.Filled.CalendarMonth,
@@ -385,6 +435,7 @@ fun FilterBottomSheetContent(
                         toPrice = toPrice.toIntOrNull(),
                         categoryIds = selectedCategoryIds,
                         categoryNames = selectedCategoryNames,
+                        sort = selectedSort,
                     )
                 )
             },

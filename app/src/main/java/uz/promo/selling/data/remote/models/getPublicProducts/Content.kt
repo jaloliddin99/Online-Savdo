@@ -12,5 +12,6 @@ data class Content(
     val title: String,
     val status: Int,
     val condition: String?=null,
-    val isPrioritized: Boolean
+    val isPrioritized: Boolean,
+    val viewCount: Int = 0
 )

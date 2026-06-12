@@ -219,11 +219,15 @@ fun ProductItemDetails(
                 )
             }
 
-            if (isMyPosts && (data.status == 0 || data.status == 2)) {
+            if (isMyPosts && data.status != 1) {
                 Text(
                     text = stringResource(
-                        id = if (data.status == 0) R.string.pending
-                        else R.string.rejected
+                        id = when (data.status) {
+                            0 -> R.string.pending
+                            2 -> R.string.rejected
+                            3 -> R.string.sold
+                            else -> R.string.expired
+                        }
                     ),
                     modifier = Modifier
                         .clip(RoundedCornerShape(50))
@@ -259,11 +263,14 @@ fun ProductItemDetails(
             val currentColor = LocalContentColor.current
             val colorWithAlpha = currentColor.copy(alpha = 0.7f)
 
+            val likesText = if (data.likes == 0 || data.likes == 1)
+                "${data.likes} ${stringResource(id = R.string.likeSingular)}"
+            else
+                "${data.likes} ${stringResource(id = R.string.likePulural)}"
             Text(
-                text = if (data.likes == 0 || data.likes == 1)
-                    "${data.likes} ${stringResource(id = R.string.likeSingular)}"
-                else
-                    "${data.likes} ${stringResource(id = R.string.likePulural)}",
+                text = if (isMyPosts)
+                    "$likesText • ${data.viewCount} ${stringResource(id = R.string.views_count)}"
+                else likesText,
                 fontSize = 12.sp,
                 fontFamily = robotoFontFamily,
                 fontWeight = FontWeight.Medium,
