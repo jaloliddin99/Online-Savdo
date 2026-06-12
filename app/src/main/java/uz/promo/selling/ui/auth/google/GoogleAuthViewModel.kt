@@ -40,6 +40,8 @@ class GoogleAuthViewModel @Inject constructor(
                             SharedPref.deviceToken = "Bearer ${response.token}"
                             SharedPref.refreshToken = response.refreshToken ?: ""
                             SharedPref.loginTime = System.currentTimeMillis()
+                            // Bind this device's FCM token to the account.
+                            uz.promo.selling.utils.FcmTokenSync.sync(context)
 
                             // Check if user has phone number by trying to get profile
                             val profileResponse = apiInterface.getProfile(SharedPref.deviceToken)

@@ -35,6 +35,7 @@ class RunTimePermission {
                         permissions: List<PermissionRequest?>?,
                         token: PermissionToken?
                     ) {
+                        token?.continuePermissionRequest()
                         onPermissionNotEnabled.invoke()
                         SharedPref.permissionCounter++
                     }
@@ -69,6 +70,7 @@ class RunTimePermission {
                         permissions: List<PermissionRequest?>?,
                         token: PermissionToken?
                     ) {
+                        token?.continuePermissionRequest()
                         galleryPermission(false)
                     }
                 }).check()
@@ -86,6 +88,7 @@ class RunTimePermission {
                         permissions: List<PermissionRequest?>?,
                         token: PermissionToken?
                     ) {
+                        token?.continuePermissionRequest()
                         galleryPermission(false)
                     }
                 }).check()
@@ -106,6 +109,7 @@ class RunTimePermission {
                     permissions: List<PermissionRequest?>?,
                     token: PermissionToken?
                 ) {
+                        token?.continuePermissionRequest()
                     cameraPermission(false)
                 }
             }).check()
@@ -125,6 +129,7 @@ class RunTimePermission {
                         permissions: List<PermissionRequest?>?,
                         token: PermissionToken?
                     ) {
+                        token?.continuePermissionRequest()
                         onRunTimePermissionListener.onPermissionDenied()
                     }
                 }).check()

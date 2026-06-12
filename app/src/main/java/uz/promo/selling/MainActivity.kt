@@ -56,10 +56,25 @@ class MainActivity : ComponentActivity(), OnRunTimePermissionListener {
     }
 
     private val viewModel: SettingsDialogViewModel by viewModels()
+
+    // Android 13+ requires runtime consent before ANY notification is shown.
+    private val notificationPermissionLauncher = registerForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
+    ) { /* denial is fine — the user can enable it later in settings */ }
+
+    private fun requestNotificationPermission() {
+        if (android.os.Build.VERSION.SDK_INT >= 33 &&
+            checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) !=
+            android.content.pm.PackageManager.PERMISSION_GRANTED
+        ) {
+            notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-        RunTimePermission().permissionList(this, this)
+        requestNotificationPermission()
 
         if (SharedPref.refreshToken.isNotBlank()) {
             TokenRefreshScheduler.refreshNow(this)

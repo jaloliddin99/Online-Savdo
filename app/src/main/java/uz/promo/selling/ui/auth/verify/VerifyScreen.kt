@@ -197,6 +197,9 @@ fun VerificationScreen(
             SharedPref.deviceToken = "Bearer ${state.registerMain.token}"
             SharedPref.refreshToken = state.registerMain.refreshToken ?: ""
             TokenRefreshScheduler.scheduleDailyRefresh(context)
+            // Bind this device's FCM token to the freshly logged-in account —
+            // without this, pushes don't arrive until the next app restart.
+            uz.promo.selling.utils.FcmTokenSync.sync(context)
             onMainScreen.invoke()
         }else{
             Toast.makeText(context, stringResource(id = R.string.invalid_password), Toast.LENGTH_SHORT).show()
