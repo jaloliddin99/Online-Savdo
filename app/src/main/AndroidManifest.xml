@@ -46,6 +46,21 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="selling" android:host="open" />
             </intent-filter>
+            <!-- App Links: open selling.uz listing URLs directly in the app.
+                 Requires https://selling.uz/.well-known/assetlinks.json with the
+                 Play App Signing SHA-256 fingerprint for auto-verification. -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" />
+                <data android:host="selling.uz" />
+                <data android:host="www.selling.uz" />
+                <data android:pathPattern="/post/..*" />
+                <data android:pathPattern="/uz/post/..*" />
+                <data android:pathPattern="/ru/post/..*" />
+                <data android:pathPattern="/en/post/..*" />
+            </intent-filter>
         </activity>
         <meta-data
             android:name="com.google.android.geo.API_KEY"

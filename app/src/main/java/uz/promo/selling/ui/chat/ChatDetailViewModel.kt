@@ -7,11 +7,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
+import okhttp3.WebSocket
+import okhttp3.WebSocketListener
+import org.json.JSONObject
+import uz.promo.selling.BuildConfig
 import uz.promo.selling.data.remote.ApiInterface
 import uz.promo.selling.data.remote.models.chat.ChatMessage
 import uz.promo.selling.data.remote.models.chat.Conversation
 import uz.promo.selling.data.remote.models.chat.ReportBody
 import uz.promo.selling.data.remote.models.chat.SendMessageBody
+import uz.promo.selling.utils.SharedPref
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltViewModel
@@ -21,6 +30,63 @@ class ChatDetailViewModel @Inject constructor(
 
     var state by mutableStateOf(ChatDetailState())
         private set
+
+    var socketConnected by mutableStateOf(false)
+        private set
+
+    private var webSocket: WebSocket? = null
+    private var socketConversationId: Long = -1
+    private val socketClient = OkHttpClient.Builder()
+        .pingInterval(30, TimeUnit.SECONDS)
+        .build()
+
+    /** Live message events; REST stays the only send/refresh path. */
+    fun connectSocket(conversationId: Long) {
+        if (webSocket != null && socketConversationId == conversationId && socketConnected) return
+        webSocket?.cancel()
+        socketConversationId = conversationId
+        val token = SharedPref.deviceToken
+        if (token.isBlank()) return
+        // BASE_URL is "https://selling.uz/api/v1/" — derive the ws endpoint from it.
+        val wsUrl = BuildConfig.BASE_URL
+            .replaceFirst("https://", "wss://")
+            .replaceFirst("http://", "ws://") + "ws/chat"
+        val request = Request.Builder()
+            .url(wsUrl)
+            .addHeader("Authorization", token)
+            .build()
+        webSocket = socketClient.newWebSocket(request, object : WebSocketListener() {
+            override fun onOpen(webSocket: WebSocket, response: Response) {
+                socketConnected = true
+            }
+
+            override fun onMessage(webSocket: WebSocket, text: String) {
+                try {
+                    val event = JSONObject(text)
+                    if (event.optString("type") == "message" &&
+                        event.optLong("conversationId") == socketConversationId
+                    ) {
+                        refreshMessages(socketConversationId)
+                    }
+                } catch (_: Exception) {
+                }
+            }
+
+            override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
+                socketConnected = false
+            }
+
+            override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
+                socketConnected = false
+            }
+        })
+    }
+
+    override fun onCleared() {
+        webSocket?.cancel()
+        socketClient.dispatcher.executorService.shutdown()
+        super.onCleared()
+    }
 
     /** Load the conversation header once when the screen opens. */
     fun loadHeader(conversationId: Long) {

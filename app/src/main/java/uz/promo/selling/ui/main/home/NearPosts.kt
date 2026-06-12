@@ -90,7 +90,7 @@ fun NearPostItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
-            val url = "${BuildConfig.BASE_URL}post/image/${item.image.imagePath}"
+            val url = "${BuildConfig.BASE_URL}post/image/${item.image.imagePath}?size=thumb"
             val showShimmer = remember { mutableStateOf(true) }
 
             AsyncImage(

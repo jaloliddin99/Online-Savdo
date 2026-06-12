@@ -134,7 +134,7 @@ fun ProductItemDetails(
             mutableStateOf(true)
         }
 
-        val url = "${BuildConfig.BASE_URL}post/image/${data.image.imagePath}"
+        val url = "${BuildConfig.BASE_URL}post/image/${data.image.imagePath}?size=thumb"
 
         ConstraintLayout(
             modifier = Modifier

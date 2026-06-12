@@ -63,6 +63,7 @@ import uz.promo.selling.ui.TopAppBar
 import uz.promo.selling.utils.chatTimeLabel
 
 private const val POLL_MS = 4000L
+private const val POLL_MS_SOCKET_FALLBACK = 30000L
 
 @Composable
 fun ChatDetailRoute(
@@ -70,12 +71,15 @@ fun ChatDetailRoute(
     navigateBack: () -> Unit,
     viewModel: ChatDetailViewModel = hiltViewModel()
 ) {
-    // Load once, then poll for new/read messages while the screen is open.
+    // Load once, keep a live WebSocket for instant updates, and poll as a
+    // safety net (slow while the socket is healthy, fast when it isn't).
     LaunchedEffect(conversationId) {
         viewModel.loadHeader(conversationId)
         viewModel.refreshMessages(conversationId)
+        viewModel.connectSocket(conversationId)
         while (true) {
-            delay(POLL_MS)
+            delay(if (viewModel.socketConnected) POLL_MS_SOCKET_FALLBACK else POLL_MS)
+            if (!viewModel.socketConnected) viewModel.connectSocket(conversationId)
             viewModel.refreshMessages(conversationId)
         }
     }

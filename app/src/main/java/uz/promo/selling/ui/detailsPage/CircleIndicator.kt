@@ -46,7 +46,7 @@ fun ImagePager(
     val prefix = "${BuildConfig.BASE_URL}post/image/"
 
     val suffix = state.registerMain?.images?.get(pagerState.currentPage)?.imagePath
-    val url = "$prefix$suffix"
+    val url = "$prefix$suffix?size=mid"
 
     val imageLoader = rememberAsyncImagePainter(model = url,
         onState = { statePager ->

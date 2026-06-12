@@ -47,6 +47,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import uz.promo.selling.data.remote.models.category.CategoryItem
 import uz.promo.selling.ui.auth.forgotPassword.ForgotPasswordRoute
 import uz.promo.selling.ui.auth.forgotPassword.ResetPasswordRoute
@@ -294,6 +295,13 @@ fun NavigationGraph(
                         type = NavType.IntType
                         defaultValue = 0
                     }
+                ),
+                deepLinks = listOf(
+                    navDeepLink { uriPattern = "selling://open/post/{param}" },
+                    navDeepLink { uriPattern = "https://selling.uz/post/{param}" },
+                    navDeepLink { uriPattern = "https://selling.uz/{lang}/post/{param}" },
+                    navDeepLink { uriPattern = "https://www.selling.uz/post/{param}" },
+                    navDeepLink { uriPattern = "https://www.selling.uz/{lang}/post/{param}" },
                 )
             ) { backStackEntry ->
                 val param = backStackEntry.arguments?.getInt("param")

@@ -247,7 +247,7 @@ private fun ConversationRow(
         if (!thumb.isNullOrBlank()) {
             Spacer(modifier = Modifier.width(12.dp))
             AsyncImage(
-                model = "${BuildConfig.BASE_URL}post/image/$thumb",
+                model = "${BuildConfig.BASE_URL}post/image/$thumb?size=thumb",
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
