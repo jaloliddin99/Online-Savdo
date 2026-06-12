@@ -477,7 +477,16 @@ fun NavigationGraph(
                     },
                     toNotificationSettings = {
                         navController.navigate(Screen.NotificationSettings.route)
+                    },
+                    toHelp = {
+                        navController.navigate(Screen.Help.route)
                     }
+                )
+            }
+
+            composable(route = Screen.Help.route) {
+                uz.promo.selling.ui.main.profile.HelpRoute(
+                    onBackClick = navController::popBackStack
                 )
             }
 

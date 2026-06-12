@@ -168,6 +168,13 @@ interface ApiInterface {
         @Query("period") periodInHours: Int
     ): ModelSuccess
 
+    @POST("support")
+    suspend fun sendSupportMessage(
+        @Header("Authorization") token: String,
+        @Body body: Map<String, String>,
+        @Query("lang") lang: String = SharedPref.language
+    ): ModelSuccess
+
     @GET("user/notification-prefs")
     suspend fun getNotificationPrefs(
         @Header("Authorization") token: String,

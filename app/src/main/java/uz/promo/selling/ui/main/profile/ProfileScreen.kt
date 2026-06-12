@@ -106,6 +106,7 @@ fun ProfileRoute(
     restartApp: () -> Unit,
     toNotifications: () -> Unit = {},
     toNotificationSettings: () -> Unit = {},
+    toHelp: () -> Unit = {},
     onSettingsClick: () -> Unit = {}
 ) {
     val viewModel = hiltViewModel<ProfileViewModel>()
@@ -137,7 +138,8 @@ fun ProfileRoute(
             },
             restartApp = restartApp,
             toNotifications = toNotifications,
-            toNotificationSettings = toNotificationSettings
+            toNotificationSettings = toNotificationSettings,
+            toHelp = toHelp
         )
     }
 }
@@ -154,7 +156,8 @@ fun ProfileScreen(
     uploadImage: (ImageUrl) -> Unit,
     restartApp: () -> Unit,
     toNotifications: () -> Unit = {},
-    toNotificationSettings: () -> Unit = {}
+    toNotificationSettings: () -> Unit = {},
+    toHelp: () -> Unit = {}
 ) {
     val context = LocalContext.current
 
@@ -244,7 +247,7 @@ fun ProfileScreen(
                 )
             }
             ProfileSection(title = stringResource(id = R.string.section_support)) {
-                AboutAppAndContactWithUs()
+                AboutAppAndContactWithUs(toHelp = toHelp)
             }
             ProfileSection(title = stringResource(id = R.string.section_log_out)) {
                 LogOut(
@@ -332,16 +335,18 @@ fun RoundImage(
 
 
 @Composable
-fun AboutAppAndContactWithUs() {
+fun AboutAppAndContactWithUs(toHelp: () -> Unit = {}) {
+    var showAbout by androidx.compose.runtime.remember {
+        androidx.compose.runtime.mutableStateOf(false)
+    }
+
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
         ProfileColumnItem(
             imageVector = Icons.Filled.Warning,
             title = stringResource(id = R.string.about_app),
-            onItemClicked = {
-
-            }
+            onItemClicked = { showAbout = true }
         )
         Divider(
             modifier = Modifier
@@ -352,8 +357,25 @@ fun AboutAppAndContactWithUs() {
         ProfileColumnItem(
             imageVector = Icons.Filled.Help,
             title = stringResource(id = R.string.technical_assistance),
-            onItemClicked = {
+            onItemClicked = toHelp
+        )
+    }
 
+    if (showAbout) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showAbout = false },
+            title = { Text(stringResource(id = R.string.app_name)) },
+            text = {
+                Text(
+                    stringResource(id = R.string.about_version) +
+                            ": " + uz.promo.selling.BuildConfig.VERSION_NAME +
+                            "\nselling.uz"
+                )
+            },
+            confirmButton = {
+                androidx.compose.material3.TextButton(onClick = { showAbout = false }) {
+                    Text(stringResource(id = R.string.ok))
+                }
             }
         )
     }
