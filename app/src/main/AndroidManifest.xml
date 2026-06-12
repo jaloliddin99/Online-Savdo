@@ -65,6 +65,11 @@
                 <data android:pathPattern="/en/post/..*" />
             </intent-filter>
         </activity>
+        <!-- Channel used when FCM displays a notification-type message itself
+             (news broadcasts) and no channel id was set in the payload. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="news" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCM1QAkSklw2PQ6XnPZwq3-pIr21a5_mzg" />
