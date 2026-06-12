@@ -190,7 +190,11 @@ fun ProductDetailsScreen(
     if (isFeedLoading && data == null) {
         ShimmerDetailsContent()
     } else {
-        Box(modifier = modifier.fillMaxSize()) {
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.25f))
+        ) {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -288,6 +292,18 @@ fun ProductDetailsScreen(
             DetailsToolbar(
                 onBackClick = onBackPressed,
                 onLikeClicked = onItemClicked,
+                onShareClick = {
+                    data?.let {
+                        val share = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                            type = "text/plain"
+                            putExtra(
+                                android.content.Intent.EXTRA_TEXT,
+                                "${it.title}\nhttps://selling.uz/post/${it.id}"
+                            )
+                        }
+                        context.startActivity(android.content.Intent.createChooser(share, null))
+                    }
+                },
                 data = data
             )
         }
@@ -327,6 +343,9 @@ private fun ProductHeader(data: PostDetailsData?, onLikeClicked: (Int) -> Unit) 
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .padding(horizontal = 12.dp)
+            .padding(top = 10.dp)
+            .clip(RoundedCornerShape(18.dp))
             .background(MaterialTheme.colorScheme.surface)
             .padding(horizontal = 16.dp, vertical = 14.dp)
     ) {
@@ -478,7 +497,9 @@ private fun DescriptionSection(description: String) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 8.dp)
+            .padding(horizontal = 12.dp)
+            .padding(top = 10.dp)
+            .clip(RoundedCornerShape(18.dp))
             .background(MaterialTheme.colorScheme.surface)
             .padding(horizontal = 16.dp, vertical = 14.dp)
     ) {
@@ -508,7 +529,9 @@ private fun CharacteristicsSection(data: PostDetailsData) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 8.dp)
+            .padding(horizontal = 12.dp)
+            .padding(top = 10.dp)
+            .clip(RoundedCornerShape(18.dp))
             .background(MaterialTheme.colorScheme.surface)
             .padding(horizontal = 16.dp, vertical = 14.dp)
     ) {
@@ -611,41 +634,84 @@ private fun LocationSection(
     data: PostDetailsData?,
     goToMapsPage: (lat: Double, lon: Double) -> Unit
 ) {
-    Card(
+    val lat = data?.latitude
+    val lon = data?.longitude
+
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 8.dp)
-            .clickable {
-                if (data?.latitude != null) {
-                    goToMapsPage(data.latitude, data.longitude)
-                }
-            },
-        shape = RoundedCornerShape(0.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            .padding(horizontal = 12.dp)
+            .padding(top = 10.dp)
+            .clip(RoundedCornerShape(18.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(horizontal = 16.dp, vertical = 14.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 14.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        SectionHeader(title = stringResource(id = R.string.address))
+        Spacer(modifier = Modifier.height(10.dp))
+
+        // Static (lite-mode) map preview with a pin overlaid in the center;
+        // tapping anywhere opens the full interactive map screen.
+        if (lat != null && lon != null) {
+            val cameraPositionState = com.google.maps.android.compose.rememberCameraPositionState(
+                key = "$lat,$lon"
+            ) {
+                position = com.google.android.gms.maps.model.CameraPosition.fromLatLngZoom(
+                    com.google.android.gms.maps.model.LatLng(lat, lon), 14.5f
+                )
+            }
             Box(
                 modifier = Modifier
-                    .size(42.dp)
-                    .background(
-                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.15f),
-                        CircleShape
-                    ),
-                contentAlignment = Alignment.Center
+                    .fillMaxWidth()
+                    .height(160.dp)
+                    .clip(RoundedCornerShape(14.dp))
             ) {
+                com.google.maps.android.compose.GoogleMap(
+                    modifier = Modifier.fillMaxSize(),
+                    cameraPositionState = cameraPositionState,
+                    googleMapOptionsFactory = {
+                        com.google.android.gms.maps.GoogleMapOptions().liteMode(true)
+                    },
+                    uiSettings = com.google.maps.android.compose.MapUiSettings(
+                        zoomControlsEnabled = false,
+                        mapToolbarEnabled = false,
+                        compassEnabled = false
+                    )
+                )
                 Icon(
                     imageVector = Icons.Filled.LocationOn,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(22.dp)
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        // Lift so the pin's tip points at the actual location.
+                        .padding(bottom = 36.dp)
+                        .size(40.dp)
+                )
+                // Click-catcher: also stops lite mode's default "open Google Maps".
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .clickable { goToMapsPage(lat, lon) }
                 )
             }
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.height(10.dp))
+        }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    if (lat != null && lon != null) goToMapsPage(lat, lon)
+                },
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Filled.LocationOn,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(modifier = Modifier.width(10.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = data?.addressName ?: "",
@@ -687,7 +753,9 @@ private fun SellerSection(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 8.dp)
+            .padding(horizontal = 12.dp)
+            .padding(top = 10.dp)
+            .clip(RoundedCornerShape(18.dp))
             .background(MaterialTheme.colorScheme.surface)
             .padding(horizontal = 16.dp, vertical = 14.dp)
     ) {

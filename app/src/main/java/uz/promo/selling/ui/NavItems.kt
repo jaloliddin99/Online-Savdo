@@ -37,7 +37,7 @@ sealed class NavItems(
         hasNews = false,
         badgeCount = null,
         Screen.Home.route,
-        titleRes = R.string.top_home
+        titleRes = R.string.nav_home
     )
     object AddProduct: NavItems(
         title = "Add",
@@ -46,7 +46,7 @@ sealed class NavItems(
         hasNews = false,
         badgeCount = null,
         Screen.AddProduct.route,
-        titleRes = R.string.chat_page
+        titleRes = R.string.nav_add
     )
     object Saved: NavItems(
         title = "Saved",
@@ -55,7 +55,7 @@ sealed class NavItems(
         hasNews = true,
         badgeCount = null,
         Screen.Saved.route,
-        titleRes = R.string.saved_page
+        titleRes = R.string.nav_saved
     )
 
     object Profile: NavItems(
@@ -65,7 +65,7 @@ sealed class NavItems(
         hasNews = true,
         badgeCount = null,
         Screen.Profile.route,
-        titleRes = R.string.profile
+        titleRes = R.string.nav_profile
     )
 
 
@@ -105,7 +105,7 @@ sealed class NavItems(
         hasNews = false,
         badgeCount = null,
         Screen.MyProducts.route,
-        titleRes = R.string.my_orders
+        titleRes = R.string.nav_my_posts
     )
 
 

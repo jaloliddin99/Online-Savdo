@@ -35,6 +35,7 @@ fun DetailsToolbar(
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit,
     onLikeClicked: (Int) -> Unit,
+    onShareClick: () -> Unit = {},
     data: PostDetailsData?
 ) {
     val paddingValues = WindowInsets.systemBars.asPaddingValues()
@@ -46,19 +47,15 @@ fun DetailsToolbar(
             .padding(horizontal = MaterialTheme.spacing.dimen6Dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(onClick = onBackClick) {
+        ScrimIconButton(onClick = onBackClick) {
             Icon(
                 imageVector = Icons.Default.ArrowBack,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurface
+                tint = Color.White
             )
         }
         Spacer(modifier = modifier.weight(1f))
-        IconButton(onClick = {
-            data?.id?.let {
-                onLikeClicked(it)
-            }
-        }) {
+        ScrimIconButton(onClick = { data?.id?.let { onLikeClicked(it) } }) {
             if (data?.isLiked == true) {
                 Image(
                     painter = painterResource(id = R.drawable.heart_filled),
@@ -72,14 +69,28 @@ fun DetailsToolbar(
             }
         }
         Spacer(modifier = modifier.width(MaterialTheme.spacing.dimen6Dp))
-        IconButton(onClick = onBackClick) {
+        ScrimIconButton(onClick = onShareClick) {
             Icon(
                 imageVector = Icons.Default.Share,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurface
+                tint = Color.White
             )
         }
+    }
+}
 
+/** Icon button on a translucent circle so it stays visible over any photo. */
+@Composable
+private fun ScrimIconButton(
+    onClick: () -> Unit,
+    content: @Composable () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .padding(2.dp)
+            .background(Color.Black.copy(alpha = 0.35f), androidx.compose.foundation.shape.CircleShape)
+    ) {
+        IconButton(onClick = onClick) { content() }
     }
 }
 

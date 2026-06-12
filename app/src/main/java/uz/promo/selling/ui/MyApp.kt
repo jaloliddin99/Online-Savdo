@@ -37,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.unit.dp
@@ -212,12 +213,12 @@ fun BottomNavigation(
                 onClick = {
                     appState.navigateToTopLevelDestination(item)
                 },
-                label = { Text(text = item.title) },
+                label = { Text(text = stringResource(id = item.titleRes)) },
                 icon = {
                     Icon(
                         imageVector = if (isSelected)
                             item.selectedIcon else item.unselectedIcon,
-                        contentDescription = item.title
+                        contentDescription = stringResource(id = item.titleRes)
                     )
                 },
                 colors = NavigationBarItemDefaults.colors(

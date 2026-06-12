@@ -103,23 +103,49 @@ class MainActivity : ComponentActivity(), OnRunTimePermissionListener {
         var showSplash by mutableStateOf(true)
 
         setContent {
-            val darkTheme = shouldUseDarkTheme(state.darkThemeConfig)
-            OnlineMarketTheme(
-                darkTheme = darkTheme,
-                androidTheme = shouldUseAndroidTheme(state.brand),
-                disableDynamicTheming = shouldDisableDynamicTheming(state.useDynamicColor)
+            // In-place language switching: the whole tree reads strings from a
+            // locale-wrapped context, so bumping appLanguage re-resolves every
+            // stringResource instantly, and key() below rebuilds the nav graph
+            // (fresh ViewModels -> backend data reloads in the new language).
+            // No activity restart, no splash.
+            var appLanguage by androidx.compose.runtime.remember {
+                mutableStateOf(SharedPref.language)
+            }
+            val localizedContext = androidx.compose.runtime.remember(appLanguage) {
+                // Keep the ACTIVITY as the base context (Hilt's viewModel factory
+                // walks LocalContext looking for it) and only override resources
+                // with the locale-adjusted ones.
+                val configContext = LocaleManager.setLocale(this, appLanguage) ?: this
+                object : android.content.ContextWrapper(this) {
+                    override fun getResources(): android.content.res.Resources =
+                        configContext.resources
+                }
+            }
+
+            androidx.compose.runtime.CompositionLocalProvider(
+                androidx.compose.ui.platform.LocalContext provides localizedContext,
+                androidx.compose.ui.platform.LocalConfiguration provides
+                        localizedContext.resources.configuration
             ) {
-                if (showSplash) {
-                    SplashScreen(
-                        onAnimationEnd = { showSplash = false }
-                    )
-                } else {
-                    MainScreenView(
-                        state,
-                        restartApp = {
-                            finish()
-                            startActivity(Intent(this, MainActivity::class.java))
-                        })
+                val darkTheme = shouldUseDarkTheme(state.darkThemeConfig)
+                OnlineMarketTheme(
+                    darkTheme = darkTheme,
+                    androidTheme = shouldUseAndroidTheme(state.brand),
+                    disableDynamicTheming = shouldDisableDynamicTheming(state.useDynamicColor)
+                ) {
+                    if (showSplash) {
+                        SplashScreen(
+                            onAnimationEnd = { showSplash = false }
+                        )
+                    } else {
+                        androidx.compose.runtime.key(appLanguage) {
+                            MainScreenView(
+                                state,
+                                restartApp = {
+                                    appLanguage = SharedPref.language
+                                })
+                        }
+                    }
                 }
             }
         }

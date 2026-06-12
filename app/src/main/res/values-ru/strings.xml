@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Sotiq</string>
+    <string name="app_name">Selling Uz</string>
     <string name="top_home">Главная страница</string>
     <string name="chat_page">Создать продукт</string>
     <string name="settings_page">Страница настроек</string>
@@ -174,7 +174,12 @@
     <string name="channel_news_desc">Обновления от Selling.uz</string>
     <string name="channel_my_ads">Мои объявления</string>
     <string name="channel_my_ads_desc">Модерация, продвижение и срок ваших объявлений</string>
-        <string name="help_title">Помощь</string>
+        <string name="nav_home">Главная</string>
+    <string name="nav_my_posts">Мои объявления</string>
+    <string name="nav_add">Подать</string>
+    <string name="nav_saved">Избранное</string>
+    <string name="nav_profile">Профиль</string>
+    <string name="help_title">Помощь</string>
     <string name="faq_title">Частые вопросы</string>
     <string name="contact_support_title">Связаться с поддержкой</string>
     <string name="contact_support_subtitle">Опишите вашу проблему, и мы скоро ответим</string>

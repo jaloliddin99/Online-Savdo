@@ -1,7 +1,7 @@
 <resources>
 
 
-    <string name="app_name" translatable="false">Selling</string>
+    <string name="app_name" translatable="false">Selling Uz</string>
     <string name="top_home">Main Page</string>
     <string name="chat_page">Create Product</string>
     <string name="settings_page">Settings Page</string>
@@ -180,7 +180,12 @@
     <string name="channel_news_desc">Updates from Selling.uz</string>
     <string name="channel_my_ads">My listings</string>
     <string name="channel_my_ads_desc">Moderation results, boosts and expiry of your ads</string>
-        <string name="help_title">Help</string>
+        <string name="nav_home">Home</string>
+    <string name="nav_my_posts">My ads</string>
+    <string name="nav_add">Post ad</string>
+    <string name="nav_saved">Saved</string>
+    <string name="nav_profile">Profile</string>
+    <string name="help_title">Help</string>
     <string name="faq_title">Frequently asked questions</string>
     <string name="contact_support_title">Contact support</string>
     <string name="contact_support_subtitle">Describe your problem and we will reply soon</string>

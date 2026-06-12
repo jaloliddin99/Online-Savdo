@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Sotiq</string>
+    <string name="app_name">Selling Uz</string>
     <string name="top_home">Bosh sahifa</string>
     <string name="chat_page">Mahsulot yaratish</string>
     <string name="settings_page">Sozlamalar sahifasi</string>
@@ -175,7 +175,12 @@
     <string name="channel_news_desc">Selling.uz yangiliklari</string>
     <string name="channel_my_ads">Mening e\'lonlarim</string>
     <string name="channel_my_ads_desc">E\'lonlaringiz moderatsiyasi, topga chiqishi va muddati</string>
-        <string name="help_title">Yordam</string>
+        <string name="nav_home">Asosiy</string>
+    <string name="nav_my_posts">E\'lonlarim</string>
+    <string name="nav_add">Joylash</string>
+    <string name="nav_saved">Saqlangan</string>
+    <string name="nav_profile">Profil</string>
+    <string name="help_title">Yordam</string>
     <string name="faq_title">Ko\'p so\'raladigan savollar</string>
     <string name="contact_support_title">Qo‘llab-quvvatlash xizmati</string>
     <string name="contact_support_subtitle">Muammoingizni yozing, tez orada javob beramiz</string>
