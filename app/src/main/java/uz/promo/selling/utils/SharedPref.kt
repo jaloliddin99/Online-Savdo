@@ -24,4 +24,7 @@ object SharedPref: KotprefModel() {
 
     var fcmToken by stringPref()
 
+    // Device-side news opt-out (FCM topic "all" subscription).
+    var newsNotifications by booleanPref(true)
+
 }

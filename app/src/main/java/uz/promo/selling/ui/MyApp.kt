@@ -408,9 +408,17 @@ fun NavigationGraph(
                 )
             }
 
-            composable(route = Screen.Notifications.route) {
+            composable(
+                route = Screen.Notifications.route,
+                deepLinks = listOf(
+                    navDeepLink { uriPattern = "selling://open/notifications" },
+                )
+            ) {
                 NotificationsRoute(
-                    onBackClick = navController::popBackStack
+                    onBackClick = navController::popBackStack,
+                    onPostClick = {
+                        navController.navigate(Screen.ProductDetails(it).route)
+                    }
                 )
             }
 
@@ -466,7 +474,16 @@ fun NavigationGraph(
                     },
                     toNotifications = {
                         navController.navigate(Screen.Notifications.route)
+                    },
+                    toNotificationSettings = {
+                        navController.navigate(Screen.NotificationSettings.route)
                     }
+                )
+            }
+
+            composable(route = Screen.NotificationSettings.route) {
+                uz.promo.selling.ui.main.profile.NotificationSettingsRoute(
+                    onBackClick = navController::popBackStack
                 )
             }
 
@@ -761,6 +778,9 @@ fun NavigationGraph(
                     navArgument("conversationId") {
                         type = NavType.LongType
                     }
+                ),
+                deepLinks = listOf(
+                    navDeepLink { uriPattern = "selling://open/chat/{conversationId}" },
                 )
             ) { backStackEntry ->
                 val conversationId = backStackEntry.arguments?.getLong("conversationId")

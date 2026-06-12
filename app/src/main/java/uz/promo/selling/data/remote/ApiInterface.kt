@@ -168,6 +168,39 @@ interface ApiInterface {
         @Query("period") periodInHours: Int
     ): ModelSuccess
 
+    @GET("user/notification-prefs")
+    suspend fun getNotificationPrefs(
+        @Header("Authorization") token: String,
+        @Query("lang") lang: String = SharedPref.language
+    ): GenericModel<uz.promo.selling.data.remote.models.inbox.NotificationPrefs>
+
+    @POST("user/notification-prefs")
+    suspend fun updateNotificationPrefs(
+        @Header("Authorization") token: String,
+        @Body body: Map<String, Boolean>,
+        @Query("lang") lang: String = SharedPref.language
+    ): ModelSuccess
+
+    @GET("user-notifications")
+    suspend fun getUserNotifications(
+        @Header("Authorization") token: String,
+        @Query("page") page: Int,
+        @Query("size") size: Int = 20,
+        @Query("lang") lang: String = SharedPref.language
+    ): GenericModel<uz.promo.selling.data.remote.models.inbox.UserNotificationPage>
+
+    @GET("user-notifications/unread-count")
+    suspend fun getUnreadNotificationCount(
+        @Header("Authorization") token: String,
+        @Query("lang") lang: String = SharedPref.language
+    ): GenericModel<uz.promo.selling.data.remote.models.inbox.UnreadCountRes>
+
+    @POST("user-notifications/read-all")
+    suspend fun markNotificationsRead(
+        @Header("Authorization") token: String,
+        @Query("lang") lang: String = SharedPref.language
+    ): ModelSuccess
+
     @GET("payments/tariffs")
     suspend fun getBoostTariffs(
         @Query("lang") lang: String = SharedPref.language

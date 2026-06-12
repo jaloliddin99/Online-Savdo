@@ -81,6 +81,16 @@ fun ChatDetailRoute(
     navigateBack: () -> Unit,
     viewModel: ChatDetailViewModel = hiltViewModel()
 ) {
+    // While this thread is open, suppress its push notifications.
+    androidx.compose.runtime.DisposableEffect(conversationId) {
+        uz.promo.selling.utils.ChatPresence.activeConversationId = conversationId
+        onDispose {
+            if (uz.promo.selling.utils.ChatPresence.activeConversationId == conversationId) {
+                uz.promo.selling.utils.ChatPresence.activeConversationId = -1L
+            }
+        }
+    }
+
     // Load once, keep a live WebSocket for instant updates, and poll as a
     // safety net (slow while the socket is healthy, fast when it isn't).
     LaunchedEffect(conversationId) {

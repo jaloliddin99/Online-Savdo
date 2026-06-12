@@ -32,6 +32,7 @@ import androidx.compose.material.icons.filled.Help
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Warning
@@ -104,6 +105,7 @@ fun ProfileRoute(
     goToRegistration: () -> Unit,
     restartApp: () -> Unit,
     toNotifications: () -> Unit = {},
+    toNotificationSettings: () -> Unit = {},
     onSettingsClick: () -> Unit = {}
 ) {
     val viewModel = hiltViewModel<ProfileViewModel>()
@@ -134,7 +136,8 @@ fun ProfileRoute(
                 viewModel.updateProfileImage(it)
             },
             restartApp = restartApp,
-            toNotifications = toNotifications
+            toNotifications = toNotifications,
+            toNotificationSettings = toNotificationSettings
         )
     }
 }
@@ -150,7 +153,8 @@ fun ProfileScreen(
     goToRegistration: () -> Unit,
     uploadImage: (ImageUrl) -> Unit,
     restartApp: () -> Unit,
-    toNotifications: () -> Unit = {}
+    toNotifications: () -> Unit = {},
+    toNotificationSettings: () -> Unit = {}
 ) {
     val context = LocalContext.current
 
@@ -235,7 +239,8 @@ fun ProfileScreen(
                 ProfileUpdatePasswordAndProfile(
                     updateProfile = toUpdateProfile,
                     updatePassword = toUpdatePassword,
-                    toNotifications = toNotifications
+                    toNotifications = toNotifications,
+                    toNotificationSettings = toNotificationSettings
                 )
             }
             ProfileSection(title = stringResource(id = R.string.section_support)) {
@@ -358,7 +363,8 @@ fun AboutAppAndContactWithUs() {
 fun ProfileUpdatePasswordAndProfile(
     updateProfile: () -> Unit,
     updatePassword: () -> Unit,
-    toNotifications: () -> Unit
+    toNotifications: () -> Unit,
+    toNotificationSettings: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -389,6 +395,17 @@ fun ProfileUpdatePasswordAndProfile(
             imageVector = Icons.Filled.Notifications,
             title = stringResource(id = R.string.notifications),
             onItemClicked = toNotifications
+        )
+        Divider(
+            modifier = Modifier
+                .padding(horizontal = 24.dp)
+                .clip(CircleShape),
+            thickness = 0.5.dp
+        )
+        ProfileColumnItem(
+            imageVector = Icons.Filled.NotificationsActive,
+            title = stringResource(id = R.string.notif_settings),
+            onItemClicked = toNotificationSettings
         )
     }
 }
