@@ -171,6 +171,13 @@
     <string name="sort_popular">Most viewed</string>
     <string name="something_went_wrong">Something went wrong</string>
     <string name="prioritize">Promote to top</string>
+    <string name="boost_title">Promote to top</string>
+    <string name="boost_subtitle">Your ad will be shown above others</string>
+    <string name="pay_with_payme">Pay with Payme</string>
+    <string name="pay_with_click">Pay with Click</string>
+    <string name="payment_failed">Could not create the payment</string>
+    <string name="hours_short">h</string>
+    <string name="uzs">UZS</string>
     <string name="top">Top</string>
     <string name="it_is_already_prioritized">This post is already prioritized</string>
     <string name="sign_in_with_google">Sign in with Google</string>

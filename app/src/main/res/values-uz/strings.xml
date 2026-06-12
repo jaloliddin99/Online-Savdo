@@ -166,6 +166,13 @@
     <string name="sort_popular">Eng ko\'p ko\'rilgan</string>
     <string name="something_went_wrong">Xatolik yuz berdi</string>
     <string name="prioritize">Topga chiqarish</string>
+    <string name="boost_title">Topga chiqarish</string>
+    <string name="boost_subtitle">E\'loningiz boshqalardan yuqorida ko\'rinadi</string>
+    <string name="pay_with_payme">Payme orqali to\'lash</string>
+    <string name="pay_with_click">Click orqali to\'lash</string>
+    <string name="payment_failed">To\'lovni yaratib bo\'lmadi</string>
+    <string name="hours_short">soat</string>
+    <string name="uzs">so\'m</string>
     <string name="top">Top</string>
     <string name="it_is_already_prioritized">Bu post allaqachon topda</string>
     <string name="sign_in_with_google">Google orqali kirish</string>

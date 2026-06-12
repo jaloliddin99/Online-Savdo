@@ -555,6 +555,15 @@ fun NavigationGraph(
                     }
                 }
 
+                // Google sign-in failures were previously silent — surface them.
+                LaunchedEffect(googleState.error) {
+                    if (googleState.error.isNotBlank()) {
+                        android.widget.Toast.makeText(
+                            context, googleState.error, android.widget.Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+
                 val brandingModifier = Modifier.sharedBounds(
                     sharedContentState = rememberSharedContentState(key = "auth_branding"),
                     animatedVisibilityScope = this@composable
@@ -597,6 +606,15 @@ fun NavigationGraph(
                     }
                 }
 
+                // Google sign-in failures were previously silent — surface them.
+                LaunchedEffect(googleState.error) {
+                    if (googleState.error.isNotBlank()) {
+                        android.widget.Toast.makeText(
+                            context, googleState.error, android.widget.Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+
                 val brandingModifier = Modifier.sharedBounds(
                     sharedContentState = rememberSharedContentState(key = "auth_branding"),
                     animatedVisibilityScope = this@composable
@@ -608,6 +626,13 @@ fun NavigationGraph(
                     },
                     forgotPassword = {
                         navController.navigate(Screen.ForgotPassword(true).route)
+                    },
+                    onSignUpPage = {
+                        // Sign-up lives on the Welcome screen; go back to it if
+                        // it's on the stack, otherwise open it fresh.
+                        if (!navController.popBackStack(Screen.Welcome.route, false)) {
+                            navController.navigate(Screen.Welcome.route)
+                        }
                     },
                     onGoogleSignIn = { googleAuthVM.signInWithGoogle(context) },
                     brandingModifier = brandingModifier

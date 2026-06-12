@@ -13,7 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -110,12 +111,20 @@ private fun ChatListScreen(
 
             else -> {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(items = state.items, key = { it.id }) { conversation ->
+                    itemsIndexed(items = state.items, key = { _, c -> c.id }) { index, conversation ->
                         ConversationRow(
                             conversation = conversation,
                             onClick = { onConversationClick(conversation.id) },
                             onLongClick = { deleteId = conversation.id }
                         )
+                        if (index < state.items.lastIndex) {
+                            HorizontalDivider(
+                                // Indent past the avatar, WhatsApp-style.
+                                modifier = Modifier.padding(start = 84.dp, end = 16.dp),
+                                thickness = 0.5.dp,
+                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f)
+                            )
+                        }
                     }
                 }
             }

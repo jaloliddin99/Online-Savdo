@@ -11,6 +11,7 @@ import uz.promo.selling.data.remote.models.LoginBody
 fun SignInRoute(
     navigateToVerification: (email: String) -> Unit,
     forgotPassword: () -> Unit,
+    onSignUpPage: () -> Unit = {},
     onGoogleSignIn: () -> Unit = {},
     brandingModifier: Modifier = Modifier
 ) {
@@ -37,6 +38,7 @@ fun SignInRoute(
         state = state.value,
         loginSuccess = {},
         forgotPassword = forgotPassword,
+        onSignUpPage = onSignUpPage,
         onGoogleSignIn = onGoogleSignIn,
         brandingModifier = brandingModifier
     )

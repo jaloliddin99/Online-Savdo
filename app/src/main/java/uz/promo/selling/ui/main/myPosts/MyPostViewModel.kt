@@ -1,7 +1,9 @@
 package uz.promo.selling.ui.main.myPosts
 
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
@@ -53,6 +55,38 @@ class MyPostViewModel @Inject constructor(
 
     fun setStatusFilter(status: Int?) {
         _selectedStatus.value = status
+    }
+
+    var tariffs by androidx.compose.runtime.mutableStateOf<List<uz.promo.selling.data.remote.models.payments.BoostTariff>>(emptyList())
+        private set
+
+    fun loadTariffs() {
+        if (tariffs.isNotEmpty()) return
+        viewModelScope.launch {
+            try {
+                val res = apiInterface.getBoostTariffs()
+                if (res.success) tariffs = res.data.sortedBy { it.hours }
+            } catch (_: Exception) {
+            }
+        }
+    }
+
+    /** Creates a payment order; onResult gets the checkout URL or null. */
+    fun createBoostOrder(postId: Long, hours: Int, provider: String, onResult: (String?) -> Unit) {
+        viewModelScope.launch {
+            _state.value = MyProfileScreen(isLoading = true)
+            val url = try {
+                val res = apiInterface.createBoostOrder(
+                    token = SharedPref.deviceToken,
+                    body = uz.promo.selling.data.remote.models.payments.BoostOrderBody(postId, hours, provider)
+                )
+                if (res.success) res.data.paymentUrl else null
+            } catch (e: Exception) {
+                null
+            }
+            _state.value = MyProfileScreen()
+            onResult(url)
+        }
     }
 
     fun markPostSold(postId: Long, onDone: (Boolean) -> Unit) {

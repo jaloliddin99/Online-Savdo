@@ -60,6 +60,7 @@ fun SignInScreen(
     state: LoginState,
     loginSuccess: (email: String) -> Unit,
     forgotPassword: () -> Unit,
+    onSignUpPage: () -> Unit = {},
     onGoogleSignIn: () -> Unit = {},
     brandingModifier: Modifier = Modifier
 ) {
@@ -102,6 +103,7 @@ fun SignInScreen(
                     .fillMaxWidth()
                     .padding(bottom = 48.dp),
                 forgotPassword = forgotPassword,
+                onSignUpPage = onSignUpPage,
                 onGoogleSignIn = onGoogleSignIn
             )
         }
@@ -123,6 +125,7 @@ fun SignInToLoginAccount(
     onFocusChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     forgotPassword: () -> Unit,
+    onSignUpPage: () -> Unit = {},
     onGoogleSignIn: () -> Unit = {}
 ) {
     val focusManager = LocalFocusManager.current
@@ -222,7 +225,7 @@ fun SignInToLoginAccount(
 
         // Sign Up link
         DoYouHaveAccount(
-            onTextClicked = { forgotPassword() },
+            onTextClicked = { onSignUpPage() },
             text = R.string.do_you_already_have_account,
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)

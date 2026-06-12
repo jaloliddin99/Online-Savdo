@@ -232,20 +232,41 @@ fun MyPostsScreen(
     }
 
     if (showBottomSheet) {
+        myPostVM.loadTariffs()
         ModalBottomSheet(
             onDismissRequest = {
                 showBottomSheet = false
             },
             sheetState = sheetState
         ) {
-            PrioritizeDialogContent { period ->
-                scope.launch { sheetState.hide() }.invokeOnCompletion {
-                    if (!sheetState.isVisible) {
-                        showBottomSheet = false
-                        myPostVM.updateValues(postId = postId.toLong(), period = period)
+            BoostSheetContent(
+                tariffs = myPostVM.tariffs,
+                busy = updateState.isLoading,
+                onPay = { hours, provider ->
+                    myPostVM.createBoostOrder(postId.toLong(), hours, provider) { url ->
+                        scope.launch { sheetState.hide() }.invokeOnCompletion {
+                            showBottomSheet = false
+                        }
+                        if (url != null) {
+                            try {
+                                context.startActivity(
+                                    android.content.Intent(
+                                        android.content.Intent.ACTION_VIEW,
+                                        android.net.Uri.parse(url)
+                                    )
+                                )
+                            } catch (_: Exception) {
+                            }
+                        } else {
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.payment_failed),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     }
                 }
-            }
+            )
         }
     }
 }

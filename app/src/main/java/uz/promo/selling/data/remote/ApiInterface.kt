@@ -168,6 +168,18 @@ interface ApiInterface {
         @Query("period") periodInHours: Int
     ): ModelSuccess
 
+    @GET("payments/tariffs")
+    suspend fun getBoostTariffs(
+        @Query("lang") lang: String = SharedPref.language
+    ): GenericModel<List<uz.promo.selling.data.remote.models.payments.BoostTariff>>
+
+    @POST("payments/boost-order")
+    suspend fun createBoostOrder(
+        @Header("Authorization") token: String,
+        @Body body: uz.promo.selling.data.remote.models.payments.BoostOrderBody,
+        @Query("lang") lang: String = SharedPref.language
+    ): GenericModel<uz.promo.selling.data.remote.models.payments.BoostOrderRes>
+
     @POST("post/{id}/mark-sold")
     suspend fun markPostSold(
         @Header("Authorization") token: String,
