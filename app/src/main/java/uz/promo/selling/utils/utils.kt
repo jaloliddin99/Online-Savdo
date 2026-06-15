@@ -23,6 +23,13 @@ fun formatNumberWithSpaces(numberStr: String?): String {
     val formatter = DecimalFormat("#,###", symbols)
     return formatter.format(numberStr.toLong())
 }
+/**
+ * OLX-imported descriptions contain literal `<br />` tags. Turn them into real
+ * line breaks so the text renders cleanly instead of showing the raw tag.
+ */
+fun stripHtmlBreaks(text: String): String =
+    text.replace(Regex("<br\\s*/?>", RegexOption.IGNORE_CASE), "\n")
+
 fun openSmsApp(context: Context, phoneNumber: String) {
     val smsUri = Uri.parse("smsto:$phoneNumber")
     val smsIntent = Intent(Intent.ACTION_SENDTO, smsUri)

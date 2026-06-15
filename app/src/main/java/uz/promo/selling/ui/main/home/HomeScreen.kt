@@ -22,7 +22,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.Card
@@ -101,7 +101,9 @@ fun HomeScreen(
     val state = homeViewModel.state.value
     val stateNear = homeViewModel.stateNear.value
     val products = homeViewModel.productsFlow.collectAsLazyPagingItems()
-    val scrollState = remember { LazyGridState() }
+    // rememberSaveable-backed: survives the tab-switch composition teardown so we
+    // restore the previous scroll position instead of re-measuring from item 0.
+    val scrollState = rememberLazyGridState()
 
     val context = LocalContext.current
 

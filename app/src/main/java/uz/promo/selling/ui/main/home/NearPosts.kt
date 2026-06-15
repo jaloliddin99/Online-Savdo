@@ -53,13 +53,15 @@ fun NearPosts(
                 rememberScrollState()
             )
     ) {
-        state.forEachIndexed { index, item ->
+        // Near posts is a quick "around you" strip, not a full feed — cap it at 15.
+        val items = state.take(15)
+        items.forEachIndexed { index, item ->
             Spacer(modifier = modifier.width(MaterialTheme.spacing.dimen8Dp))
             NearPostItem(
                 item = item,
                 navigateToCategory = navigateToCategory
             )
-            if (index == state.lastIndex) {
+            if (index == items.lastIndex) {
                 Spacer(modifier = modifier.width(MaterialTheme.spacing.dimen8Dp))
             }
         }
@@ -90,7 +92,9 @@ fun NearPostItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
-            val url = "${BuildConfig.BASE_URL}post/image/${item.image.imagePath}?size=thumb"
+            val url = item.image?.imagePath?.let {
+                "${BuildConfig.BASE_URL}post/image/$it?size=thumb"
+            }
             val showShimmer = remember { mutableStateOf(true) }
 
             AsyncImage(

@@ -263,8 +263,13 @@ fun NavigationGraph(
                     navigateToProduct = {
                         navController.navigate(Screen.ProductDetails(it).route)
                     },
-                    navigateToCategory = {
-                        navController.navigate(Screen.FilterCategory(it).route)
+                    navigateToCategory = { parentId ->
+                        // Tapping a parent category opens Search with all of its
+                        // child categories preselected (like ticking the parent in
+                        // the category picker) and runs the search.
+                        navController.navigate(Screen.Search.route)
+                        navController.getBackStackEntry(Screen.Search.route)
+                            .savedStateHandle["preselect_parent_category_id"] = parentId
                     },
                     onSearchClick = { appState.navigateToSearch() },
                     onMapClick = {
@@ -536,6 +541,8 @@ fun NavigationGraph(
             ) { entry ->
                 val mapData = entry.savedStateHandle.get<MapScreenData>("map_search_data")
                 val categoryItem = entry.savedStateHandle.get<CategoryItem>("category_item")
+                val preselectParentId =
+                    entry.savedStateHandle.get<Int>("preselect_parent_category_id")
                 val searchBarModifier = Modifier.sharedBounds(
                     sharedContentState = rememberSharedContentState(key = "search_bar"),
                     animatedVisibilityScope = this@composable
@@ -553,6 +560,7 @@ fun NavigationGraph(
                     },
                     mapSearchData = mapData,
                     categoryItem = categoryItem,
+                    preselectParentCategoryId = preselectParentId,
                     searchBarModifier = searchBarModifier,
                 )
             }

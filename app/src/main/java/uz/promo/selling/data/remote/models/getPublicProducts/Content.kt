@@ -3,7 +3,8 @@ package uz.promo.selling.data.remote.models.getPublicProducts
 data class Content(
     val createdDate: String,
     val id: Int,
-    val image: Image,
+    // Nullable: posts with no images (e.g. some OLX imports) send null here.
+    val image: Image? = null,
     val likes: Int,
     val price: String,
     val priceUnit: String,

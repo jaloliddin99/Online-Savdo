@@ -84,6 +84,7 @@ import uz.promo.selling.utils.SharedPref
 import android.widget.Toast
 import uz.promo.selling.utils.callTo
 import uz.promo.selling.utils.openSmsApp
+import uz.promo.selling.utils.stripHtmlBreaks
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -174,6 +175,9 @@ fun ProductDetailsScreen(
 
     val isFeedLoading = state.isLoading
     val data = state.registerMain
+    // The bottom action bar only shows for the post owner; only reserve space for
+    // it in that case so other viewers don't get a large empty gap at the bottom.
+    val isOwner = data?.user?.id == SharedPref.userId
 
     val pagerState = rememberPagerState(pageCount = {
         state.registerMain?.images?.size ?: 0
@@ -198,7 +202,7 @@ fun ProductDetailsScreen(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(bottom = 80.dp)
+                    .padding(bottom = if (isOwner) 80.dp else 0.dp)
             ) {
                 // Image pager
                 item(key = "image_pager") {
@@ -263,9 +267,9 @@ fun ProductDetailsScreen(
                     }
                 }
 
-                // Bottom spacing
+                // Bottom spacing — small breathing room + system nav bar inset.
                 item(key = "bottom_spacer") {
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
                     NavigationBarSpacer()
                 }
             }
@@ -506,7 +510,7 @@ private fun DescriptionSection(description: String) {
         SectionHeader(title = stringResource(id = R.string.description))
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = description,
+            text = stripHtmlBreaks(description),
             fontFamily = robotoFontFamily,
             fontWeight = FontWeight.Normal,
             fontSize = 15.sp,

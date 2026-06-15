@@ -43,6 +43,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.unit.sp
@@ -81,6 +82,7 @@ fun SearchRoute(
     onCategoryClick: () -> Unit = {},
     mapSearchData: MapScreenData? = null,
     categoryItem: CategoryItem? = null,
+    preselectParentCategoryId: Int? = null,
     searchBarModifier: Modifier = Modifier,
 ) {
     SearchScreen(
@@ -91,6 +93,7 @@ fun SearchRoute(
         onCategoryClick = onCategoryClick,
         mapSearchData = mapSearchData,
         categoryItem = categoryItem,
+        preselectParentCategoryId = preselectParentCategoryId,
         searchBarModifier = searchBarModifier,
     )
 }
@@ -106,6 +109,7 @@ fun SearchScreen(
     onCategoryClick: () -> Unit = {},
     mapSearchData: MapScreenData? = null,
     categoryItem: CategoryItem? = null,
+    preselectParentCategoryId: Int? = null,
     searchBarModifier: Modifier = Modifier,
 ) {
 
@@ -197,6 +201,29 @@ fun SearchScreen(
             )
             triggerSearch(searchTextListener)
         }
+    }
+
+    // Opened from a parent category on Home: preselect every leaf child of that
+    // parent (same as ticking the parent in the category picker) and search.
+    val parentPreselectApplied = rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(preselectParentCategoryId) {
+        if (preselectParentCategoryId != null && !parentPreselectApplied.value) {
+            searchResultViewModel.loadAllCategories()
+        }
+    }
+    LaunchedEffect(preselectParentCategoryId, searchResultViewModel.allCategories) {
+        val parentId = preselectParentCategoryId ?: return@LaunchedEffect
+        if (parentPreselectApplied.value) return@LaunchedEffect
+        val parent = searchResultViewModel.allCategories
+            ?.firstOrNull { it.id == parentId } ?: return@LaunchedEffect
+        val leaves = collectLeafCategories(parent)
+        if (leaves.isEmpty()) return@LaunchedEffect
+        myFilter = myFilter.copy(
+            categoryIds = leaves.map { it.id.toLong() },
+            categoryNames = leaves.map { it.title }
+        )
+        parentPreselectApplied.value = true
+        triggerSearch(searchTextListener)
     }
 
     val hasSearched = searchResultViewModel.hasSearched
@@ -485,4 +512,12 @@ fun SearchScreen(
         }
     }
 }
+
+/**
+ * Flattens a category subtree to its leaf categories (the ones posts are actually
+ * assigned to). Mirrors how the picker expands a parent selection to leaf ids.
+ */
+private fun collectLeafCategories(item: CategoryItem): List<CategoryItem> =
+    if (item.children.isEmpty()) listOf(item)
+    else item.children.flatMap { collectLeafCategories(it) }
 

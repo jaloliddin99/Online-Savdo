@@ -4,6 +4,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -45,7 +46,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.constraintlayout.compose.ConstraintLayout
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import uz.promo.selling.BuildConfig
@@ -134,30 +134,33 @@ fun ProductItemDetails(
             mutableStateOf(true)
         }
 
-        val url = "${BuildConfig.BASE_URL}post/image/${data.image.imagePath}?size=thumb"
+        // Null-safe: a post may have no image (some imports). Coil shows the
+        // shimmer/placeholder background instead of crashing.
+        val url = data.image?.imagePath?.let {
+            "${BuildConfig.BASE_URL}post/image/$it?size=thumb"
+        }
 
-        ConstraintLayout(
+        // Build the request once per url instead of on every recomposition — this is
+        // re-created for every visible card when the Home tab is re-entered.
+        val context = LocalContext.current
+        val imageRequest = remember(url) {
+            ImageRequest.Builder(context)
+                .data(url)
+                .crossfade(true)
+                .build()
+        }
+
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(180.dp)
         ) {
-            val (imageRef, likeRef, textRef, pendingRef, prioritized) = createRefs()
-
             AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(url)
-                    .crossfade(true)
-                    .build(),
+                model = imageRequest,
                 contentScale = ContentScale.Crop,
                 contentDescription = "Loaded Image",
                 modifier = Modifier
                     .fillMaxSize()
-                    .constrainAs(imageRef) {
-                        top.linkTo(parent.top)
-                        bottom.linkTo(parent.bottom)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                    }
                     .background(LocalCustomColors.current.imageBackgroundColor)
                     .background(shimmerBrush(targetValue = 1300f, showShimmer = isLoading)),
                 onSuccess = { isLoading = false },
@@ -167,29 +170,23 @@ fun ProductItemDetails(
             if (isLiked) {
                 Icon(
                     modifier = Modifier
-                        .size(24.dp)
-                        .constrainAs(likeRef) {
-                            top.linkTo(parent.top, margin = 8.dp)
-                            end.linkTo(parent.end, margin = 8.dp)
-                        },
+                        .align(Alignment.TopEnd)
+                        .padding(8.dp)
+                        .size(24.dp),
                     painter = painterResource(id = R.drawable.heart_filled),
                     contentDescription = "Like",
                     tint = Color.White
                 )
             }
 
-
-
             data.condition?.let {
                 Text(
                     text = it,
                     modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(4.dp)
                         .clip(RoundedCornerShape(50))
                         .background(MaterialTheme.colorScheme.primaryContainer)
-                        .constrainAs(textRef) {
-                            bottom.linkTo(parent.bottom, margin = 4.dp)
-                            start.linkTo(parent.start, margin = 4.dp)
-                        }
                         .padding(horizontal = 4.dp, vertical = 4.dp),
                     color = Color.White,
                     fontFamily = robotoFontFamily,
@@ -206,12 +203,9 @@ fun ProductItemDetails(
                 Text(
                     text = stringResource(id = R.string.top),
                     modifier = Modifier
+                        .align(Alignment.TopStart)
                         .clip(RoundedCornerShape(topStart = 12.dp, bottomEnd = 12.dp))
                         .background(MaterialTheme.colorScheme.primary)
-                        .constrainAs(prioritized) {
-                            top.linkTo(parent.top)
-                            start.linkTo(parent.start)
-                        }
                         .padding(start = 6.dp, end = 6.dp, top = 1.dp, bottom = 2.dp),
                     color = Color.White,
                     fontFamily = robotoFontFamily,
@@ -230,12 +224,10 @@ fun ProductItemDetails(
                         }
                     ),
                     modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(4.dp)
                         .clip(RoundedCornerShape(50))
                         .background(MaterialTheme.colorScheme.primary)
-                        .constrainAs(pendingRef) {
-                            bottom.linkTo(parent.bottom, margin = 4.dp)
-                            end.linkTo(parent.end, margin = 4.dp)
-                        }
                         .padding(start = 4.dp, end = 4.dp, top = 1.dp, bottom = 2.dp),
                     color = Color.White,
                     fontFamily = robotoFontFamily,
