@@ -33,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.compose.ui.Alignment
@@ -108,10 +109,16 @@ fun HomeScreen(
     val context = LocalContext.current
 
     val chatUnreadViewModel: uz.promo.selling.ui.chat.ChatUnreadViewModel = androidx.hilt.navigation.compose.hiltViewModel()
-    LaunchedEffect(Unit) {
-        while (true) {
-            chatUnreadViewModel.refresh()
-            kotlinx.coroutines.delay(15000)
+    // Poll the unread count only while Home is actually resumed on-screen.
+    // repeatOnLifecycle cancels the loop when the app is backgrounded or the user
+    // switches tabs, and restarts it on return — no background battery/data drain.
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.RESUMED) {
+            while (true) {
+                chatUnreadViewModel.refresh()
+                kotlinx.coroutines.delay(15000)
+            }
         }
     }
 
