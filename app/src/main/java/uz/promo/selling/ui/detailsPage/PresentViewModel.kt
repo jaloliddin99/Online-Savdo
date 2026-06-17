@@ -32,7 +32,9 @@ class PresentViewModel @Inject constructor(
 ): ViewModel() {
 
     val similarProducts: Flow<PagingData<Content>> = Pager(
-        config = PagingConfig(pageSize = 20, enablePlaceholders = false),
+        // Offset-based backend: initialLoadSize must equal pageSize so page offsets
+        // stay consistent and don't cause runaway appends. See HomeViewModel.
+        config = PagingConfig(pageSize = 20, initialLoadSize = 20, enablePlaceholders = false),
         pagingSourceFactory = { ProductsPagingSource(apiInterface) }
     ).flow.cachedIn(viewModelScope)
 

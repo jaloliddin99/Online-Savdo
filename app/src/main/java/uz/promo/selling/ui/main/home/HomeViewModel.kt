@@ -116,6 +116,14 @@ class HomeViewModel @Inject constructor(
             Pager(
                 config = PagingConfig(
                     pageSize = 20,
+                    // The backend is offset-based (offset = page * size). Paging 3's default
+                    // initialLoadSize is 3 * pageSize (60), so the first request asks for
+                    // size=60 while every append asks for size=20 — the offsets then overlap
+                    // (page=1&size=20 -> offset 20, already inside the first page), producing
+                    // duplicate items. The grid never fills with new content, so it keeps
+                    // firing append after append (page 6, 7, 8, ...) without the user scrolling.
+                    // Keeping initialLoadSize == pageSize makes size constant across all loads.
+                    initialLoadSize = 20,
                     enablePlaceholders = false
                 ),
                 pagingSourceFactory = {

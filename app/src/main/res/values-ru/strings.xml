@@ -70,6 +70,7 @@
     <string name="technical_assistance">Техническая помощь</string>
     <string name="logout">Выйти</string>
     <string name="nothing_found_for_for_search">Ничего не найдено для вашего запроса</string>
+    <string name="no_posts_for_location">Рядом с вами нет объявлений. Попробуйте обновить местоположение или указать больший радиус.</string>
     <string name="all_posts">Все посты</string>
     <string name="firstName">Имя</string>
     <string name="lastName">Фамилия</string>

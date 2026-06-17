@@ -69,6 +69,36 @@ fun NearPosts(
 }
 
 
+@Composable
+fun NearPostsEmpty(
+    modifier: Modifier = Modifier
+) {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        shape = RoundedCornerShape(MaterialTheme.spacing.dimen12Dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(
+                start = MaterialTheme.spacing.dimen8Dp,
+                end = MaterialTheme.spacing.dimen8Dp
+            )
+    ) {
+        Text(
+            text = stringResource(id = R.string.no_posts_for_location),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(MaterialTheme.spacing.dimen12Dp),
+            textAlign = TextAlign.Center,
+            fontFamily = robotoFontFamily,
+            fontWeight = FontWeight.Normal,
+            fontSize = 13.sp,
+            lineHeight = 18.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NearPostItem(

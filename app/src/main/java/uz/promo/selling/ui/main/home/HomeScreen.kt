@@ -220,12 +220,18 @@ fun HomeScreen(
                         homeViewModel.locationObserve()
                         homeViewModel.startLocationUpdates()
                     }
-                    stateNear.getNearPost?.let { nearPosts ->
-                        NearPosts(
+                    val nearPosts = stateNear.getNearPost
+                    when {
+                        // Still loading (no response yet) — keep the shimmer.
+                        nearPosts == null -> ShimmerNearPostsRow()
+                        // Loaded, but the backend returned an empty list. Previously this
+                        // rendered nothing at all; show an explanatory message instead.
+                        nearPosts.isEmpty() -> NearPostsEmpty()
+                        else -> NearPosts(
                             state = nearPosts,
                             navigateToCategory = navigateToProduct
                         )
-                    } ?: ShimmerNearPostsRow()
+                    }
                 }
             }
 
@@ -249,7 +255,13 @@ fun HomeScreen(
             } else {
                 items(
                     count = products.itemCount,
-                    key = { products[it]?.id ?: it }
+                    // Use peek() here, NOT products[it]. The grid resolves the key lambda
+                    // for a window of items beyond the viewport; products[it] calls get(),
+                    // which registers a Paging access and triggers an append. That append
+                    // grows itemCount, the key lambda runs at the new edge, calls get()
+                    // again, and the feed eagerly loads every page to the end without the
+                    // user scrolling. peek() returns the item without triggering a load.
+                    key = { index -> products.peek(index)?.id ?: index }
                 ) { i ->
                     products[i]?.let { item ->
                         ProductItem(item, onItemClicked = navigateToProduct, onItemLongLicked = {})

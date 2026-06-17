@@ -86,7 +86,9 @@ fun FilterCategoryScreen(
         ) {
             items(
                 count = products.itemCount,
-                key = { products[it]?.id ?: it }
+                // peek() avoids triggering a Paging load during key resolution, which
+                // would otherwise eagerly load every page. See HomeScreen.
+                key = { index -> products.peek(index)?.id ?: index }
             ) { i ->
                 products[i]?.let { item ->
                     ProductItem(item, onItemClicked = onItemClicked, onItemLongLicked = {})

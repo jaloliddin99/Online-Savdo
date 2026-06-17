@@ -85,6 +85,7 @@ import uz.promo.selling.ui.theme.AppGradientBackground
 import uz.promo.selling.ui.theme.GradientColors
 import uz.promo.selling.ui.theme.LocalGradientColors
 import uz.promo.selling.utils.AuthEvent
+import uz.promo.selling.utils.FreeLoading
 import uz.promo.selling.utils.SharedPref
 
 private val BOTTOM_BAR_ROUTES = setOf(
@@ -614,6 +615,10 @@ fun NavigationGraph(
                     onGoogleSignIn = { googleAuthVM.signInWithGoogle(context) },
                     brandingModifier = brandingModifier
                 )
+
+                // Visual feedback while the Google token exchange + profile check run,
+                // so the screen isn't frozen-looking after the account picker closes.
+                FreeLoading(googleState.isLoading, paddingTop = 64.dp)
             }
 
             composable(
@@ -672,6 +677,10 @@ fun NavigationGraph(
                     onGoogleSignIn = { googleAuthVM.signInWithGoogle(context) },
                     brandingModifier = brandingModifier
                 )
+
+                // Visual feedback while the Google token exchange + profile check run,
+                // so the screen isn't frozen-looking after the account picker closes.
+                FreeLoading(googleState.isLoading, paddingTop = 64.dp)
             }
 
             composable(route = Screen.CompleteProfile.route) {

@@ -70,6 +70,7 @@
     <string name="technical_assistance">Texnik yordam</string>
     <string name="logout">Chiqish</string>
     <string name="nothing_found_for_for_search">Qidirganingiz uchun hech nima topilmadi</string>
+    <string name="no_posts_for_location">Yaqin atrofda e\'lonlar topilmadi. Joylashuvni yangilang yoki kengroq radius tanlang.</string>
     <string name="all_posts">Barcha e\'lonlar</string>
     <string name="firstName">Ismingiz</string>
     <string name="lastName">Familiyangiz</string>

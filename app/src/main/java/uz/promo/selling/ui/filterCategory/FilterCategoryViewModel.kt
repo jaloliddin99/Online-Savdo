@@ -23,7 +23,9 @@ class FilterCategoryViewModel @Inject constructor(
     private val categoryId: Int? = savedStateHandle.get<Int>("param")
 
     val products: Flow<PagingData<Content>> = Pager(
-        config = PagingConfig(pageSize = 20, enablePlaceholders = false),
+        // Offset-based backend: initialLoadSize must equal pageSize so page offsets
+        // stay consistent and don't cause runaway appends. See HomeViewModel.
+        config = PagingConfig(pageSize = 20, initialLoadSize = 20, enablePlaceholders = false),
         pagingSourceFactory = {
             ProductsPagingSource(apiInterface, categoryId = categoryId)
         }

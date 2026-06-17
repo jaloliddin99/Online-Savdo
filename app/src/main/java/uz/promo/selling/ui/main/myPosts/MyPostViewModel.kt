@@ -47,6 +47,9 @@ class MyPostViewModel @Inject constructor(
             Pager(
                 config = PagingConfig(
                     pageSize = 20,
+                    // Offset-based backend: keep size constant across loads so page offsets
+                    // don't overlap and trigger runaway appends. See HomeViewModel.
+                    initialLoadSize = 20,
                     enablePlaceholders = false
                 ),
                 pagingSourceFactory = { MyPostsPagingSource(apiInterface, status) }

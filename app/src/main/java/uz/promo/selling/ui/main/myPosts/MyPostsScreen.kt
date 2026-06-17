@@ -151,7 +151,9 @@ fun MyPostsScreen(
         ) {
             items(
                 count = myPosts.itemCount,
-                key = { myPosts[it]?.id ?: it }
+                // peek() avoids triggering a Paging load during key resolution, which
+                // would otherwise eagerly load every page. See HomeScreen.
+                key = { index -> myPosts.peek(index)?.id ?: index }
             ) { i ->
                 myPosts[i]?.let { item ->
                     ProductItem(
