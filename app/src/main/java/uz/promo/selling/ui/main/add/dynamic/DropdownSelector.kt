@@ -35,8 +35,12 @@ import uz.promo.selling.ui.theme.spacing
 fun DropDownSample(
     param: Parameter,
     onSelectionChanged: (myData: Values) -> Unit,
+    initialKey: String? = null,
 ) {
-    var selected by remember { mutableStateOf<Values?>(null) }
+    // Pre-select the AI-chosen value (matched by key); null when none.
+    var selected by remember {
+        mutableStateOf<Values?>(param.values.firstOrNull { it.key == initialKey })
+    }
     var expanded by remember { mutableStateOf(false) }
     ContentWrapper(parameter = param) {
         OutlinedCard(

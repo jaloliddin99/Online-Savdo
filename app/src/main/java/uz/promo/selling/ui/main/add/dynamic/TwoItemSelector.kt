@@ -24,8 +24,13 @@ import uz.promo.selling.data.remote.models.leak.Values
 fun HorizontalRadioGroup(
     selectedItem: (Values) -> Unit,
     param: Parameter,
+    initialKey: String? = null,
 ) {
-    var option by remember { mutableStateOf<Int?>(null) }
+    // Pre-select the AI-chosen value (matched by key); null when none.
+    val initialIndex = remember(initialKey) {
+        param.values.indexOfFirst { it.key == initialKey }.takeIf { it >= 0 }
+    }
+    var option by remember { mutableStateOf<Int?>(initialIndex) }
 
     ContentWrapper(parameter = param) {
         OutlinedCard {

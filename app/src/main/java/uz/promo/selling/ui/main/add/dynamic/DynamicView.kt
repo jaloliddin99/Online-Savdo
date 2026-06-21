@@ -23,11 +23,16 @@ fun DynamicView(
     val keyboardController = LocalSoftwareKeyboardController.current
 
     list.forEach { param ->
+        // AI-prefilled value for this param (only when marked valid by the AI merge).
+        val prefilled = localParams[param.code]?.takeIf { it.isValid }
+        val prefilledKey = prefilled?.post_value?.firstOrNull()?.key
+        val prefilledText = prefilled?.post_value?.firstOrNull()?.label_uz
         when (param.type) {
             DynamicView.TYPE_ENUM.type -> {
                 if (param.values.size > 2) {
                     DropDownSample(
                         param,
+                        initialKey = prefilledKey,
                         onSelectionChanged = { value ->
                             sendData(
                                 localParams,
@@ -53,14 +58,15 @@ fun DynamicView(
                                 paramListener.invoke(it)
                             }
                         },
-                        param = param
+                        param = param,
+                        initialKey = prefilledKey
                     )
                 }
             }
 
             DynamicView.TYPE_NUMBER.type, DynamicView.TYPE_DIGIT.type -> {
                 val textFieldState by remember {
-                    mutableStateOf(DynamicViewState(regex = param.validation))
+                    mutableStateOf(DynamicViewState(txt = prefilledText, regex = param.validation))
                 }
                 localParams.forEach { (s, dynamicViewData) ->
                     if (param.code == s) {

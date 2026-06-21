@@ -21,6 +21,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -55,6 +56,8 @@ fun AiCreateFlow(
     val state = viewModel.state.value
     var images by remember { mutableStateOf(viewModel.imageList) }
     var stage by rememberSaveable { mutableStateOf("INPUT") }
+    var showSourceSheet by remember { mutableStateOf(false) }
+    var showCamera by remember { mutableStateOf(false) }
 
     val galleryLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.GetMultipleContents()
@@ -63,8 +66,18 @@ fun AiCreateFlow(
         viewModel.setImageList(images)
     }
 
-    when (stage) {
-        "REVIEW" -> AiReviewScreen(
+    when {
+        showCamera -> CameraCaptureScreen(
+            onImageCaptured = { uri ->
+                images = images + ImageUrl(isFromCamera = true, uri = uri, fakeUri = uri)
+                viewModel.setImageList(images)
+                showCamera = false
+            },
+            onClose = { showCamera = false },
+            modifier = modifier
+        )
+
+        stage == "REVIEW" -> AiReviewScreen(
             viewModel = viewModel,
             item = item,
             images = images,
@@ -92,7 +105,7 @@ fun AiCreateFlow(
             Box {
                 ShowSelectedImages(
                     imagesList = images,
-                    onAddButtonClicked = { galleryLauncher.launch("image/*") },
+                    onAddButtonClicked = { showSourceSheet = true },
                     cancelClicked = { removed ->
                         images = images.filterNot { it == removed }
                         viewModel.setImageList(images)
@@ -140,6 +153,20 @@ fun AiCreateFlow(
                 Text("Back")
             }
         }
+    }
+
+    if (showSourceSheet) {
+        PhotoSourceSheet(
+            onCamera = {
+                showSourceSheet = false
+                showCamera = true
+            },
+            onGallery = {
+                showSourceSheet = false
+                galleryLauncher.launch("image/*")
+            },
+            onDismiss = { showSourceSheet = false }
+        )
     }
 }
 
@@ -262,8 +289,13 @@ private fun AiReviewScreen(
         Spacer(Modifier.height(12.dp))
 
         // Detail fields incl. price — pre-filled by AI (price stays empty for the user).
-        state.categoryDetail?.let { detail ->
-            DynamicView(detail.parameters, dynamicViewData) { dynamicViewData = it }
+        // Gate on a built map so the widgets' first composition already has the AI
+        // values; key by category so changing it rebuilds with fresh pre-fills.
+        val detail = state.categoryDetail
+        if (detail != null && dynamicViewData.isNotEmpty()) {
+            key(categoryId) {
+                DynamicView(detail.parameters, dynamicViewData) { dynamicViewData = it }
+            }
         }
         Spacer(Modifier.height(16.dp))
 

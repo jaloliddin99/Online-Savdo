@@ -142,6 +142,9 @@ dependencies {
 
     implementation("androidx.hilt:hilt-work:1.3.0")
 
-
+    // CameraX — custom in-app camera for the AI posting flow.
+    implementation("androidx.camera:camera-camera2:1.4.1")
+    implementation("androidx.camera:camera-lifecycle:1.4.1")
+    implementation("androidx.camera:camera-view:1.4.1")
 
 }
