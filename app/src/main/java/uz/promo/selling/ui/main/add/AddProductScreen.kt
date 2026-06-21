@@ -26,6 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -57,6 +58,9 @@ fun AddProductRoute(
     goToDetailsPage: () -> Unit,
     goToMapScreen: () -> Unit
 ) {
+    // null = entry chooser, "AI" = AI flow (Phase 2/3), "MANUAL" = current wizard.
+    var mode by rememberSaveable { mutableStateOf<String?>(null) }
+
     Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(
             title = stringResource(R.string.chat_page),
@@ -64,30 +68,49 @@ fun AddProductRoute(
                 containerColor = Color.Transparent
             )
         )
-        AddProductScreen(
-            modifier = modifier.weight(1f),
-            navigateToCategories,
-            item,
-            map,
-            submitProduct = { titleProduct,
-                              descriptionProduct,
-                              categoryId,
-                              images,
-                              mapData,
-                              postParams ->
-                addProductViewModel.postNewProduct(
-                    titleProduct = titleProduct,
-                    descriptionProduct = descriptionProduct,
-                    categoryId = categoryId,
-                    images = images,
-                    mapData = mapData,
-                    postParams = postParams
-                )
-            },
-            addProductViewModel,
-            goToDetailsPage,
-            goToMapScreen
-        )
+        when (mode) {
+            null -> CreatePostChooserView(
+                onCreateWithAi = { mode = "AI" },
+                onCreateManually = { mode = "MANUAL" },
+                modifier = modifier.weight(1f)
+            )
+
+            "AI" -> AiCreateFlow(
+                viewModel = addProductViewModel,
+                item = item,
+                map = map,
+                onLocationClick = goToMapScreen,
+                onChangeCategory = navigateToCategories,
+                onBack = { mode = null },
+                onPublished = goToDetailsPage,
+                modifier = modifier.weight(1f)
+            )
+
+            else -> AddProductScreen(
+                modifier = modifier.weight(1f),
+                navigateToCategories,
+                item,
+                map,
+                submitProduct = { titleProduct,
+                                  descriptionProduct,
+                                  categoryId,
+                                  images,
+                                  mapData,
+                                  postParams ->
+                    addProductViewModel.postNewProduct(
+                        titleProduct = titleProduct,
+                        descriptionProduct = descriptionProduct,
+                        categoryId = categoryId,
+                        images = images,
+                        mapData = mapData,
+                        postParams = postParams
+                    )
+                },
+                addProductViewModel,
+                goToDetailsPage,
+                goToMapScreen
+            )
+        }
     }
 }
 

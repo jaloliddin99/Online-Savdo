@@ -90,21 +90,24 @@ class AddProductScreenViewModel @Inject constructor(
             categoryId = categoryId
         ).onEach { result ->
             when (result) {
+                // copy() (not a fresh state) so the AI draft / loading flags survive
+                // loading a category's detail in the AI review flow.
                 is Resource.Success -> {
-                    _state.value = AddProductScreenState(
+                    _state.value = _state.value.copy(
                         categoryDetail = result.data,
+                        isLoading = false
                     )
                 }
 
                 is Resource.Error -> {
-                    _state.value =
-                        AddProductScreenState(
-                            error = result.message ?: "An unexpected error occurred"
-                        )
+                    _state.value = _state.value.copy(
+                        error = result.message ?: "An unexpected error occurred",
+                        isLoading = false
+                    )
                 }
 
                 is Resource.Loading -> {
-                    _state.value = AddProductScreenState(isLoading = true)
+                    _state.value = _state.value.copy(isLoading = true)
                 }
             }
         }.launchIn(viewModelScope)
@@ -120,28 +123,8 @@ class AddProductScreenViewModel @Inject constructor(
         mapData: MapScreenData,
         postParams: List<PostParamDTO>
     ) {
-        val contentResolver = application.contentResolver
-        val compressedList = ArrayList<File>()
         viewModelScope.launch {
-            for (photoUri in images) {
-                if (!photoUri.isFromCamera) {
-                    getRealPathFromURI(photoUri.uri, application)?.let { photoPath ->
-                        val file = File(photoPath)
-                        val compressedImageFile = Compressor.compress(application, file)
-                        if (compressedImageFile.exists()) {
-                            compressedList.add(compressedImageFile)
-                        }
-                    }
-                } else {
-                    contentResolver.getFileFromUri(photoUri.uri, application)?.let { file ->
-                        val compressedImageFile = Compressor.compress(application, file)
-                        if (compressedImageFile.exists()) {
-                            compressedList.add(compressedImageFile)
-                        }
-                    }
-                }
-            }
-            val fileParts: List<MultipartBody.Part> = convertFilesToMultipart(compressedList)
+            val fileParts: List<MultipartBody.Part> = compressImagesToParts(images)
             val postParamsRequestBody = createPostParamsRequestBody(postParams)
 
             postNewProductUseCase(
@@ -160,23 +143,22 @@ class AddProductScreenViewModel @Inject constructor(
                 when (result) {
                     is Resource.Success -> {
                         clearStoredValues()
-                        _state.value = AddProductScreenState(
+                        _state.value = _state.value.copy(
+                            isLoading = false,
                             postNewProduct = result.data,
                             showSuccessDialog = true
                         )
                     }
 
                     is Resource.Error -> {
-                        _state.value =
-                            AddProductScreenState(
-                                error = result.message ?: "An unexpected error occurred"
-                            )
+                        _state.value = _state.value.copy(
+                            isLoading = false,
+                            error = result.message ?: "An unexpected error occurred"
+                        )
                     }
 
                     is Resource.Loading -> {
-                        _state.value = AddProductScreenState(
-                            isLoading = true,
-                        )
+                        _state.value = _state.value.copy(isLoading = true, error = "")
                     }
                 }
             }.launchIn(viewModelScope)
@@ -214,7 +196,8 @@ class AddProductScreenViewModel @Inject constructor(
     fun generateDraftFromImages(
         images: List<ImageUrl>,
         token: String = SharedPref.deviceToken,
-        lang: String = SharedPref.language.ifBlank { "uz" }
+        lang: String = SharedPref.language.ifBlank { "uz" },
+        onComplete: (Boolean) -> Unit = {}
     ) {
         if (images.isEmpty()) return
         viewModelScope.launch {
@@ -222,16 +205,25 @@ class AddProductScreenViewModel @Inject constructor(
             aiListingDraftUseCase(token, fileParts, lang).onEach { result ->
                 when (result) {
                     is Resource.Loading -> {
-                        _state.value = _state.value.copy(isAiLoading = true)
+                        _state.value = _state.value.copy(isAiLoading = true, error = "")
                     }
 
                     is Resource.Success -> {
-                        val response = result.data?.data
-                        response?.draft?.let { d ->
-                            d.title?.let { titleValue.text = it }
-                            d.description?.let { descriptionVM.text = it }
+                        val envelope = result.data
+                        val response = envelope?.data
+                        // Backend returns HTTP 200 with success=false for quota/disabled.
+                        if (envelope?.success == true && response?.draft != null) {
+                            response.draft.title?.let { titleValue.text = it }
+                            response.draft.description?.let { descriptionVM.text = it }
+                            _state.value = _state.value.copy(isAiLoading = false, aiDraft = response)
+                            onComplete(true)
+                        } else {
+                            _state.value = _state.value.copy(
+                                isAiLoading = false,
+                                error = envelope?.message ?: "AI couldn't generate a draft."
+                            )
+                            onComplete(false)
                         }
-                        _state.value = _state.value.copy(isAiLoading = false, aiDraft = response)
                     }
 
                     is Resource.Error -> {
@@ -239,30 +231,32 @@ class AddProductScreenViewModel @Inject constructor(
                             isAiLoading = false,
                             error = result.message ?: "An unexpected error occurred"
                         )
+                        onComplete(false)
                     }
                 }
             }.launchIn(viewModelScope)
         }
     }
 
+    /**
+     * Reads each picked image via the content resolver (works for gallery + camera
+     * URIs on scoped storage), then compresses it. A file that can't be read or
+     * compressed is skipped / sent uncompressed instead of crashing the app.
+     */
     private suspend fun compressImagesToParts(images: List<ImageUrl>): List<MultipartBody.Part> {
         val contentResolver = application.contentResolver
-        val compressedList = ArrayList<File>()
+        val readyFiles = ArrayList<File>()
         for (photoUri in images) {
-            if (!photoUri.isFromCamera) {
-                getRealPathFromURI(photoUri.uri, application)?.let { photoPath ->
-                    val file = File(photoPath)
-                    val compressed = Compressor.compress(application, file)
-                    if (compressed.exists()) compressedList.add(compressed)
-                }
-            } else {
-                contentResolver.getFileFromUri(photoUri.uri, application)?.let { file ->
-                    val compressed = Compressor.compress(application, file)
-                    if (compressed.exists()) compressedList.add(compressed)
-                }
+            val file = contentResolver.getFileFromUri(photoUri.uri, application) ?: continue
+            val ready = try {
+                Compressor.compress(application, file).takeIf { it.exists() } ?: file
+            } catch (e: Exception) {
+                // Compressor can throw if the file isn't a decodable image — send the raw copy.
+                file
             }
+            if (ready.exists()) readyFiles.add(ready)
         }
-        return convertFilesToMultipart(compressedList)
+        return convertFilesToMultipart(readyFiles)
     }
 
     fun updateShowSuccessDialog(show: Boolean) {

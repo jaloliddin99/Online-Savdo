@@ -36,7 +36,8 @@ import uz.promo.selling.ui.theme.spacing
 fun ShowSelectedImages(
     onAddButtonClicked: () -> Unit,
     imagesList: List<ImageUrl>,
-    cancelClicked: (ImageUrl) -> Unit
+    cancelClicked: (ImageUrl) -> Unit,
+    enabled: Boolean = true
 ) {
 
     OutlinedCard(
@@ -53,11 +54,16 @@ fun ShowSelectedImages(
         ) {
             item {
                 imagesList.forEach { imageUrl ->
-                    ImagesDisplayView(imageUrl, cancelClicked = cancelClicked)
+                    ImagesDisplayView(
+                        imageUrl,
+                        cancelClicked = if (enabled) cancelClicked else { _ -> }
+                    )
                     Spacer(modifier = Modifier.width(MaterialTheme.spacing.dimen8Dp))
                 }
-                ShowCircularImage {
-                    onAddButtonClicked()
+                if (enabled) {
+                    ShowCircularImage {
+                        onAddButtonClicked()
+                    }
                 }
             }
         }

@@ -40,6 +40,11 @@ object AppModule {
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
         val builder = OkHttpClient.Builder()
         builder.connectTimeout(20, TimeUnit.SECONDS)
+        // AI endpoints make multiple model calls server-side, so reads can take
+        // much longer than the 10s default. Timeouts are maximums — fast calls
+        // still return immediately.
+        builder.readTimeout(60, TimeUnit.SECONDS)
+        builder.writeTimeout(60, TimeUnit.SECONDS)
         builder.addInterceptor(interceptor)
 
         val chuckerCollector = ChuckerCollector(

@@ -195,21 +195,27 @@ fun StepPhotosAndDetails(
             .verticalScroll(rememberScrollState())
     ) {
         // AI: fill title/description + details from the photos.
-        OutlinedButton(
+        AiAutoFillButton(
+            isLoading = isAiLoading,
+            enabled = imagesList.isNotEmpty(),
             onClick = onAutoFill,
-            enabled = imagesList.isNotEmpty() && !isAiLoading,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
-        ) {
-            Text(text = if (isAiLoading) "Analyzing photos…" else "✨ Auto-fill from photos")
-        }
+            modifier = Modifier.padding(vertical = 8.dp)
+        )
         TitleWrapper(titleRes = R.string.select_image_for_your_product) {
-            ShowSelectedImages(
-                imagesList = imagesList,
-                onAddButtonClicked = onAddImageClicked,
-                cancelClicked = onCancelImage
-            )
+            Box {
+                ShowSelectedImages(
+                    imagesList = imagesList,
+                    onAddButtonClicked = onAddImageClicked,
+                    cancelClicked = onCancelImage,
+                    enabled = !isAiLoading
+                )
+                if (isAiLoading) {
+                    AiAnalyzingOverlay(
+                        modifier = Modifier
+                            .matchParentSize()
+                    )
+                }
+            }
         }
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
 
