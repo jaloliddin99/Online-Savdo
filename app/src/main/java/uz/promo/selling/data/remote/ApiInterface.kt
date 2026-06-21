@@ -2,6 +2,7 @@ package uz.promo.selling.data.remote
 
 import androidx.annotation.Keep
 import okhttp3.MultipartBody
+import uz.promo.selling.data.remote.models.ai.AiDraftEnvelope
 import okhttp3.RequestBody
 import uz.promo.selling.data.remote.models.GenericModel
 import uz.promo.selling.data.remote.models.LoginBody
@@ -159,6 +160,16 @@ interface ApiInterface {
         @Part files: List<MultipartBody.Part>,
         @Part("post_params") postParams: RequestBody
     ): ModelSuccess
+
+    // AI: analyze the photos and return a draft (title/description/category) plus
+    // ready-to-submit post params for the create-post form.
+    @Multipart
+    @POST("ai/listing-draft")
+    suspend fun aiListingDraft(
+        @Header("Authorization") token: String,
+        @Part files: List<MultipartBody.Part>,
+        @Query("lang") lang: String
+    ): AiDraftEnvelope
 
 
     @POST("post/prioritize")

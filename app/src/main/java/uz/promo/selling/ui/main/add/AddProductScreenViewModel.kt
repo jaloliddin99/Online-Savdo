@@ -23,6 +23,7 @@ import okhttp3.RequestBody
 import uz.promo.selling.data.remote.models.post.PostParamDTO
 import uz.promo.selling.domain.state.Resource
 import uz.promo.selling.domain.useCase.CategoryMainUseCase
+import uz.promo.selling.domain.useCase.ai.AiListingDraftUseCase
 import uz.promo.selling.domain.useCase.postNewProduct.PostNewProductUseCase
 import uz.promo.selling.ui.auth.TextFieldState
 import uz.promo.selling.ui.main.home.AddProductScreenState
@@ -38,6 +39,7 @@ class AddProductScreenViewModel @Inject constructor(
     private val postNewProductUseCase: PostNewProductUseCase,
     private val application: Application,
     private val categoryMainUseCase: CategoryMainUseCase,
+    private val aiListingDraftUseCase: AiListingDraftUseCase,
 ) : AndroidViewModel(application) {
 
 
@@ -203,6 +205,65 @@ class AddProductScreenViewModel @Inject constructor(
 //        return json.toRequestBody("application/json".toMediaTypeOrNull())
 //    }
 
+
+    /**
+     * Sends the picked photos to the AI, then pre-fills title + description and
+     * stores the suggested post params (the screen merges those into the dynamic
+     * fields by code). Runs off the UI thread; never blocks anything.
+     */
+    fun generateDraftFromImages(
+        images: List<ImageUrl>,
+        token: String = SharedPref.deviceToken,
+        lang: String = SharedPref.language.ifBlank { "uz" }
+    ) {
+        if (images.isEmpty()) return
+        viewModelScope.launch {
+            val fileParts = compressImagesToParts(images)
+            aiListingDraftUseCase(token, fileParts, lang).onEach { result ->
+                when (result) {
+                    is Resource.Loading -> {
+                        _state.value = _state.value.copy(isAiLoading = true)
+                    }
+
+                    is Resource.Success -> {
+                        val response = result.data?.data
+                        response?.draft?.let { d ->
+                            d.title?.let { titleValue.text = it }
+                            d.description?.let { descriptionVM.text = it }
+                        }
+                        _state.value = _state.value.copy(isAiLoading = false, aiDraft = response)
+                    }
+
+                    is Resource.Error -> {
+                        _state.value = _state.value.copy(
+                            isAiLoading = false,
+                            error = result.message ?: "An unexpected error occurred"
+                        )
+                    }
+                }
+            }.launchIn(viewModelScope)
+        }
+    }
+
+    private suspend fun compressImagesToParts(images: List<ImageUrl>): List<MultipartBody.Part> {
+        val contentResolver = application.contentResolver
+        val compressedList = ArrayList<File>()
+        for (photoUri in images) {
+            if (!photoUri.isFromCamera) {
+                getRealPathFromURI(photoUri.uri, application)?.let { photoPath ->
+                    val file = File(photoPath)
+                    val compressed = Compressor.compress(application, file)
+                    if (compressed.exists()) compressedList.add(compressed)
+                }
+            } else {
+                contentResolver.getFileFromUri(photoUri.uri, application)?.let { file ->
+                    val compressed = Compressor.compress(application, file)
+                    if (compressed.exists()) compressedList.add(compressed)
+                }
+            }
+        }
+        return convertFilesToMultipart(compressedList)
+    }
 
     fun updateShowSuccessDialog(show: Boolean) {
         _state.value = _state.value.copy(showSuccessDialog = show)

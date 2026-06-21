@@ -1,6 +1,7 @@
 package uz.promo.selling.ui.main.home
 
 import com.google.android.gms.maps.model.LatLng
+import uz.promo.selling.data.remote.models.ai.AiListingDraftResponse
 import uz.promo.selling.data.remote.models.ModelSuccess
 import uz.promo.selling.data.remote.models.category.Category
 import uz.promo.selling.data.remote.models.category.ParentCategories
@@ -38,6 +39,8 @@ data class AddProductScreenState(
     val showSuccessDialog: Boolean = false,
     val categoryDetail: ModelLeak? = null,
     val showCameraOrGalleryDialog: Boolean = false,
+    val isAiLoading: Boolean = false,
+    val aiDraft: AiListingDraftResponse? = null,
 )
 
 data class MapScreenScreenState(

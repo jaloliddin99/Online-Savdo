@@ -2,6 +2,7 @@ package uz.promo.selling.domain.repository
 
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import uz.promo.selling.data.remote.models.ai.AiDraftEnvelope
 import uz.promo.selling.data.remote.models.GenericModel
 import uz.promo.selling.data.remote.models.LoginBody
 import uz.promo.selling.data.remote.models.ModelSuccess
@@ -73,6 +74,12 @@ interface NetworkRepository {
         files: List<MultipartBody.Part>,
         postParams: RequestBody
     ): ModelSuccess
+
+    suspend fun aiListingDraft(
+        token: String,
+        files: List<MultipartBody.Part>,
+        lang: String
+    ): AiDraftEnvelope
 
     suspend fun getNotifications(
         page: Int,

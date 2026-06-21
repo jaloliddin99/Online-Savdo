@@ -198,6 +198,24 @@ fun AddProductScreen(
         }
     }
 
+    // Merge AI-suggested params into the dynamic fields (best-effort, matched by
+    // code). Codes that don't belong to the chosen category are simply ignored.
+    LaunchedEffect(state.aiDraft) {
+        val params = state.aiDraft?.postParams
+        if (params.isNullOrEmpty() || dynamicViewData.isEmpty()) return@LaunchedEffect
+        val merged = dynamicViewData.toMutableMap()
+        params.forEach { p ->
+            merged[p.code]?.let { existing ->
+                merged[p.code] = existing.copy(
+                    post_value = p.post_value,
+                    unit = p.param_unit,
+                    isValid = true
+                )
+            }
+        }
+        dynamicViewData = merged
+    }
+
     // Per-step validation
     val isStep1Valid = item != null && item.id != -1 && map != null
     val isStep2Valid = productTitleState.isValid && productDescriptionState.isValid
@@ -304,7 +322,9 @@ fun AddProductScreen(
                         },
                         categoryParams = state.categoryDetail?.parameters,
                         dynamicViewData = dynamicViewData,
-                        onDynamicViewDataChanged = { dynamicViewData = it }
+                        onDynamicViewDataChanged = { dynamicViewData = it },
+                        onAutoFill = { viewModel.generateDraftFromImages(galleryImageUri) },
+                        isAiLoading = state.isAiLoading
                     )
                 }
             }

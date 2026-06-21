@@ -185,13 +185,25 @@ fun StepPhotosAndDetails(
     onCancelImage: (ImageUrl) -> Unit,
     categoryParams: List<Parameter>?,
     dynamicViewData: Map<String, DynamicViewData>,
-    onDynamicViewDataChanged: (Map<String, DynamicViewData>) -> Unit
+    onDynamicViewDataChanged: (Map<String, DynamicViewData>) -> Unit,
+    onAutoFill: () -> Unit = {},
+    isAiLoading: Boolean = false
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
+        // AI: fill title/description + details from the photos.
+        OutlinedButton(
+            onClick = onAutoFill,
+            enabled = imagesList.isNotEmpty() && !isAiLoading,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+        ) {
+            Text(text = if (isAiLoading) "Analyzing photos…" else "✨ Auto-fill from photos")
+        }
         TitleWrapper(titleRes = R.string.select_image_for_your_product) {
             ShowSelectedImages(
                 imagesList = imagesList,
