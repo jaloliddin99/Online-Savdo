@@ -42,6 +42,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import uz.promo.selling.R
+import uz.promo.selling.data.remote.models.ai.PriceSuggestionDTO
 import uz.promo.selling.data.remote.models.category.CategoryItem
 import uz.promo.selling.data.remote.models.leak.Parameter
 import uz.promo.selling.ui.auth.TextFieldState
@@ -187,7 +188,8 @@ fun StepPhotosAndDetails(
     dynamicViewData: Map<String, DynamicViewData>,
     onDynamicViewDataChanged: (Map<String, DynamicViewData>) -> Unit,
     onAutoFill: () -> Unit = {},
-    isAiLoading: Boolean = false
+    isAiLoading: Boolean = false,
+    onSuggestPrice: ((currency: String, onResult: (PriceSuggestionDTO?) -> Unit) -> Unit)? = null
 ) {
     Column(
         modifier = Modifier
@@ -220,7 +222,7 @@ fun StepPhotosAndDetails(
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
 
         if (categoryParams != null) {
-            DynamicView(categoryParams, dynamicViewData) {
+            DynamicView(categoryParams, dynamicViewData, onSuggestPrice = onSuggestPrice) {
                 onDynamicViewDataChanged(it)
             }
         }

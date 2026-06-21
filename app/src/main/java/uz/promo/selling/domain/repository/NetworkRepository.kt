@@ -3,6 +3,7 @@ package uz.promo.selling.domain.repository
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import uz.promo.selling.data.remote.models.ai.AiDraftEnvelope
+import uz.promo.selling.data.remote.models.ai.PriceSuggestionDTO
 import uz.promo.selling.data.remote.models.GenericModel
 import uz.promo.selling.data.remote.models.LoginBody
 import uz.promo.selling.data.remote.models.ModelSuccess
@@ -80,6 +81,13 @@ interface NetworkRepository {
         files: List<MultipartBody.Part>,
         lang: String
     ): AiDraftEnvelope
+
+    suspend fun aiPriceSuggestion(
+        token: String,
+        categoryId: Long,
+        currency: String?,
+        lang: String
+    ): GenericModel<PriceSuggestionDTO>
 
     suspend fun getNotifications(
         page: Int,

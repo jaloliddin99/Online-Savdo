@@ -4,9 +4,12 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -31,8 +34,14 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 
 // Gemini-ish accent palette used across the AI surfaces.
 private val aiBlue = Color(0xFF4285F4)
@@ -120,6 +129,89 @@ fun AiAnalyzingOverlay(modifier: Modifier = Modifier) {
             )
             Spacer(Modifier.height(8.dp))
             Text("✨ Analyzing your photos…", color = Color.White, fontWeight = FontWeight.SemiBold)
+        }
+    }
+}
+
+/**
+ * Full-screen "AI is working" overlay (Gemini-style): dims the whole screen and
+ * shows a rotating multi-colour gradient ring with a pulsing sparkle in the
+ * centre, so the user feels something magic is happening behind the scenes.
+ */
+@Composable
+fun AiGeneratingOverlay(message: String = "Creating your listing") {
+    Dialog(
+        onDismissRequest = {},
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            dismissOnBackPress = false,
+            dismissOnClickOutside = false
+        )
+    ) {
+        val transition = rememberInfiniteTransition(label = "ai_gen")
+        val rotation by transition.animateFloat(
+            initialValue = 0f,
+            targetValue = 360f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = 2200, easing = LinearEasing),
+                repeatMode = RepeatMode.Restart
+            ),
+            label = "rotation"
+        )
+        val pulse by transition.animateFloat(
+            initialValue = 0.82f,
+            targetValue = 1.18f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = 850, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "pulse"
+        )
+        val dots by transition.animateFloat(
+            initialValue = 0f,
+            targetValue = 3f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = 1500, easing = LinearEasing),
+                repeatMode = RepeatMode.Restart
+            ),
+            label = "dots"
+        )
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.62f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Box(modifier = Modifier.size(120.dp), contentAlignment = Alignment.Center) {
+                    Canvas(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .graphicsLayer { rotationZ = rotation }
+                    ) {
+                        drawArc(
+                            brush = Brush.sweepGradient(listOf(aiBlue, aiPurple, aiPink, aiBlue)),
+                            startAngle = 0f,
+                            sweepAngle = 300f,
+                            useCenter = false,
+                            style = Stroke(width = 10.dp.toPx(), cap = StrokeCap.Round)
+                        )
+                    }
+                    Text(
+                        text = "✨",
+                        fontSize = 40.sp,
+                        modifier = Modifier.graphicsLayer { scaleX = pulse; scaleY = pulse }
+                    )
+                }
+                Spacer(Modifier.height(28.dp))
+                Text(
+                    text = message + ".".repeat((dots.toInt() % 3) + 1),
+                    color = Color.White,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 16.sp
+                )
+            }
         }
     }
 }

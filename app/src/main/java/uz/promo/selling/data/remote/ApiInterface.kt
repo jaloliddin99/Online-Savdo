@@ -3,6 +3,8 @@ package uz.promo.selling.data.remote
 import androidx.annotation.Keep
 import okhttp3.MultipartBody
 import uz.promo.selling.data.remote.models.ai.AiDraftEnvelope
+import uz.promo.selling.data.remote.models.ai.AiSearchData
+import uz.promo.selling.data.remote.models.ai.PriceSuggestionDTO
 import okhttp3.RequestBody
 import uz.promo.selling.data.remote.models.GenericModel
 import uz.promo.selling.data.remote.models.LoginBody
@@ -170,6 +172,29 @@ interface ApiInterface {
         @Part files: List<MultipartBody.Part>,
         @Query("lang") lang: String
     ): AiDraftEnvelope
+
+    // AI: SQL-percentile price suggestion for a category (no AI cost).
+    @GET("ai/price-suggestion")
+    suspend fun aiPriceSuggestion(
+        @Header("Authorization") token: String = SharedPref.deviceToken,
+        @Query("categoryId") categoryId: Long,
+        @Query("currency") currency: String?,
+        @Query("lang") lang: String = SharedPref.language
+    ): GenericModel<PriceSuggestionDTO>
+
+    // AI: parse a natural-language search query into structured filters. Called
+    // once (page=0,size=1) only to read 'parsed'; the 'results' field is ignored.
+    @GET("ai/search")
+    suspend fun aiSearch(
+        @Header("Authorization") token: String = SharedPref.deviceToken,
+        @Query("query") query: String,
+        @Query("lat") lat: Double,
+        @Query("lon") lon: Double,
+        @Query("radius") radius: Int,
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 1,
+        @Query("lang") lang: String = SharedPref.language
+    ): GenericModel<AiSearchData>
 
 
     @POST("post/prioritize")

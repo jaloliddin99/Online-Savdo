@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import uz.promo.selling.data.paging.SearchPagingSource
 import uz.promo.selling.data.remote.ApiInterface
+import uz.promo.selling.data.remote.models.ai.ParsedSearchDTO
 import uz.promo.selling.data.remote.models.category.Category
 import uz.promo.selling.data.remote.models.category.CategoryParent
 import uz.promo.selling.data.remote.models.getPublicProducts.Content
@@ -58,6 +59,9 @@ class SearchResultViewModel @Inject constructor(
         private set
 
     var isCategoriesLoading by mutableStateOf(false)
+        private set
+
+    var isAiSearching by mutableStateOf(false)
         private set
 
     init {
@@ -125,5 +129,34 @@ class SearchResultViewModel @Inject constructor(
     fun search(params: SearchParams) {
         hasSearched = true
         _searchParams.value = params
+    }
+
+    /**
+     * Calls GET /ai/search ONCE (page=0,size=1) only to read the parsed filters.
+     * The 'results' field is ignored — the caller drives the existing paging
+     * search with these filters. Delivers null on any error / disabled response.
+     */
+    fun aiSearch(
+        query: String,
+        lat: Double,
+        lon: Double,
+        radius: Int,
+        onResult: (ParsedSearchDTO?) -> Unit
+    ) {
+        viewModelScope.launch {
+            isAiSearching = true
+            try {
+                val response = apiInterface.aiSearch(
+                    query = query,
+                    lat = lat,
+                    lon = lon,
+                    radius = radius
+                )
+                onResult(response.data.parsed)
+            } catch (_: Exception) {
+                onResult(null)
+            }
+            isAiSearching = false
+        }
     }
 }

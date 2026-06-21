@@ -102,20 +102,15 @@ fun AiCreateFlow(
             )
             Spacer(Modifier.height(16.dp))
 
-            Box {
-                ShowSelectedImages(
-                    imagesList = images,
-                    onAddButtonClicked = { showSourceSheet = true },
-                    cancelClicked = { removed ->
-                        images = images.filterNot { it == removed }
-                        viewModel.setImageList(images)
-                    },
-                    enabled = !state.isAiLoading
-                )
-                if (state.isAiLoading) {
-                    AiAnalyzingOverlay(Modifier.matchParentSize())
-                }
-            }
+            ShowSelectedImages(
+                imagesList = images,
+                onAddButtonClicked = { showSourceSheet = true },
+                cancelClicked = { removed ->
+                    images = images.filterNot { it == removed }
+                    viewModel.setImageList(images)
+                },
+                enabled = !state.isAiLoading
+            )
 
             Spacer(Modifier.height(12.dp))
 
@@ -167,6 +162,11 @@ fun AiCreateFlow(
             },
             onDismiss = { showSourceSheet = false }
         )
+    }
+
+    // Full-screen magic overlay while the AI generates the listing.
+    if (state.isAiLoading) {
+        AiGeneratingOverlay()
     }
 }
 
@@ -294,7 +294,13 @@ private fun AiReviewScreen(
         val detail = state.categoryDetail
         if (detail != null && dynamicViewData.isNotEmpty()) {
             key(categoryId) {
-                DynamicView(detail.parameters, dynamicViewData) { dynamicViewData = it }
+                DynamicView(
+                    detail.parameters,
+                    dynamicViewData,
+                    onSuggestPrice = { currency, onResult ->
+                        categoryId?.let { viewModel.suggestPrice(it.toLong(), currency, onResult) }
+                    }
+                ) { dynamicViewData = it }
             }
         }
         Spacer(Modifier.height(16.dp))

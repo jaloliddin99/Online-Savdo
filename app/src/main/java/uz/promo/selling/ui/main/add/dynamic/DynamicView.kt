@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import uz.promo.selling.data.remote.models.ai.PriceSuggestionDTO
 import uz.promo.selling.data.remote.models.leak.Parameter
 import uz.promo.selling.data.remote.models.post.PostUnitDTO
 import uz.promo.selling.data.remote.models.post.PostValueDTO
@@ -18,6 +19,7 @@ import uz.promo.selling.data.remote.models.post.PostValueDTO
 fun DynamicView(
     list: List<Parameter>,
     localParams: Map<String, DynamicViewData>,
+    onSuggestPrice: ((currency: String, onResult: (PriceSuggestionDTO?) -> Unit) -> Unit)? = null,
     paramListener: (Map<String, DynamicViewData>) -> Unit
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -150,7 +152,8 @@ fun DynamicView(
                     unit = units,
                     onUnitSelected = { selectedUnit ->
                         units = selectedUnit
-                    }
+                    },
+                    onSuggestPrice = onSuggestPrice
                 )
             }
         }

@@ -5,6 +5,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import uz.promo.selling.data.remote.ApiInterface
 import uz.promo.selling.data.remote.models.ai.AiDraftEnvelope
+import uz.promo.selling.data.remote.models.ai.PriceSuggestionDTO
 import uz.promo.selling.data.remote.models.GenericModel
 import uz.promo.selling.data.remote.models.LoginBody
 import uz.promo.selling.data.remote.models.ModelSuccess
@@ -125,6 +126,15 @@ class NetworkRepositoryImpl @Inject constructor(
         lang: String
     ): AiDraftEnvelope {
         return apiInterface.aiListingDraft(token, files, lang)
+    }
+
+    override suspend fun aiPriceSuggestion(
+        token: String,
+        categoryId: Long,
+        currency: String?,
+        lang: String
+    ): GenericModel<PriceSuggestionDTO> {
+        return apiInterface.aiPriceSuggestion(token, categoryId, currency, lang)
     }
 
     override suspend fun getNotifications(

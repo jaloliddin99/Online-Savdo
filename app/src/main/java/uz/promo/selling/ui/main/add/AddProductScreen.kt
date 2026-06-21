@@ -347,7 +347,10 @@ fun AddProductScreen(
                         dynamicViewData = dynamicViewData,
                         onDynamicViewDataChanged = { dynamicViewData = it },
                         onAutoFill = { viewModel.generateDraftFromImages(galleryImageUri) },
-                        isAiLoading = state.isAiLoading
+                        isAiLoading = state.isAiLoading,
+                        onSuggestPrice = { currency, onResult ->
+                            item?.let { viewModel.suggestPrice(it.id.toLong(), currency, onResult) }
+                        }
                     )
                 }
             }

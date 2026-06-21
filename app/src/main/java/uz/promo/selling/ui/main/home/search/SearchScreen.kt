@@ -8,6 +8,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,6 +46,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
@@ -171,6 +173,43 @@ fun SearchScreen(
         )
     }
 
+    // Load the full category tree up-front so AI search can resolve a parsed
+    // categoryId to its leaf title (keeps categoryIds/categoryNames parallel).
+    LaunchedEffect(Unit) {
+        searchResultViewModel.loadAllCategories()
+    }
+
+    // Finds a leaf category by id in the loaded tree and returns its title, or
+    // null when not loaded / not found (caller falls back to the query text).
+    fun resolveCategoryName(id: Long): String? {
+        val all = searchResultViewModel.allCategories ?: return null
+        return all.firstNotNullOfOrNull { findCategoryTitle(it, id.toInt()) }
+    }
+
+    fun runAiSearch(query: String) {
+        searchResultViewModel.aiSearch(
+            query = query,
+            lat = searchViewModel.searchLat,
+            lon = searchViewModel.searchLon,
+            radius = searchViewModel.searchRadiusKm
+        ) { parsed ->
+            val newQuery = parsed?.keywords?.takeIf { it.isNotBlank() } ?: query
+            updateSearchText(newQuery)
+            if (parsed != null) {
+                myFilter = myFilter.copy(
+                    categoryIds = parsed.categoryId?.let { listOf(it) } ?: myFilter.categoryIds,
+                    categoryNames = parsed.categoryId?.let {
+                        listOf(resolveCategoryName(it) ?: newQuery)
+                    } ?: myFilter.categoryNames,
+                    fromPrice = parsed.priceMin?.toInt() ?: myFilter.fromPrice,
+                    toPrice = parsed.priceMax?.toInt() ?: myFilter.toPrice,
+                    sort = parsed.sort ?: myFilter.sort
+                )
+            }
+            triggerSearch(newQuery)
+        }
+    }
+
     // Update location data when map data arrives and trigger search
     LaunchedEffect(mapSearchData) {
         mapSearchData?.let {
@@ -259,6 +298,37 @@ fun SearchScreen(
                     isFilterIconVisible = hasSearched && suggestions.isEmpty(),
                     searchBarModifier = searchBarModifier,
                 )
+
+                // AI search affordance: let the user run a natural-language search on
+                // whatever they've typed (shown while typing, before a search runs).
+                if (!hasSearched && searchTextListener.isNotBlank()) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.08f))
+                            .clickable(enabled = !searchResultViewModel.isAiSearching) {
+                                runAiSearch(searchTextListener)
+                            }
+                            .padding(horizontal = 14.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        if (searchResultViewModel.isAiSearching) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(18.dp),
+                                strokeWidth = 2.dp
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                        }
+                        Text(
+                            text = "✨ Search with AI",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
 
                 // Show suggestions or history
                 if (suggestions.isNotEmpty()) {
@@ -520,4 +590,13 @@ fun SearchScreen(
 private fun collectLeafCategories(item: CategoryItem): List<CategoryItem> =
     if (item.children.isEmpty()) listOf(item)
     else item.children.flatMap { collectLeafCategories(it) }
+
+/**
+ * Depth-first search for a category by id in a subtree, returning its title
+ * (used to resolve an AI-parsed categoryId to a display name).
+ */
+private fun findCategoryTitle(item: CategoryItem, id: Int): String? {
+    if (item.id == id) return item.title
+    return item.children.firstNotNullOfOrNull { findCategoryTitle(it, id) }
+}
 

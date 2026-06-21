@@ -91,7 +91,7 @@ import uz.promo.selling.utils.SharedPref
 private val BOTTOM_BAR_ROUTES = setOf(
     Screen.Home.route,
     Screen.MyProducts.route,
-    Screen.AddProduct.route,
+    // AddProduct intentionally omitted — hide the bottom bar on the post-ad page.
     Screen.Saved.route,
     Screen.Profile.route
 )

@@ -20,10 +20,12 @@ import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import uz.promo.selling.data.remote.models.ai.PriceSuggestionDTO
 import uz.promo.selling.data.remote.models.post.PostParamDTO
 import uz.promo.selling.domain.state.Resource
 import uz.promo.selling.domain.useCase.CategoryMainUseCase
 import uz.promo.selling.domain.useCase.ai.AiListingDraftUseCase
+import uz.promo.selling.domain.useCase.ai.AiPriceSuggestionUseCase
 import uz.promo.selling.domain.useCase.postNewProduct.PostNewProductUseCase
 import uz.promo.selling.ui.auth.TextFieldState
 import uz.promo.selling.ui.main.home.AddProductScreenState
@@ -40,6 +42,7 @@ class AddProductScreenViewModel @Inject constructor(
     private val application: Application,
     private val categoryMainUseCase: CategoryMainUseCase,
     private val aiListingDraftUseCase: AiListingDraftUseCase,
+    private val aiPriceSuggestionUseCase: AiPriceSuggestionUseCase,
 ) : AndroidViewModel(application) {
 
 
@@ -257,6 +260,36 @@ class AddProductScreenViewModel @Inject constructor(
             if (ready.exists()) readyFiles.add(ready)
         }
         return convertFilesToMultipart(readyFiles)
+    }
+
+    /**
+     * Fetches a SQL-percentile price suggestion for the category (no AI cost).
+     * Delivers the DTO on success (envelope.success && data != null), or null on
+     * any error / disabled response so the caller can show a fallback message.
+     */
+    fun suggestPrice(
+        categoryId: Long,
+        currency: String?,
+        onResult: (PriceSuggestionDTO?) -> Unit
+    ) {
+        viewModelScope.launch {
+            aiPriceSuggestionUseCase(categoryId, currency).onEach { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        val envelope = result.data
+                        if (envelope?.success == true && envelope.data != null) {
+                            onResult(envelope.data)
+                        } else {
+                            onResult(null)
+                        }
+                    }
+
+                    is Resource.Error -> onResult(null)
+
+                    is Resource.Loading -> { /* local loading handled in the UI */ }
+                }
+            }.launchIn(viewModelScope)
+        }
     }
 
     fun updateShowSuccessDialog(show: Boolean) {
