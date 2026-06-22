@@ -57,6 +57,8 @@ import uz.promo.selling.ui.main.home.homeItems.ShimmerProductGrid
 import uz.promo.selling.ui.theme.robotoFontFamily
 import uz.promo.selling.ui.theme.spacing
 import uz.promo.selling.utils.LocaleManager.FLAG_HAS_DATA
+import uz.promo.selling.utils.SharedPref
+import uz.promo.selling.data.remote.models.nearPost.NearPostsData
 import uz.promo.selling.utils.hasPermissionForLocation
 import uz.promo.selling.utils.runTimePermission.RunTimePermission
 
@@ -119,6 +121,14 @@ fun HomeScreen(
                 chatUnreadViewModel.refresh()
                 kotlinx.coroutines.delay(15000)
             }
+        }
+    }
+
+    // When Home returns to the foreground (e.g. back from the map), refresh the
+    // "near you" strip for the location the user picked, if any.
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.RESUMED) {
+            homeViewModel.refreshNearPostsForSelectedLocation()
         }
     }
 
@@ -186,11 +196,16 @@ fun HomeScreen(
             }
             item(span = { GridItemSpan(2) }) {
                 val activity = LocalActivity.current as ComponentActivity
+                val hasPicked = SharedPref.hasPickedLocation
                 val hasNotPermission = !hasPermissionForLocation(context)
                 val gpsNotEnabled = !checkGpsEnabled(activity)
 
-                if (hasNotPermission || gpsNotEnabled) {
-                    GPSEnableView(
+                when {
+                    // User picked a location on the map → show its "near you"
+                    // (refreshed on resume; no GPS/permission needed).
+                    hasPicked -> NearPostsContent(stateNear.getNearPost, navigateToProduct)
+
+                    hasNotPermission || gpsNotEnabled -> GPSEnableView(
                         onPermissionClicked = {
                             if (!hasNotPermission) {
                                 GpsCheckHelper(activity).turnOnGpsDialogRequest()
@@ -214,23 +229,14 @@ fun HomeScreen(
                         },
                         hasNotPermission
                     )
-                } else {
-                    if (!FLAG_HAS_DATA) {
-                        FLAG_HAS_DATA = true
-                        homeViewModel.locationObserve()
-                        homeViewModel.startLocationUpdates()
-                    }
-                    val nearPosts = stateNear.getNearPost
-                    when {
-                        // Still loading (no response yet) — keep the shimmer.
-                        nearPosts == null -> ShimmerNearPostsRow()
-                        // Loaded, but the backend returned an empty list. Previously this
-                        // rendered nothing at all; show an explanatory message instead.
-                        nearPosts.isEmpty() -> NearPostsEmpty()
-                        else -> NearPosts(
-                            state = nearPosts,
-                            navigateToCategory = navigateToProduct
-                        )
+
+                    else -> {
+                        if (!FLAG_HAS_DATA) {
+                            FLAG_HAS_DATA = true
+                            homeViewModel.locationObserve()
+                            homeViewModel.startLocationUpdates()
+                        }
+                        NearPostsContent(stateNear.getNearPost, navigateToProduct)
                     }
                 }
             }
@@ -287,6 +293,25 @@ fun HomeScreen(
     }
 }
 
+
+/** Renders the "near you" strip: shimmer while loading, an empty note, or the list. */
+@Composable
+private fun NearPostsContent(
+    nearPosts: List<NearPostsData>?,
+    navigateToProduct: (Int) -> Unit,
+) {
+    when {
+        // Still loading (no response yet) — keep the shimmer.
+        nearPosts == null -> ShimmerNearPostsRow()
+        // Loaded, but the backend returned an empty list — explain instead of
+        // rendering nothing.
+        nearPosts.isEmpty() -> NearPostsEmpty()
+        else -> NearPosts(
+            state = nearPosts,
+            navigateToCategory = navigateToProduct
+        )
+    }
+}
 
 @Composable
 fun GPSEnableView(

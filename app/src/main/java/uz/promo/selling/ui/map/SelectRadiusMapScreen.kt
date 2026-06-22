@@ -267,6 +267,7 @@ fun SelectRadiusMapScreen(
                     SharedPref.radius = radiusKm
                     SharedPref.latitude = markerPosition.latitude.toString()
                     SharedPref.longitude = markerPosition.longitude.toString()
+                    SharedPref.hasPickedLocation = true
                     if (locationName.isNotBlank()) {
                         SharedPref.locationName = locationName
                     }

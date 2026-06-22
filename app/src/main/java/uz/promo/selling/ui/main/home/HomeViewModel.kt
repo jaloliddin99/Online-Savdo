@@ -155,6 +155,26 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    // Coordinates the last "near you" fetch used, so repeated resumes don't refetch.
+    private var lastNearKey: String? = null
+
+    /**
+     * Loads "near you" for the location the user picked on the map. No-op until a
+     * location has been picked (the device-location flow handles that case) and
+     * skips refetching when the picked location hasn't changed. Safe to call on
+     * every Home resume.
+     */
+    fun refreshNearPostsForSelectedLocation() {
+        if (!SharedPref.hasPickedLocation) return
+        val lat = SharedPref.latitude.toDoubleOrNull() ?: return
+        val lon = SharedPref.longitude.toDoubleOrNull() ?: return
+        val key = "$lat,$lon"
+        if (key == lastNearKey) return
+        lastNearKey = key
+        stopLocationUpdates()
+        getNearPosts(lat = lat, lon = lon)
+    }
+
     fun startLocationUpdates() {
         locationTrackerRepository.startLocationUpdate()
     }

@@ -9,6 +9,10 @@ object SharedPref: KotprefModel() {
     var radius by intPref(10)
     var locationName by stringPref("")
 
+    // True once the user has explicitly picked a location on the map. Until then
+    // "near you" uses the live device location; afterwards it uses latitude/longitude.
+    var hasPickedLocation by booleanPref(false)
+
     var deviceToken by stringPref()
     var refreshToken by stringPref()
 
