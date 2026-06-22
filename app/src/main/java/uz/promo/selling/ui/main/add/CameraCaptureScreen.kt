@@ -43,11 +43,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import uz.promo.selling.R
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -67,12 +69,12 @@ fun PhotoSourceSheet(
                 .fillMaxWidth()
                 .padding(start = 16.dp, end = 16.dp, bottom = 28.dp)
         ) {
-            Text("Add photo", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+            Text(stringResource(R.string.add_photo), fontWeight = FontWeight.Bold, fontSize = 18.sp)
             Spacer(Modifier.height(12.dp))
             Row(modifier = Modifier.fillMaxWidth()) {
-                SourceOption(emoji = "📷", label = "Camera", onClick = onCamera, modifier = Modifier.weight(1f))
+                SourceOption(emoji = "📷", label = stringResource(R.string.camera), onClick = onCamera, modifier = Modifier.weight(1f))
                 Spacer(Modifier.width(12.dp))
-                SourceOption(emoji = "🖼️", label = "Gallery", onClick = onGallery, modifier = Modifier.weight(1f))
+                SourceOption(emoji = "🖼️", label = stringResource(R.string.gallery), onClick = onGallery, modifier = Modifier.weight(1f))
             }
         }
     }
@@ -171,10 +173,10 @@ fun CameraCaptureScreen(
                     .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Camera permission is required", color = Color.White)
+                Text(stringResource(R.string.camera_permission_required), color = Color.White)
                 Spacer(Modifier.height(12.dp))
                 Button(onClick = { permissionLauncher.launch(Manifest.permission.CAMERA) }) {
-                    Text("Grant permission")
+                    Text(stringResource(R.string.grant_permission))
                 }
             }
         }

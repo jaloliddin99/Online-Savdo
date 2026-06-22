@@ -37,11 +37,13 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import uz.promo.selling.R
 
 // Gemini-ish accent palette used across the AI surfaces.
 private val aiBlue = Color(0xFF4285F4)
@@ -55,8 +57,8 @@ fun AiAutoFillButton(
     enabled: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    idleText: String = "✨ Auto-fill from photos",
-    loadingText: String = "Analyzing your photos…"
+    idleText: String = "✨ " + stringResource(R.string.ai_autofill_from_photos),
+    loadingText: String = stringResource(R.string.ai_analyzing_photos)
 ) {
     val background: Brush =
         if (enabled) Brush.horizontalGradient(listOf(aiBlue, aiPurple, aiPink))
@@ -128,7 +130,7 @@ fun AiAnalyzingOverlay(modifier: Modifier = Modifier) {
                 modifier = Modifier.size(22.dp)
             )
             Spacer(Modifier.height(8.dp))
-            Text("✨ Analyzing your photos…", color = Color.White, fontWeight = FontWeight.SemiBold)
+            Text("✨ " + stringResource(R.string.ai_analyzing_photos), color = Color.White, fontWeight = FontWeight.SemiBold)
         }
     }
 }
@@ -139,7 +141,7 @@ fun AiAnalyzingOverlay(modifier: Modifier = Modifier) {
  * centre, so the user feels something magic is happening behind the scenes.
  */
 @Composable
-fun AiGeneratingOverlay(message: String = "Creating your listing") {
+fun AiGeneratingOverlay(message: String = stringResource(R.string.ai_creating_listing)) {
     Dialog(
         onDismissRequest = {},
         properties = DialogProperties(

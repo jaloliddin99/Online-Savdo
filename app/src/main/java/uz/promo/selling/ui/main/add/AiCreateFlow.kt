@@ -28,8 +28,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import uz.promo.selling.R
 import uz.promo.selling.data.remote.models.category.CategoryItem
 import uz.promo.selling.data.remote.models.post.PostValueDTO
 import uz.promo.selling.data.remote.models.post.toPostDto
@@ -96,7 +98,7 @@ fun AiCreateFlow(
                 .verticalScroll(rememberScrollState())
         ) {
             Text(
-                text = "Add photos — AI does the rest",
+                text = stringResource(R.string.ai_add_photos_title),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
@@ -119,7 +121,7 @@ fun AiCreateFlow(
                 enabled = !state.isAiLoading,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(map?.addressName?.takeIf { it.isNotBlank() } ?: "Select location")
+                Text(map?.addressName?.takeIf { it.isNotBlank() } ?: stringResource(R.string.select_location))
             }
 
             Spacer(Modifier.height(20.dp))
@@ -133,8 +135,8 @@ fun AiCreateFlow(
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
-                idleText = "✨ Generate listing",
-                loadingText = "Analyzing your photos…"
+                idleText = "✨ " + stringResource(R.string.ai_generate_listing),
+                loadingText = stringResource(R.string.ai_analyzing_photos)
             )
 
             if (state.error.isNotEmpty()) {
@@ -145,7 +147,7 @@ fun AiCreateFlow(
             Spacer(Modifier.height(12.dp))
 
             OutlinedButton(onClick = onBack, modifier = Modifier.fillMaxWidth()) {
-                Text("Back")
+                Text(stringResource(R.string.back))
             }
         }
     }
@@ -245,7 +247,7 @@ private fun AiReviewScreen(
             .verticalScroll(rememberScrollState())
     ) {
         Text(
-            text = "Review & publish",
+            text = stringResource(R.string.ai_review_publish),
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold
         )
@@ -258,14 +260,14 @@ private fun AiReviewScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column {
-                Text("Category", fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.category), fontWeight = FontWeight.SemiBold)
                 Text(categoryLabel)
             }
-            TextButton(onClick = onChangeCategory) { Text("Change") }
+            TextButton(onClick = onChangeCategory) { Text(stringResource(R.string.change)) }
         }
         Spacer(Modifier.height(12.dp))
 
-        Text("Title", fontWeight = FontWeight.SemiBold)
+        Text(stringResource(R.string.title), fontWeight = FontWeight.SemiBold)
         OutlinedTextField(
             value = viewModel.titleValue.text,
             onValueChange = { viewModel.titleValue.text = it },
@@ -273,7 +275,7 @@ private fun AiReviewScreen(
         )
         Spacer(Modifier.height(12.dp))
 
-        Text("Description", fontWeight = FontWeight.SemiBold)
+        Text(stringResource(R.string.description), fontWeight = FontWeight.SemiBold)
         OutlinedTextField(
             value = viewModel.descriptionVM.text,
             onValueChange = { viewModel.descriptionVM.text = it },
@@ -284,7 +286,7 @@ private fun AiReviewScreen(
         Spacer(Modifier.height(12.dp))
 
         OutlinedButton(onClick = onLocationClick, modifier = Modifier.fillMaxWidth()) {
-            Text(map?.addressName?.takeIf { it.isNotBlank() } ?: "Select location")
+            Text(map?.addressName?.takeIf { it.isNotBlank() } ?: stringResource(R.string.select_location))
         }
         Spacer(Modifier.height(12.dp))
 
@@ -321,8 +323,8 @@ private fun AiReviewScreen(
                 }
             },
             modifier = Modifier.fillMaxWidth(),
-            idleText = "Publish",
-            loadingText = "Publishing…"
+            idleText = stringResource(R.string.publish),
+            loadingText = stringResource(R.string.publishing)
         )
 
         if (state.error.isNotEmpty()) {
@@ -332,7 +334,7 @@ private fun AiReviewScreen(
 
         Spacer(Modifier.height(12.dp))
         OutlinedButton(onClick = onBack, modifier = Modifier.fillMaxWidth()) {
-            Text("Back to photos")
+            Text(stringResource(R.string.ai_back_to_photos))
         }
     }
 }

@@ -261,5 +261,31 @@
     <string name="radius_only_updated">Радиус обновлён</string>
     <string name="section_log_out">Logout</string>
 
+    <!-- AI flow -->
+    <string name="ai_add_photos_title">Добавьте фото — остальное сделает ИИ</string>
+    <string name="ai_generate_listing">Создать объявление</string>
+    <string name="ai_analyzing_photos">Анализируем ваши фото…</string>
+    <string name="ai_autofill_from_photos">Заполнить по фото</string>
+    <string name="ai_creating_listing">Создаём ваше объявление</string>
+    <string name="ai_review_publish">Проверка и публикация</string>
+    <string name="ai_back_to_photos">Назад к фото</string>
+    <string name="ai_suggest_price">Предложить цену</string>
+    <string name="ai_price_suggested">Рекомендуем %1$s (%2$s–%3$s, объявлений: %4$s)</string>
+    <string name="ai_price_not_enough_data">Пока недостаточно данных для предложения цены</string>
+    <string name="ai_search_with_ai">Искать с ИИ</string>
+    <string name="ai_create_with_ai_title">Создать с ИИ</string>
+    <string name="ai_create_with_ai_subtitle">Добавьте фото — мы напишем заголовок, описание, подберём категорию и заполним детали за вас.</string>
+    <string name="ai_create_manually_title">Создать вручную</string>
+    <string name="ai_create_manually_subtitle">Заполните категорию, заголовок, описание и детали самостоятельно, шаг за шагом.</string>
+    <string name="ai_how_to_post">Как вы хотите разместить объявление?</string>
+    <string name="ai_flow_coming_soon">Здесь скоро появится размещение с помощью ИИ.</string>
+    <string name="title">Заголовок</string>
+    <string name="change">Изменить</string>
+    <string name="publish">Опубликовать</string>
+    <string name="publishing">Публикуем…</string>
+    <string name="select_location">Выбрать местоположение</string>
+    <string name="add_photo">Добавить фото</string>
+    <string name="camera_permission_required">Требуется разрешение на использование камеры</string>
+    <string name="grant_permission">Предоставить разрешение</string>
 
 </resources>

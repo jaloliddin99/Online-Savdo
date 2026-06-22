@@ -322,7 +322,7 @@ fun SearchScreen(
                             Spacer(modifier = Modifier.width(12.dp))
                         }
                         Text(
-                            text = "✨ Search with AI",
+                            text = "✨ " + stringResource(R.string.ai_search_with_ai),
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.primary

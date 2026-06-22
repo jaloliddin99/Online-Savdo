@@ -26,9 +26,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import uz.promo.selling.R
 import uz.promo.selling.data.remote.models.ai.PriceSuggestionDTO
 import uz.promo.selling.data.remote.models.leak.Parameter
 import uz.promo.selling.ui.auth.TextFieldError
@@ -65,13 +67,19 @@ fun PriceSelector(
                             val high = suggestion.high?.toLong()
                             Toast.makeText(
                                 context,
-                                "Suggested ${recommended.toLong()} ($low–$high, ${suggestion.sampleSize} listings)",
+                                context.getString(
+                                    R.string.ai_price_suggested,
+                                    recommended.toLong().toString(),
+                                    low.toString(),
+                                    high.toString(),
+                                    suggestion.sampleSize.toString()
+                                ),
                                 Toast.LENGTH_LONG
                             ).show()
                         } else {
                             Toast.makeText(
                                 context,
-                                "Not enough data to suggest a price yet",
+                                context.getString(R.string.ai_price_not_enough_data),
                                 Toast.LENGTH_LONG
                             ).show()
                         }
@@ -82,7 +90,7 @@ fun PriceSelector(
                     CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
                     Spacer(modifier = Modifier.width(8.dp))
                 }
-                Text(text = "✨ Suggest price", style = MaterialTheme.typography.bodyMedium)
+                Text(text = "✨ " + stringResource(R.string.ai_suggest_price), style = MaterialTheme.typography.bodyMedium)
             }
         }
         Row(

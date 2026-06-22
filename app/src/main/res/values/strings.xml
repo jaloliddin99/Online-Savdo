@@ -267,5 +267,31 @@
     <string name="radius_only_updated">Radius updated</string>
     <string name="section_log_out">Logout</string>
 
+    <!-- AI flow -->
+    <string name="ai_add_photos_title">Add photos — AI does the rest</string>
+    <string name="ai_generate_listing">Generate listing</string>
+    <string name="ai_analyzing_photos">Analyzing your photos…</string>
+    <string name="ai_autofill_from_photos">Auto-fill from photos</string>
+    <string name="ai_creating_listing">Creating your listing</string>
+    <string name="ai_review_publish">Review &amp; publish</string>
+    <string name="ai_back_to_photos">Back to photos</string>
+    <string name="ai_suggest_price">Suggest price</string>
+    <string name="ai_price_suggested">Suggested %1$s (%2$s–%3$s, %4$s listings)</string>
+    <string name="ai_price_not_enough_data">Not enough data to suggest a price yet</string>
+    <string name="ai_search_with_ai">Search with AI</string>
+    <string name="ai_create_with_ai_title">Create with AI</string>
+    <string name="ai_create_with_ai_subtitle">Add photos — we write the title, description, pick the category and fill the details for you.</string>
+    <string name="ai_create_manually_title">Create manually</string>
+    <string name="ai_create_manually_subtitle">Fill in the category, title, description and details yourself, step by step.</string>
+    <string name="ai_how_to_post">How do you want to post?</string>
+    <string name="ai_flow_coming_soon">AI posting flow is coming here next.</string>
+    <string name="title">Title</string>
+    <string name="change">Change</string>
+    <string name="publish">Publish</string>
+    <string name="publishing">Publishing…</string>
+    <string name="select_location">Select location</string>
+    <string name="add_photo">Add photo</string>
+    <string name="camera_permission_required">Camera permission is required</string>
+    <string name="grant_permission">Grant permission</string>
 
 </resources>

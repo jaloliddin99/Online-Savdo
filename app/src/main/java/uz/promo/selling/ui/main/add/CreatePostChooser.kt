@@ -21,9 +21,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import uz.promo.selling.R
 
 /** Entry chooser: AI-assisted posting vs the manual wizard. */
 @Composable
@@ -39,7 +41,7 @@ fun CreatePostChooserView(
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "How do you want to post?",
+            text = stringResource(R.string.ai_how_to_post),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold
         )
@@ -60,14 +62,14 @@ fun CreatePostChooserView(
         ) {
             Column {
                 Text(
-                    text = "✨ Create with AI",
+                    text = "✨ " + stringResource(R.string.ai_create_with_ai_title),
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp
                 )
                 Spacer(Modifier.height(6.dp))
                 Text(
-                    text = "Add photos — we write the title, description, pick the category and fill the details for you.",
+                    text = stringResource(R.string.ai_create_with_ai_subtitle),
                     color = Color.White.copy(alpha = 0.92f)
                 )
             }
@@ -86,13 +88,13 @@ fun CreatePostChooserView(
         ) {
             Column {
                 Text(
-                    text = "✍️ Create manually",
+                    text = "✍️ " + stringResource(R.string.ai_create_manually_title),
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 18.sp
                 )
                 Spacer(Modifier.height(6.dp))
                 Text(
-                    text = "Fill in the category, title, description and details yourself, step by step.",
+                    text = stringResource(R.string.ai_create_manually_subtitle),
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -110,8 +112,8 @@ fun AiCreatePlaceholder(onBack: () -> Unit, modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text("✨ AI posting flow is coming here next.", fontWeight = FontWeight.SemiBold)
+        Text("✨ " + stringResource(R.string.ai_flow_coming_soon), fontWeight = FontWeight.SemiBold)
         Spacer(Modifier.height(12.dp))
-        OutlinedButton(onClick = onBack) { Text("Back") }
+        OutlinedButton(onClick = onBack) { Text(stringResource(R.string.back)) }
     }
 }

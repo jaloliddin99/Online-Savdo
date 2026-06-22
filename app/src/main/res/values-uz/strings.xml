@@ -263,5 +263,31 @@
     <string name="radius_only_updated">Radius yangilandi</string>
     <string name="section_log_out">Logout</string>
 
+    <!-- AI flow -->
+    <string name="ai_add_photos_title">Surat qo\'shing — qolganini sun\'iy intellekt bajaradi</string>
+    <string name="ai_generate_listing">E\'lon yaratish</string>
+    <string name="ai_analyzing_photos">Suratlaringiz tahlil qilinmoqda…</string>
+    <string name="ai_autofill_from_photos">Suratlardan to\'ldirish</string>
+    <string name="ai_creating_listing">E\'loningiz yaratilmoqda</string>
+    <string name="ai_review_publish">Ko\'rib chiqish va chop etish</string>
+    <string name="ai_back_to_photos">Suratlarga qaytish</string>
+    <string name="ai_suggest_price">Narx taklif qilish</string>
+    <string name="ai_price_suggested">Tavsiya: %1$s (%2$s–%3$s, %4$s ta e\'lon)</string>
+    <string name="ai_price_not_enough_data">Narx taklif qilish uchun hozircha ma\'lumot yetarli emas</string>
+    <string name="ai_search_with_ai">Sun\'iy intellekt bilan qidirish</string>
+    <string name="ai_create_with_ai_title">Sun\'iy intellekt bilan yaratish</string>
+    <string name="ai_create_with_ai_subtitle">Surat qo\'shing — sarlavha, tavsifni yozamiz, toifani tanlaymiz va tafsilotlarni siz uchun to\'ldiramiz.</string>
+    <string name="ai_create_manually_title">Qo\'lda yaratish</string>
+    <string name="ai_create_manually_subtitle">Toifa, sarlavha, tavsif va tafsilotlarni o\'zingiz bosqichma-bosqich to\'ldiring.</string>
+    <string name="ai_how_to_post">E\'lonni qanday joylashtirmoqchisiz?</string>
+    <string name="ai_flow_coming_soon">Sun\'iy intellekt yordamida e\'lon joylashtirish tez orada shu yerda paydo bo\'ladi.</string>
+    <string name="title">Sarlavha</string>
+    <string name="change">O\'zgartirish</string>
+    <string name="publish">Chop etish</string>
+    <string name="publishing">Chop etilmoqda…</string>
+    <string name="select_location">Joylashuvni tanlang</string>
+    <string name="add_photo">Surat qo\'shish</string>
+    <string name="camera_permission_required">Kamera uchun ruxsat talab qilinadi</string>
+    <string name="grant_permission">Ruxsat berish</string>
 
 </resources>
