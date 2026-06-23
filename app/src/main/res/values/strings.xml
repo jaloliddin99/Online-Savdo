@@ -283,6 +283,7 @@
     <string name="ai_price_explanation">This is a fair price estimated from %1$s similar active listings in this category. Most comparable items are priced between %2$s and %3$s. Use it as a starting point and adjust it for your item\'s condition.</string>
     <string name="ai_price_use">Use this price</string>
     <string name="ai_search_with_ai">Search with AI</string>
+    <string name="ai_results_notice">Showing AI matches for “%1$s”</string>
     <string name="ai_create_with_ai_title">Create with AI</string>
     <string name="ai_create_with_ai_subtitle">Add photos — we write the title, description, pick the category and fill the details for you.</string>
     <string name="ai_create_manually_title">Create manually</string>

@@ -39,6 +39,18 @@ data class SearchParams(
     val sort: String? = null,
 )
 
+/** What the AI understood for a query, plus the query to actually run. */
+data class AiSearchResolution(
+    val parsed: ParsedSearchDTO,
+    /** The AI's keywords, or "" when they matched nothing and were dropped. */
+    val effectiveQuery: String,
+    val categoryIds: List<Long>,
+    val priceMin: Int?,
+    val priceMax: Int?,
+    val sort: String?,
+    val droppedKeywords: Boolean,
+)
+
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class SearchResultViewModel @Inject constructor(
@@ -132,30 +144,60 @@ class SearchResultViewModel @Inject constructor(
     }
 
     /**
-     * Calls GET /ai/search ONCE (page=0,size=1) only to read the parsed filters.
-     * The 'results' field is ignored — the caller drives the existing paging
-     * search with these filters. Delivers null on any error / disabled response.
+     * Parses [query] into structured filters (category/price/sort). If the AI's
+     * keywords match nothing but a category or price was understood, the keywords
+     * are dropped so the caller can search by category+price instead of dead-ending.
+     * Returns null only when the AI parse itself fails.
      */
-    fun aiSearch(
+    suspend fun resolveAiSearch(
         query: String,
         lat: Double,
         lon: Double,
         radius: Int,
-        onResult: (ParsedSearchDTO?) -> Unit
-    ) {
-        viewModelScope.launch {
-            isAiSearching = true
-            try {
-                val response = apiInterface.aiSearch(
-                    query = query,
-                    lat = lat,
-                    lon = lon,
-                    radius = radius
-                )
-                onResult(response.data.parsed)
+        baseCategoryIds: List<Long>,
+        basePriceMin: Int?,
+        basePriceMax: Int?,
+        baseSort: String?,
+    ): AiSearchResolution? {
+        isAiSearching = true
+        try {
+            val parsed = try {
+                apiInterface.aiSearch(query = query, lat = lat, lon = lon, radius = radius).data.parsed
             } catch (_: Exception) {
-                onResult(null)
+                null
+            } ?: return null
+
+            val keywords = parsed.keywords?.takeIf { it.isNotBlank() } ?: query
+            val categoryIds = parsed.categoryId?.let { listOf(it) } ?: baseCategoryIds
+            val priceMin = parsed.priceMin?.toInt() ?: basePriceMin
+            val priceMax = parsed.priceMax?.toInt() ?: basePriceMax
+            val sort = parsed.sort ?: baseSort
+            val hasConstraints = categoryIds.isNotEmpty() || priceMin != null || priceMax != null
+
+            // Probe page 0 with the keywords; if nothing matches but we have a
+            // category/price, drop the keywords and search by those instead.
+            var effectiveQuery = keywords
+            var dropped = false
+            if (keywords.isNotBlank() && hasConstraints) {
+                val probeEmpty = try {
+                    apiInterface.searchPosts(
+                        lang = SharedPref.language, page = 0, size = 1, query = keywords,
+                        lat = lat, lon = lon, radius = radius,
+                        categoryIds = categoryIds.ifEmpty { null },
+                        startDate = null, endDate = null,
+                        priceMin = priceMin, priceMax = priceMax, sort = sort,
+                    ).data.content.isEmpty()
+                } catch (_: Exception) {
+                    false
+                }
+                if (probeEmpty) {
+                    effectiveQuery = ""
+                    dropped = true
+                }
             }
+
+            return AiSearchResolution(parsed, effectiveQuery, categoryIds, priceMin, priceMax, sort, dropped)
+        } finally {
             isAiSearching = false
         }
     }

@@ -277,6 +277,7 @@
     <string name="ai_price_explanation">Это справедливая цена, рассчитанная на основе %1$s похожих активных объявлений в этой категории. Большинство похожих товаров оценены в диапазоне %2$s–%3$s. Используйте её как отправную точку и скорректируйте под состояние вашего товара.</string>
     <string name="ai_price_use">Использовать эту цену</string>
     <string name="ai_search_with_ai">Искать с ИИ</string>
+    <string name="ai_results_notice">Результаты AI по запросу «%1$s»</string>
     <string name="ai_create_with_ai_title">Создать с ИИ</string>
     <string name="ai_create_with_ai_subtitle">Добавьте фото — мы напишем заголовок, описание, подберём категорию и заполним детали за вас.</string>
     <string name="ai_create_manually_title">Создать вручную</string>

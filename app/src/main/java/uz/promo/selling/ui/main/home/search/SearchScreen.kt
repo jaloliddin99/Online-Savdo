@@ -130,6 +130,13 @@ fun SearchScreen(
     }
     var myFilter by searchResultViewModel::filter
 
+    // AI no-results fallback: whether we've already let the AI reinterpret the
+    // current empty result, and the banner query to show over AI-derived results.
+    var aiTriedForEmpty by remember { mutableStateOf(false) }
+    var aiBannerQuery by remember { mutableStateOf<String?>(null) }
+    // True while myFilter carries AI-derived constraints; dropped on a fresh typed query.
+    var aiAppliedFilters by remember { mutableStateOf(false) }
+
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
@@ -152,6 +159,10 @@ fun SearchScreen(
     }
 
     fun triggerSearch(query: String) {
+        // A fresh user-initiated search resets the AI fallback bookkeeping.
+        aiTriedForEmpty = false
+        aiBannerQuery = null
+        aiAppliedFilters = false
         searchViewModel.clearSuggestions()
         searchViewModel.queryText = query
         val lat = searchViewModel.searchLat
@@ -186,27 +197,58 @@ fun SearchScreen(
         return all.firstNotNullOfOrNull { findCategoryTitle(it, id.toInt()) }
     }
 
+    // Applies an AI resolution: reflects the understood category/price in the
+    // chips and drives paging with the (possibly keyword-dropped) AI query,
+    // leaving the visible search-bar text untouched.
+    fun applyAiResolution(resolution: AiSearchResolution, originalQuery: String) {
+        val categoryNames = resolution.parsed.categoryId?.let {
+            listOf(resolveCategoryName(it) ?: (resolution.parsed.keywords ?: originalQuery))
+        } ?: myFilter.categoryNames
+        myFilter = myFilter.copy(
+            categoryIds = resolution.categoryIds,
+            categoryNames = categoryNames,
+            fromPrice = resolution.priceMin,
+            toPrice = resolution.priceMax,
+            sort = resolution.sort,
+        )
+        aiBannerQuery = originalQuery
+        aiAppliedFilters = true
+        searchResultViewModel.search(
+            SearchParams(
+                query = resolution.effectiveQuery,
+                lat = searchViewModel.searchLat,
+                lon = searchViewModel.searchLon,
+                radius = searchViewModel.searchRadiusKm,
+                categoryIds = resolution.categoryIds,
+                startDate = myFilter.titleTextFrom,
+                endDate = myFilter.titleTextTo,
+                priceMin = resolution.priceMin,
+                priceMax = resolution.priceMax,
+                sort = resolution.sort,
+            )
+        )
+    }
+
     fun runAiSearch(query: String) {
-        searchResultViewModel.aiSearch(
-            query = query,
-            lat = searchViewModel.searchLat,
-            lon = searchViewModel.searchLon,
-            radius = searchViewModel.searchRadiusKm
-        ) { parsed ->
-            val newQuery = parsed?.keywords?.takeIf { it.isNotBlank() } ?: query
-            updateSearchText(newQuery)
-            if (parsed != null) {
-                myFilter = myFilter.copy(
-                    categoryIds = parsed.categoryId?.let { listOf(it) } ?: myFilter.categoryIds,
-                    categoryNames = parsed.categoryId?.let {
-                        listOf(resolveCategoryName(it) ?: newQuery)
-                    } ?: myFilter.categoryNames,
-                    fromPrice = parsed.priceMin?.toInt() ?: myFilter.fromPrice,
-                    toPrice = parsed.priceMax?.toInt() ?: myFilter.toPrice,
-                    sort = parsed.sort ?: myFilter.sort
-                )
+        scope.launch {
+            val resolution = searchResultViewModel.resolveAiSearch(
+                query = query,
+                lat = searchViewModel.searchLat,
+                lon = searchViewModel.searchLon,
+                radius = searchViewModel.searchRadiusKm,
+                baseCategoryIds = myFilter.categoryIds,
+                basePriceMin = myFilter.fromPrice,
+                basePriceMax = myFilter.toPrice,
+                baseSort = myFilter.sort,
+            )
+            if (resolution == null) {
+                triggerSearch(query)
+                return@launch
             }
-            triggerSearch(newQuery)
+            // Explicit AI: reflect the keywords in the field, then search.
+            updateSearchText(resolution.parsed.keywords?.takeIf { it.isNotBlank() } ?: query)
+            aiTriedForEmpty = true
+            applyAiResolution(resolution, query)
         }
     }
 
@@ -270,6 +312,29 @@ fun SearchScreen(
     val isAppending = pagingItems.loadState.append is LoadState.Loading
     val isEmpty = hasSearched && pagingItems.itemCount == 0 && !isLoading
 
+    // No-results fallback: when a normal search finds nothing, let the AI
+    // reinterpret the query (parse → category/price) so the user isn't dead-ended.
+    LaunchedEffect(isEmpty) {
+        // Don't escalate when an explicit category is active — we must not override it.
+        if (isEmpty && !aiTriedForEmpty && searchTextListener.length >= 2 &&
+            !searchResultViewModel.isAiSearching && !myFilter.hasCategoryFilter) {
+            aiTriedForEmpty = true
+            val resolution = searchResultViewModel.resolveAiSearch(
+                query = searchTextListener,
+                lat = searchViewModel.searchLat,
+                lon = searchViewModel.searchLon,
+                radius = searchViewModel.searchRadiusKm,
+                baseCategoryIds = myFilter.categoryIds,
+                basePriceMin = myFilter.fromPrice,
+                basePriceMax = myFilter.toPrice,
+                baseSort = myFilter.sort,
+            )
+            if (resolution != null) {
+                applyAiResolution(resolution, searchTextListener)
+            }
+        }
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(modifier = modifier) {
@@ -285,6 +350,12 @@ fun SearchScreen(
                     onSearchTriggered = {
                         updateSearchText(it)
                         if (hasSearched) {
+                            // A brand-new typed query drops AI-derived filters so they
+                            // don't leak into an unrelated search.
+                            if (aiAppliedFilters) {
+                                myFilter = FilterClass()
+                                aiAppliedFilters = false
+                            }
                             triggerSearch(it)
                         } else {
                             searchViewModel.fetchSuggestions(it)
@@ -394,6 +465,10 @@ fun SearchScreen(
                             }
                         }
                     )
+                }
+
+                if (aiBannerQuery != null && hasSearched && suggestions.isEmpty() && pagingItems.itemCount > 0) {
+                    AiResultsBanner(aiBannerQuery!!)
                 }
 
                 if (!hasSearched && suggestions.isEmpty() && !isTyping && history.isEmpty() && searchViewModel.hasFetchedSuggestions && !searchViewModel.isLoadingSuggestions) {
@@ -580,6 +655,26 @@ fun SearchScreen(
                 }
             )
         }
+    }
+}
+
+/** Small banner shown over AI-derived results: "✨ AI matches for '…'". */
+@Composable
+private fun AiResultsBanner(query: String) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.08f))
+            .padding(horizontal = 12.dp, vertical = 8.dp)
+    ) {
+        Text(
+            text = "✨ " + stringResource(R.string.ai_results_notice, query),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 

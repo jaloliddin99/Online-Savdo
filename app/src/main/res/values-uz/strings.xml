@@ -279,6 +279,7 @@
     <string name="ai_price_explanation">Bu — ushbu toifadagi %1$s ta o\'xshash faol e\'lon asosida hisoblangan adolatli narx. Aksariyat shunga o\'xshash mahsulotlar %2$s–%3$s oralig\'ida narxlangan. Buni boshlang\'ich nuqta sifatida oling va mahsulotingiz holatiga qarab moslang.</string>
     <string name="ai_price_use">Shu narxni qo\'yish</string>
     <string name="ai_search_with_ai">Sun\'iy intellekt bilan qidirish</string>
+    <string name="ai_results_notice">“%1$s” bo\'yicha AI natijalari</string>
     <string name="ai_create_with_ai_title">Sun\'iy intellekt bilan yaratish</string>
     <string name="ai_create_with_ai_subtitle">Surat qo\'shing — sarlavha, tavsifni yozamiz, toifani tanlaymiz va tafsilotlarni siz uchun to\'ldiramiz.</string>
     <string name="ai_create_manually_title">Qo\'lda yaratish</string>
