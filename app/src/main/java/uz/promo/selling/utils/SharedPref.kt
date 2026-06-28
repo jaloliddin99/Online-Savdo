@@ -31,4 +31,8 @@ object SharedPref: KotprefModel() {
     // Device-side news opt-out (FCM topic "all" subscription).
     var newsNotifications by booleanPref(true)
 
+    // True once the user dismisses the "personalize with AI" interests card on the
+    // SearchScreen, so it isn't shown again even while they have no interests set.
+    var interestsCardDismissed by booleanPref(false)
+
 }

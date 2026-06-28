@@ -211,6 +211,21 @@ interface ApiInterface {
         @Query("lang") lang: String = SharedPref.language
     ): ModelSuccess
 
+    // Interests: the category ids the user explicitly picked to personalize
+    // AI search / recommendations on the SearchScreen.
+    @GET("user/interests")
+    suspend fun getInterests(
+        @Header("Authorization") token: String = SharedPref.deviceToken,
+        @Query("lang") lang: String = SharedPref.language
+    ): GenericModel<List<Long>>
+
+    @PUT("user/interests")
+    suspend fun updateInterests(
+        @Header("Authorization") token: String = SharedPref.deviceToken,
+        @Body body: Map<String, List<Long>>,
+        @Query("lang") lang: String = SharedPref.language
+    ): GenericModel<List<Long>>
+
     @GET("user/notification-prefs")
     suspend fun getNotificationPrefs(
         @Header("Authorization") token: String,

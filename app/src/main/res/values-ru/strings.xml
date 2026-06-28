@@ -278,6 +278,11 @@
     <string name="ai_price_use">Использовать эту цену</string>
     <string name="ai_search_with_ai">Искать с ИИ</string>
     <string name="ai_results_notice">Результаты AI по запросу «%1$s»</string>
+    <string name="interest_card_title">Персонализируйте поиск с ИИ</string>
+    <string name="interest_card_subtitle">Выберите несколько интересов, и наш ИИ подстроит результаты поиска и рекомендации под вас.</string>
+    <string name="interest_card_choose">Выбрать интересы</string>
+    <string name="interest_card_dismiss">Закрыть</string>
+    <string name="interest_recommended">Рекомендуем вам</string>
     <string name="ai_create_with_ai_title">Создать с ИИ</string>
     <string name="ai_create_with_ai_subtitle">Добавьте фото — мы напишем заголовок, описание, подберём категорию и заполним детали за вас.</string>
     <string name="ai_create_manually_title">Создать вручную</string>

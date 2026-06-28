@@ -284,6 +284,11 @@
     <string name="ai_price_use">Use this price</string>
     <string name="ai_search_with_ai">Search with AI</string>
     <string name="ai_results_notice">Showing AI matches for “%1$s”</string>
+    <string name="interest_card_title">Personalize your search with AI</string>
+    <string name="interest_card_subtitle">Pick a few interests and our AI will tailor your search results and recommendations to you.</string>
+    <string name="interest_card_choose">Choose interests</string>
+    <string name="interest_card_dismiss">Dismiss</string>
+    <string name="interest_recommended">Recommended for you</string>
     <string name="ai_create_with_ai_title">Create with AI</string>
     <string name="ai_create_with_ai_subtitle">Add photos — we write the title, description, pick the category and fill the details for you.</string>
     <string name="ai_create_manually_title">Create manually</string>

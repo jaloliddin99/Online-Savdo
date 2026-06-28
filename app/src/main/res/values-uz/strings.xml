@@ -280,6 +280,11 @@
     <string name="ai_price_use">Shu narxni qo\'yish</string>
     <string name="ai_search_with_ai">Sun\'iy intellekt bilan qidirish</string>
     <string name="ai_results_notice">“%1$s” bo\'yicha AI natijalari</string>
+    <string name="interest_card_title">Qidiruvni sun\'iy intellekt bilan moslang</string>
+    <string name="interest_card_subtitle">Bir nechta qiziqishni tanlang — sun\'iy intellekt qidiruv va tavsiyalarni siz uchun moslashtiradi.</string>
+    <string name="interest_card_choose">Qiziqishlarni tanlash</string>
+    <string name="interest_card_dismiss">Yopish</string>
+    <string name="interest_recommended">Siz uchun tavsiyalar</string>
     <string name="ai_create_with_ai_title">Sun\'iy intellekt bilan yaratish</string>
     <string name="ai_create_with_ai_subtitle">Surat qo\'shing — sarlavha, tavsifni yozamiz, toifani tanlaymiz va tafsilotlarni siz uchun to\'ldiramiz.</string>
     <string name="ai_create_manually_title">Qo\'lda yaratish</string>

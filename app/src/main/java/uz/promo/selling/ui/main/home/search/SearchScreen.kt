@@ -28,6 +28,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material3.Button
@@ -52,6 +53,7 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -117,6 +119,7 @@ fun SearchScreen(
 
     val searchResultViewModel = hiltViewModel<SearchResultViewModel>()
     val searchViewModel = hiltViewModel<SearchViewModel>()
+    val interestsViewModel = hiltViewModel<InterestsViewModel>()
     val pagingItems = searchResultViewModel.searchResults.collectAsLazyPagingItems()
     val suggestions = searchViewModel.suggestions
     val queryText = searchViewModel.queryText
@@ -141,6 +144,7 @@ fun SearchScreen(
     val scope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
     var showCategoryDialog by remember { mutableStateOf(false) }
+    var showInterestPicker by remember { mutableStateOf(false) }
 
     var snackbarMessage by remember { mutableStateOf<String?>(null) }
     var snackbarVisible by remember { mutableStateOf(false) }
@@ -195,6 +199,23 @@ fun SearchScreen(
     fun resolveCategoryName(id: Long): String? {
         val all = searchResultViewModel.allCategories ?: return null
         return all.firstNotNullOfOrNull { findCategoryTitle(it, id.toInt()) }
+    }
+
+    // Opens the interest picker, ensuring the category tree is loaded first.
+    fun openInterestPicker() {
+        searchResultViewModel.loadAllCategories()
+        showInterestPicker = true
+    }
+
+    // Runs a search constrained to the user's interest categories ("recommended for you").
+    fun runRecommendations() {
+        val ids = interestsViewModel.interests
+        if (ids.isEmpty()) return
+        myFilter = myFilter.copy(
+            categoryIds = ids,
+            categoryNames = ids.map { resolveCategoryName(it) ?: "" }
+        )
+        triggerSearch("")
     }
 
     // Applies an AI resolution: reflects the understood category/price in the
@@ -398,6 +419,20 @@ fun SearchScreen(
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.primary
                         )
+                    }
+                }
+
+                // Interests: the "personalize with AI" card before anything is typed,
+                // or a one-tap "recommended for you" entry once interests are set.
+                if (!hasSearched && searchTextListener.isBlank() && !isTyping && suggestions.isEmpty()) {
+                    if (interestsViewModel.showCard) {
+                        InterestCard(
+                            isSaving = interestsViewModel.isSaving,
+                            onChoose = { openInterestPicker() },
+                            onDismiss = { interestsViewModel.dismissCard() },
+                        )
+                    } else if (interestsViewModel.hasInterests) {
+                        RecommendedForYouButton(onClick = { runRecommendations() })
                     }
                 }
 
@@ -655,6 +690,30 @@ fun SearchScreen(
                 }
             )
         }
+
+        if (showInterestPicker) {
+            LaunchedEffect(Unit) {
+                searchResultViewModel.loadAllCategories()
+            }
+            CategoryPickerDialog(
+                categories = searchResultViewModel.allCategories,
+                isLoading = searchResultViewModel.isCategoriesLoading,
+                initialSelectedIds = interestsViewModel.interests.map { it.toInt() }.toSet(),
+                onDismiss = { showInterestPicker = false },
+                onApply = { selectedItems ->
+                    showInterestPicker = false
+                    val ids = selectedItems.map { it.id.toLong() }
+                    interestsViewModel.saveInterests(ids) { saved ->
+                        // Right after picking, surface interest-based results.
+                        myFilter = myFilter.copy(
+                            categoryIds = saved,
+                            categoryNames = saved.map { resolveCategoryName(it) ?: "" }
+                        )
+                        triggerSearch("")
+                    }
+                }
+            )
+        }
     }
 }
 
@@ -674,6 +733,98 @@ private fun AiResultsBanner(query: String) {
             text = "✨ " + stringResource(R.string.ai_results_notice, query),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+/**
+ * "Personalize with AI" prompt shown on the empty SearchScreen. Tapping the button
+ * opens the category picker so the user can choose interests; these power AI-tailored
+ * search and recommendations.
+ */
+@Composable
+private fun InterestCard(
+    isSaving: Boolean,
+    onChoose: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val primary = MaterialTheme.colorScheme.primary
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(
+                Brush.linearGradient(
+                    listOf(primary.copy(alpha = 0.14f), primary.copy(alpha = 0.04f))
+                )
+            )
+            .padding(16.dp)
+    ) {
+        Row(verticalAlignment = Alignment.Top) {
+            Text(
+                text = "✨ " + stringResource(R.string.interest_card_title),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                color = primary,
+                modifier = Modifier.weight(1f)
+            )
+            Icon(
+                imageVector = Icons.Filled.Close,
+                contentDescription = stringResource(R.string.interest_card_dismiss),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier
+                    .size(20.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .clickable { onDismiss() }
+            )
+        }
+        Spacer(modifier = Modifier.height(6.dp))
+        Text(
+            text = stringResource(R.string.interest_card_subtitle),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Spacer(modifier = Modifier.height(14.dp))
+        Button(
+            onClick = onChoose,
+            enabled = !isSaving,
+            shape = RoundedCornerShape(12.dp),
+        ) {
+            if (isSaving) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(16.dp),
+                    strokeWidth = 2.dp,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+            }
+            Text(
+                text = stringResource(R.string.interest_card_choose),
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+    }
+}
+
+/** One-tap entry to interest-based results, shown once the user has interests set. */
+@Composable
+private fun RecommendedForYouButton(onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.08f))
+            .clickable { onClick() }
+            .padding(horizontal = 14.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "✨ " + stringResource(R.string.interest_recommended),
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.primary
         )
     }
 }
