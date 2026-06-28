@@ -101,23 +101,6 @@ fun HomeSearchBar(
                     .clickable(onClick = onSearchClick)
             )
         }
-        IconButton(onClick = onMessagesClick) {
-            BadgedBox(
-                badge = {
-                    if (unreadCount > 0) {
-                        Badge {
-                            Text(text = if (unreadCount > 99) "99+" else unreadCount.toString())
-                        }
-                    }
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.Chat,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurface
-                )
-            }
-        }
         IconButton(onClick = onNotificationClick) {
             Icon(
                 imageVector = Icons.Filled.Notifications,

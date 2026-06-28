@@ -95,6 +95,8 @@
     <string name="call">Позвонить</string>
     <string name="sms">SMS</string>
     <string name="messages_title">Сообщения</string>
+    <string name="chat_filter_unread">Непрочитанные</string>
+    <string name="chat_search_hint">Поиск чатов</string>
     <string name="message_seller">Написать</string>
     <string name="chat_empty">Пока нет диалогов</string>
     <string name="chat_input_hint">Напишите сообщение…</string>
@@ -179,6 +181,8 @@
     <string name="nav_my_posts">Мои объявления</string>
     <string name="nav_add">Подать</string>
     <string name="nav_saved">Избранное</string>
+    <string name="nav_chat">Чат</string>
+    <string name="nav_saved_posts">Моё</string>
     <string name="nav_profile">Профиль</string>
     <string name="help_title">Помощь</string>
     <string name="faq_title">Частые вопросы</string>

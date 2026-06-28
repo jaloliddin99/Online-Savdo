@@ -100,6 +100,8 @@
     <string name="call">Call</string>
     <string name="sms">SMS</string>
     <string name="messages_title">Messages</string>
+    <string name="chat_filter_unread">Unread</string>
+    <string name="chat_search_hint">Search chats</string>
     <string name="message_seller">Message</string>
     <string name="chat_empty">No conversations yet</string>
     <string name="chat_input_hint">Write a message…</string>
@@ -184,6 +186,8 @@
     <string name="nav_my_posts">My ads</string>
     <string name="nav_add">Post ad</string>
     <string name="nav_saved">Saved</string>
+    <string name="nav_chat">Chat</string>
+    <string name="nav_saved_posts">My stuff</string>
     <string name="nav_profile">Profile</string>
     <string name="help_title">Help</string>
     <string name="faq_title">Frequently asked questions</string>

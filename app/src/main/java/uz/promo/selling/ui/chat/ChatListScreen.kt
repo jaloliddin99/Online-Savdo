@@ -47,12 +47,30 @@ import uz.promo.selling.BuildConfig
 import uz.promo.selling.R
 import uz.promo.selling.data.remote.models.chat.Conversation
 import uz.promo.selling.ui.TopAppBar
+import uz.promo.selling.ui.main.saved.SegmentedToggle
 import uz.promo.selling.utils.chatListTimeLabel
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.text.TextStyle
 
 @Composable
 fun ChatListRoute(
     onBackClick: () -> Unit,
     onConversationClick: (Long) -> Unit,
+    // When Chat is a bottom-bar tab there's no back target — hide the arrow.
+    showBackButton: Boolean = true,
     viewModel: ChatListViewModel = hiltViewModel()
 ) {
     // Reload on every resume so deletions made inside a thread are reflected on return.
@@ -67,19 +85,121 @@ fun ChatListRoute(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
+    var searchActive by rememberSaveable { mutableStateOf(false) }
+    var query by rememberSaveable { mutableStateOf("") }
+    var filter by rememberSaveable { mutableIntStateOf(0) } // 0 = All, 1 = Unread
+
+    val state = viewModel.state
+    val filtered = remember(state.items, filter, query) {
+        state.items.filter { c ->
+            val matchesFilter = filter == 0 || c.unreadCount > 0
+            val matchesQuery = query.isBlank() || listOfNotNull(
+                c.otherUserName, c.postTitle, c.lastMessage
+            ).any { it.contains(query.trim(), ignoreCase = true) }
+            matchesFilter && matchesQuery
+        }
+    }
+    val unreadTotal = remember(state.items) { state.items.count { it.unreadCount > 0 } }
+
     Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(
             title = stringResource(R.string.messages_title),
-            navigationIcon = Icons.AutoMirrored.Filled.ArrowBack,
+            navigationIcon = if (showBackButton) Icons.AutoMirrored.Filled.ArrowBack else null,
             onNavigationClick = onBackClick,
             colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                 containerColor = Color.Transparent
-            )
+            ),
+            actionContent = {
+                IconButton(onClick = {
+                    searchActive = !searchActive
+                    if (!searchActive) query = ""
+                }) {
+                    Icon(
+                        imageVector = if (searchActive) Icons.Filled.Close else Icons.Filled.Search,
+                        contentDescription = stringResource(R.string.chat_search_hint),
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
         )
+
+        // Reveal-on-tap search field + All/Unread toggle.
+        Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+            AnimatedVisibility(visible = searchActive) {
+                Column {
+                    ChatSearchField(query = query, onQueryChange = { query = it })
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+            }
+            SegmentedToggle(
+                options = listOf(
+                    stringResource(R.string.all),
+                    if (unreadTotal > 0)
+                        "${stringResource(R.string.chat_filter_unread)} ($unreadTotal)"
+                    else stringResource(R.string.chat_filter_unread)
+                ),
+                selectedIndex = filter,
+                onSelect = { filter = it }
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+        }
+
         ChatListScreen(
             modifier = Modifier.fillMaxSize(),
-            viewModel = viewModel,
-            onConversationClick = onConversationClick
+            items = filtered,
+            isLoading = state.isLoading && state.items.isEmpty(),
+            onConversationClick = onConversationClick,
+            onDelete = viewModel::deleteConversation
+        )
+    }
+}
+
+@Composable
+private fun ChatSearchField(
+    query: String,
+    onQueryChange: (String) -> Unit
+) {
+    val focusRequester = remember { FocusRequester() }
+    LaunchedEffect(Unit) { focusRequester.requestFocus() }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Icon(
+            imageVector = Icons.Filled.Search,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+            modifier = Modifier.size(18.dp)
+        )
+        BasicTextField(
+            value = query,
+            onValueChange = onQueryChange,
+            singleLine = true,
+            textStyle = TextStyle(
+                color = MaterialTheme.colorScheme.onSurface,
+                fontSize = 15.sp
+            ),
+            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+            modifier = Modifier
+                .weight(1f)
+                .focusRequester(focusRequester),
+            decorationBox = { inner ->
+                Box {
+                    if (query.isBlank()) {
+                        Text(
+                            text = stringResource(R.string.chat_search_hint),
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+                            fontSize = 15.sp
+                        )
+                    }
+                    inner()
+                }
+            }
         )
     }
 }
@@ -87,19 +207,20 @@ fun ChatListRoute(
 @Composable
 private fun ChatListScreen(
     modifier: Modifier,
-    viewModel: ChatListViewModel,
-    onConversationClick: (Long) -> Unit
+    items: List<Conversation>,
+    isLoading: Boolean,
+    onConversationClick: (Long) -> Unit,
+    onDelete: (Long) -> Unit
 ) {
-    val state = viewModel.state
     var deleteId by remember { mutableStateOf<Long?>(null) }
 
     Box(modifier = modifier.fillMaxSize()) {
         when {
-            state.isLoading && state.items.isEmpty() -> {
+            isLoading -> {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
 
-            state.items.isEmpty() -> {
+            items.isEmpty() -> {
                 Text(
                     text = stringResource(R.string.chat_empty),
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
@@ -111,13 +232,13 @@ private fun ChatListScreen(
 
             else -> {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    itemsIndexed(items = state.items, key = { _, c -> c.id }) { index, conversation ->
+                    itemsIndexed(items = items, key = { _, c -> c.id }) { index, conversation ->
                         ConversationRow(
                             conversation = conversation,
                             onClick = { onConversationClick(conversation.id) },
                             onLongClick = { deleteId = conversation.id }
                         )
-                        if (index < state.items.lastIndex) {
+                        if (index < items.lastIndex) {
                             HorizontalDivider(
                                 // Indent past the avatar, WhatsApp-style.
                                 modifier = Modifier.padding(start = 84.dp, end = 16.dp),
@@ -137,7 +258,7 @@ private fun ChatListScreen(
             title = { Text(stringResource(R.string.chat_confirm_delete)) },
             confirmButton = {
                 TextButton(onClick = {
-                    viewModel.deleteConversation(id)
+                    onDelete(id)
                     deleteId = null
                 }) { Text(stringResource(R.string.chat_delete)) }
             },

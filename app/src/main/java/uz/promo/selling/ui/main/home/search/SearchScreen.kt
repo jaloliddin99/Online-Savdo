@@ -145,6 +145,7 @@ fun SearchScreen(
     var showBottomSheet by remember { mutableStateOf(false) }
     var showCategoryDialog by remember { mutableStateOf(false) }
     var showInterestPicker by remember { mutableStateOf(false) }
+    var showMap by remember { mutableStateOf(false) }
 
     var snackbarMessage by remember { mutableStateOf<String?>(null) }
     var snackbarVisible by remember { mutableStateOf(false) }
@@ -356,8 +357,25 @@ fun SearchScreen(
         }
     }
 
+    // In map mode, fetch ALL results (paging can't drive the clustered map) and
+    // refetch whenever the query/filters change.
+    LaunchedEffect(showMap, searchResultViewModel.currentParams) {
+        if (showMap) {
+            searchResultViewModel.currentParams?.let { searchResultViewModel.loadMapPosts(it) }
+        }
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.fillMaxSize()) {
+            // Map mode: full-bleed map behind the toolbar + chips.
+            if (showMap && hasSearched) {
+                SearchMapView(
+                    posts = searchResultViewModel.mapPosts,
+                    isLoading = searchResultViewModel.isMapLoading,
+                    onPostClick = onItemClick,
+                    modifier = Modifier.fillMaxSize(),
+                )
+            }
             Column(modifier = modifier) {
                 Spacer(modifier = Modifier.windowInsetsTopHeight(WindowInsets.safeDrawing))
                 SearchToolbar(
@@ -387,6 +405,8 @@ fun SearchScreen(
                         showBottomSheet = true
                     },
                     onMapClick = onMapClick,
+                    onMapToggleClicked = { showMap = !showMap },
+                    isMapMode = showMap,
                     isFilterIconVisible = hasSearched && suggestions.isEmpty(),
                     searchBarModifier = searchBarModifier,
                 )
@@ -502,6 +522,8 @@ fun SearchScreen(
                     )
                 }
 
+                // List content (hidden in map mode; the map sits behind as background).
+                if (!showMap) {
                 if (aiBannerQuery != null && hasSearched && suggestions.isEmpty() && pagingItems.itemCount > 0) {
                     AiResultsBanner(aiBannerQuery!!)
                 }
@@ -585,9 +607,10 @@ fun SearchScreen(
                         }
                     }
                 }
+                } // end if (!showMap)
 
             }
-            if (isEmpty && !isLoading) {
+            if (isEmpty && !isLoading && !showMap) {
                 ComposeLottieAnimation(Modifier)
             }
         }

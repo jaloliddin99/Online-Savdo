@@ -19,6 +19,8 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -60,6 +62,7 @@ import uz.promo.selling.ui.auth.verify.VerificationRoute
 import uz.promo.selling.ui.categoriesList.CategoriesRoute
 import uz.promo.selling.ui.chat.ChatDetailRoute
 import uz.promo.selling.ui.chat.ChatListRoute
+import uz.promo.selling.ui.chat.ChatUnreadViewModel
 import uz.promo.selling.ui.detailsPage.ProductDetailsRoute
 import uz.promo.selling.ui.dialogs.settings.SettingsDialog
 import uz.promo.selling.ui.dialogs.settings.UserEditableSettings
@@ -80,6 +83,7 @@ import uz.promo.selling.ui.main.myPosts.MyPostsScreenRoute
 import uz.promo.selling.ui.main.profile.update.UpdateProfileRoute
 import uz.promo.selling.ui.main.profile.updatePassword.UpdatePasswordRoute
 import uz.promo.selling.ui.main.saved.SavedRoute
+import uz.promo.selling.ui.main.saved.SavedPostsRoute
 import uz.promo.selling.ui.theme.AppBackground
 import uz.promo.selling.ui.theme.AppGradientBackground
 import uz.promo.selling.ui.theme.GradientColors
@@ -90,9 +94,9 @@ import uz.promo.selling.utils.SharedPref
 
 private val BOTTOM_BAR_ROUTES = setOf(
     Screen.Home.route,
-    Screen.MyProducts.route,
+    Screen.SavedPosts.route,
     // AddProduct intentionally omitted — hide the bottom bar on the post-ad page.
-    Screen.Saved.route,
+    Screen.Chat.route,
     Screen.Profile.route
 )
 
@@ -198,13 +202,18 @@ fun BottomNavigation(
     ) {
         val items = listOf(
             NavItems.Home,
-            NavItems.MyPosts,
+            NavItems.SavedPosts,
             NavItems.AddProduct,
-            NavItems.Saved,
+            NavItems.Chat,
             NavItems.Profile
         )
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route
+
+        // Unread message count for the Chat tab badge; refresh as the user moves around.
+        val chatUnreadVM: ChatUnreadViewModel = hiltViewModel()
+        LaunchedEffect(currentRoute) { chatUnreadVM.refresh() }
+
         items.forEach { item ->
             val isSelected = currentRoute == item.screenRoute
 
@@ -216,11 +225,27 @@ fun BottomNavigation(
                 },
                 label = { Text(text = stringResource(id = item.titleRes)) },
                 icon = {
-                    Icon(
-                        imageVector = if (isSelected)
-                            item.selectedIcon else item.unselectedIcon,
-                        contentDescription = stringResource(id = item.titleRes)
-                    )
+                    val iconVector = if (isSelected) item.selectedIcon else item.unselectedIcon
+                    val unread = chatUnreadVM.count
+                    if (item == NavItems.Chat && unread > 0) {
+                        BadgedBox(
+                            badge = {
+                                Badge {
+                                    Text(text = if (unread > 99) "99+" else unread.toString())
+                                }
+                            }
+                        ) {
+                            Icon(
+                                imageVector = iconVector,
+                                contentDescription = stringResource(id = item.titleRes)
+                            )
+                        }
+                    } else {
+                        Icon(
+                            imageVector = iconVector,
+                            contentDescription = stringResource(id = item.titleRes)
+                        )
+                    }
                 },
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = NavigationDefaults.navigationSelectedItemColor(),
@@ -444,6 +469,23 @@ fun NavigationGraph(
             }
 
             composable(
+                route = Screen.SavedPosts.route,
+                enterTransition = { fadeIn(animationSpec = tween(300)) },
+                exitTransition = { fadeOut(animationSpec = tween(300)) },
+                popEnterTransition = { fadeIn(animationSpec = tween(300)) },
+                popExitTransition = { fadeOut(animationSpec = tween(300)) }
+            ) { entry ->
+                // Profile's "My ads" deep-links here with the My Posts tab preselected.
+                val startOnMyPosts = entry.savedStateHandle.get<Boolean>("start_my_posts") ?: false
+                SavedPostsRoute(
+                    startOnMyPosts = startOnMyPosts,
+                    navigateToProduct = {
+                        navController.navigate(Screen.ProductDetails(it).route)
+                    }
+                )
+            }
+
+            composable(
                 route = Screen.Profile.route,
                 enterTransition = { fadeIn(animationSpec = tween(300)) },
                 exitTransition = { fadeOut(animationSpec = tween(300)) },
@@ -457,7 +499,10 @@ fun NavigationGraph(
                 ProfileRoute(
                     onSettingsClick = onSettingsClick,
                     toMyProducts = {
-                        navController.navigate(Screen.MyProducts.route)
+                        // Open the merged screen on the My Posts tab.
+                        navController.navigate(Screen.SavedPosts.route)
+                        navController.getBackStackEntry(Screen.SavedPosts.route)
+                            .savedStateHandle["start_my_posts"] = true
                     },
                     toUpdateProfile = {
                         navController.navigate(Screen.ProfileUpdate.route)
@@ -793,6 +838,8 @@ fun NavigationGraph(
             composable(route = Screen.Chat.route) {
                 ChatListRoute(
                     onBackClick = navController::popBackStack,
+                    // Chat is a primary bottom-bar tab now — no back arrow.
+                    showBackButton = false,
                     onConversationClick = {
                         navController.navigate(Screen.ChatDetail(it).route)
                     }

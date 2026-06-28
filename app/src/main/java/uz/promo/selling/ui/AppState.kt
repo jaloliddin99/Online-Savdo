@@ -38,6 +38,8 @@ class ApplicationState(
             Screen.Home.route -> NavItems.Home
             Screen.AddProduct.route -> NavItems.AddProduct
             Screen.Saved.route -> NavItems.Saved
+            Screen.SavedPosts.route -> NavItems.SavedPosts
+            Screen.Chat.route -> NavItems.Chat
             Screen.Profile.route -> NavItems.Profile
             Screen.Categories.route -> NavItems.Categories
             Screen.MyProducts.route -> NavItems.MyPosts
@@ -51,7 +53,8 @@ class ApplicationState(
     fun navigateToTopLevelDestination(topLevelDestination: NavItems) {
         // Auth-required tabs: redirect to Welcome if not logged in
         val requiresAuth = topLevelDestination in setOf(
-            NavItems.MyPosts, NavItems.AddProduct, NavItems.Saved, NavItems.Profile
+            NavItems.MyPosts, NavItems.AddProduct, NavItems.Saved,
+            NavItems.SavedPosts, NavItems.Chat, NavItems.Profile
         )
         if (requiresAuth && !isUserLoggedIn()) {
             navController.navigate(Screen.Welcome.route)
@@ -71,6 +74,8 @@ class ApplicationState(
             NavItems.MyPosts -> navController.navigate(Screen.MyProducts.route, topLevelNavOptions)
             NavItems.AddProduct -> navController.navigate(Screen.AddProduct.route, topLevelNavOptions)
             NavItems.Saved -> navController.navigate(Screen.Saved.route, topLevelNavOptions)
+            NavItems.SavedPosts -> navController.navigate(Screen.SavedPosts.route, topLevelNavOptions)
+            NavItems.Chat -> navController.navigate(Screen.Chat.route, topLevelNavOptions)
             NavItems.Profile -> navController.navigate(Screen.Profile.route, topLevelNavOptions)
             else -> {}
         }

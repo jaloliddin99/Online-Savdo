@@ -18,11 +18,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ViewList
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -403,6 +405,8 @@ fun SearchToolbar(
     onSearchTriggered: (String) -> Unit,
     onFilterClicked: (() -> Unit)? = null,
     onMapClick: (() -> Unit)? = null,
+    onMapToggleClicked: (() -> Unit)? = null,
+    isMapMode: Boolean = false,
     autoFocus: Boolean = true,
     isFilterIconVisible: Boolean = true,
     searchBarModifier: Modifier = Modifier,
@@ -432,6 +436,17 @@ fun SearchToolbar(
             searchBarModifier = searchBarModifier,
         )
 
+        // Map / list toggle (only meaningful once results are shown).
+        if (onMapToggleClicked != null && isFilterIconVisible) {
+            IconButton(onClick = onMapToggleClicked) {
+                Icon(
+                    imageVector = if (isMapMode) Icons.AutoMirrored.Filled.ViewList else Icons.Filled.Map,
+                    contentDescription = "Toggle map",
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
+
         if (onFilterClicked != null && isFilterIconVisible) {
             IconButton(onClick = onFilterClicked) {
                 Icon(
@@ -440,7 +455,7 @@ fun SearchToolbar(
                     tint = MaterialTheme.colorScheme.onSurface
                 )
             }
-        } else {
+        } else if (onMapToggleClicked == null) {
             Spacer(modifier.width(16.dp))
         }
 

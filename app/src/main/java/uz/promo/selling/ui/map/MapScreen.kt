@@ -121,41 +121,45 @@ fun MapsScreen(
         turnOnGps(viewModel, hasNotPermission, activity, gpsNotEnabled)
     }
 
-    val destinationLatLng =
-        if (state.singleFutureMember?.isNotEmpty() == true) {
-            val obj = state.singleFutureMember[0].GeoObject.Point.pos
-            val lng = obj.split(" ")[0].toDouble()
-            val lat = obj.split(" ")[1].toDouble()
-            LatLng(lat, lng)
-        } else
-            LatLng(SharedPref.latitude.toDouble(), SharedPref.longitude.toDouble())
-
-    val initialZoom = ZOOM_LEVEL
-    val finalZoom = ZOOM_LEVEL
-
-    val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(destinationLatLng, initialZoom)
+    // Initial camera center: the user's saved location. The camera is only moved
+    // programmatically for explicit actions (search-result tap / GPS button) via
+    // state.cameraTarget — never from a reverse-geocode result, which previously
+    // created a move → geocode → move loop (the "too many requests" bug).
+    val initialLatLng = remember {
+        LatLng(SharedPref.latitude.toDouble(), SharedPref.longitude.toDouble())
     }
 
-    LaunchedEffect(key1 = destinationLatLng) {
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(initialLatLng, ZOOM_LEVEL)
+    }
+
+    // True while the next camera-idle is the tail of a programmatic move, so we
+    // skip reverse-geocoding the centre (the explicit action already set the
+    // address). User pan gestures keep this false and DO geocode the pin.
+    var suppressNextIdleGeocode by remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = state.cameraTarget) {
+        val target = state.cameraTarget ?: return@LaunchedEffect
+        suppressNextIdleGeocode = true
         cameraPositionState.animate(
             update = CameraUpdateFactory.newCameraPosition(
-                CameraPosition(destinationLatLng, finalZoom, TILT, BEARING)
+                CameraPosition(target, ZOOM_LEVEL, TILT, BEARING)
             ),
             durationMs = ANIM_DURATION
         )
+        viewModel.consumeCameraTarget()
     }
-
-    var initialCameraPosition by remember { mutableStateOf(cameraPositionState.position) }
 
     val onMapCameraMoveStart: (cameraPosition: CameraPosition) -> Unit = {
         liftUpListener = true
-        initialCameraPosition = it
     }
-    val onMapCameraIdle: (cameraPosition: CameraPosition) -> Unit = {
+    val onMapCameraIdle: (cameraPosition: CameraPosition) -> Unit = { cam ->
         liftUpListener = false
-        initialCameraPosition = it
-        viewModel.reverseGeocodeFromCamera(LatLng(it.target.latitude, it.target.longitude))
+        if (suppressNextIdleGeocode) {
+            suppressNextIdleGeocode = false
+        } else {
+            viewModel.reverseGeocodeFromCamera(LatLng(cam.target.latitude, cam.target.longitude))
+        }
     }
 
     LaunchedEffect(key1 = cameraPositionState.isMoving) {
@@ -163,7 +167,6 @@ fun MapsScreen(
             onMapCameraMoveStart(cameraPositionState.position)
         else
             onMapCameraIdle(cameraPositionState.position)
-
     }
 
 

@@ -14,7 +14,11 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.sp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -89,6 +93,24 @@ fun ImagePager(
             itemCount = pagerState.pageCount,
             currentPage = pagerState.currentPage
         )
+
+        // Photo counter pill (e.g. "2/5") — only with multiple images.
+        if (pagerState.pageCount > 1) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(12.dp)
+                    .clip(RoundedCornerShape(50))
+                    .background(Color.Black.copy(alpha = 0.45f))
+                    .padding(horizontal = 10.dp, vertical = 4.dp)
+            ) {
+                Text(
+                    text = "${pagerState.currentPage + 1}/${pagerState.pageCount}",
+                    color = Color.White,
+                    fontSize = 12.sp
+                )
+            }
+        }
     }
 }
 

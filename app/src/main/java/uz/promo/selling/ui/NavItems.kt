@@ -2,7 +2,10 @@ package uz.promo.selling.ui
 
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.material.icons.automirrored.outlined.Chat
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Inventory2
@@ -10,6 +13,7 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Inventory2
@@ -106,6 +110,27 @@ sealed class NavItems(
         badgeCount = null,
         Screen.MyProducts.route,
         titleRes = R.string.nav_my_posts
+    )
+
+    // Merged "Saved + My Posts" bottom-bar destination.
+    object SavedPosts: NavItems(
+        title = "My stuff",
+        selectedIcon = Icons.Filled.Bookmark,
+        unselectedIcon = Icons.Outlined.BookmarkBorder,
+        hasNews = false,
+        badgeCount = null,
+        Screen.SavedPosts.route,
+        titleRes = R.string.nav_saved_posts
+    )
+
+    object Chat: NavItems(
+        title = "Chat",
+        selectedIcon = Icons.AutoMirrored.Filled.Chat,
+        unselectedIcon = Icons.AutoMirrored.Outlined.Chat,
+        hasNews = false,
+        badgeCount = null,
+        Screen.Chat.route,
+        titleRes = R.string.nav_chat
     )
 
 

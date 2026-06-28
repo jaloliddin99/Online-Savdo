@@ -129,6 +129,8 @@ dependencies {
     implementation("com.googlecode.libphonenumber:libphonenumber:9.0.26")
     implementation("com.google.android.gms:play-services-location:21.3.0")
     implementation("com.google.maps.android:maps-compose:8.2.2")
+    // Marker clustering for the search map.
+    implementation("com.google.maps.android:maps-compose-utils:8.2.2")
     implementation("com.google.android.gms:play-services-maps:20.0.0")
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.36.0")
 

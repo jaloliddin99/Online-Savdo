@@ -95,6 +95,8 @@
     <string name="call">Qo\'ng\'iroq</string>
     <string name="sms">SMS</string>
     <string name="messages_title">Xabarlar</string>
+    <string name="chat_filter_unread">O\'qilmagan</string>
+    <string name="chat_search_hint">Chatlardan qidirish</string>
     <string name="message_seller">Yozish</string>
     <string name="chat_empty">Hozircha suhbatlar yo\'q</string>
     <string name="chat_input_hint">Xabar yozing…</string>
@@ -180,6 +182,8 @@
     <string name="nav_my_posts">E\'lonlarim</string>
     <string name="nav_add">Joylash</string>
     <string name="nav_saved">Saqlangan</string>
+    <string name="nav_chat">Chat</string>
+    <string name="nav_saved_posts">Mening</string>
     <string name="nav_profile">Profil</string>
     <string name="help_title">Yordam</string>
     <string name="faq_title">Ko\'p so\'raladigan savollar</string>

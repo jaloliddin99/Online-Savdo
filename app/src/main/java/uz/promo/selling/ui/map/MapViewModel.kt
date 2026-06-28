@@ -108,8 +108,26 @@ class MapViewModel @Inject constructor(
     fun selectLocation(featureMember: FeatureMember) {
         _state.value = _state.value.copy(
             singleFutureMember = listOf(featureMember),
-            featureMember = null
+            featureMember = null,
+            // Move the camera to the picked search result.
+            cameraTarget = parseLatLng(featureMember.GeoObject.Point.pos)
         )
+    }
+
+    /** Parses a Yandex "longitude latitude" point string into a [LatLng]. */
+    private fun parseLatLng(pos: String): LatLng? {
+        val parts = pos.trim().split(" ")
+        if (parts.size < 2) return null
+        val lng = parts[0].toDoubleOrNull() ?: return null
+        val lat = parts[1].toDoubleOrNull() ?: return null
+        return LatLng(lat, lng)
+    }
+
+    /** Cleared once the screen has animated to the target, so the same target can be re-requested. */
+    fun consumeCameraTarget() {
+        if (_state.value.cameraTarget != null) {
+            _state.value = _state.value.copy(cameraTarget = null)
+        }
     }
 
     fun locationObserve() = viewModelScope.launch {
@@ -120,6 +138,8 @@ class MapViewModel @Inject constructor(
             getLocationReverse(location = LatLng(it.latitude, it.longitude))
             _state.value = _state.value.copy(
                 latLng = LatLng(it.latitude, it.longitude),
+                // Recenter the map on the device location.
+                cameraTarget = LatLng(it.latitude, it.longitude),
                 isLoading = false
             )
         }

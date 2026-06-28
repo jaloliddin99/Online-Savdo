@@ -10,6 +10,8 @@ sealed class Screen(val route: String) {
     data object PasswordUpdate : Screen("passwordUpdate")
     data object Categories : Screen("categories")
     data object MyProducts : Screen("myProducts")
+    // Merged "Saved" + "My Posts" screen with a top segmented toggle.
+    data object SavedPosts : Screen("savedPosts")
     data object Notifications : Screen("notifications")
     data object NotificationSettings : Screen("notificationSettings")
     data object Help : Screen("help")

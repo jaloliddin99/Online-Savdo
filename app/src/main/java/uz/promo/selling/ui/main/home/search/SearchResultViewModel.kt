@@ -76,8 +76,66 @@ class SearchResultViewModel @Inject constructor(
     var isAiSearching by mutableStateOf(false)
         private set
 
+    // --- Map mode: all found posts (paging is bypassed; capped for performance) ---
+    var mapPosts by mutableStateOf<List<Content>>(emptyList())
+        private set
+    var isMapLoading by mutableStateOf(false)
+        private set
+    // The params of the most recent search, so map mode can refetch the same query.
+    var currentParams by mutableStateOf<SearchParams?>(null)
+        private set
+    private var mapLoadedParams: SearchParams? = null
+
     init {
         loadCategories()
+    }
+
+    /**
+     * Fetches every matching post (up to [MAP_POST_CAP]) for the map, since the
+     * clustered map can't drive Paging. Re-fetches only when the query changed.
+     */
+    fun loadMapPosts(params: SearchParams) {
+        if (params == mapLoadedParams && mapPosts.isNotEmpty()) return
+        isMapLoading = true
+        viewModelScope.launch {
+            val all = mutableListOf<Content>()
+            var page = 0
+            try {
+                while (all.size < MAP_POST_CAP) {
+                    val data = apiInterface.searchPosts(
+                        lang = SharedPref.language,
+                        page = page,
+                        size = MAP_PAGE_SIZE,
+                        query = params.query,
+                        lat = params.lat,
+                        lon = params.lon,
+                        radius = params.radius,
+                        categoryIds = params.categoryIds.ifEmpty { null },
+                        startDate = params.startDate,
+                        endDate = params.endDate,
+                        priceMin = params.priceMin,
+                        priceMax = params.priceMax,
+                        sort = params.sort,
+                    ).data
+                    all.addAll(data.content)
+                    if (data.last || data.content.size < MAP_PAGE_SIZE) break
+                    page++
+                }
+            } catch (_: Exception) {
+            }
+            // Only posts with coordinates can be plotted.
+            mapPosts = all.asSequence()
+                .filter { it.latitude != null && it.longitude != null }
+                .take(MAP_POST_CAP)
+                .toList()
+            mapLoadedParams = params
+            isMapLoading = false
+        }
+    }
+
+    companion object {
+        private const val MAP_POST_CAP = 500
+        private const val MAP_PAGE_SIZE = 100
     }
 
     private fun loadCategories() {
@@ -140,6 +198,7 @@ class SearchResultViewModel @Inject constructor(
 
     fun search(params: SearchParams) {
         hasSearched = true
+        currentParams = params
         _searchParams.value = params
     }
 

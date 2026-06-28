@@ -202,7 +202,8 @@ fun ProductDetailsScreen(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(bottom = if (isOwner) 80.dp else 0.dp)
+                    // Reserve room for the sticky bottom bar (owner actions or buyer CTA).
+                    .padding(bottom = 92.dp)
             ) {
                 // Image pager
                 item(key = "image_pager") {
@@ -291,6 +292,16 @@ fun ProductDetailsScreen(
                 data = data
             )
 
+            // Buyer sticky action bar: price + primary Call CTA (non-owners only).
+            if (data != null && !isOwner) {
+                BuyerActionBar(
+                    modifier = Modifier.align(Alignment.BottomCenter),
+                    data = data,
+                    onCallClicked = { callTo(data.user.phoneNumber ?: "", context) },
+                    onMessageClicked = onMessageClicked
+                )
+            }
+
             // Toolbar overlay
             TopShadow()
             DetailsToolbar(
@@ -348,10 +359,11 @@ private fun ProductHeader(data: PostDetailsData?, onLikeClicked: (Int) -> Unit) 
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp)
-            .padding(top = 10.dp)
-            .clip(RoundedCornerShape(18.dp))
+            .padding(top = 12.dp)
+            .shadow(elevation = 3.dp, shape = RoundedCornerShape(20.dp), clip = false)
+            .clip(RoundedCornerShape(20.dp))
             .background(MaterialTheme.colorScheme.surface)
-            .padding(horizontal = 16.dp, vertical = 14.dp)
+            .padding(horizontal = 16.dp, vertical = 16.dp)
     ) {
         // Sold / expired banner
         if (data?.status == 3 || data?.status == 4) {
@@ -502,10 +514,11 @@ private fun DescriptionSection(description: String) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp)
-            .padding(top = 10.dp)
-            .clip(RoundedCornerShape(18.dp))
+            .padding(top = 12.dp)
+            .shadow(elevation = 3.dp, shape = RoundedCornerShape(20.dp), clip = false)
+            .clip(RoundedCornerShape(20.dp))
             .background(MaterialTheme.colorScheme.surface)
-            .padding(horizontal = 16.dp, vertical = 14.dp)
+            .padding(horizontal = 16.dp, vertical = 16.dp)
     ) {
         SectionHeader(title = stringResource(id = R.string.description))
         Spacer(modifier = Modifier.height(8.dp))
@@ -534,10 +547,11 @@ private fun CharacteristicsSection(data: PostDetailsData) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp)
-            .padding(top = 10.dp)
-            .clip(RoundedCornerShape(18.dp))
+            .padding(top = 12.dp)
+            .shadow(elevation = 3.dp, shape = RoundedCornerShape(20.dp), clip = false)
+            .clip(RoundedCornerShape(20.dp))
             .background(MaterialTheme.colorScheme.surface)
-            .padding(horizontal = 16.dp, vertical = 14.dp)
+            .padding(horizontal = 16.dp, vertical = 16.dp)
     ) {
         SectionHeader(title = stringResource(id = R.string.characteristics))
         Spacer(modifier = Modifier.height(12.dp))
@@ -645,10 +659,11 @@ private fun LocationSection(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp)
-            .padding(top = 10.dp)
-            .clip(RoundedCornerShape(18.dp))
+            .padding(top = 12.dp)
+            .shadow(elevation = 3.dp, shape = RoundedCornerShape(20.dp), clip = false)
+            .clip(RoundedCornerShape(20.dp))
             .background(MaterialTheme.colorScheme.surface)
-            .padding(horizontal = 16.dp, vertical = 14.dp)
+            .padding(horizontal = 16.dp, vertical = 16.dp)
     ) {
         SectionHeader(title = stringResource(id = R.string.address))
         Spacer(modifier = Modifier.height(10.dp))
@@ -758,10 +773,11 @@ private fun SellerSection(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp)
-            .padding(top = 10.dp)
-            .clip(RoundedCornerShape(18.dp))
+            .padding(top = 12.dp)
+            .shadow(elevation = 3.dp, shape = RoundedCornerShape(20.dp), clip = false)
+            .clip(RoundedCornerShape(20.dp))
             .background(MaterialTheme.colorScheme.surface)
-            .padding(horizontal = 16.dp, vertical = 14.dp)
+            .padding(horizontal = 16.dp, vertical = 16.dp)
     ) {
         SectionHeader(title = stringResource(id = R.string.contact_details))
         Spacer(modifier = Modifier.height(12.dp))
@@ -938,6 +954,93 @@ fun OptionsScreen(
             }
             NavigationBarSpacer()
         }
+    }
+}
+
+
+// ── Buyer Sticky Action Bar ─────────────────────────────────────
+
+@Composable
+private fun BuyerActionBar(
+    modifier: Modifier,
+    data: PostDetailsData,
+    onCallClicked: () -> Unit,
+    onMessageClicked: () -> Unit
+) {
+    Column(modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(
+                    elevation = 12.dp,
+                    shape = RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp),
+                    clip = false
+                )
+                .clip(RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp))
+                .background(MaterialTheme.colorScheme.surface)
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Price
+            Column(modifier = Modifier.weight(1f)) {
+                PriceWrapper(data.category.post_param) { label, unit ->
+                    Text(
+                        text = formatPrice(label, unit),
+                        fontFamily = robotoFontFamily,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 19.sp,
+                        color = MaterialTheme.colorScheme.primary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+
+            // Message (secondary)
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.15f))
+                    .clickable { onMessageClicked() },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Chat,
+                    contentDescription = stringResource(R.string.message_seller),
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(22.dp)
+                )
+            }
+            Spacer(modifier = Modifier.width(10.dp))
+
+            // Call (primary CTA)
+            Row(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(MaterialTheme.colorScheme.primary)
+                    .clickable { onCallClicked() }
+                    .padding(horizontal = 24.dp, vertical = 14.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Phone,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = stringResource(R.string.call),
+                    fontFamily = robotoFontFamily,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 15.sp,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+        }
+        NavigationBarSpacer()
     }
 }
 

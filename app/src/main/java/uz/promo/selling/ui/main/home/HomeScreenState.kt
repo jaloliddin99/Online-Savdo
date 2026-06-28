@@ -49,6 +49,9 @@ data class MapScreenScreenState(
     val featureMember: List<FeatureMember>? = null,
     val singleFutureMember: List<FeatureMember>? = null,
     val latLng: LatLng? = null,
+    // Explicit one-shot camera move target (search-result tap or GPS button).
+    // Never set from a reverse-geocode result, to avoid a move↔geocode loop.
+    val cameraTarget: LatLng? = null,
 )
 
 data class PresentProductState(

@@ -10,6 +10,9 @@ data class Content(
     val priceUnit: String,
     val addressName: String,
     val addressDescription: String,
+    // Coordinates for the search map (nullable — older/imported posts may lack them).
+    val latitude: Double? = null,
+    val longitude: Double? = null,
     val title: String,
     val status: Int,
     val condition: String?=null,
