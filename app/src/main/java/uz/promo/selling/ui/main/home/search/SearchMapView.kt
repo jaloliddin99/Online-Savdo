@@ -1,6 +1,7 @@
 package uz.promo.selling.ui.main.home.search
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,7 +14,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.CircularProgressIndicator
@@ -34,13 +37,17 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.height
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMapOptions
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
@@ -48,6 +55,7 @@ import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.clustering.ClusterItem
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.MapsComposeExperimentalApi
 import com.google.maps.android.compose.clustering.Clustering
 import com.google.maps.android.compose.rememberCameraPositionState
@@ -58,13 +66,23 @@ import uz.promo.selling.ui.theme.robotoFontFamily
 import uz.promo.selling.utils.SharedPref
 import uz.promo.selling.utils.formatNumberWithSpaces
 
-/** A search result placed on the map. */
-private data class PostClusterItem(val post: Content) : ClusterItem {
+/**
+ * A search result placed on the map. Identity is the post id only: `Content` is a
+ * data class whose generated hashCode/equals NPE on its non-null String fields when
+ * the backend sends null (e.g. a post without a price), and the clustering algorithm
+ * stores items in a HashSet.
+ */
+private class PostClusterItem(val post: Content) : ClusterItem {
     private val pos = LatLng(post.latitude ?: 0.0, post.longitude ?: 0.0)
     override fun getPosition(): LatLng = pos
-    override fun getTitle(): String = post.title
-    override fun getSnippet(): String = post.price
+    override fun getTitle(): String? = post.title
+    override fun getSnippet(): String? = post.price
     override fun getZIndex(): Float = 0f
+
+    override fun equals(other: Any?): Boolean =
+        this === other || (other is PostClusterItem && other.post.id == post.id)
+
+    override fun hashCode(): Int = post.id
 }
 
 /**
@@ -117,12 +135,24 @@ fun SearchMapView(
     val mapStyle = remember(isDark) {
         if (isDark) MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_dark) else null
     }
+    // Pre-tile background color so the map opens in the right theme instead of
+    // flashing white before tiles load. Matches the dark style's base (#212121).
+    val mapBackground = if (isDark) 0xFF212121.toInt() else android.graphics.Color.WHITE
 
     Box(modifier = modifier.fillMaxSize()) {
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState,
             properties = MapProperties(mapStyleOptions = mapStyle),
+            // Hide the default Google Maps controls (zoom, my-location, compass,
+            // and the marker toolbar that opens Google Maps).
+            uiSettings = MapUiSettings(
+                zoomControlsEnabled = false,
+                mapToolbarEnabled = false,
+                myLocationButtonEnabled = false,
+                compassEnabled = false,
+            ),
+            googleMapOptionsFactory = { GoogleMapOptions().backgroundColor(mapBackground) },
             onMapClick = { selectedPost = null },
         ) {
             Clustering(
@@ -131,7 +161,7 @@ fun SearchMapView(
                     selectedPost = item.post
                     true // we show our own bubble card, suppress the default info window
                 },
-                clusterItemContent = { item -> PriceMarker(item.post) },
+                clusterItemContent = { item -> PostMarker(item.post) },
                 clusterContent = { cluster -> ClusterBadge(cluster.size) },
             )
         }
@@ -154,21 +184,48 @@ fun SearchMapView(
     }
 }
 
+/** Teardrop pin shape: a round head (top, width × width) with a tail tipping at
+ * the bottom-centre — the default Google marker anchor (0.5, 1.0) puts that tip
+ * exactly on the coordinate. */
+private val PinShape = GenericShape { size, _ ->
+    addOval(Rect(0f, 0f, size.width, size.width))
+    moveTo(size.width * 0.22f, size.width * 0.80f)
+    lineTo(size.width / 2f, size.height)
+    lineTo(size.width * 0.78f, size.width * 0.80f)
+    close()
+}
+
+/** Uniform photo pin — same size/shape for every post, photo inside the head. */
 @Composable
-private fun PriceMarker(post: Content) {
+private fun PostMarker(post: Content) {
+    val context = LocalContext.current
+    val url = post.image?.imagePath?.let { "${BuildConfig.BASE_URL}post/image/$it?size=thumb" }
+    // allowHardware(false): the cluster renderer draws markers on a software
+    // canvas, which can't use Coil's default hardware bitmaps.
+    val painter = rememberAsyncImagePainter(
+        model = ImageRequest.Builder(context)
+            .data(url)
+            .allowHardware(false)
+            .build(),
+        error = painterResource(R.drawable.sotiq_icon),
+    )
     Box(
         modifier = Modifier
-            .shadow(3.dp, RoundedCornerShape(50))
-            .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(50))
-            .padding(horizontal = 10.dp, vertical = 6.dp)
+            .size(width = 46.dp, height = 58.dp)
+            .shadow(3.dp, PinShape)
+            .clip(PinShape)
+            .background(MaterialTheme.colorScheme.surface),
+        contentAlignment = Alignment.TopCenter,
     ) {
-        Text(
-            text = "${formatNumberWithSpaces(post.price)} ${post.priceUnit}".trim(),
-            color = MaterialTheme.colorScheme.onPrimary,
-            fontFamily = robotoFontFamily,
-            fontWeight = FontWeight.SemiBold,
-            fontSize = 12.sp,
-            maxLines = 1,
+        Image(
+            painter = painter,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .padding(top = 3.dp)
+                .size(40.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceVariant),
         )
     }
 }
@@ -202,11 +259,12 @@ private fun PostBubbleCard(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .shadow(10.dp, RoundedCornerShape(16.dp))
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.surface)
+            .shadow(14.dp, RoundedCornerShape(20.dp))
+            .clip(RoundedCornerShape(20.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+            .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.45f), RoundedCornerShape(20.dp))
             .clickable { onClick() }
-            .padding(10.dp),
+            .padding(14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         val url = post.image?.imagePath?.let { "${BuildConfig.BASE_URL}post/image/$it?size=thumb" }
@@ -215,34 +273,35 @@ private fun PostBubbleCard(
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier
-                .size(64.dp)
-                .clip(RoundedCornerShape(12.dp))
+                .size(76.dp)
+                .clip(RoundedCornerShape(14.dp))
                 .background(MaterialTheme.colorScheme.surfaceVariant),
         )
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(14.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = post.title,
                 fontFamily = robotoFontFamily,
                 fontWeight = FontWeight.SemiBold,
-                fontSize = 15.sp,
+                fontSize = 16.sp,
                 color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1,
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
+            Spacer(modifier = Modifier.height(2.dp))
             Text(
-                text = "${formatNumberWithSpaces(post.price)} ${post.priceUnit}".trim(),
+                text = "${formatNumberWithSpaces(post.price)} ${post.priceUnit ?: ""}".trim(),
                 fontFamily = robotoFontFamily,
                 fontWeight = FontWeight.Bold,
-                fontSize = 15.sp,
+                fontSize = 18.sp,
                 color = MaterialTheme.colorScheme.primary,
                 maxLines = 1,
             )
-            if (post.addressName.isNotBlank()) {
+            if (!post.addressName.isNullOrBlank()) {
                 Text(
                     text = post.addressName,
                     fontFamily = robotoFontFamily,
-                    fontSize = 12.sp,
+                    fontSize = 13.sp,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,

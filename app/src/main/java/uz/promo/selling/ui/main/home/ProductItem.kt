@@ -269,7 +269,7 @@ fun ProductItemDetails(
                 color = colorWithAlpha,
             )
             Text(
-                text = data.addressName,
+                text = data.addressName ?: "",
                 fontSize = 12.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -288,7 +288,7 @@ fun ProductItemDetails(
                         .clip(RoundedCornerShape(50))
                         .background(MaterialTheme.colorScheme.primaryContainer)
                         .padding(horizontal = 4.dp, vertical = 2.dp),
-                    text = "${formatNumberWithSpaces(data.price)} ${data.priceUnit}",
+                    text = "${formatNumberWithSpaces(data.price)} ${data.priceUnit ?: ""}",
                     fontSize = 12.sp,
                     fontFamily = robotoFontFamily,
                     fontWeight = FontWeight.Normal,

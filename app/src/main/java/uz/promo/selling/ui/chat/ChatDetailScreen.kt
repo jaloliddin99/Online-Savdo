@@ -71,6 +71,26 @@ import uz.promo.selling.R
 import uz.promo.selling.data.remote.models.chat.ChatMessage
 import uz.promo.selling.ui.TopAppBar
 import uz.promo.selling.utils.chatTimeLabel
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.filled.EmojiEmotions
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
 
 private const val POLL_MS = 4000L
 private const val POLL_MS_SOCKET_FALLBACK = 30000L
@@ -365,61 +385,151 @@ private fun MessageInput(
     sending: Boolean,
     onSend: () -> Unit
 ) {
+    var showEmojiPicker by remember { mutableStateOf(false) }
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    // Close the emoji panel on back press instead of leaving the screen.
+    BackHandler(enabled = showEmojiPicker) { showEmojiPicker = false }
+
     Surface(
         tonalElevation = 2.dp,
         color = MaterialTheme.colorScheme.surface
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                // With adjustResize on the activity (NOT pan), the keyboard does
-                // not move the window — this single inset keeps the bar above
-                // the nav bar when closed and above the keyboard when open.
+                // One inset, whichever is taller: nav bar (keyboard closed) or
+                // keyboard (open). Applying both stacked caused a gap above the IME.
                 .windowInsetsPadding(WindowInsets.navigationBars.union(WindowInsets.ime))
-                .padding(horizontal = 8.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.Bottom
+                .padding(horizontal = 8.dp, vertical = 8.dp)
         ) {
-            // Telegram/WhatsApp-style pill: borderless filled field.
-            TextField(
-                value = text,
-                onValueChange = onTextChange,
-                modifier = Modifier.weight(1f),
-                placeholder = {
-                    Text(
-                        text = stringResource(R.string.chat_input_hint),
-                        fontSize = 15.sp,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
-                    )
-                },
-                maxLines = 5,
-                shape = RoundedCornerShape(24.dp),
-                colors = TextFieldDefaults.colors(
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent,
-                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f),
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
-                ),
-                keyboardActions = KeyboardActions(onSend = { onSend() })
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            FilledIconButton(
-                onClick = onSend,
-                enabled = !sending && text.isNotBlank(),
-                modifier = Modifier.size(48.dp),
-                shape = CircleShape,
-                colors = IconButtonDefaults.filledIconButtonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
-                )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 48.dp)
+                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(24.dp))
+                    .clip(RoundedCornerShape(24.dp))
+                    .padding(horizontal = 4.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                // Emoji toggle (left)
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.Send,
-                    contentDescription = stringResource(R.string.chat_send),
-                    modifier = Modifier.size(22.dp)
+                    imageVector = Icons.Filled.EmojiEmotions,
+                    contentDescription = "Emoji",
+                    tint = if (showEmojiPicker) MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(CircleShape)
+                        .clickable {
+                            if (showEmojiPicker) {
+                                showEmojiPicker = false
+                            } else {
+                                keyboardController?.hide()
+                                showEmojiPicker = true
+                            }
+                        }
+                        .padding(6.dp)
                 )
+
+                // Text input
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 8.dp, vertical = 10.dp),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    if (text.isEmpty()) {
+                        Text(
+                            text = stringResource(R.string.chat_input_hint),
+                            fontSize = 15.sp,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+                        )
+                    }
+                    BasicTextField(
+                        value = text,
+                        onValueChange = onTextChange,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .onFocusChanged { if (it.isFocused) showEmojiPicker = false },
+                        textStyle = TextStyle(
+                            fontSize = 15.sp,
+                            color = MaterialTheme.colorScheme.onSurface
+                        ),
+                        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                        maxLines = 5,
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
+                        keyboardActions = KeyboardActions(onSend = { onSend() })
+                    )
+                }
+
+                // Send button (right)
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(
+                            if (text.isNotBlank()) MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.surfaceVariant
+                        )
+                        .clickable(enabled = !sending && text.isNotBlank()) { onSend() },
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (sending) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(18.dp),
+                            strokeWidth = 2.dp,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.Send,
+                            contentDescription = stringResource(R.string.chat_send),
+                            tint = if (text.isNotBlank()) MaterialTheme.colorScheme.onPrimary
+                            else MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
+            }
+
+            AnimatedVisibility(visible = showEmojiPicker) {
+                EmojiPicker(onEmojiSelected = { onTextChange(text + it) })
+            }
+        }
+    }
+}
+
+/** Common emojis offered in the chat picker. */
+private val emojiList: List<String> = (
+    "😀 😃 😄 😁 😆 😅 😂 🤣 😊 😇 🙂 🙃 😉 😌 😍 🥰 😘 😗 😙 😚 😋 😛 😝 😜 🤪 🤨 " +
+    "🧐 🤓 😎 🥳 🤩 😏 😒 😞 😔 😟 😕 🙁 ☹️ 😣 😖 😫 😩 🥺 😢 😭 😤 😠 😡 🤬 🤯 😳 " +
+    "🥵 🥶 😱 😨 😰 😥 😓 🤗 🤔 🤭 🤫 😶 😐 😑 😬 🙄 😯 😦 😧 😮 😲 🥱 😴 🤤 😪 😵 🤐 " +
+    "👍 👎 👌 ✌️ 🤞 🤟 🤘 👏 🙌 🙏 🤝 💪 👋 🤙 ☝️ 👆 👇 👈 👉 ✋ 🤚 🖐️ 🖖 👊 ✊ 🫶 " +
+    "❤️ 🧡 💛 💚 💙 💜 🖤 🤍 🤎 💔 ❣️ 💕 💞 💓 💗 💖 💘 💝 ⭐ 🌟 ✨ ⚡ 🔥 💯 ✅ ❌ ❓ ❗ " +
+    "🎉 🎊 🚗 🚙 📍 🗺️ ⏰ ⏳ 📞 📱 💬 💸 💰 🙇 🎁 ☕ 🍔"
+    ).split(" ").filter { it.isNotBlank() }
+
+/** Self-contained emoji panel: tapping an emoji appends it to the input text. */
+@Composable
+private fun EmojiPicker(onEmojiSelected: (String) -> Unit) {
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(minSize = 44.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(240.dp)
+            .padding(top = 6.dp),
+        contentPadding = PaddingValues(4.dp)
+    ) {
+        items(emojiList) { emoji ->
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(CircleShape)
+                    .clickable { onEmojiSelected(emoji) },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = emoji, fontSize = 24.sp)
             }
         }
     }

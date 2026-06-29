@@ -6,10 +6,12 @@ data class Content(
     // Nullable: posts with no images (e.g. some OLX imports) send null here.
     val image: Image? = null,
     val likes: Int,
-    val price: String,
-    val priceUnit: String,
-    val addressName: String,
-    val addressDescription: String,
+    // Nullable in practice: some posts (e.g. OLX imports) omit price/address.
+    // Non-null would make the generated hashCode/equals NPE on those rows.
+    val price: String? = null,
+    val priceUnit: String? = null,
+    val addressName: String? = null,
+    val addressDescription: String? = null,
     // Coordinates for the search map (nullable — older/imported posts may lack them).
     val latitude: Double? = null,
     val longitude: Double? = null,

@@ -21,7 +21,7 @@ class PresentProductUseCase @Inject constructor(
     ): Flow<Resource<GenericModel<PostDetailsData>>> = flow {
         try {
             emit(Resource.Loading())
-            delay(1300)
+            delay(500)
 
             val data = repository.showProductModel(id, language)
             if (data.success){
