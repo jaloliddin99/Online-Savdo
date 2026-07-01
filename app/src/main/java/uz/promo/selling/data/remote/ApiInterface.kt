@@ -271,6 +271,40 @@ interface ApiInterface {
         @Query("lang") lang: String = SharedPref.language
     ): GenericModel<uz.promo.selling.data.remote.models.payments.BoostOrderRes>
 
+    // ---------------- Premium ----------------
+
+    @GET("payments/premium-plans")
+    suspend fun getPremiumPlans(
+        @Query("lang") lang: String = SharedPref.language
+    ): GenericModel<uz.promo.selling.data.remote.models.payments.PremiumPlansData>
+
+    @POST("payments/premium-order")
+    suspend fun createPremiumOrder(
+        @Body body: uz.promo.selling.data.remote.models.payments.PremiumOrderBody,
+        @Header("Authorization") token: String = SharedPref.deviceToken,
+        @Query("lang") lang: String = SharedPref.language
+    ): GenericModel<uz.promo.selling.data.remote.models.payments.BoostOrderRes>
+
+    @POST("payments/promote-with-credit")
+    suspend fun promoteWithCredit(
+        @Body body: Map<String, Long>,
+        @Header("Authorization") token: String = SharedPref.deviceToken,
+        @Query("lang") lang: String = SharedPref.language
+    ): ModelSuccess
+
+    @GET("user/post-analytics")
+    suspend fun getPostAnalytics(
+        @Header("Authorization") token: String = SharedPref.deviceToken,
+        @Query("lang") lang: String = SharedPref.language
+    ): GenericModel<uz.promo.selling.data.remote.models.payments.PostAnalyticsData>
+
+    @GET("post/{postId}/interested")
+    suspend fun getInterested(
+        @Path("postId") postId: Long,
+        @Header("Authorization") token: String = SharedPref.deviceToken,
+        @Query("lang") lang: String = SharedPref.language
+    ): GenericModel<List<uz.promo.selling.data.remote.models.payments.InterestedUser>>
+
     @POST("post/{id}/mark-sold")
     suspend fun markPostSold(
         @Header("Authorization") token: String,

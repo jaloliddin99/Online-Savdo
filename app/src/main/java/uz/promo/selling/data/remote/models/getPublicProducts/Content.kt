@@ -15,6 +15,8 @@ data class Content(
     // Coordinates for the search map (nullable — older/imported posts may lack them).
     val latitude: Double? = null,
     val longitude: Double? = null,
+    // True when the seller is a premium member — drives the premium badge on cards.
+    val sellerIsPremium: Boolean = false,
     val title: String,
     val status: Int,
     val condition: String?=null,

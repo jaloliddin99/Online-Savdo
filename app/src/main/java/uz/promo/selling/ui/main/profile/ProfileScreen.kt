@@ -36,6 +36,8 @@ import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.rounded.WorkspacePremium
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
@@ -107,6 +109,7 @@ fun ProfileRoute(
     toNotifications: () -> Unit = {},
     toNotificationSettings: () -> Unit = {},
     toHelp: () -> Unit = {},
+    toPremium: () -> Unit = {},
     onSettingsClick: () -> Unit = {}
 ) {
     val viewModel = hiltViewModel<ProfileViewModel>()
@@ -139,7 +142,8 @@ fun ProfileRoute(
             restartApp = restartApp,
             toNotifications = toNotifications,
             toNotificationSettings = toNotificationSettings,
-            toHelp = toHelp
+            toHelp = toHelp,
+            toPremium = toPremium
         )
     }
 }
@@ -157,7 +161,8 @@ fun ProfileScreen(
     restartApp: () -> Unit,
     toNotifications: () -> Unit = {},
     toNotificationSettings: () -> Unit = {},
-    toHelp: () -> Unit = {}
+    toHelp: () -> Unit = {},
+    toPremium: () -> Unit = {}
 ) {
     val context = LocalContext.current
 
@@ -231,6 +236,15 @@ fun ProfileScreen(
                 TextNormal16(title = user.phoneNumber ?: "")
             }
 
+            // Premium upsell / status — only for a logged-in user.
+            if (state.getProfile != null) {
+                PremiumProfileCard(
+                    premiumUntil = state.getProfile.premiumUntil,
+                    boostCredits = state.getProfile.boostCredits,
+                    onClick = toPremium,
+                )
+            }
+
             Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen12Dp))
             ProfileSection(title = stringResource(id = R.string.section_general)) {
                 AppLanguage(restartApp)
@@ -265,6 +279,70 @@ fun ProfileScreen(
     }
 }
 
+
+/**
+ * Premium upsell / status card on the Profile screen. Shows a "Get Premium" CTA
+ * for standard users, or the active-until + remaining credits for members.
+ */
+@Composable
+private fun PremiumProfileCard(
+    premiumUntil: String?,
+    boostCredits: Int,
+    onClick: () -> Unit,
+) {
+    val isPremium = premiumUntil?.let {
+        runCatching {
+            java.time.LocalDateTime.parse(it, java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                .isAfter(java.time.LocalDateTime.now())
+        }.getOrDefault(false)
+    } ?: false
+
+    val gold = Color(0xFFCBA135)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .clip(RoundedCornerShape(18.dp))
+            .background(
+                Brush.horizontalGradient(
+                    if (isPremium) listOf(gold, Color(0xFFB8860B))
+                    else listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.primary.copy(alpha = 0.78f))
+                )
+            )
+            .clickable { onClick() }
+            .padding(16.dp),
+        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+    ) {
+        androidx.compose.material3.Icon(
+            imageVector = Icons.Rounded.WorkspacePremium,
+            contentDescription = null,
+            tint = Color.White,
+            modifier = Modifier.size(34.dp)
+        )
+        androidx.compose.foundation.layout.Spacer(modifier = Modifier.width(12.dp))
+        androidx.compose.foundation.layout.Column(modifier = Modifier.weight(1f)) {
+            androidx.compose.material3.Text(
+                text = stringResource(if (isPremium) R.string.premium_title else R.string.get_premium),
+                fontFamily = robotoFontFamily,
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                color = Color.White
+            )
+            androidx.compose.material3.Text(
+                text = if (isPremium) stringResource(R.string.premium_credits_left, boostCredits)
+                else stringResource(R.string.premium_tagline),
+                fontFamily = robotoFontFamily,
+                fontSize = 13.sp,
+                color = Color.White.copy(alpha = 0.9f)
+            )
+        }
+        androidx.compose.material3.Icon(
+            imageVector = Icons.Filled.KeyboardArrowRight,
+            contentDescription = null,
+            tint = Color.White
+        )
+    }
+}
 
 @Composable
 fun RoundImage(

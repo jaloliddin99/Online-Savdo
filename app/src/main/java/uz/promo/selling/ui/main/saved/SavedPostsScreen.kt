@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.FilterList
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -76,6 +77,9 @@ private const val TAB_MY_POSTS = 1
 fun SavedPostsRoute(
     startOnMyPosts: Boolean = false,
     navigateToProduct: (Int) -> Unit,
+    onPromote: (Long) -> Unit = {},
+    onWhoInterested: (Long) -> Unit = {},
+    onAnalytics: () -> Unit = {},
 ) {
     var selectedTab by rememberSaveable {
         mutableIntStateOf(if (startOnMyPosts) TAB_MY_POSTS else TAB_SAVED)
@@ -161,7 +165,13 @@ fun SavedPostsRoute(
                     exit = fadeOut(tween(150)),
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Spacer(modifier = Modifier.width(4.dp))
+                        IconButton(onClick = onAnalytics) {
+                            Icon(
+                                imageVector = Icons.Outlined.BarChart,
+                                contentDescription = stringResource(R.string.analytics_title),
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
                         Box {
                             IconButton(onClick = { showFilterMenu = true }) {
                                 Icon(
@@ -198,6 +208,8 @@ fun SavedPostsRoute(
                 else -> MyPostsScreen(
                     modifier = Modifier.fillMaxSize(),
                     onItemClicked = navigateToProduct,
+                    onPromote = onPromote,
+                    onWhoInterested = onWhoInterested,
                     myPostVM = myPostVM,
                 )
             }

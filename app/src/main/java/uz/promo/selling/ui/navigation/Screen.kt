@@ -29,6 +29,26 @@ sealed class Screen(val route: String) {
         }
     }
 
+    // Full-screen "Promote to top" (paid boost) for one of the user's posts.
+    data class Boost(val postId: Long) : Screen("boost/$postId") {
+        companion object {
+            const val ROUTE = "boost/{postId}"
+        }
+    }
+
+    // Premium membership paywall.
+    data object Premium : Screen("premium")
+
+    // Premium seller analytics.
+    data object Analytics : Screen("analytics")
+
+    // Premium "who's interested" for one post.
+    data class Interested(val postId: Long) : Screen("interested/$postId") {
+        companion object {
+            const val ROUTE = "interested/{postId}"
+        }
+    }
+
     // Routes with arguments
     data class ProductDetails(val productId: Int) : Screen("productDetails/$productId") {
         companion object {

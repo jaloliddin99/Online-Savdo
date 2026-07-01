@@ -21,10 +21,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.FilterList
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -117,26 +119,35 @@ fun MyPostsScreenRoute(
 fun MyPostsScreen(
     modifier: Modifier = Modifier,
     onItemClicked: (Int) -> Unit,
+    onPromote: (Long) -> Unit = {},
+    onWhoInterested: (Long) -> Unit = {},
     myPostVM: MyPostViewModel = hiltViewModel(),
 ) {
     val myPosts = myPostVM.myPostsFlow.collectAsLazyPagingItems()
     val updateState = myPostVM.state.value
 
-    val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true,
-    )
     val actionSheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true,
     )
-    val scope = rememberCoroutineScope()
-    var showBottomSheet by remember { mutableStateOf(false) }
-    var postId by remember { mutableIntStateOf(-1) }
     var actionPost by remember { mutableStateOf<uz.promo.selling.data.remote.models.getPublicProducts.Content?>(null) }
     val context = LocalContext.current
-    val prioritized: String = stringResource(id = R.string.it_is_already_prioritized)
     val markedSoldMsg = stringResource(id = R.string.marked_as_sold_success)
     val reactivatedMsg = stringResource(id = R.string.reactivated_success)
     val errorMsg = stringResource(id = R.string.something_went_wrong)
+
+    // Shared actions, used by both the long-press sheet and the ⋮ card menu.
+    fun markSold(post: uz.promo.selling.data.remote.models.getPublicProducts.Content) {
+        myPostVM.markPostSold(post.id.toLong()) { ok ->
+            Toast.makeText(context, if (ok) markedSoldMsg else errorMsg, Toast.LENGTH_SHORT).show()
+            if (ok) myPosts.refresh()
+        }
+    }
+    fun activate(post: uz.promo.selling.data.remote.models.getPublicProducts.Content) {
+        myPostVM.activatePost(post.id.toLong()) { ok ->
+            Toast.makeText(context, if (ok) reactivatedMsg else errorMsg, Toast.LENGTH_SHORT).show()
+            if (ok) myPosts.refresh()
+        }
+    }
 
     val isRefreshing = myPosts.loadState.refresh is LoadState.Loading
 
@@ -156,16 +167,28 @@ fun MyPostsScreen(
                 key = { index -> myPosts.peek(index)?.id ?: index }
             ) { i ->
                 myPosts[i]?.let { item ->
-                    ProductItem(
-                        item,
-                        onItemClicked = onItemClicked,
-                        isMyPosts = true,
-                        onItemLongLicked = {
-                            if (item.status == 1 || item.status == 3 || item.status == 4) {
-                                actionPost = item
+                    Box {
+                        ProductItem(
+                            item,
+                            onItemClicked = onItemClicked,
+                            isMyPosts = true,
+                            onItemLongLicked = {
+                                if (item.status == 1 || item.status == 3 || item.status == 4) {
+                                    actionPost = item
+                                }
                             }
-                        }
-                    )
+                        )
+                        // Visible action affordance so users discover post operations
+                        // without needing to long-press.
+                        PostCardMenu(
+                            post = item,
+                            modifier = Modifier.align(Alignment.TopEnd),
+                            onMarkSold = { markSold(item) },
+                            onPromote = { onPromote(item.id.toLong()) },
+                            onReactivate = { activate(item) },
+                            onWhoInterested = { onWhoInterested(item.id.toLong()) },
+                        )
+                    }
                 }
             }
             if (myPosts.loadState.append is LoadState.Loading) {
@@ -200,74 +223,80 @@ fun MyPostsScreen(
                 isPrioritized = post.isPrioritized,
                 onMarkSold = {
                     actionPost = null
-                    myPostVM.markPostSold(post.id.toLong()) { ok ->
-                        Toast.makeText(
-                            context,
-                            if (ok) markedSoldMsg else errorMsg,
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        if (ok) myPosts.refresh()
-                    }
+                    markSold(post)
                 },
                 onActivate = {
                     actionPost = null
-                    myPostVM.activatePost(post.id.toLong()) { ok ->
-                        Toast.makeText(
-                            context,
-                            if (ok) reactivatedMsg else errorMsg,
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        if (ok) myPosts.refresh()
-                    }
+                    activate(post)
                 },
                 onPrioritize = {
                     actionPost = null
-                    if (post.isPrioritized) {
-                        Toast.makeText(context, prioritized, Toast.LENGTH_SHORT).show()
-                    } else {
-                        postId = post.id
-                        showBottomSheet = true
-                    }
+                    onPromote(post.id.toLong())
                 }
             )
         }
     }
+}
 
-    if (showBottomSheet) {
-        myPostVM.loadTariffs()
-        ModalBottomSheet(
-            onDismissRequest = {
-                showBottomSheet = false
-            },
-            sheetState = sheetState
+/**
+ * A discoverable ⋮ action button overlaid on a My Posts card. Opens a dropdown of
+ * the operations available for the post's status (active → Mark sold / Promote;
+ * sold or expired → Re-activate). Hidden for statuses with no actions (pending,
+ * rejected).
+ */
+@Composable
+private fun PostCardMenu(
+    post: uz.promo.selling.data.remote.models.getPublicProducts.Content,
+    modifier: Modifier = Modifier,
+    onMarkSold: () -> Unit,
+    onPromote: () -> Unit,
+    onReactivate: () -> Unit,
+    onWhoInterested: () -> Unit,
+) {
+    if (post.status != 1 && post.status != 3 && post.status != 4) return
+    var open by remember { mutableStateOf(false) }
+
+    Box(modifier = modifier) {
+        Box(
+            modifier = Modifier
+                .padding(top = 20.dp, end = 12.dp)
+                .size(30.dp)
+                .clip(CircleShape)
+                .background(Color.Black.copy(alpha = 0.38f))
+                .clickable { open = true },
+            contentAlignment = Alignment.Center
         ) {
-            BoostSheetContent(
-                tariffs = myPostVM.tariffs,
-                busy = updateState.isLoading,
-                onPay = { hours, provider ->
-                    myPostVM.createBoostOrder(postId.toLong(), hours, provider) { url ->
-                        scope.launch { sheetState.hide() }.invokeOnCompletion {
-                            showBottomSheet = false
-                        }
-                        if (url != null) {
-                            try {
-                                context.startActivity(
-                                    android.content.Intent(
-                                        android.content.Intent.ACTION_VIEW,
-                                        android.net.Uri.parse(url)
-                                    )
-                                )
-                            } catch (_: Exception) {
-                            }
-                        } else {
-                            Toast.makeText(
-                                context,
-                                context.getString(R.string.payment_failed),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }
-                }
+            Icon(
+                imageVector = Icons.Filled.MoreVert,
+                contentDescription = stringResource(R.string.actions),
+                tint = Color.White,
+                modifier = Modifier.size(18.dp)
+            )
+        }
+        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+            if (post.status == 1) {
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.mark_as_sold)) },
+                    leadingIcon = { Icon(Icons.Outlined.CheckCircle, null) },
+                    onClick = { open = false; onMarkSold() }
+                )
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.prioritize)) },
+                    leadingIcon = { Icon(Icons.Outlined.Star, null) },
+                    onClick = { open = false; onPromote() }
+                )
+            }
+            if (post.status == 3 || post.status == 4) {
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.reactivate_post)) },
+                    leadingIcon = { Icon(Icons.Outlined.Refresh, null) },
+                    onClick = { open = false; onReactivate() }
+                )
+            }
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.whos_interested)) },
+                leadingIcon = { Icon(Icons.Outlined.Visibility, null) },
+                onClick = { open = false; onWhoInterested() }
             )
         }
     }

@@ -481,7 +481,55 @@ fun NavigationGraph(
                     startOnMyPosts = startOnMyPosts,
                     navigateToProduct = {
                         navController.navigate(Screen.ProductDetails(it).route)
+                    },
+                    onPromote = { postId ->
+                        navController.navigate(Screen.Boost(postId).route)
+                    },
+                    onWhoInterested = { postId ->
+                        navController.navigate(Screen.Interested(postId).route)
+                    },
+                    onAnalytics = {
+                        navController.navigate(Screen.Analytics.route)
                     }
+                )
+            }
+
+            composable(
+                route = Screen.Boost.ROUTE,
+                arguments = listOf(
+                    navArgument("postId") { type = NavType.LongType }
+                )
+            ) { backStackEntry ->
+                val postId = backStackEntry.arguments?.getLong("postId") ?: return@composable
+                uz.promo.selling.ui.main.myPosts.BoostRoute(
+                    postId = postId,
+                    onBack = navController::popBackStack
+                )
+            }
+
+            composable(route = Screen.Premium.route) {
+                uz.promo.selling.ui.premium.PremiumRoute(
+                    onBack = navController::popBackStack
+                )
+            }
+
+            composable(route = Screen.Analytics.route) {
+                uz.promo.selling.ui.premium.AnalyticsRoute(
+                    onBack = navController::popBackStack,
+                    onGetPremium = { navController.navigate(Screen.Premium.route) },
+                    onPostClick = { navController.navigate(Screen.Interested(it).route) },
+                )
+            }
+
+            composable(
+                route = Screen.Interested.ROUTE,
+                arguments = listOf(navArgument("postId") { type = NavType.LongType })
+            ) { backStackEntry ->
+                val postId = backStackEntry.arguments?.getLong("postId") ?: return@composable
+                uz.promo.selling.ui.premium.InterestedRoute(
+                    postId = postId,
+                    onBack = navController::popBackStack,
+                    onGetPremium = { navController.navigate(Screen.Premium.route) },
                 )
             }
 
@@ -532,6 +580,9 @@ fun NavigationGraph(
                     },
                     toHelp = {
                         navController.navigate(Screen.Help.route)
+                    },
+                    toPremium = {
+                        navController.navigate(Screen.Premium.route)
                     }
                 )
             }

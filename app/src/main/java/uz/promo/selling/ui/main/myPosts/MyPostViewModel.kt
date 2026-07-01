@@ -63,6 +63,10 @@ class MyPostViewModel @Inject constructor(
     var tariffs by androidx.compose.runtime.mutableStateOf<List<uz.promo.selling.data.remote.models.payments.BoostTariff>>(emptyList())
         private set
 
+    // Included premium boost credits (from the profile), for the "free promote" path.
+    var boostCredits by androidx.compose.runtime.mutableStateOf(0)
+        private set
+
     fun loadTariffs() {
         if (tariffs.isNotEmpty()) return
         viewModelScope.launch {
@@ -71,6 +75,32 @@ class MyPostViewModel @Inject constructor(
                 if (res.success) tariffs = res.data.sortedBy { it.hours }
             } catch (_: Exception) {
             }
+        }
+    }
+
+    /** Loads the member's remaining boost credits from the profile. */
+    fun loadBoostCredits() {
+        if (SharedPref.deviceToken.isBlank()) return
+        viewModelScope.launch {
+            try {
+                boostCredits = apiInterface.getProfile(SharedPref.deviceToken).data.boostCredits
+            } catch (_: Exception) {
+            }
+        }
+    }
+
+    /** Promotes a post using one included credit (no payment). */
+    fun promoteWithCredit(postId: Long, onDone: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            _state.value = MyProfileScreen(isLoading = true)
+            val ok = try {
+                apiInterface.promoteWithCredit(mapOf("postId" to postId)).success
+            } catch (e: Exception) {
+                false
+            }
+            _state.value = MyProfileScreen()
+            if (ok && boostCredits > 0) boostCredits -= 1
+            onDone(ok)
         }
     }
 
