@@ -68,13 +68,34 @@ fun BoostRoute(
 ) {
     val context = LocalContext.current
     val tariffs = viewModel.tariffs
-    val busy = viewModel.state.value.isLoading
+    val busy = viewModel.state.value.isLoading || viewModel.awaitingPayment
     val paymentFailed = stringResource(R.string.payment_failed)
     val promotedMsg = stringResource(R.string.boost_promoted_success)
+    val pendingMsg = stringResource(R.string.payment_pending_check)
 
     LaunchedEffect(Unit) {
         viewModel.loadTariffs()
         viewModel.loadBoostCredits()
+    }
+
+    // Returning from the checkout browser: poll the order until the provider
+    // callback lands, then confirm and leave. No-op when nothing is pending.
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    androidx.compose.runtime.DisposableEffect(lifecycleOwner) {
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+                viewModel.checkPendingOrder { paid ->
+                    Toast.makeText(
+                        context,
+                        if (paid) promotedMsg else pendingMsg,
+                        Toast.LENGTH_LONG
+                    ).show()
+                    if (paid) onBack()
+                }
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
     var selectedHours by remember(tariffs) { mutableStateOf(tariffs.firstOrNull()?.hours) }

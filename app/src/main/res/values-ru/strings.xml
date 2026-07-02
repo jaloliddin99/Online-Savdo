@@ -259,6 +259,8 @@
     <string name="pay_with_payme">Оплатить через Payme</string>
     <string name="pay_with_click">Оплатить через Click</string>
     <string name="payment_failed">Не удалось создать платёж</string>
+    <string name="payment_pending_check">Платёж пока не подтверждён — он будет применён, как только поступит</string>
+    <string name="premium_activated">Premium активирован!</string>
     <string name="hours_short">ч</string>
     <string name="days_short">дн</string>
     <string name="weeks_short">нед</string>

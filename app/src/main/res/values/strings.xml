@@ -264,6 +264,8 @@
     <string name="pay_with_payme">Pay with Payme</string>
     <string name="pay_with_click">Pay with Click</string>
     <string name="payment_failed">Could not create the payment</string>
+    <string name="payment_pending_check">Payment isn\'t confirmed yet — it will be applied as soon as it arrives</string>
+    <string name="premium_activated">Premium activated!</string>
     <string name="hours_short">h</string>
     <string name="days_short">d</string>
     <string name="weeks_short">w</string>

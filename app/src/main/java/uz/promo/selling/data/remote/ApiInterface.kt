@@ -273,6 +273,13 @@ interface ApiInterface {
         @Query("lang") lang: String = SharedPref.language
     ): GenericModel<uz.promo.selling.data.remote.models.payments.BoostOrderRes>
 
+    @GET("payments/orders/{orderId}")
+    suspend fun getPaymentOrderStatus(
+        @Path("orderId") orderId: Long,
+        @Header("Authorization") token: String = SharedPref.deviceToken,
+        @Query("lang") lang: String = SharedPref.language
+    ): GenericModel<uz.promo.selling.data.remote.models.payments.OrderStatusRes>
+
     // ---------------- Premium ----------------
 
     @GET("payments/premium-plans")

@@ -17,3 +17,12 @@ data class BoostOrderRes(
     val amount: Long,
     val hours: Int
 )
+
+/** Polled after the checkout browser round-trip; status 1 = paid. */
+data class OrderStatusRes(
+    val orderId: Long,
+    val status: Int,
+    val hours: Int?,
+    val termMonths: Int?,
+    val amount: Long
+)

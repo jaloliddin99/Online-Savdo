@@ -88,6 +88,28 @@ fun PremiumRoute(
     val plans = viewModel.plans
     var selected by remember(plans) { mutableStateOf(plans.firstOrNull()?.termMonths) }
     val orderError = stringResource(R.string.payment_failed)
+    val activatedMsg = stringResource(R.string.premium_activated)
+    val pendingMsg = stringResource(R.string.payment_pending_check)
+
+    // Returning from the checkout browser: poll the order until the provider
+    // callback lands; on success the reloaded profile flips the screen to
+    // "member". No-op when nothing is pending.
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    androidx.compose.runtime.DisposableEffect(lifecycleOwner) {
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+                viewModel.checkPendingOrder { paid ->
+                    Toast.makeText(
+                        context,
+                        if (paid) activatedMsg else pendingMsg,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
 
     fun pay(provider: String) {
         val term = selected ?: return
@@ -194,10 +216,17 @@ fun PremiumRoute(
 
                 Spacer(modifier = Modifier.height(14.dp))
 
+                if (viewModel.awaitingPayment) {
+                    Box(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
+
                 // Payme — logo
                 PayButton(
                     background = Color(0xFF33CCCC),
-                    enabled = !viewModel.isOrdering && selected != null,
+                    enabled = !viewModel.isOrdering && !viewModel.awaitingPayment && selected != null,
                     onClick = { pay("payme") }
                 ) {
                     Image(
@@ -210,7 +239,7 @@ fun PremiumRoute(
                 // Click — wordmark
                 PayButton(
                     background = Color(0xFF0073E6),
-                    enabled = !viewModel.isOrdering && selected != null,
+                    enabled = !viewModel.isOrdering && !viewModel.awaitingPayment && selected != null,
                     onClick = { pay("click") }
                 ) {
                     Text(

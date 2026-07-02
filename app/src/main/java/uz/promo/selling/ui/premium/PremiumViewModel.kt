@@ -69,12 +69,51 @@ class PremiumViewModel @Inject constructor(
         viewModelScope.launch {
             val url = try {
                 val res = api.createPremiumOrder(PremiumOrderBody(termMonths, provider))
-                if (res.success) res.data.paymentUrl else null
+                if (res.success) {
+                    pendingOrderId = res.data.orderId
+                    res.data.paymentUrl
+                } else null
             } catch (_: Exception) {
                 null
             }
             isOrdering = false
             onUrl(url)
+        }
+    }
+
+    // Order awaiting provider confirmation after the checkout browser was opened.
+    private var pendingOrderId: Long? = null
+
+    var awaitingPayment by mutableStateOf(false)
+        private set
+
+    /**
+     * Called when the user returns from the checkout browser: polls the order
+     * until the provider callback lands, then reloads the membership status.
+     * onDone(true) = paid. No-op when nothing is pending.
+     */
+    fun checkPendingOrder(onDone: (Boolean) -> Unit) {
+        val orderId = pendingOrderId ?: return
+        if (awaitingPayment) return
+        viewModelScope.launch {
+            awaitingPayment = true
+            var paid = false
+            for (attempt in 1..4) {
+                paid = try {
+                    val res = api.getPaymentOrderStatus(orderId)
+                    res.success && res.data.status == 1
+                } catch (_: Exception) {
+                    false
+                }
+                if (paid || attempt == 4) break
+                kotlinx.coroutines.delay(2000)
+            }
+            awaitingPayment = false
+            if (paid) {
+                pendingOrderId = null
+                load() // refresh premiumUntil + boostCredits so the screen flips to "member"
+            }
+            onDone(paid)
         }
     }
 }
