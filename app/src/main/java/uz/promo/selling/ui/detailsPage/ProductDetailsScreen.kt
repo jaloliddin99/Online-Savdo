@@ -2,9 +2,15 @@ package uz.promo.selling.ui.detailsPage
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,6 +24,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -25,6 +32,7 @@ import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -55,12 +63,16 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -72,6 +84,10 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.rememberAsyncImagePainter
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.HazeTint
+import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.hazeSource
 import uz.promo.selling.BuildConfig
 import uz.promo.selling.R
 import uz.promo.selling.data.remote.models.showProducts.PostDetailsData
@@ -197,20 +213,40 @@ fun ProductDetailsScreen(
     if (isFeedLoading && data == null) {
         ShimmerDetailsContent()
     } else {
+        // Backdrop for the glass toolbar buttons and floating bottom bars.
+        val hazeState = remember { HazeState() }
+        val listState = rememberLazyListState()
         Box(
             modifier = modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.25f))
         ) {
             LazyColumn(
+                state = listState,
                 modifier = Modifier
                     .fillMaxSize()
-                    // Reserve room for the sticky bottom bar (owner actions or buyer CTA).
-                    .padding(bottom = 92.dp)
+                    .hazeSource(state = hazeState),
+                // Content scrolls under the floating action bar; keep the tail reachable.
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 108.dp)
             ) {
-                // Image pager
+                // Hero image — rounded sheet edge + parallax: the photo scrolls at
+                // half speed behind the content, like a depth layer.
                 item(key = "image_pager") {
-                    ImagePager(state, pagerState, imageSharedModifier)
+                    Box(
+                        modifier = Modifier.clip(
+                            RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp)
+                        )
+                    ) {
+                        Box(
+                            modifier = Modifier.graphicsLayer {
+                                val scrolled = if (listState.firstVisibleItemIndex == 0)
+                                    listState.firstVisibleItemScrollOffset.toFloat() else 0f
+                                translationY = scrolled * 0.5f
+                            }
+                        ) {
+                            ImagePager(state, pagerState, imageSharedModifier)
+                        }
+                    }
                 }
 
                 // Title + Price + Meta
@@ -274,13 +310,18 @@ fun ProductDetailsScreen(
                 // Bottom spacing — small breathing room + system nav bar inset.
                 item(key = "bottom_spacer") {
                     Spacer(modifier = Modifier.height(8.dp))
-                    NavigationBarSpacer()
+                    Spacer(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .windowInsetsBottomHeight(WindowInsets.navigationBars)
+                    )
                 }
             }
 
-            // Bottom action bar
+            // Floating glass owner action bar.
             OptionsScreen(
                 modifier = Modifier.align(Alignment.BottomCenter),
+                hazeState = hazeState,
                 onDeleteClicked = {
                     showDeleteDialog = true
                     deletePostId = it
@@ -295,19 +336,37 @@ fun ProductDetailsScreen(
                 data = data
             )
 
-            // Buyer sticky action bar: price + primary Call CTA (non-owners only).
+            // Buyer bar: price + primary Call CTA (non-owners only), floating glass,
+            // springing up from the bottom on first open.
             if (data != null && !isOwner) {
-                BuyerActionBar(
+                val introState = remember {
+                    androidx.compose.animation.core.MutableTransitionState(false)
+                        .apply { targetState = true }
+                }
+                AnimatedVisibility(
+                    visibleState = introState,
                     modifier = Modifier.align(Alignment.BottomCenter),
-                    data = data,
-                    onCallClicked = { callTo(data.user.phoneNumber ?: "", context) },
-                    onMessageClicked = onMessageClicked
-                )
+                    enter = slideInVertically(
+                        animationSpec = spring(
+                            dampingRatio = 0.8f,
+                            stiffness = Spring.StiffnessMediumLow
+                        )
+                    ) { it } + fadeIn()
+                ) {
+                    BuyerActionBar(
+                        modifier = Modifier,
+                        hazeState = hazeState,
+                        data = data,
+                        onCallClicked = { callTo(data.user.phoneNumber ?: "", context) },
+                        onMessageClicked = onMessageClicked
+                    )
+                }
             }
 
             // Toolbar overlay
             TopShadow()
             DetailsToolbar(
+                hazeState = hazeState,
                 onBackClick = onBackPressed,
                 onLikeClicked = onItemClicked,
                 onShareClick = {
@@ -418,7 +477,7 @@ private fun ProductHeader(data: PostDetailsData?, onLikeClicked: (Int) -> Unit) 
                 text = formatPrice(label, unit),
                 fontFamily = robotoFontFamily,
                 fontWeight = FontWeight.Bold,
-                fontSize = 24.sp,
+                fontSize = 26.sp,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(top = 6.dp)
             )
@@ -426,86 +485,66 @@ private fun ProductHeader(data: PostDetailsData?, onLikeClicked: (Int) -> Unit) 
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Meta row: date, likes, category
-        Row(
+        // Meta chips: date, likes, views, category — wrap instead of overflowing.
+        FlowRow(
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Date
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Outlined.AccessTime,
-                    contentDescription = null,
-                    modifier = Modifier.size(16.dp),
-                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = formatTimeAgo(data?.createdDate),
-                    fontFamily = robotoFontFamily,
-                    fontSize = 13.sp,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-                )
-            }
-
-            // Likes
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickable { data?.id?.let { onLikeClicked(it) } }
-            ) {
-                Icon(
-                    imageVector = if (data?.isLiked == true) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                    contentDescription = null,
-                    modifier = Modifier.size(16.dp),
-                    tint = if (data?.isLiked == true) MaterialTheme.colorScheme.error
-                    else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = "${data?.likes ?: 0} ${stringResource(R.string.likePulural)}",
-                    fontFamily = robotoFontFamily,
-                    fontSize = 13.sp,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-                )
-            }
-
-            // Views
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Outlined.Visibility,
-                    contentDescription = null,
-                    modifier = Modifier.size(16.dp),
-                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = "${data?.viewCount ?: 0}",
-                    fontFamily = robotoFontFamily,
-                    fontSize = 13.sp,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-                )
-            }
-
-            // Category chip
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Outlined.Category,
-                    contentDescription = null,
-                    modifier = Modifier.size(16.dp),
-                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = data?.category?.title ?: "",
-                    fontFamily = robotoFontFamily,
-                    fontSize = 13.sp,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
+            MetaChip(
+                icon = Icons.Outlined.AccessTime,
+                text = formatTimeAgo(data?.createdDate)
+            )
+            MetaChip(
+                icon = if (data?.isLiked == true) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                text = "${data?.likes ?: 0} ${stringResource(R.string.likePulural)}",
+                iconTint = if (data?.isLiked == true) MaterialTheme.colorScheme.error else null,
+                onClick = { data?.id?.let { onLikeClicked(it) } }
+            )
+            MetaChip(
+                icon = Icons.Outlined.Visibility,
+                text = "${data?.viewCount ?: 0}"
+            )
+            MetaChip(
+                icon = Icons.Outlined.Category,
+                text = data?.category?.title ?: ""
+            )
         }
+    }
+}
+
+@Composable
+private fun MetaChip(
+    icon: ImageVector,
+    text: String,
+    iconTint: androidx.compose.ui.graphics.Color? = null,
+    onClick: (() -> Unit)? = null
+) {
+    val contentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+    Row(
+        modifier = Modifier
+            .clip(RoundedCornerShape(50))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f))
+            .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier)
+            .padding(horizontal = 10.dp, vertical = 5.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            modifier = Modifier.size(14.dp),
+            tint = iconTint ?: contentColor
+        )
+        Spacer(modifier = Modifier.width(5.dp))
+        Text(
+            text = text,
+            fontFamily = robotoFontFamily,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Medium,
+            color = contentColor,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }
 
@@ -917,6 +956,7 @@ private fun ContactActionButton(
 @Composable
 fun OptionsScreen(
     modifier: Modifier,
+    hazeState: HazeState,
     onDeleteClicked: (Int) -> Unit,
     onEditClicked: (Int) -> Unit,
     onCallClicked: () -> Unit,
@@ -924,38 +964,56 @@ fun OptionsScreen(
     data: PostDetailsData?
 ) {
     if (data?.user?.id == SharedPref.userId) {
-        Column(modifier.fillMaxWidth()) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .shadow(elevation = 8.dp)
-                    .background(
-                        color = MaterialTheme.colorScheme.surface,
-                        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
-                    )
-                    .padding(horizontal = 24.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                CircularImage(
-                    icon = Icons.Filled.Delete,
-                    onClicked = { onDeleteClicked.invoke(data.id) }
+        val shape = RoundedCornerShape(28.dp)
+        val surfaceColor = MaterialTheme.colorScheme.surface
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 12.dp)
+                .shadow(
+                    elevation = 10.dp,
+                    shape = shape,
+                    ambientColor = Color.Black.copy(alpha = 0.25f),
+                    spotColor = Color.Black.copy(alpha = 0.25f)
                 )
-                CircularImage(
-                    icon = Icons.Filled.Edit,
-                    onClicked = { onEditClicked.invoke(data.id) }
+                .clip(shape)
+                .hazeEffect(state = hazeState) {
+                    backgroundColor = surfaceColor
+                    blurRadius = 24.dp
+                    noiseFactor = 0f
+                    tints = listOf(HazeTint(surfaceColor.copy(alpha = 0.50f)))
+                    fallbackTint = HazeTint(surfaceColor.copy(alpha = 0.92f))
+                }
+                .border(
+                    width = 1.dp,
+                    brush = Brush.verticalGradient(
+                        listOf(Color.White.copy(alpha = 0.30f), Color.White.copy(alpha = 0.06f))
+                    ),
+                    shape = shape
                 )
-                CircularImage(
-                    icon = Icons.Filled.Call,
-                    onClicked = onCallClicked
-                )
-                CircularImage(
-                    icon = Icons.Filled.Sms,
-                    onClicked = onSmsClicked
-                )
-            }
-            NavigationBarSpacer()
+                .padding(horizontal = 20.dp, vertical = 10.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            CircularImage(
+                icon = Icons.Filled.Delete,
+                tint = MaterialTheme.colorScheme.error,
+                onClicked = { onDeleteClicked.invoke(data.id) }
+            )
+            CircularImage(
+                icon = Icons.Filled.Edit,
+                onClicked = { onEditClicked.invoke(data.id) }
+            )
+            CircularImage(
+                icon = Icons.Filled.Call,
+                onClicked = onCallClicked
+            )
+            CircularImage(
+                icon = Icons.Filled.Sms,
+                onClicked = onSmsClicked
+            )
         }
     }
 }
@@ -966,21 +1024,42 @@ fun OptionsScreen(
 @Composable
 private fun BuyerActionBar(
     modifier: Modifier,
+    hazeState: HazeState,
     data: PostDetailsData,
     onCallClicked: () -> Unit,
     onMessageClicked: () -> Unit
 ) {
+    val shape = RoundedCornerShape(28.dp)
+    val surfaceColor = MaterialTheme.colorScheme.surface
     Column(modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 12.dp)
                 .shadow(
                     elevation = 12.dp,
-                    shape = RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp),
-                    clip = false
+                    shape = shape,
+                    ambientColor = Color.Black.copy(alpha = 0.25f),
+                    spotColor = Color.Black.copy(alpha = 0.25f)
                 )
-                .clip(RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp))
-                .background(MaterialTheme.colorScheme.surface)
+                .clip(shape)
+                // Liquid glass: the content scrolling underneath blurs through.
+                .hazeEffect(state = hazeState) {
+                    backgroundColor = surfaceColor
+                    blurRadius = 24.dp
+                    noiseFactor = 0f
+                    tints = listOf(HazeTint(surfaceColor.copy(alpha = 0.50f)))
+                    fallbackTint = HazeTint(surfaceColor.copy(alpha = 0.92f))
+                }
+                .border(
+                    width = 1.dp,
+                    brush = Brush.verticalGradient(
+                        listOf(Color.White.copy(alpha = 0.30f), Color.White.copy(alpha = 0.06f))
+                    ),
+                    shape = shape
+                )
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -1018,11 +1097,18 @@ private fun BuyerActionBar(
             }
             Spacer(modifier = Modifier.width(10.dp))
 
-            // Call (primary CTA)
+            // Call (primary CTA) — gradient pill.
             Row(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(MaterialTheme.colorScheme.primary)
+                    .clip(RoundedCornerShape(18.dp))
+                    .background(
+                        Brush.horizontalGradient(
+                            listOf(
+                                MaterialTheme.colorScheme.primary,
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.82f)
+                            )
+                        )
+                    )
                     .clickable { onCallClicked() }
                     .padding(horizontal = 24.dp, vertical = 14.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -1043,7 +1129,6 @@ private fun BuyerActionBar(
                 )
             }
         }
-        NavigationBarSpacer()
     }
 }
 
@@ -1051,15 +1136,23 @@ private fun BuyerActionBar(
 @Composable
 fun CircularImage(
     icon: ImageVector = Icons.Filled.Delete,
+    tint: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.primary,
     onClicked: () -> Unit
 ) {
-    FloatingActionButton(
-        onClick = onClicked,
-        shape = CircleShape,
-        elevation = FloatingActionButtonDefaults.elevation(0.dp),
-        modifier = Modifier.size(48.dp)
+    Box(
+        modifier = Modifier
+            .size(46.dp)
+            .clip(CircleShape)
+            .background(tint.copy(alpha = 0.12f))
+            .clickable { onClicked() },
+        contentAlignment = Alignment.Center
     ) {
-        Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(22.dp))
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = tint,
+            modifier = Modifier.size(21.dp)
+        )
     }
 }
 

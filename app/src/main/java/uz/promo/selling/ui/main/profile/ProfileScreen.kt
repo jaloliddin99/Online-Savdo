@@ -36,11 +36,9 @@ import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.platform.LocalDensity
@@ -67,8 +65,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.BlurredEdgeTreatment
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -87,8 +83,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import uz.promo.selling.BuildConfig
@@ -113,8 +107,6 @@ import uz.promo.selling.utils.appLanguageName
 import uz.promo.selling.utils.appLanguageNameRes
 import uz.promo.selling.utils.reverseAppLanguageName
 import uz.promo.selling.utils.runTimePermission.RunTimePermission
-import kotlin.math.abs
-import kotlin.math.hypot
 
 @Composable
 fun ProfileRoute(
@@ -330,45 +322,6 @@ fun ProfileScreen(
 
         // Floating avatar — sits in its header slot while expanded and flies into the
         // app bar's top-left corner as the user scrolls down (and back on scroll up).
-        // Unit vector of the straight flight path; the water-drop trail extends along it.
-        val motionUnit = remember(widthPx) {
-            with(density) {
-                val dx = (16.dp.toPx() + 50.dp.toPx() * 0.4f) - widthPx / 2f
-                val dy = (-32).dp.toPx() - 86.dp.toPx()
-                val len = hypot(dx, dy)
-                floatArrayOf(dx / len, dy / len)
-            }
-        }
-        // Water-drop trail: intensity builds while the avatar is actually moving through
-        // the collapse range and decays shortly after the motion stops — so even a fast
-        // fling leaves a visible smear that fades as the avatar lands.
-        val trailAlpha = remember { Animatable(0f) }
-        val trailDir = remember { intArrayOf(1) } // +1 = travelling toward the app bar
-        LaunchedEffect(scrollState, density) {
-            val collapseRangePx = with(density) { 130.dp.roundToPx() }
-            var last = scrollState.value
-            var decay: Job? = null
-            snapshotFlow { scrollState.value }.collect { value ->
-                val delta = value - last
-                last = value
-                if (delta == 0) return@collect
-                if (value in 1 until collapseRangePx) {
-                    trailDir[0] = if (delta > 0) 1 else -1
-                    decay?.cancel()
-                    trailAlpha.snapTo((trailAlpha.value + abs(delta) / 90f).coerceAtMost(1f))
-                    decay = launch {
-                        delay(70)
-                        trailAlpha.animateTo(0f, tween(320))
-                    }
-                } else if (trailAlpha.value > 0f && decay?.isActive != true) {
-                    decay = launch { trailAlpha.animateTo(0f, tween(220)) }
-                }
-            }
-        }
-        // Same avatar bitmap for the trail ghost (Coil serves it from cache).
-        val trailPainter = rememberAsyncImagePainter(
-            model = "${BuildConfig.BASE_URL}user/image/${state.getProfile?.profileUrl}"
-        )
         Box(
             modifier = Modifier
                 .align(Alignment.TopCenter)
@@ -386,26 +339,6 @@ fun ProfileScreen(
                     translationY = lerp(startCy, endCy, progress) - 50.dp.toPx()
                 }
         ) {
-            // Water-drop trail — a blurred ghost of the avatar reaching toward where
-            // it's heading; driven by motion, fading out shortly after it stops.
-            Image(
-                painter = trailPainter,
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(100.dp)
-                    .graphicsLayer {
-                        val intensity = trailAlpha.value
-                        val dist = 34.dp.toPx() * intensity * trailDir[0]
-                        translationX = motionUnit[0] * dist
-                        translationY = motionUnit[1] * dist
-                        scaleX = 0.92f
-                        scaleY = 0.92f
-                        alpha = 0.5f * intensity
-                    }
-                    .blur(10.dp, BlurredEdgeTreatment.Unbounded)
-                    .clip(CircleShape)
-            )
             RoundImage(
                 user = state.getProfile,
                 onImageClicked = { showGalleryOrCameraDialog = true }

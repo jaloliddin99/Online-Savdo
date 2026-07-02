@@ -1,6 +1,8 @@
 package uz.promo.selling.ui.detailsPage
 
-import androidx.compose.foundation.Canvas
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -9,9 +11,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -85,7 +87,7 @@ fun ImagePager(
             state = pagerState,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(350.dp)
+                .height(410.dp)
         ) { page ->
 
             // The first page is the same image as the Home card — it morphs from/to it.
@@ -137,53 +139,44 @@ fun CircularPagerIndicator(
     modifier: Modifier = Modifier,
     itemCount: Int,
     currentPage: Int,
-    indicatorSize: Dp = 8.dp,
-    indicatorColor: Color = Color.Gray
-
+    indicatorSize: Dp = 7.dp,
+    indicatorColor: Color = Color.White.copy(alpha = 0.5f)
 ) {
+    // The "n/m" counter pill covers many-image posts; dots would overflow.
+    if (itemCount <= 1 || itemCount > 8) return
     Box(
         modifier = modifier
             .fillMaxWidth()
             .padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
-        LazyRow(
+        Row(
             modifier = Modifier
-                .wrapContentSize()
-                .background(color = Color.Transparent),
-            horizontalArrangement = Arrangement.Center
+                .clip(RoundedCornerShape(50))
+                .background(Color.Black.copy(alpha = 0.28f))
+                .padding(horizontal = 8.dp, vertical = 5.dp),
+            horizontalArrangement = Arrangement.spacedBy(5.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            items(itemCount) { index ->
-                CircularIndicator(
-                    selected = index == currentPage,
-                    size = indicatorSize,
-                    color = indicatorColor,
-                    selectedSize = indicatorSize * 1.1f // Adjust the factor for the selected circle size
+            repeat(itemCount) { index ->
+                val selected = index == currentPage
+                // Active dot stretches into a pill and slides as you swipe.
+                val width by animateDpAsState(
+                    targetValue = if (selected) 18.dp else indicatorSize,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioNoBouncy,
+                        stiffness = Spring.StiffnessMediumLow
+                    ),
+                    label = "pagerDot"
+                )
+                Box(
+                    modifier = Modifier
+                        .height(indicatorSize)
+                        .width(width)
+                        .clip(RoundedCornerShape(50))
+                        .background(if (selected) Color.White else indicatorColor)
                 )
             }
         }
-    }
-}
-
-@Composable
-fun CircularIndicator(
-    selected: Boolean,
-    size: Dp,
-    color: Color,
-    selectedSize: Dp
-) {
-    val finalSize = if (selected) selectedSize else size
-    val selectedColor = if (selected) Color.White else color
-
-    Canvas(
-        modifier = Modifier
-            .padding(1.2.dp)
-            .size(finalSize)
-    ) {
-        drawRoundRect(
-            color = selectedColor,
-            size = Size(finalSize.toPx(), finalSize.toPx()),
-            cornerRadius = CornerRadius(50f)
-        )
     }
 }

@@ -3,6 +3,9 @@ package uz.promo.selling.ui.main.home
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animate
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,6 +14,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,10 +29,13 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -36,6 +43,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -43,17 +51,33 @@ import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.lerp
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.HazeTint
+import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.hazeSource
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 import uz.promo.selling.R
 import uz.promo.selling.data.location.GpsCheckHelper
 import uz.promo.selling.data.location.checkGpsEnabled
@@ -157,25 +181,60 @@ fun HomeScreen(
     val haptic = LocalHapticFeedback.current
     val scope = rememberCoroutineScope()
 
-    Box(modifier = modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
-        Spacer(modifier = Modifier.windowInsetsTopHeight(WindowInsets.safeDrawing))
-        HomeSearchBar(
-            onSearchClick = onSearchClick,
-            onMapClick = onMapClick,
-            onNotificationClick = onNotificationClick,
-            onMessagesClick = onMessagesClick,
-            unreadCount = chatUnreadViewModel.count,
-            searchBarModifier = searchBarModifier,
-        )
+    // Collapsing glass header: the search row scrubs up/down with the scroll and
+    // spring-snaps to fully shown / fully hidden when the gesture ends.
+    val homeHazeState = remember { HazeState() }
+    val surfaceColor = MaterialTheme.colorScheme.surface
+    val headerCollapsePx = with(LocalDensity.current) { 64.dp.toPx() }
+    val headerOffset = remember { mutableFloatStateOf(0f) } // 0 = expanded … -range = collapsed
+    val headerConnection = remember(headerCollapsePx) {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                val current = headerOffset.floatValue
+                val target = (current + available.y).coerceIn(-headerCollapsePx, 0f)
+                val consumed = target - current
+                if (consumed != 0f) headerOffset.floatValue = target
+                return Offset(0f, consumed)
+            }
+
+            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+                // Snap to the nearest end state with a spring (same feel as the
+                // profile avatar). A new touch cancels this automatically.
+                val current = headerOffset.floatValue
+                if (current > -headerCollapsePx && current < 0f) {
+                    val target = if (current < -headerCollapsePx / 2f) -headerCollapsePx else 0f
+                    animate(
+                        initialValue = current,
+                        targetValue = target,
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioLowBouncy,
+                            stiffness = Spring.StiffnessMediumLow
+                        )
+                    ) { value, _ -> headerOffset.floatValue = value }
+                }
+                return Velocity.Zero
+            }
+        }
+    }
+    val statusTop = WindowInsets.safeDrawing.asPaddingValues().calculateTopPadding()
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .nestedScroll(headerConnection)
+    ) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             state = scrollState,
-            modifier = Modifier.weight(1f),
-            // Content scrolls under the floating glass bottom bar — keep the tail reachable.
-            contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 96.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .hazeSource(state = homeHazeState),
+            // Top: room for the glass header (52dp title + 64dp search row);
+            // bottom: clearance for the floating glass nav bar.
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                top = statusTop + 116.dp,
+                bottom = 96.dp
+            ),
         ) {
             // ── Categories Section ──
             item(span = { GridItemSpan(2) }) {
@@ -336,6 +395,78 @@ fun HomeScreen(
                 }
             }
         }
+
+        // Floating glass header — brand title row + collapsing search field.
+        // The feed scrolls underneath and blurs through it.
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .hazeEffect(state = homeHazeState) {
+                    backgroundColor = surfaceColor
+                    blurRadius = 22.dp
+                    noiseFactor = 0f
+                    tints = listOf(HazeTint(surfaceColor.copy(alpha = 0.50f)))
+                    fallbackTint = HazeTint(surfaceColor.copy(alpha = 0.90f))
+                }
+        ) {
+            Spacer(modifier = Modifier.windowInsetsTopHeight(WindowInsets.safeDrawing))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp)
+                    .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Selling.uz",
+                    fontFamily = robotoFontFamily,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 26.sp,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.graphicsLayer {
+                        // Shrinks toward its left edge while the search row docks
+                        // up; grows back as it returns.
+                        val progress = -headerOffset.floatValue / headerCollapsePx
+                        val scale = lerp(1f, 0.78f, progress)
+                        scaleX = scale
+                        scaleY = scale
+                        transformOrigin = TransformOrigin(0f, 0.5f)
+                    }
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                IconButton(onClick = onNotificationClick) {
+                    Icon(
+                        imageVector = Icons.Filled.Notifications,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+            // Collapsing search row: slides up under the title and gives back its
+            // height as it goes (scrubbed by scroll, spring-snapped on release).
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clipToBounds()
+                    .layout { measurable, constraints ->
+                        val placeable = measurable.measure(constraints)
+                        val offset = headerOffset.floatValue
+                        val height = (placeable.height + offset).roundToInt().coerceAtLeast(0)
+                        layout(placeable.width, height) {
+                            placeable.placeRelative(0, offset.roundToInt())
+                        }
+                    }
+                    .graphicsLayer {
+                        alpha = 1f - (-headerOffset.floatValue / headerCollapsePx)
+                    }
+            ) {
+                HomeSearchBar(
+                    onSearchClick = onSearchClick,
+                    onMapClick = onMapClick,
+                    searchBarModifier = searchBarModifier,
+                    hazeState = homeHazeState,
+                )
+            }
         }
 
         SnackbarHost(
