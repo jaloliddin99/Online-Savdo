@@ -6,6 +6,8 @@ data class Content(
     // Nullable: posts with no images (e.g. some OLX imports) send null here.
     val image: Image? = null,
     val likes: Int,
+    // True when the current (authenticated) user has liked this post.
+    val isLiked: Boolean? = null,
     // Nullable in practice: some posts (e.g. OLX imports) omit price/address.
     // Non-null would make the generated hashCode/equals NPE on those rows.
     val price: String? = null,

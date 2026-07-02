@@ -238,6 +238,9 @@
     <string name="premium_feature_interested">See who\'s interested in your ads</string>
     <string name="premium_feature_contact">Prominent call &amp; chat buttons</string>
     <string name="premium_choose_plan">Choose your plan</string>
+    <string name="premium_best_value">Best value</string>
+    <string name="post_liked">Added to favorites</string>
+    <string name="post_unliked">Removed from favorites</string>
     <string name="premium_per_month">/mo</string>
     <string name="premium_save">Save %1$d%%</string>
     <string name="premium_month_1">1 month</string>

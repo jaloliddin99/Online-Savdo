@@ -36,8 +36,17 @@ import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material.icons.rounded.WorkspacePremium
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.util.lerp
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
@@ -58,6 +67,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.BlurredEdgeTreatment
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -65,6 +76,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
@@ -74,6 +86,10 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import uz.promo.selling.BuildConfig
 import uz.promo.selling.R
@@ -85,6 +101,8 @@ import uz.promo.selling.ui.main.add.TextBold16
 import uz.promo.selling.ui.main.add.TextNormal16
 import uz.promo.selling.ui.main.add.TextThin
 import uz.promo.selling.ui.main.home.GetProfileState
+import uz.promo.selling.ui.theme.PremiumGold
+import uz.promo.selling.ui.theme.PremiumGoldDark
 import uz.promo.selling.ui.theme.robotoFontFamily
 import uz.promo.selling.ui.theme.spacing
 import uz.promo.selling.utils.ComposeFileProvider
@@ -95,6 +113,8 @@ import uz.promo.selling.utils.appLanguageName
 import uz.promo.selling.utils.appLanguageNameRes
 import uz.promo.selling.utils.reverseAppLanguageName
 import uz.promo.selling.utils.runTimePermission.RunTimePermission
+import kotlin.math.abs
+import kotlin.math.hypot
 
 @Composable
 fun ProfileRoute(
@@ -214,21 +234,52 @@ fun ProfileScreen(
         })
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
+    val scrollState = rememberScrollState()
+    val density = LocalDensity.current
+
+    // Snap the collapse: if the user stops scrolling while the avatar is mid-flight,
+    // spring the scroll position (and with it the avatar + content, which are all
+    // driven by the same offset) to either the expanded or the docked state.
+    LaunchedEffect(scrollState, density) {
+        val collapseRangePx = with(density) { 130.dp.roundToPx() }
+        snapshotFlow { scrollState.isScrollInProgress }.collect { inProgress ->
+            if (!inProgress) {
+                val value = scrollState.value
+                if (value in 1 until collapseRangePx) {
+                    val target = if (value > collapseRangePx / 2) collapseRangePx else 0
+                    try {
+                        scrollState.animateScrollTo(
+                            target,
+                            spring(
+                                dampingRatio = Spring.DampingRatioLowBouncy,
+                                stiffness = Spring.StiffnessMediumLow
+                            )
+                        )
+                    } catch (_: CancellationException) {
+                        // A new user gesture interrupted the snap — that's fine; the
+                        // gesture's own release will re-trigger it. Keep listening.
+                    }
+                    // If the effect itself was torn down (screen left), stop properly.
+                    ensureActive()
+                }
+            }
+        }
+    }
+
+    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+        val widthPx = constraints.maxWidth.toFloat()
         Column(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState()),
+                .verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
 
-            Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen24Dp))
-            RoundImage(user = state.getProfile,
-                onImageClicked = {
-                    showGalleryOrCameraDialog = true
-                })
-
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen24Dp))
+            // Slot the avatar occupies while expanded — the avatar itself is drawn
+            // in the floating overlay below so it can fly into the app bar on scroll.
+            Spacer(modifier = Modifier.height(100.dp))
 
             if (state.getProfile != null) {
                 val user = state.getProfile
@@ -272,13 +323,101 @@ fun ProfileScreen(
                     forgotPassword = { toForgotPassword(false) }
                 )
             }
-            Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen24Dp))
+            // Content scrolls under the floating glass bottom bar — keep the tail reachable.
+            Spacer(modifier = Modifier.height(96.dp))
 
+        }
+
+        // Floating avatar — sits in its header slot while expanded and flies into the
+        // app bar's top-left corner as the user scrolls down (and back on scroll up).
+        // Unit vector of the straight flight path; the water-drop trail extends along it.
+        val motionUnit = remember(widthPx) {
+            with(density) {
+                val dx = (16.dp.toPx() + 50.dp.toPx() * 0.4f) - widthPx / 2f
+                val dy = (-32).dp.toPx() - 86.dp.toPx()
+                val len = hypot(dx, dy)
+                floatArrayOf(dx / len, dy / len)
+            }
+        }
+        // Water-drop trail: intensity builds while the avatar is actually moving through
+        // the collapse range and decays shortly after the motion stops — so even a fast
+        // fling leaves a visible smear that fades as the avatar lands.
+        val trailAlpha = remember { Animatable(0f) }
+        val trailDir = remember { intArrayOf(1) } // +1 = travelling toward the app bar
+        LaunchedEffect(scrollState, density) {
+            val collapseRangePx = with(density) { 130.dp.roundToPx() }
+            var last = scrollState.value
+            var decay: Job? = null
+            snapshotFlow { scrollState.value }.collect { value ->
+                val delta = value - last
+                last = value
+                if (delta == 0) return@collect
+                if (value in 1 until collapseRangePx) {
+                    trailDir[0] = if (delta > 0) 1 else -1
+                    decay?.cancel()
+                    trailAlpha.snapTo((trailAlpha.value + abs(delta) / 90f).coerceAtMost(1f))
+                    decay = launch {
+                        delay(70)
+                        trailAlpha.animateTo(0f, tween(320))
+                    }
+                } else if (trailAlpha.value > 0f && decay?.isActive != true) {
+                    decay = launch { trailAlpha.animateTo(0f, tween(220)) }
+                }
+            }
+        }
+        // Same avatar bitmap for the trail ghost (Coil serves it from cache).
+        val trailPainter = rememberAsyncImagePainter(
+            model = "${BuildConfig.BASE_URL}user/image/${state.getProfile?.profileUrl}"
+        )
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .graphicsLayer {
+                    val progress = collapseProgress(scrollState.value)
+                    val scale = lerp(1f, 0.4f, progress)
+                    scaleX = scale
+                    scaleY = scale
+                    // Expanded center: (width/2, 36dp + 50dp - scroll) — matches the header slot.
+                    // Docked center: 16dp from the left, vertically centered in the 64dp app bar above.
+                    val startCy = 86.dp.toPx() - scrollState.value
+                    val endCy = -32.dp.toPx()
+                    val endCx = 16.dp.toPx() + 50.dp.toPx() * 0.4f
+                    translationX = (endCx - widthPx / 2f) * progress
+                    translationY = lerp(startCy, endCy, progress) - 50.dp.toPx()
+                }
+        ) {
+            // Water-drop trail — a blurred ghost of the avatar reaching toward where
+            // it's heading; driven by motion, fading out shortly after it stops.
+            Image(
+                painter = trailPainter,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(100.dp)
+                    .graphicsLayer {
+                        val intensity = trailAlpha.value
+                        val dist = 34.dp.toPx() * intensity * trailDir[0]
+                        translationX = motionUnit[0] * dist
+                        translationY = motionUnit[1] * dist
+                        scaleX = 0.92f
+                        scaleY = 0.92f
+                        alpha = 0.5f * intensity
+                    }
+                    .blur(10.dp, BlurredEdgeTreatment.Unbounded)
+                    .clip(CircleShape)
+            )
+            RoundImage(
+                user = state.getProfile,
+                onImageClicked = { showGalleryOrCameraDialog = true }
+            )
         }
         FreeLoading(state.isLoading)
     }
 }
 
+/** 0 = expanded header avatar, 1 = docked in the app bar; eased over the 130dp collapse range. */
+private fun Density.collapseProgress(scroll: Int): Float =
+    FastOutSlowInEasing.transform((scroll / 130.dp.toPx()).coerceIn(0f, 1f))
 
 /**
  * Premium upsell / status card on the Profile screen. Shows a "Get Premium" CTA
@@ -297,7 +436,6 @@ private fun PremiumProfileCard(
         }.getOrDefault(false)
     } ?: false
 
-    val gold = Color(0xFFCBA135)
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -305,7 +443,7 @@ private fun PremiumProfileCard(
             .clip(RoundedCornerShape(18.dp))
             .background(
                 Brush.horizontalGradient(
-                    if (isPremium) listOf(gold, Color(0xFFB8860B))
+                    if (isPremium) listOf(PremiumGold, PremiumGoldDark)
                     else listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.primary.copy(alpha = 0.78f))
                 )
             )
@@ -314,10 +452,10 @@ private fun PremiumProfileCard(
         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
     ) {
         androidx.compose.material3.Icon(
-            imageVector = Icons.Rounded.WorkspacePremium,
+            painter = painterResource(R.drawable.ic_premium_crown_flat),
             contentDescription = null,
             tint = Color.White,
-            modifier = Modifier.size(34.dp)
+            modifier = Modifier.size(32.dp)
         )
         androidx.compose.foundation.layout.Spacer(modifier = Modifier.width(12.dp))
         androidx.compose.foundation.layout.Column(modifier = Modifier.weight(1f)) {

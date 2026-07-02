@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Premium crown — flat single-color version; tint via Icon(tint = …) for badges and cards. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M4,20 a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0 M28,12 a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0 M52,20 a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0 M8,26 L19.5,35.5 L32,18 L44.5,35.5 L56,26 L50.5,45 L13.5,45 Z M14,49 L50,49 A3.5,3.5 0 0,1 50,56 L14,56 A3.5,3.5 0 0,1 14,49 Z" />
+</vector>

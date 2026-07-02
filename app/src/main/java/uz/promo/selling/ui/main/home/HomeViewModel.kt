@@ -1,6 +1,7 @@
 package uz.promo.selling.ui.main.home
 
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -24,6 +25,7 @@ import uz.promo.selling.domain.repository.LocationTracker
 import uz.promo.selling.domain.state.Resource
 import uz.promo.selling.domain.useCase.NearPostsUseCase
 import uz.promo.selling.domain.useCase.allCategoriesUseCase.AllCategoriesUseCase
+import uz.promo.selling.domain.useCase.presentUseCase.LikeDislikeUseCase
 import uz.promo.selling.utils.SharedPref
 import javax.inject.Inject
 
@@ -45,12 +47,41 @@ class HomeViewModel @Inject constructor(
     private val categoryUseCase: AllCategoriesUseCase,
     private val apiInterface: ApiInterface,
     private val locationTrackerRepository: LocationTracker,
-    private val nearPostsUseCase: NearPostsUseCase
+    private val nearPostsUseCase: NearPostsUseCase,
+    private val likeDislikeUseCase: LikeDislikeUseCase
 ) :
     ViewModel() {
 
     private val _state = mutableStateOf(HomeScreenState())
     val state: State<HomeScreenState> = _state
+
+    // Optimistic like state for home cards. The public list API doesn't include
+    // the caller's like state, so this tracks toggles made in this session and
+    // syncs each entry with the server's authoritative answer when it arrives.
+    val likedPosts = mutableStateMapOf<Int, Boolean>()
+
+    /** Flips the like optimistically, fires the toggle call, returns the new state. */
+    fun toggleLike(postId: Int): Boolean {
+        val newValue = !(likedPosts[postId] ?: false)
+        likedPosts[postId] = newValue
+        likeDislikeUseCase(
+            id = postId,
+            language = SharedPref.language,
+            token = SharedPref.deviceToken
+        ).onEach { result ->
+            when (result) {
+                is Resource.Success -> {
+                    result.data?.data?.isLiked?.let { likedPosts[postId] = it }
+                }
+                is Resource.Error -> {
+                    // Server rejected it — revert the optimistic flip.
+                    likedPosts[postId] = !newValue
+                }
+                is Resource.Loading -> Unit
+            }
+        }.launchIn(viewModelScope)
+        return newValue
+    }
 
     fun getAllCategories(
         language: String = SharedPref.language,

@@ -43,7 +43,9 @@ class ProductsPagingSource(
                 sort = sort,
                 lat = lat,
                 lon = lon,
-                radius = radius
+                radius = radius,
+                // Authenticated feed requests get per-post isLiked from the backend.
+                token = SharedPref.deviceToken.takeIf { it.isNotEmpty() }
             )
             val data = response.data
             LoadResult.Page(

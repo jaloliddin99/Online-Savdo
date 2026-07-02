@@ -65,7 +65,9 @@ fun SavedScreen(
         modifier = modifier.fillMaxSize()
     ) {
         LazyVerticalGrid(
-            columns = GridCells.Fixed(2)
+            columns = GridCells.Fixed(2),
+            // Content scrolls under the floating glass bottom bar — keep the tail reachable.
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 96.dp)
         ) {
             if (pagerState.isLoading && pagerState.items.isEmpty() && pagerState.page == 0) {
                 item(span = { GridItemSpan(2) }) {

@@ -3,30 +3,48 @@ package uz.promo.selling.ui
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,15 +52,26 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavType
@@ -51,6 +80,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.HazeTint
+import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.hazeSource
 import uz.promo.selling.data.remote.models.category.CategoryItem
 import uz.promo.selling.ui.auth.forgotPassword.ForgotPasswordRoute
 import uz.promo.selling.ui.auth.forgotPassword.ResetPasswordRoute
@@ -75,7 +108,6 @@ import uz.promo.selling.ui.map.MapScreenData
 import uz.promo.selling.ui.map.MapShowLocationScreen
 import uz.promo.selling.ui.map.MapsScreen
 import uz.promo.selling.ui.map.SelectRadiusMapScreen
-import uz.promo.selling.ui.navigation.NavigationDefaults
 import uz.promo.selling.ui.navigation.Screen
 import uz.promo.selling.ui.notification.NotificationsRoute
 import uz.promo.selling.ui.main.profile.ProfileRoute
@@ -88,14 +120,16 @@ import uz.promo.selling.ui.theme.AppBackground
 import uz.promo.selling.ui.theme.AppGradientBackground
 import uz.promo.selling.ui.theme.GradientColors
 import uz.promo.selling.ui.theme.LocalGradientColors
+import uz.promo.selling.ui.theme.robotoFontFamily
 import uz.promo.selling.utils.AuthEvent
 import uz.promo.selling.utils.FreeLoading
 import uz.promo.selling.utils.SharedPref
+import kotlin.math.roundToInt
 
 private val BOTTOM_BAR_ROUTES = setOf(
     Screen.Home.route,
     Screen.SavedPosts.route,
-    // AddProduct intentionally omitted — hide the bottom bar on the post-ad page.
+    Screen.AddProduct.route,
     Screen.Chat.route,
     Screen.Profile.route
 )
@@ -149,6 +183,8 @@ fun MainScreenView(
                 GradientColors()
             },
         ) {
+            // Backdrop for the glass bottom bar — the content behind it gets blurred.
+            val hazeState = remember { HazeState() }
             Scaffold(
                 modifier = Modifier.semantics {
                     testTagsAsResourceId = true
@@ -156,32 +192,36 @@ fun MainScreenView(
                 containerColor = Color.Transparent,
                 contentColor = MaterialTheme.colorScheme.onBackground,
                 contentWindowInsets = WindowInsets(0, 0, 0, 0),
-                bottomBar = {
+            ) { padding ->
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(padding)
+                            .consumeWindowInsets(padding)
+                            .windowInsetsPadding(
+                                WindowInsets.safeDrawing.only(
+                                    WindowInsetsSides.Horizontal
+                                )
+                            )
+                            .hazeSource(state = hazeState)
+                    ) {
+                        NavigationGraph(
+                            appState = appState,
+                            restartApp = restartApp,
+                            onSettingsClick = { showSettingsDialog = true }
+                        )
+                    }
+                    // The bar overlays the content (no reserved strip) so the area
+                    // around the pill is fully transparent and content scrolls under it.
                     AnimatedVisibility(
                         visible = showBottomBar,
+                        modifier = Modifier.align(Alignment.BottomCenter),
                         enter = slideInVertically { it },
                         exit = slideOutVertically { it }
                     ) {
-                        BottomNavigation(appState.navController, appState)
+                        BottomNavigation(appState.navController, appState, hazeState)
                     }
-                }
-            ) { padding ->
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding)
-                        .consumeWindowInsets(padding)
-                        .windowInsetsPadding(
-                            WindowInsets.safeDrawing.only(
-                                WindowInsetsSides.Horizontal
-                            )
-                        )
-                ) {
-                    NavigationGraph(
-                        appState = appState,
-                        restartApp = restartApp,
-                        onSettingsClick = { showSettingsDialog = true }
-                    )
                 }
             }
         }
@@ -189,72 +229,204 @@ fun MainScreenView(
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+/**
+ * Floating "liquid glass" tab bar (iOS 26 style): a translucent rounded pill that
+ * hovers above the bottom edge, with a gooey selection indicator — its leading edge
+ * rushes ahead on a stiff spring while the trailing edge catches up on a soft one,
+ * so the pill stretches like liquid in transit and contracts on arrival.
+ */
 @Composable
 fun BottomNavigation(
     navController: NavController,
-    appState: ApplicationState
+    appState: ApplicationState,
+    hazeState: HazeState
 ) {
-    NavigationBar(
-        modifier = Modifier.fillMaxWidth(),
-        contentColor = NavigationDefaults.navigationContentColor(),
-        tonalElevation = 0.dp
+    val items = listOf(
+        NavItems.Home,
+        NavItems.SavedPosts,
+        NavItems.AddProduct,
+        NavItems.Chat,
+        NavItems.Profile
+    )
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
+    // Unread message count for the Chat tab badge; refresh as the user moves around.
+    val chatUnreadVM: ChatUnreadViewModel = hiltViewModel()
+    LaunchedEffect(currentRoute) { chatUnreadVM.refresh() }
+
+    val selectedIndex = items.indexOfFirst { it.screenRoute == currentRoute }
+    val currentSelected by rememberUpdatedState(selectedIndex)
+
+    // While the user holds & drags, the pill follows the finger (in tab units);
+    // on release it snaps to the nearest tab and navigates there.
+    var dragPosition by remember { mutableStateOf<Float?>(null) }
+    val pillTarget = dragPosition ?: selectedIndex.coerceAtLeast(0).toFloat()
+    // The tab visuals highlight the tab the pill is hovering over, live during the drag.
+    val highlightIndex = dragPosition?.roundToInt()?.coerceIn(0, items.size - 1) ?: selectedIndex
+
+    val fastEdge by animateFloatAsState(
+        targetValue = pillTarget,
+        animationSpec = spring(dampingRatio = 0.8f, stiffness = 900f),
+        label = "navFastEdge"
+    )
+    val slowEdge by animateFloatAsState(
+        targetValue = pillTarget,
+        animationSpec = spring(dampingRatio = 0.8f, stiffness = 260f),
+        label = "navSlowEdge"
+    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .navigationBarsPadding()
+            .padding(horizontal = 20.dp)
+            .padding(bottom = 10.dp)
     ) {
-        val items = listOf(
-            NavItems.Home,
-            NavItems.SavedPosts,
-            NavItems.AddProduct,
-            NavItems.Chat,
-            NavItems.Profile
-        )
-        val navBackStackEntry by navController.currentBackStackEntryAsState()
-        val currentRoute = navBackStackEntry?.destination?.route
-
-        // Unread message count for the Chat tab badge; refresh as the user moves around.
-        val chatUnreadVM: ChatUnreadViewModel = hiltViewModel()
-        LaunchedEffect(currentRoute) { chatUnreadVM.refresh() }
-
-        items.forEach { item ->
-            val isSelected = currentRoute == item.screenRoute
-
-            NavigationBarItem(
-                selected = isSelected,
-                alwaysShowLabel = true,
-                onClick = {
-                    appState.navigateToTopLevelDestination(item)
-                },
-                label = { Text(text = stringResource(id = item.titleRes)) },
-                icon = {
-                    val iconVector = if (isSelected) item.selectedIcon else item.unselectedIcon
-                    val unread = chatUnreadVM.count
-                    if (item == NavItems.Chat && unread > 0) {
-                        BadgedBox(
-                            badge = {
-                                Badge {
-                                    Text(text = if (unread > 99) "99+" else unread.toString())
-                                }
+        val shape = RoundedCornerShape(28.dp)
+        val surfaceColor = MaterialTheme.colorScheme.surface
+        BoxWithConstraints(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp)
+                .shadow(
+                    elevation = 8.dp,
+                    shape = shape,
+                    ambientColor = Color.Black.copy(alpha = 0.22f),
+                    spotColor = Color.Black.copy(alpha = 0.22f)
+                )
+                .clip(shape)
+                // Real backdrop blur of the content scrolling underneath.
+                .hazeEffect(state = hazeState) {
+                    backgroundColor = surfaceColor
+                    blurRadius = 24.dp
+                    noiseFactor = 0f
+                    tints = listOf(HazeTint(surfaceColor.copy(alpha = 0.45f)))
+                    // Pre-Android-12 devices can't blur — use a stronger scrim instead.
+                    fallbackTint = HazeTint(surfaceColor.copy(alpha = 0.88f))
+                }
+                .border(
+                    width = 1.dp,
+                    brush = Brush.verticalGradient(
+                        listOf(Color.White.copy(alpha = 0.30f), Color.White.copy(alpha = 0.06f))
+                    ),
+                    shape = shape
+                )
+                // Hold & drag anywhere on the bar: the pill chases the finger and,
+                // on release, snaps to the nearest tab and navigates. Taps still
+                // work — the drag only kicks in past the touch slop.
+                .pointerInput(items.size) {
+                    val tabWidthPx = size.width.toFloat() / items.size
+                    detectDragGestures(
+                        onDragStart = { offset ->
+                            dragPosition = (offset.x / tabWidthPx - 0.5f)
+                                .coerceIn(0f, items.size - 1f)
+                        },
+                        onDrag = { change, _ ->
+                            change.consume()
+                            dragPosition = (change.position.x / tabWidthPx - 0.5f)
+                                .coerceIn(0f, items.size - 1f)
+                        },
+                        onDragEnd = {
+                            val target = dragPosition?.roundToInt()?.coerceIn(0, items.size - 1)
+                            dragPosition = null
+                            if (target != null && target != currentSelected) {
+                                appState.navigateToTopLevelDestination(items[target])
                             }
-                        ) {
+                        },
+                        onDragCancel = { dragPosition = null }
+                    )
+                }
+        ) {
+            val tabWidth = maxWidth / items.size
+
+            // Liquid selection pill — slightly wider than its tab slot.
+            if (selectedIndex >= 0 || dragPosition != null) {
+                val left = minOf(fastEdge, slowEdge)
+                val right = maxOf(fastEdge, slowEdge)
+                val extra = 14.dp
+                val offsetX = (tabWidth * left - extra / 2).coerceAtLeast(0.dp)
+                val pillWidth = (tabWidth * (right - left + 1f) + extra)
+                    .coerceAtMost(maxWidth - offsetX)
+                Box(
+                    modifier = Modifier
+                        .offset(x = offsetX)
+                        .width(pillWidth)
+                        .fillMaxHeight()
+                        .padding(vertical = 4.dp, horizontal = 4.dp)
+                        .clip(RoundedCornerShape(50))
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.16f))
+                )
+            }
+
+            Row(modifier = Modifier.fillMaxSize()) {
+                items.forEachIndexed { index, item ->
+                    val isSelected = index == highlightIndex
+                    val tint by animateColorAsState(
+                        targetValue = if (isSelected) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.onSurfaceVariant,
+                        label = "navTint"
+                    )
+                    val iconScale by animateFloatAsState(
+                        targetValue = if (isSelected) 1.12f else 1f,
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            stiffness = Spring.StiffnessMedium
+                        ),
+                        label = "navIconScale"
+                    )
+
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null
+                            ) { appState.navigateToTopLevelDestination(item) },
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        val iconVector = if (isSelected) item.selectedIcon else item.unselectedIcon
+                        val unread = chatUnreadVM.count
+                        val icon: @Composable () -> Unit = {
                             Icon(
                                 imageVector = iconVector,
-                                contentDescription = stringResource(id = item.titleRes)
+                                contentDescription = stringResource(id = item.titleRes),
+                                tint = tint,
+                                modifier = Modifier
+                                    .size(22.dp)
+                                    .scale(iconScale)
                             )
                         }
-                    } else {
-                        Icon(
-                            imageVector = iconVector,
-                            contentDescription = stringResource(id = item.titleRes)
+                        if (item == NavItems.Chat && unread > 0) {
+                            BadgedBox(
+                                badge = {
+                                    Badge {
+                                        Text(text = if (unread > 99) "99+" else unread.toString())
+                                    }
+                                }
+                            ) { icon() }
+                        } else {
+                            icon()
+                        }
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = stringResource(id = item.titleRes),
+                            fontSize = 10.sp,
+                            fontFamily = robotoFontFamily,
+                            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
+                            color = tint,
+                            maxLines = 1,
+                            style = TextStyle(
+                                platformStyle = PlatformTextStyle(
+                                    includeFontPadding = false
+                                )
+                            )
                         )
                     }
-                },
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = NavigationDefaults.navigationSelectedItemColor(),
-                    unselectedIconColor = NavigationDefaults.navigationContentColor(),
-                    selectedTextColor = NavigationDefaults.navigationSelectedItemColor(),
-                    unselectedTextColor = NavigationDefaults.navigationContentColor(),
-                    indicatorColor = NavigationDefaults.navigationIndicatorColor(),
-                )
-            )
+                }
+            }
         }
     }
 }
@@ -284,6 +456,13 @@ fun NavigationGraph(
                     sharedContentState = rememberSharedContentState(key = "search_bar"),
                     animatedVisibilityScope = this@composable
                 )
+                // Post-card image → details pager shared-element (keyed per post).
+                val postImageModifier: @Composable (Int) -> Modifier = { postId ->
+                    Modifier.sharedElement(
+                        rememberSharedContentState(key = "post_image_$postId"),
+                        animatedVisibilityScope = this@composable
+                    )
+                }
                 HomeRoute(
                     homeViewModel = homeViewModel,
                     navigateToProduct = {
@@ -317,6 +496,10 @@ fun NavigationGraph(
                         }
                     },
                     searchBarModifier = searchBarModifier,
+                    postImageModifier = postImageModifier,
+                    onLoginRequired = {
+                        navController.navigate(Screen.Welcome.route)
+                    },
                 )
             }
 
@@ -337,8 +520,15 @@ fun NavigationGraph(
                 )
             ) { backStackEntry ->
                 val param = backStackEntry.arguments?.getInt("param")
+                // Matches the Home card image with the same key — the first pager
+                // image morphs from/to the tapped card.
+                val sharedImageModifier = Modifier.sharedElement(
+                    rememberSharedContentState(key = "post_image_${param ?: 0}"),
+                    animatedVisibilityScope = this@composable
+                )
                 ProductDetailsRoute(
                     productId = param ?: 0,
+                    imageSharedModifier = sharedImageModifier,
                     onSimilarItemClicked = {
                         navController.navigate(Screen.ProductDetails(it).route)
                     },

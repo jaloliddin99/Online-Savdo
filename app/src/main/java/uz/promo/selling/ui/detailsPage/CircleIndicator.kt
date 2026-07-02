@@ -30,11 +30,13 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import uz.promo.selling.BuildConfig
 import uz.promo.selling.R
 import uz.promo.selling.ui.main.home.PresentProductState
@@ -42,7 +44,8 @@ import uz.promo.selling.ui.main.home.PresentProductState
 @Composable
 fun ImagePager(
     state: PresentProductState,
-    pagerState: PagerState
+    pagerState: PagerState,
+    sharedImageModifier: Modifier = Modifier
 ) {
     var isLoading by remember { mutableStateOf(true) }
     var isError by remember { mutableStateOf(false) }
@@ -53,7 +56,21 @@ fun ImagePager(
     val suffix = state.registerMain?.images?.getOrNull(pagerState.currentPage)?.imagePath
     val url = suffix?.let { "$prefix$it?size=mid" }
 
-    val imageLoader = rememberAsyncImagePainter(model = url,
+    // Reuse the grid card's cached thumbnail as the placeholder — the shared-element
+    // transition from Home lands on the image instantly instead of a spinner while
+    // the mid-size version loads.
+    val context = LocalContext.current
+    val imageRequest = remember(url) {
+        ImageRequest.Builder(context)
+            .data(url)
+            .apply {
+                suffix?.let { placeholderMemoryCacheKey("$prefix$it?size=thumb") }
+            }
+            .crossfade(true)
+            .build()
+    }
+
+    val imageLoader = rememberAsyncImagePainter(model = imageRequest,
         onState = { statePager ->
             isLoading = statePager is AsyncImagePainter.State.Loading
             isError = statePager is AsyncImagePainter.State.Error
@@ -69,9 +86,10 @@ fun ImagePager(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(350.dp)
-        ) {
+        ) { page ->
 
-            Box {
+            // The first page is the same image as the Home card — it morphs from/to it.
+            Box(modifier = if (page == 0) sharedImageModifier else Modifier) {
                 if (isLoading) {
                     CircularProgressIndicator(
                         modifier = Modifier

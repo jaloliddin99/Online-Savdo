@@ -201,10 +201,9 @@ fun PremiumLocked(onGetPremium: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Icon(
-            imageVector = androidx.compose.material.icons.Icons.Rounded.WorkspacePremium,
+        Image(
+            painter = androidx.compose.ui.res.painterResource(R.drawable.ic_premium_crown),
             contentDescription = null,
-            tint = Color(0xFFCBA135),
             modifier = Modifier.size(56.dp)
         )
         Spacer(Modifier.height(16.dp))

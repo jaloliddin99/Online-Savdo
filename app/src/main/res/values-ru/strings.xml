@@ -233,6 +233,9 @@
     <string name="premium_feature_interested">Узнавайте, кто интересуется вашими объявлениями</string>
     <string name="premium_feature_contact">Заметные кнопки звонка и чата</string>
     <string name="premium_choose_plan">Выберите план</string>
+    <string name="premium_best_value">Выгоднее всего</string>
+    <string name="post_liked">Добавлено в избранное</string>
+    <string name="post_unliked">Удалено из избранного</string>
     <string name="premium_per_month">/мес</string>
     <string name="premium_save">−%1$d%%</string>
     <string name="premium_month_1">1 месяц</string>

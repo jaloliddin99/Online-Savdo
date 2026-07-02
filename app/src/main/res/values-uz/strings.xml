@@ -234,6 +234,9 @@
     <string name="premium_feature_interested">E\'loningiz bilan kim qiziqayotganini ko\'ring</string>
     <string name="premium_feature_contact">Ko\'zga tashlanadigan qo\'ng\'iroq va chat tugmalari</string>
     <string name="premium_choose_plan">Tarifni tanlang</string>
+    <string name="premium_best_value">Eng foydali</string>
+    <string name="post_liked">Sevimlilarga qo\'shildi</string>
+    <string name="post_unliked">Sevimlilardan olib tashlandi</string>
     <string name="premium_per_month">/oy</string>
     <string name="premium_save">%1$d%% tejash</string>
     <string name="premium_month_1">1 oy</string>

@@ -231,7 +231,11 @@ private fun ChatListScreen(
             }
 
             else -> {
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    // Content scrolls under the floating glass bottom bar — keep the tail reachable.
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 96.dp)
+                ) {
                     itemsIndexed(items = items, key = { _, c -> c.id }) { index, conversation ->
                         ConversationRow(
                             conversation = conversation,

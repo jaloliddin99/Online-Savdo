@@ -98,7 +98,8 @@ fun ProductDetailsRoute(
     navigateBack: () -> Unit,
     goToMapsPage: (lat: Double, lon: Double) -> Unit,
     onLoginRequired: () -> Unit = {},
-    navigateToChat: (Long) -> Unit = {}
+    navigateToChat: (Long) -> Unit = {},
+    imageSharedModifier: Modifier = Modifier
 ) {
     val detailsViewModel = hiltViewModel<PresentViewModel>()
     val chatStartViewModel = hiltViewModel<ChatStartViewModel>()
@@ -121,6 +122,7 @@ fun ProductDetailsRoute(
         similarProducts = similarProducts,
         modifier = Modifier.fillMaxSize(),
         state = state,
+        imageSharedModifier = imageSharedModifier,
         onSimilarItemClicked = onSimilarItemClicked,
         onItemClicked = {
             if (SharedPref.deviceToken.isEmpty()) {
@@ -170,7 +172,8 @@ fun ProductDetailsScreen(
     onEditClicked: (Int) -> Unit,
     onBackPressed: () -> Unit,
     goToMapsPage: (lat: Double, lon: Double) -> Unit,
-    onMessageClicked: () -> Unit = {}
+    onMessageClicked: () -> Unit = {},
+    imageSharedModifier: Modifier = Modifier
 ) {
 
     val isFeedLoading = state.isLoading
@@ -207,7 +210,7 @@ fun ProductDetailsScreen(
             ) {
                 // Image pager
                 item(key = "image_pager") {
-                    ImagePager(state, pagerState)
+                    ImagePager(state, pagerState, imageSharedModifier)
                 }
 
                 // Title + Price + Meta

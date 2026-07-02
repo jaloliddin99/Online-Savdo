@@ -105,7 +105,9 @@ interface ApiInterface {
         @Query("sort") sort: String? = null,
         @Query("lat") lat: Double? = null,
         @Query("lon") lon: Double? = null,
-        @Query("radius") radius: Int? = null
+        @Query("radius") radius: Int? = null,
+        // Optional: lets the backend mark which posts the caller already liked.
+        @Header("Authorization") token: String? = null
     ): GenericModel<Data>
 
 

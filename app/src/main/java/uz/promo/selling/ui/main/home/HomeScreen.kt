@@ -6,6 +6,7 @@ import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -29,23 +30,30 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
 import uz.promo.selling.R
 import uz.promo.selling.data.location.GpsCheckHelper
 import uz.promo.selling.data.location.checkGpsEnabled
@@ -74,6 +82,8 @@ fun HomeRoute(
     onNotificationClick: () -> Unit = {},
     onMessagesClick: () -> Unit = {},
     searchBarModifier: Modifier = Modifier,
+    postImageModifier: @Composable (Int) -> Modifier = { Modifier },
+    onLoginRequired: () -> Unit = {},
 ) {
     HomeScreen(
         modifier = modifier,
@@ -85,6 +95,8 @@ fun HomeRoute(
         onNotificationClick = onNotificationClick,
         onMessagesClick = onMessagesClick,
         searchBarModifier = searchBarModifier,
+        postImageModifier = postImageModifier,
+        onLoginRequired = onLoginRequired,
     )
 }
 
@@ -99,6 +111,8 @@ fun HomeScreen(
     onNotificationClick: () -> Unit = {},
     onMessagesClick: () -> Unit = {},
     searchBarModifier: Modifier = Modifier,
+    postImageModifier: @Composable (Int) -> Modifier = { Modifier },
+    onLoginRequired: () -> Unit = {},
 ) {
 
     val state = homeViewModel.state.value
@@ -138,9 +152,15 @@ fun HomeScreen(
         }
     }
 
-    Column(
-        modifier = modifier.fillMaxSize()
-    ) {
+    // Like feedback: snackbar + haptic tick without leaving the feed.
+    val snackbarHostState = remember { SnackbarHostState() }
+    val haptic = LocalHapticFeedback.current
+    val scope = rememberCoroutineScope()
+
+    Box(modifier = modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
         Spacer(modifier = Modifier.windowInsetsTopHeight(WindowInsets.safeDrawing))
         HomeSearchBar(
             onSearchClick = onSearchClick,
@@ -154,6 +174,8 @@ fun HomeScreen(
             columns = GridCells.Fixed(2),
             state = scrollState,
             modifier = Modifier.weight(1f),
+            // Content scrolls under the floating glass bottom bar — keep the tail reachable.
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 96.dp),
         ) {
             // ── Categories Section ──
             item(span = { GridItemSpan(2) }) {
@@ -270,7 +292,31 @@ fun HomeScreen(
                     key = { index -> products.peek(index)?.id ?: index }
                 ) { i ->
                     products[i]?.let { item ->
-                        ProductItem(item, onItemClicked = navigateToProduct, onItemLongLicked = {})
+                        ProductItem(
+                            item,
+                            onItemClicked = navigateToProduct,
+                            onItemLongLicked = {},
+                            imageModifier = postImageModifier(item.id),
+                            // Session toggles win; otherwise the server's answer.
+                            isLiked = homeViewModel.likedPosts[item.id] ?: (item.isLiked ?: false),
+                            onLikeClicked = { id ->
+                                if (SharedPref.deviceToken.isEmpty()) {
+                                    onLoginRequired()
+                                } else {
+                                    val liked = homeViewModel.toggleLike(id)
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    scope.launch {
+                                        snackbarHostState.currentSnackbarData?.dismiss()
+                                        snackbarHostState.showSnackbar(
+                                            message = context.getString(
+                                                if (liked) R.string.post_liked else R.string.post_unliked
+                                            ),
+                                            duration = SnackbarDuration.Short
+                                        )
+                                    }
+                                }
+                            }
+                        )
                     }
                 }
                 if (products.loadState.append is LoadState.Loading) {
@@ -290,6 +336,15 @@ fun HomeScreen(
                 }
             }
         }
+        }
+
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                // Sit above the floating glass bottom bar.
+                .padding(bottom = 84.dp)
+        )
     }
 }
 

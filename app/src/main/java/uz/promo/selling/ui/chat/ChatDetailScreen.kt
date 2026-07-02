@@ -76,6 +76,10 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.PaddingValues
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.HazeTint
+import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.hazeSource
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -256,8 +260,18 @@ private fun ChatDetailScreen(
         }
     }
 
-    Column(modifier = modifier.fillMaxSize()) {
-        Box(modifier = Modifier.weight(1f)) {
+    // Backdrop for the glass input pill — the messages behind it get blurred.
+    val chatHazeState = remember { HazeState() }
+
+    Box(modifier = modifier.fillMaxSize()) {
+        // Messages fill the whole area and scroll under the floating input field —
+        // the input's outer background is transparent, only the pill has a surface.
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .windowInsetsPadding(WindowInsets.navigationBars.union(WindowInsets.ime))
+                .hazeSource(state = chatHazeState)
+        ) {
             if (state.loaded && state.messages.isEmpty()) {
                 Text(
                     text = stringResource(R.string.chat_start_hint),
@@ -271,8 +285,11 @@ private fun ChatDetailScreen(
                 state = listState,
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = androidx.compose.foundation.layout.PaddingValues(
-                    horizontal = 12.dp,
-                    vertical = 8.dp
+                    start = 12.dp,
+                    end = 12.dp,
+                    top = 8.dp,
+                    // Clearance for the floating input the messages scroll under.
+                    bottom = 76.dp
                 ),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
@@ -282,21 +299,30 @@ private fun ChatDetailScreen(
             }
         }
 
-        if (blocked) {
-            BlockedBar(onUnblock = { viewModel.unblock(conversationId) })
-        } else {
-            MessageInput(
-                text = text,
-                onTextChange = { text = it },
-                sending = state.sending,
-                onSend = {
-                    val value = text.trim()
-                    if (value.isNotEmpty()) {
-                        viewModel.send(conversationId, value)
-                        text = ""
-                    }
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+        ) {
+            if (blocked) {
+                Box(modifier = Modifier.windowInsetsPadding(WindowInsets.navigationBars)) {
+                    BlockedBar(onUnblock = { viewModel.unblock(conversationId) })
                 }
-            )
+            } else {
+                MessageInput(
+                    text = text,
+                    onTextChange = { text = it },
+                    sending = state.sending,
+                    hazeState = chatHazeState,
+                    onSend = {
+                        val value = text.trim()
+                        if (value.isNotEmpty()) {
+                            viewModel.send(conversationId, value)
+                            text = ""
+                        }
+                    }
+                )
+            }
         }
     }
 }
@@ -383,6 +409,7 @@ private fun MessageInput(
     text: String,
     onTextChange: (String) -> Unit,
     sending: Boolean,
+    hazeState: HazeState,
     onSend: () -> Unit
 ) {
     var showEmojiPicker by remember { mutableStateOf(false) }
@@ -391,27 +418,34 @@ private fun MessageInput(
     // Close the emoji panel on back press instead of leaving the screen.
     BackHandler(enabled = showEmojiPicker) { showEmojiPicker = false }
 
-    Surface(
-        tonalElevation = 2.dp,
-        color = MaterialTheme.colorScheme.surface
+    // Transparent outer bar — messages scroll visibly around the pill; only the
+    // pill itself carries a (slightly translucent) surface for readability.
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            // One inset, whichever is taller: nav bar (keyboard closed) or
+            // keyboard (open). Applying both stacked caused a gap above the IME.
+            .windowInsetsPadding(WindowInsets.navigationBars.union(WindowInsets.ime))
+            .padding(horizontal = 8.dp, vertical = 8.dp)
     ) {
-        Column(
+        val surfaceColor = MaterialTheme.colorScheme.surface
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                // One inset, whichever is taller: nav bar (keyboard closed) or
-                // keyboard (open). Applying both stacked caused a gap above the IME.
-                .windowInsetsPadding(WindowInsets.navigationBars.union(WindowInsets.ime))
-                .padding(horizontal = 8.dp, vertical = 8.dp)
+                .heightIn(min = 48.dp)
+                .clip(RoundedCornerShape(24.dp))
+                // Real backdrop blur of the messages scrolling underneath.
+                .hazeEffect(state = hazeState) {
+                    backgroundColor = surfaceColor
+                    blurRadius = 24.dp
+                    noiseFactor = 0f
+                    tints = listOf(HazeTint(surfaceColor.copy(alpha = 0.45f)))
+                    fallbackTint = HazeTint(surfaceColor.copy(alpha = 0.90f))
+                }
+                .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(24.dp))
+                .padding(horizontal = 4.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 48.dp)
-                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(24.dp))
-                    .clip(RoundedCornerShape(24.dp))
-                    .padding(horizontal = 4.dp, vertical = 4.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
                 // Emoji toggle (left)
                 Icon(
                     imageVector = Icons.Filled.EmojiEmotions,
@@ -491,9 +525,22 @@ private fun MessageInput(
                         )
                     }
                 }
-            }
+        }
 
-            AnimatedVisibility(visible = showEmojiPicker) {
+        AnimatedVisibility(visible = showEmojiPicker) {
+            // Glass panel, same treatment as the input pill.
+            Box(
+                modifier = Modifier
+                    .padding(top = 6.dp)
+                    .clip(RoundedCornerShape(20.dp))
+                    .hazeEffect(state = hazeState) {
+                        backgroundColor = surfaceColor
+                        blurRadius = 24.dp
+                        noiseFactor = 0f
+                        tints = listOf(HazeTint(surfaceColor.copy(alpha = 0.60f)))
+                        fallbackTint = HazeTint(surfaceColor.copy(alpha = 0.95f))
+                    }
+            ) {
                 EmojiPicker(onEmojiSelected = { onTextChange(text + it) })
             }
         }

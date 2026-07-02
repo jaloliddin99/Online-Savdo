@@ -1,7 +1,11 @@
 package uz.promo.selling.ui.main.home
 
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
@@ -53,6 +58,7 @@ import uz.promo.selling.BuildConfig
 import uz.promo.selling.R
 import uz.promo.selling.data.remote.models.getPublicProducts.Content
 import uz.promo.selling.ui.theme.LocalCustomColors
+import uz.promo.selling.ui.theme.PremiumGold
 import uz.promo.selling.ui.theme.robotoFontFamily
 import uz.promo.selling.ui.theme.spacing
 import uz.promo.selling.utils.convertDate
@@ -72,7 +78,9 @@ fun ProductItem(
     ),
     isLiked: Boolean = false,
     isMyPosts: Boolean = false,
-    onItemLongLicked: (Int) -> Unit
+    onItemLongLicked: (Int) -> Unit,
+    imageModifier: Modifier = Modifier,
+    onLikeClicked: ((Int) -> Unit)? = null
 ) {
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -89,7 +97,7 @@ fun ProductItem(
                 },
             )
     ) {
-        ProductItemDetails(data, isLiked, isMyPosts)
+        ProductItemDetails(data, isLiked, isMyPosts, imageModifier, onLikeClicked)
     }
 }
 
@@ -126,6 +134,8 @@ fun ProductItemDetails(
     data: Content,
     isLiked: Boolean = false,
     isMyPosts: Boolean = false,
+    imageModifier: Modifier = Modifier,
+    onLikeClicked: ((Int) -> Unit)? = null,
 ) {
     Column(
         verticalArrangement = Arrangement.Top,
@@ -152,7 +162,7 @@ fun ProductItemDetails(
         }
 
         Box(
-            modifier = Modifier
+            modifier = imageModifier
                 .fillMaxWidth()
                 .height(180.dp)
         ) {
@@ -168,7 +178,39 @@ fun ProductItemDetails(
                 onError = { isLoading = false },
             )
 
-            if (isLiked) {
+            if (onLikeClicked != null) {
+                // Like button — toggle without opening the post details.
+                val likeScale by animateFloatAsState(
+                    targetValue = if (isLiked) 1.18f else 1f,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessMedium
+                    ),
+                    label = "likeScale"
+                )
+                Box(
+                    // Bottom-end: the top-end corner belongs to the premium crown badge.
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(6.dp)
+                        .size(30.dp)
+                        .clip(CircleShape)
+                        .background(Color.Black.copy(alpha = 0.30f))
+                        .clickable { onLikeClicked(data.id) },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        painter = painterResource(
+                            id = if (isLiked) R.drawable.heart_filled else R.drawable.heart_unfilled
+                        ),
+                        contentDescription = "Like",
+                        tint = if (isLiked) Color(0xFFFF5252) else Color.White,
+                        modifier = Modifier
+                            .size(17.dp)
+                            .scale(likeScale)
+                    )
+                }
+            } else if (isLiked) {
                 Icon(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
@@ -222,14 +264,14 @@ fun ProductItemDetails(
                         .padding(6.dp)
                         .size(22.dp)
                         .clip(CircleShape)
-                        .background(Color(0xFFCBA135)),
+                        .background(PremiumGold),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = androidx.compose.material.icons.Icons.Rounded.WorkspacePremium,
+                        painter = painterResource(R.drawable.ic_premium_crown_flat),
                         contentDescription = "Premium",
                         tint = Color.White,
-                        modifier = Modifier.size(14.dp)
+                        modifier = Modifier.size(13.dp)
                     )
                 }
             }

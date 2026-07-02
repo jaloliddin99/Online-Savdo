@@ -159,6 +159,8 @@ fun MyPostsScreen(
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             modifier = Modifier.fillMaxSize(),
+            // Content scrolls under the floating glass bottom bar — keep the tail reachable.
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 96.dp),
         ) {
             items(
                 count = myPosts.itemCount,
