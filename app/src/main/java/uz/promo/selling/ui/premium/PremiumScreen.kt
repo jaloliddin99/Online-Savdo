@@ -89,26 +89,29 @@ fun PremiumRoute(
     var selected by remember(plans) { mutableStateOf(plans.firstOrNull()?.termMonths) }
     val orderError = stringResource(R.string.payment_failed)
     val activatedMsg = stringResource(R.string.premium_activated)
-    val pendingMsg = stringResource(R.string.payment_pending_check)
 
-    // Returning from the checkout browser: poll the order until the provider
-    // callback lands; on success the reloaded profile flips the screen to
-    // "member". No-op when nothing is pending.
+    // Restart pending-order polling on every resume — covers both returning from
+    // the checkout app and process death while paying (id is persisted).
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
     androidx.compose.runtime.DisposableEffect(lifecycleOwner) {
         val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
             if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
-                viewModel.checkPendingOrder { paid ->
-                    Toast.makeText(
-                        context,
-                        if (paid) activatedMsg else pendingMsg,
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
+                viewModel.pollPendingOrder()
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
+    if (viewModel.paymentConfirmed) {
+        uz.promo.selling.ui.PaymentSuccessDialog(
+            icon = Icons.Rounded.Verified,
+            iconTint = PremiumGold,
+            title = activatedMsg,
+            message = stringResource(R.string.premium_activated_desc),
+            buttonText = stringResource(R.string.dialog_great),
+            onDismiss = { viewModel.consumePaymentConfirmed() }
+        )
     }
 
     fun pay(provider: String) {
@@ -216,9 +219,29 @@ fun PremiumRoute(
 
                 Spacer(modifier = Modifier.height(14.dp))
 
+                // A payment is in flight (user is in / just came back from the
+                // checkout app) — confirmation lands via background polling.
                 if (viewModel.awaitingPayment) {
-                    Box(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(14.dp))
+                            .background(PremiumGold.copy(alpha = 0.10f))
+                            .padding(14.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(18.dp),
+                            strokeWidth = 2.dp,
+                            color = PremiumGold
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = stringResource(R.string.payment_waiting),
+                            fontFamily = robotoFontFamily,
+                            fontSize = 13.sp,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f)
+                        )
                     }
                     Spacer(modifier = Modifier.height(12.dp))
                 }

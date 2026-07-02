@@ -25,6 +25,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.rounded.RocketLaunch
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -68,34 +69,40 @@ fun BoostRoute(
 ) {
     val context = LocalContext.current
     val tariffs = viewModel.tariffs
-    val busy = viewModel.state.value.isLoading || viewModel.awaitingPayment
+    val busy = viewModel.state.value.isLoading
     val paymentFailed = stringResource(R.string.payment_failed)
     val promotedMsg = stringResource(R.string.boost_promoted_success)
-    val pendingMsg = stringResource(R.string.payment_pending_check)
 
     LaunchedEffect(Unit) {
         viewModel.loadTariffs()
         viewModel.loadBoostCredits()
     }
 
-    // Returning from the checkout browser: poll the order until the provider
-    // callback lands, then confirm and leave. No-op when nothing is pending.
+    // Restart pending-order polling on every resume — covers both returning from
+    // the checkout app and process death while paying (id is persisted).
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
     androidx.compose.runtime.DisposableEffect(lifecycleOwner) {
         val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
             if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
-                viewModel.checkPendingOrder { paid ->
-                    Toast.makeText(
-                        context,
-                        if (paid) promotedMsg else pendingMsg,
-                        Toast.LENGTH_LONG
-                    ).show()
-                    if (paid) onBack()
-                }
+                viewModel.pollPendingOrder()
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
+    if (viewModel.paymentConfirmed) {
+        uz.promo.selling.ui.PaymentSuccessDialog(
+            icon = Icons.Rounded.RocketLaunch,
+            iconTint = MaterialTheme.colorScheme.primary,
+            title = promotedMsg,
+            message = stringResource(R.string.boost_promoted_desc),
+            buttonText = stringResource(R.string.dialog_great),
+            onDismiss = {
+                viewModel.consumePaymentConfirmed()
+                onBack()
+            }
+        )
     }
 
     var selectedHours by remember(tariffs) { mutableStateOf(tariffs.firstOrNull()?.hours) }
@@ -159,6 +166,32 @@ fun BoostRoute(
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
                 modifier = Modifier.padding(top = 4.dp)
             )
+
+            // A payment is in flight (user is in / just came back from the
+            // checkout app) — confirmation lands via background polling.
+            if (viewModel.awaitingPayment) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.08f))
+                        .padding(14.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(18.dp),
+                        strokeWidth = 2.dp
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = stringResource(R.string.payment_waiting),
+                        fontFamily = robotoFontFamily,
+                        fontSize = 13.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f)
+                    )
+                }
+            }
 
             // Premium members can promote for free using an included credit.
             if (viewModel.boostCredits > 0) {

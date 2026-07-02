@@ -266,6 +266,10 @@
     <string name="payment_failed">Could not create the payment</string>
     <string name="payment_pending_check">Payment isn\'t confirmed yet — it will be applied as soon as it arrives</string>
     <string name="premium_activated">Premium activated!</string>
+    <string name="boost_promoted_desc">Your ad is now shown at the top of the list and will get much more views</string>
+    <string name="premium_activated_desc">All Premium benefits are now active on your account</string>
+    <string name="dialog_great">Great!</string>
+    <string name="payment_waiting">Waiting for payment confirmation…</string>
     <string name="hours_short">h</string>
     <string name="days_short">d</string>
     <string name="weeks_short">w</string>

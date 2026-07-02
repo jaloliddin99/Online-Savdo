@@ -70,7 +70,7 @@ class PremiumViewModel @Inject constructor(
             val url = try {
                 val res = api.createPremiumOrder(PremiumOrderBody(termMonths, provider))
                 if (res.success) {
-                    pendingOrderId = res.data.orderId
+                    SharedPref.pendingPremiumOrderId = res.data.orderId
                     res.data.paymentUrl
                 } else null
             } catch (_: Exception) {
@@ -78,42 +78,54 @@ class PremiumViewModel @Inject constructor(
             }
             isOrdering = false
             onUrl(url)
+            if (url != null) pollPendingOrder()
         }
     }
 
-    // Order awaiting provider confirmation after the checkout browser was opened.
-    private var pendingOrderId: Long? = null
-
+    /** Shows the "waiting for confirmation" banner while a pending order is polled. */
     var awaitingPayment by mutableStateOf(false)
         private set
 
+    /** Flips true once the provider confirms the payment; screen shows the dialog. */
+    var paymentConfirmed by mutableStateOf(false)
+        private set
+
+    fun consumePaymentConfirmed() {
+        paymentConfirmed = false
+    }
+
+    private var pollJob: kotlinx.coroutines.Job? = null
+
     /**
-     * Called when the user returns from the checkout browser: polls the order
-     * until the provider callback lands, then reloads the membership status.
-     * onDone(true) = paid. No-op when nothing is pending.
+     * Polls the pending order every 5s (up to ~5 min) until the provider callback
+     * lands, then reloads the membership so the screen flips to "member". Survives
+     * process death: the order id is persisted, and the screen calls this again on
+     * every resume. No-op when nothing is pending.
      */
-    fun checkPendingOrder(onDone: (Boolean) -> Unit) {
-        val orderId = pendingOrderId ?: return
-        if (awaitingPayment) return
-        viewModelScope.launch {
+    fun pollPendingOrder() {
+        val orderId = SharedPref.pendingPremiumOrderId
+        if (orderId <= 0L || pollJob?.isActive == true) return
+        pollJob = viewModelScope.launch {
             awaitingPayment = true
-            var paid = false
-            for (attempt in 1..4) {
-                paid = try {
+            repeat(60) {
+                val paid = try {
                     val res = api.getPaymentOrderStatus(orderId)
                     res.success && res.data.status == 1
                 } catch (_: Exception) {
                     false
                 }
-                if (paid || attempt == 4) break
-                kotlinx.coroutines.delay(2000)
+                if (paid) {
+                    SharedPref.pendingPremiumOrderId = 0L
+                    awaitingPayment = false
+                    paymentConfirmed = true
+                    load() // refresh premiumUntil + boostCredits
+                    return@launch
+                }
+                kotlinx.coroutines.delay(5000)
             }
+            // Give up: the order stayed unpaid (user likely abandoned checkout).
+            SharedPref.pendingPremiumOrderId = 0L
             awaitingPayment = false
-            if (paid) {
-                pendingOrderId = null
-                load() // refresh premiumUntil + boostCredits so the screen flips to "member"
-            }
-            onDone(paid)
         }
     }
 }

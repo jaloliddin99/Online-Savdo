@@ -28,6 +28,12 @@ object SharedPref: KotprefModel() {
 
     var fcmToken by stringPref()
 
+    // Payment orders awaiting provider confirmation. Persisted because Android
+    // may kill our process while the user pays in the Click/Payme app — on
+    // return the screen restarts polling from these.
+    var pendingBoostOrderId by longPref(0L)
+    var pendingPremiumOrderId by longPref(0L)
+
     // Device-side news opt-out (FCM topic "all" subscription).
     var newsNotifications by booleanPref(true)
 

@@ -262,6 +262,10 @@
     <string name="payment_failed">To\'lovni yaratib bo\'lmadi</string>
     <string name="payment_pending_check">To\'lov hali tasdiqlanmadi — kelishi bilan qo\'llaniladi</string>
     <string name="premium_activated">Premium faollashtirildi!</string>
+    <string name="boost_promoted_desc">E\'loningiz endi ro\'yxat yuqorisida ko\'rsatiladi va ancha ko\'p ko\'rishlar oladi</string>
+    <string name="premium_activated_desc">Barcha Premium imkoniyatlari hisobingizda faollashtirildi</string>
+    <string name="dialog_great">Ajoyib!</string>
+    <string name="payment_waiting">To\'lov tasdiqlanishi kutilmoqda…</string>
     <string name="hours_short">soat</string>
     <string name="days_short">kun</string>
     <string name="weeks_short">hafta</string>

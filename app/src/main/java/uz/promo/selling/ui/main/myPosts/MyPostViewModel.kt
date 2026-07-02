@@ -114,7 +114,7 @@ class MyPostViewModel @Inject constructor(
                     body = uz.promo.selling.data.remote.models.payments.BoostOrderBody(postId, hours, provider)
                 )
                 if (res.success) {
-                    pendingOrderId = res.data.orderId
+                    SharedPref.pendingBoostOrderId = res.data.orderId
                     res.data.paymentUrl
                 } else null
             } catch (e: Exception) {
@@ -122,39 +122,52 @@ class MyPostViewModel @Inject constructor(
             }
             _state.value = MyProfileScreen()
             onResult(url)
+            if (url != null) pollPendingOrder()
         }
     }
 
-    // Order awaiting provider confirmation after the checkout browser was opened.
-    private var pendingOrderId: Long? = null
-
+    /** Shows the "waiting for confirmation" banner while a pending order is polled. */
     var awaitingPayment by androidx.compose.runtime.mutableStateOf(false)
         private set
 
+    /** Flips true once the provider confirms the payment; screen shows the dialog. */
+    var paymentConfirmed by androidx.compose.runtime.mutableStateOf(false)
+        private set
+
+    fun consumePaymentConfirmed() {
+        paymentConfirmed = false
+    }
+
+    private var pollJob: kotlinx.coroutines.Job? = null
+
     /**
-     * Called when the user returns from the checkout browser: polls the order for
-     * ~15s until the provider callback lands. onDone(true) = paid, false = still
-     * pending (kept for the next resume). No-op when nothing is pending.
+     * Polls the pending order every 5s (up to ~5 min) until the provider callback
+     * lands. Survives process death: the order id is persisted, and the screen
+     * calls this again on every resume. No-op when nothing is pending.
      */
-    fun checkPendingOrder(onDone: (Boolean) -> Unit) {
-        val orderId = pendingOrderId ?: return
-        if (awaitingPayment) return
-        viewModelScope.launch {
+    fun pollPendingOrder() {
+        val orderId = SharedPref.pendingBoostOrderId
+        if (orderId <= 0L || pollJob?.isActive == true) return
+        pollJob = viewModelScope.launch {
             awaitingPayment = true
-            var paid = false
-            for (attempt in 1..4) {
-                paid = try {
+            repeat(60) {
+                val paid = try {
                     val res = apiInterface.getPaymentOrderStatus(orderId)
                     res.success && res.data.status == 1
                 } catch (_: Exception) {
                     false
                 }
-                if (paid || attempt == 4) break
-                kotlinx.coroutines.delay(2000)
+                if (paid) {
+                    SharedPref.pendingBoostOrderId = 0L
+                    awaitingPayment = false
+                    paymentConfirmed = true
+                    return@launch
+                }
+                kotlinx.coroutines.delay(5000)
             }
+            // Give up: the order stayed unpaid (user likely abandoned checkout).
+            SharedPref.pendingBoostOrderId = 0L
             awaitingPayment = false
-            if (paid) pendingOrderId = null
-            onDone(paid)
         }
     }
 

@@ -261,6 +261,10 @@
     <string name="payment_failed">Не удалось создать платёж</string>
     <string name="payment_pending_check">Платёж пока не подтверждён — он будет применён, как только поступит</string>
     <string name="premium_activated">Premium активирован!</string>
+    <string name="boost_promoted_desc">Ваше объявление теперь показывается вверху списка и получит намного больше просмотров</string>
+    <string name="premium_activated_desc">Все преимущества Premium теперь активны в вашем аккаунте</string>
+    <string name="dialog_great">Отлично!</string>
+    <string name="payment_waiting">Ожидание подтверждения платежа…</string>
     <string name="hours_short">ч</string>
     <string name="days_short">дн</string>
     <string name="weeks_short">нед</string>
