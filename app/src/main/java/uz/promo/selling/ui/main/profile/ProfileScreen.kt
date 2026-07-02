@@ -830,23 +830,29 @@ fun ProfileColumnItem(
             .height(56.dp)
             .padding(horizontal = MaterialTheme.spacing.dimen16Dp),
         verticalAlignment = Alignment.CenterVertically) {
-        if (language) {
-            Image(
-                modifier = Modifier
-                    .width(20.dp)
-                    .height(20.dp)
-                    .clip(CircleShape),
-                imageVector = imageVector, contentDescription = null,
-            )
-        } else {
-            Image(
-                modifier = Modifier
-                    .width(20.dp)
-                    .height(20.dp)
-                    .clip(CircleShape),
-                imageVector = imageVector, contentDescription = null,
-                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
-            )
+        // Icon in a tinted rounded box — same chip style as the premium
+        // screen's feature list.
+        Box(
+            modifier = Modifier
+                .size(34.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
+            contentAlignment = Alignment.Center
+        ) {
+            if (language) {
+                Image(
+                    modifier = Modifier
+                        .size(20.dp)
+                        .clip(CircleShape),
+                    imageVector = imageVector, contentDescription = null,
+                )
+            } else {
+                Image(
+                    modifier = Modifier.size(18.dp),
+                    imageVector = imageVector, contentDescription = null,
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
+                )
+            }
         }
         Spacer(modifier = Modifier.width(MaterialTheme.spacing.dimen12Dp))
         TextThin(title = title)

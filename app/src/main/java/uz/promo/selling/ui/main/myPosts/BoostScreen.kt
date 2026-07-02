@@ -25,7 +25,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.rounded.CreditCard
 import androidx.compose.material.icons.rounded.RocketLaunch
+import androidx.compose.material.icons.rounded.Schedule
+import uz.promo.selling.ui.theme.PremiumGold
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -106,6 +109,9 @@ fun BoostRoute(
     }
 
     var selectedHours by remember(tariffs) { mutableStateOf(tariffs.firstOrNull()?.hours) }
+    // Members with free credits aren't pushed to pay — the paid options stay
+    // hidden until they explicitly ask for them.
+    var showPayOptions by remember { mutableStateOf(false) }
 
     fun pay(provider: String) {
         val hours = selectedHours ?: return
@@ -193,14 +199,15 @@ fun BoostRoute(
                 }
             }
 
-            // Premium members can promote for free using an included credit.
+            // Premium members promote for FREE with an included credit — that's
+            // the primary action; paid options are collapsed below it.
             if (viewModel.boostCredits > 0) {
                 Spacer(modifier = Modifier.height(20.dp))
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(14.dp))
-                        .background(Color(0xFFCBA135).copy(alpha = 0.14f))
+                        .background(PremiumGold)
                         .clickable(enabled = !busy) {
                             viewModel.promoteWithCredit(postId) { ok ->
                                 Toast.makeText(
@@ -212,28 +219,49 @@ fun BoostRoute(
                             }
                         }
                         .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.Star,
                         contentDescription = null,
-                        tint = Color(0xFFB8860B),
-                        modifier = Modifier.size(22.dp)
+                        tint = Color.White,
+                        modifier = Modifier.size(20.dp)
                     )
-                    Spacer(modifier = Modifier.width(12.dp))
+                    Spacer(modifier = Modifier.width(10.dp))
                     Text(
                         text = stringResource(R.string.boost_use_credit, viewModel.boostCredits),
                         fontFamily = robotoFontFamily,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 15.sp,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.weight(1f)
+                        color = Color.White
                     )
                 }
             }
 
+            if (viewModel.boostCredits > 0 && !showPayOptions) {
+                // Free credit is the offer — paying is opt-in.
+                Spacer(modifier = Modifier.height(18.dp))
+                Text(
+                    text = stringResource(R.string.boost_or_pay),
+                    fontFamily = robotoFontFamily,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showPayOptions = true }
+                        .padding(vertical = 8.dp),
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+            } else {
+
             Spacer(modifier = Modifier.height(24.dp))
-            SectionLabel(stringResource(R.string.boost_select_duration))
+            SectionLabel(
+                text = stringResource(R.string.boost_select_duration),
+                icon = Icons.Rounded.Schedule
+            )
             Spacer(modifier = Modifier.height(10.dp))
 
             if (tariffs.isEmpty()) {
@@ -261,7 +289,10 @@ fun BoostRoute(
                 }
 
                 Spacer(modifier = Modifier.height(28.dp))
-                SectionLabel(stringResource(R.string.boost_choose_payment))
+                SectionLabel(
+                    text = stringResource(R.string.boost_choose_payment),
+                    icon = Icons.Rounded.CreditCard
+                )
                 Spacer(modifier = Modifier.height(12.dp))
 
                 // Payme — brand logo.
@@ -294,6 +325,8 @@ fun BoostRoute(
 
                 Spacer(modifier = Modifier.height(24.dp))
             }
+
+            }
         }
     }
 
@@ -301,14 +334,35 @@ fun BoostRoute(
 }
 
 @Composable
-private fun SectionLabel(text: String) {
-    Text(
-        text = text,
-        fontFamily = robotoFontFamily,
-        fontWeight = FontWeight.SemiBold,
-        fontSize = 16.sp,
-        color = MaterialTheme.colorScheme.onSurface
-    )
+private fun SectionLabel(text: String, icon: androidx.compose.ui.graphics.vector.ImageVector? = null) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        // Icon in a tinted rounded box — same chip style as the premium
+        // screen's feature list.
+        if (icon != null) {
+            Box(
+                modifier = Modifier
+                    .size(34.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+            Spacer(modifier = Modifier.width(10.dp))
+        }
+        Text(
+            text = text,
+            fontFamily = robotoFontFamily,
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 16.sp,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
 }
 
 @Composable

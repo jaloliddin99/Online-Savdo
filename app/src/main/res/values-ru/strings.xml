@@ -266,6 +266,8 @@
     <string name="dialog_great">Отлично!</string>
     <string name="payment_waiting">Ожидание подтверждения платежа…</string>
     <string name="premium_unavailable">Premium-планы сейчас недоступны — загляните позже</string>
+    <string name="boost_or_pay">Или оплатить продвижение</string>
+    <string name="premium_extend_note">Новый срок добавится после окончания текущей подписки — ничего не сгорает</string>
     <string name="hours_short">ч</string>
     <string name="days_short">дн</string>
     <string name="weeks_short">нед</string>

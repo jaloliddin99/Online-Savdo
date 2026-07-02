@@ -13,7 +13,7 @@ android {
     defaultConfig {
         namespace = "uz.promo.selling"
         applicationId = "uz.promo.selling"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 36
         versionCode = 4
         versionName = "1.1.2"

@@ -68,6 +68,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import uz.promo.selling.R
 import uz.promo.selling.data.remote.models.payments.PremiumPlan
 import uz.promo.selling.ui.theme.PremiumGold
+import uz.promo.selling.ui.theme.PremiumGoldDark
 import uz.promo.selling.ui.theme.PremiumGoldLight
 import uz.promo.selling.ui.theme.robotoFontFamily
 import uz.promo.selling.utils.formatNumberWithSpaces
@@ -87,6 +88,9 @@ fun PremiumRoute(
     val context = LocalContext.current
     val plans = viewModel.plans
     var selected by remember(plans) { mutableStateOf(plans.firstOrNull()?.termMonths) }
+    // Members aren't pushed to buy again — tariffs stay hidden until they
+    // explicitly ask to extend.
+    var showExtendOptions by remember { mutableStateOf(false) }
     val orderError = stringResource(R.string.payment_failed)
     val activatedMsg = stringResource(R.string.premium_activated)
 
@@ -129,7 +133,13 @@ fun PremiumRoute(
         }
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    // The whole screen scrolls — the tall hero would otherwise squeeze the
+    // plans on small phones.
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+    ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -177,8 +187,7 @@ fun PremiumRoute(
 
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+                .fillMaxWidth()
                 .padding(horizontal = 20.dp)
         ) {
             Spacer(modifier = Modifier.height(20.dp))
@@ -192,6 +201,58 @@ fun PremiumRoute(
             FeatureRow(Icons.Rounded.SupportAgent, stringResource(R.string.premium_feature_contact))
 
             Spacer(modifier = Modifier.height(24.dp))
+
+            // A payment is in flight (user is in / just came back from the
+            // checkout app) — shown regardless of the member gate below.
+            if (viewModel.awaitingPayment) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(PremiumGold.copy(alpha = 0.10f))
+                        .padding(14.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(18.dp),
+                        strokeWidth = 2.dp,
+                        color = PremiumGold
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = stringResource(R.string.payment_waiting),
+                        fontFamily = robotoFontFamily,
+                        fontSize = 13.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f)
+                    )
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+
+            if (viewModel.isPremium && !showExtendOptions) {
+                // Active member: don't push tariffs at them — the plans appear
+                // only when they explicitly want to extend the membership.
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(PremiumGold.copy(alpha = 0.14f))
+                        .clickable { showExtendOptions = true }
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(R.string.premium_extend),
+                        fontFamily = robotoFontFamily,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 15.sp,
+                        color = PremiumGoldDark
+                    )
+                }
+                Spacer(modifier = Modifier.height(28.dp))
+            } else {
+
             Text(
                 text = stringResource(R.string.premium_choose_plan),
                 fontFamily = robotoFontFamily,
@@ -199,6 +260,16 @@ fun PremiumRoute(
                 fontSize = 16.sp,
                 color = MaterialTheme.colorScheme.onSurface
             )
+            // Members extending: make clear the term is ADDED, not replaced.
+            if (viewModel.isPremium) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = stringResource(R.string.premium_extend_note),
+                    fontFamily = robotoFontFamily,
+                    fontSize = 13.sp,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                )
+            }
             Spacer(modifier = Modifier.height(12.dp))
 
             if (viewModel.isLoading && plans.isEmpty()) {
@@ -232,33 +303,6 @@ fun PremiumRoute(
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                // A payment is in flight (user is in / just came back from the
-                // checkout app) — confirmation lands via background polling.
-                if (viewModel.awaitingPayment) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(14.dp))
-                            .background(PremiumGold.copy(alpha = 0.10f))
-                            .padding(14.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(18.dp),
-                            strokeWidth = 2.dp,
-                            color = PremiumGold
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text(
-                            text = stringResource(R.string.payment_waiting),
-                            fontFamily = robotoFontFamily,
-                            fontSize = 13.sp,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f)
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(12.dp))
-                }
-
                 // Payme — logo
                 PayButton(
                     background = Color(0xFF33CCCC),
@@ -285,6 +329,8 @@ fun PremiumRoute(
                     )
                 }
                 Spacer(modifier = Modifier.height(28.dp))
+            }
+
             }
         }
     }

@@ -271,6 +271,8 @@
     <string name="dialog_great">Great!</string>
     <string name="payment_waiting">Waiting for payment confirmation…</string>
     <string name="premium_unavailable">Premium plans are not available right now — please check back later</string>
+    <string name="boost_or_pay">Or pay for a boost instead</string>
+    <string name="premium_extend_note">The new term is added after your current subscription ends — nothing is lost</string>
     <string name="hours_short">h</string>
     <string name="days_short">d</string>
     <string name="weeks_short">w</string>

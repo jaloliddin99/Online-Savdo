@@ -258,8 +258,9 @@ fun ProductItemDetails(
                 )
             }
 
-            // Premium seller badge — a small gold crown chip.
-            if (data.sellerIsPremium) {
+            // Premium seller badge — a small gold crown chip. Hidden on the
+            // owner's own cards, where the ⋮ actions menu occupies that corner.
+            if (data.sellerIsPremium && !isMyPosts) {
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
