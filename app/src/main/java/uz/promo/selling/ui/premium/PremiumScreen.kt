@@ -205,6 +205,19 @@ fun PremiumRoute(
                 Box(modifier = Modifier.fillMaxWidth().padding(24.dp), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
                 }
+            } else if (plans.isEmpty()) {
+                // No term has a configured price (admin hides premium by
+                // pricing everything at 0) — say so instead of dead buttons.
+                Text(
+                    text = stringResource(R.string.premium_unavailable),
+                    fontFamily = robotoFontFamily,
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 24.dp),
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                )
             } else {
                 val baseMonthly = plans.firstOrNull { it.termMonths == 1 }?.price
                 plans.forEach { plan ->
@@ -259,25 +272,16 @@ fun PremiumRoute(
                     )
                 }
                 Spacer(modifier = Modifier.height(12.dp))
-                // Click — wordmark
+                // Click — brand logo on Click blue.
                 PayButton(
-                    background = Color(0xFF0073E6),
+                    background = Color(0xFF0065FF),
                     enabled = !viewModel.isOrdering && !viewModel.awaitingPayment && selected != null,
                     onClick = { pay("click") }
                 ) {
-                    Text(
-                        text = "Click",
-                        fontFamily = robotoFontFamily,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp,
-                        color = Color.White
-                    )
-                    Text(
-                        text = " Up",
-                        fontFamily = robotoFontFamily,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp,
-                        color = Color(0xFF8FE3FF)
+                    Image(
+                        painter = painterResource(id = R.drawable.click_logo_white),
+                        contentDescription = stringResource(R.string.pay_with_click),
+                        modifier = Modifier.height(18.dp)
                     )
                 }
                 Spacer(modifier = Modifier.height(28.dp))

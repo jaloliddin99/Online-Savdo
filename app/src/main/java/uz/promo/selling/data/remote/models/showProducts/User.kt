@@ -5,5 +5,7 @@ data class User(
     val id: Int,
     val name: String,
     val phoneNumber: String,
-    val profileUrl: String
+    val profileUrl: String,
+    /** Active premium membership — shows the badge next to the seller name. */
+    val premium: Boolean = false
 )

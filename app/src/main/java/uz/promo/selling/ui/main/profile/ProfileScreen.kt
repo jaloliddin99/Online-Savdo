@@ -47,6 +47,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.util.lerp
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TopAppBarDefaults
@@ -275,7 +276,33 @@ fun ProfileScreen(
 
             if (state.getProfile != null) {
                 val user = state.getProfile
-                TextBold16(title = user.name)
+                val isPremium = user.premiumUntil?.let {
+                    runCatching {
+                        java.time.LocalDateTime.parse(it, java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                            .isAfter(java.time.LocalDateTime.now())
+                    }.getOrDefault(false)
+                } ?: false
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    TextBold16(title = user.name)
+                    // The promised premium badge on the member's own profile.
+                    if (isPremium) {
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Box(
+                            modifier = Modifier
+                                .size(18.dp)
+                                .clip(CircleShape)
+                                .background(PremiumGold),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_premium_crown_flat),
+                                contentDescription = stringResource(R.string.premium_title),
+                                tint = Color.White,
+                                modifier = Modifier.size(11.dp)
+                            )
+                        }
+                    }
+                }
                 TextNormal16(title = user.phoneNumber ?: "")
             }
 

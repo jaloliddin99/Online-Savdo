@@ -76,6 +76,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -866,13 +867,33 @@ private fun SellerSection(
             Spacer(modifier = Modifier.width(12.dp))
 
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = data?.user?.name ?: "",
-                    fontFamily = robotoFontFamily,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = data?.user?.name ?: "",
+                        fontFamily = robotoFontFamily,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 16.sp,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    // Premium seller badge next to the name (matches the card crown).
+                    if (data?.user?.premium == true) {
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Box(
+                            modifier = Modifier
+                                .size(16.dp)
+                                .clip(CircleShape)
+                                .background(uz.promo.selling.ui.theme.PremiumGold),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_premium_crown_flat),
+                                contentDescription = stringResource(R.string.premium_title),
+                                tint = Color.White,
+                                modifier = Modifier.size(10.dp)
+                            )
+                        }
+                    }
+                }
                 Text(
                     text = data?.user?.phoneNumber ?: "",
                     fontFamily = robotoFontFamily,
@@ -890,6 +911,7 @@ private fun SellerSection(
                 icon = Icons.AutoMirrored.Filled.Chat,
                 label = stringResource(R.string.message_seller),
                 modifier = Modifier.fillMaxWidth(),
+                prominent = data.user.premium,
                 onClick = onMessageClicked
             )
             Spacer(modifier = Modifier.height(10.dp))
@@ -904,6 +926,7 @@ private fun SellerSection(
                 icon = Icons.Filled.Phone,
                 label = stringResource(R.string.call),
                 modifier = Modifier.weight(1f),
+                prominent = data?.user?.premium == true,
                 onClick = { callTo(data?.user?.phoneNumber ?: "", context) }
             )
             ContactActionButton(
@@ -921,14 +944,16 @@ private fun ContactActionButton(
     icon: ImageVector,
     label: String,
     modifier: Modifier = Modifier,
+    // Premium sellers get the promised "prominent" gold-filled contact buttons.
+    prominent: Boolean = false,
     onClick: () -> Unit
 ) {
+    val background = if (prominent) uz.promo.selling.ui.theme.PremiumGold
+    else MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.12f)
+    val foreground = if (prominent) Color.White else MaterialTheme.colorScheme.primary
     Row(
         modifier = modifier
-            .background(
-                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.12f),
-                RoundedCornerShape(12.dp)
-            )
+            .background(background, RoundedCornerShape(12.dp))
             .clickable { onClick() }
             .padding(vertical = 12.dp),
         horizontalArrangement = Arrangement.Center,
@@ -938,7 +963,7 @@ private fun ContactActionButton(
             imageVector = icon,
             contentDescription = null,
             modifier = Modifier.size(20.dp),
-            tint = MaterialTheme.colorScheme.primary
+            tint = foreground
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
@@ -946,7 +971,7 @@ private fun ContactActionButton(
             fontFamily = robotoFontFamily,
             fontWeight = FontWeight.Medium,
             fontSize = 14.sp,
-            color = MaterialTheme.colorScheme.primary
+            color = foreground
         )
     }
 }

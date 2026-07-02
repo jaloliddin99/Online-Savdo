@@ -279,25 +279,16 @@ fun BoostRoute(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Click — styled wordmark in brand blue.
+                // Click — brand logo on Click blue.
                 PaymentButton(
-                    background = Color(0xFF0073E6),
+                    background = Color(0xFF0065FF),
                     enabled = !busy && selectedHours != null,
                     onClick = { pay("click") }
                 ) {
-                    Text(
-                        text = "Click",
-                        fontFamily = robotoFontFamily,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp,
-                        color = Color.White
-                    )
-                    Text(
-                        text = " Up",
-                        fontFamily = robotoFontFamily,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp,
-                        color = Color(0xFF8FE3FF)
+                    Image(
+                        painter = painterResource(id = R.drawable.click_logo_white),
+                        contentDescription = stringResource(R.string.pay_with_click),
+                        modifier = Modifier.height(18.dp)
                     )
                 }
 

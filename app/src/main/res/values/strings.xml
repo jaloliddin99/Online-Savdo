@@ -270,6 +270,7 @@
     <string name="premium_activated_desc">All Premium benefits are now active on your account</string>
     <string name="dialog_great">Great!</string>
     <string name="payment_waiting">Waiting for payment confirmation…</string>
+    <string name="premium_unavailable">Premium plans are not available right now — please check back later</string>
     <string name="hours_short">h</string>
     <string name="days_short">d</string>
     <string name="weeks_short">w</string>

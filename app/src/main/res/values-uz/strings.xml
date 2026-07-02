@@ -266,6 +266,7 @@
     <string name="premium_activated_desc">Barcha Premium imkoniyatlari hisobingizda faollashtirildi</string>
     <string name="dialog_great">Ajoyib!</string>
     <string name="payment_waiting">To\'lov tasdiqlanishi kutilmoqda…</string>
+    <string name="premium_unavailable">Premium rejalar hozircha mavjud emas — keyinroq qaytib ko\'ring</string>
     <string name="hours_short">soat</string>
     <string name="days_short">kun</string>
     <string name="weeks_short">hafta</string>

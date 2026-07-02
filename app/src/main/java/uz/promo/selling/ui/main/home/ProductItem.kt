@@ -212,8 +212,10 @@ fun ProductItemDetails(
                 }
             } else if (isLiked) {
                 Icon(
+                    // Bottom-end like the interactive heart — the top-end corner
+                    // belongs to the premium crown badge.
                     modifier = Modifier
-                        .align(Alignment.TopEnd)
+                        .align(Alignment.BottomEnd)
                         .padding(8.dp)
                         .size(24.dp),
                     painter = painterResource(id = R.drawable.heart_filled),
