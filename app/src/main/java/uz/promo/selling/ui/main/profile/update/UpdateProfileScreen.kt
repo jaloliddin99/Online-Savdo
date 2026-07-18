@@ -86,6 +86,11 @@ fun UpdateProfileScreen(
             it.length > 3
         })
     }
+    val lastnameState = remember {
+        TextFieldState(validator = {
+            it.trim().length >= 2
+        })
+    }
     val phoneState = remember { PhoneNumberState() }
 
     Column(
@@ -99,6 +104,7 @@ fun UpdateProfileScreen(
             requestToUpdate(
                 UpdateProfileModel(
                     name = nameState.text,
+                    lastname = lastnameState.text.trim(),
                     phoneNumber = removeFirstCharacterAndAllSpaces(phoneState.text)
 
                 )
@@ -114,6 +120,17 @@ fun UpdateProfileScreen(
         )
 
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
+        NameField(
+            modifier = Modifier,
+            nameState = lastnameState,
+            imeAction = ImeAction.Next,
+            onImeAction = {
+                phoneNumberRequester.requestFocus()
+            },
+            resId = R.string.lastName
+        )
+
+        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
         PhoneNumber(
             phoneState = phoneState,
             modifier = Modifier.focusRequester(phoneNumberRequester),
@@ -124,7 +141,7 @@ fun UpdateProfileScreen(
         )
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
 
-        val isEnabled = nameState.isValid && phoneState.isValid
+        val isEnabled = nameState.isValid && lastnameState.isValid && phoneState.isValid
 
         Button(
             onClick = onSubmit,

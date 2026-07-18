@@ -865,7 +865,7 @@ fun NavigationGraph(
 
                 LaunchedEffect(googleState.result) {
                     if (googleState.result != null && googleState.result.status) {
-                        if (googleState.needsPhone) {
+                        if (googleState.needsProfile) {
                             navController.navigate(Screen.CompleteProfile.route) {
                                 popUpTo(navController.graph.id) { inclusive = true }
                             }
@@ -920,7 +920,7 @@ fun NavigationGraph(
 
                 LaunchedEffect(googleState.result) {
                     if (googleState.result != null && googleState.result.status) {
-                        if (googleState.needsPhone) {
+                        if (googleState.needsProfile) {
                             navController.navigate(Screen.CompleteProfile.route) {
                                 popUpTo(navController.graph.id) { inclusive = true }
                             }
@@ -973,10 +973,15 @@ fun NavigationGraph(
                 val googleAuthVM = hiltViewModel<GoogleAuthViewModel>()
                 val googleState = googleAuthVM.state.value
 
+                LaunchedEffect(Unit) { googleAuthVM.loadPrefill() }
+
                 CompleteProfileScreen(
                     isLoading = googleState.isLoading,
-                    onSubmit = { phone ->
-                        googleAuthVM.completeProfile(phone) {
+                    prefillName = googleState.prefillName,
+                    prefillLastname = googleState.prefillLastname,
+                    prefillPhotoUrl = googleState.prefillPhotoUrl,
+                    onSubmit = { name, lastname, phone, photoUri ->
+                        googleAuthVM.completeProfile(name, lastname, phone, photoUri) {
                             navController.navigate(Screen.Home.route) {
                                 popUpTo(navController.graph.id) { inclusive = true }
                             }

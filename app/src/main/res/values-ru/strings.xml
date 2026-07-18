@@ -278,7 +278,9 @@
     <string name="or">или</string>
     <string name="complete_profile_title">Ещё один шаг</string>
     <string name="complete_profile_subtitle">Почти готово!</string>
-    <string name="complete_profile_description">Введите номер телефона для завершения регистрации</string>
+    <string name="complete_profile_description">Подтвердите имя и укажите номер телефона для завершения регистрации</string>
+    <string name="complete_profile_add_photo">Добавить фото</string>
+    <string name="complete_profile_change_photo">Изменить фото</string>
 
     <string name="section_general">Общие</string>
     <string name="section_my_content">Мой контент</string>

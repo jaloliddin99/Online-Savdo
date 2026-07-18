@@ -283,7 +283,9 @@
     <string name="or">or</string>
     <string name="complete_profile_title">One more step</string>
     <string name="complete_profile_subtitle">Almost there!</string>
-    <string name="complete_profile_description">Please enter your phone number to complete registration</string>
+    <string name="complete_profile_description">Confirm your name and add a phone number to complete registration</string>
+    <string name="complete_profile_add_photo">Add photo</string>
+    <string name="complete_profile_change_photo">Change photo</string>
     
     <string name="section_general">General</string>
     <string name="section_my_content">My Content</string>

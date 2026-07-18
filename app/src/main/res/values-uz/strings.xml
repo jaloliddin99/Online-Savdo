@@ -279,7 +279,9 @@
     <string name="or">yoki</string>
     <string name="complete_profile_title">Yana bir qadam</string>
     <string name="complete_profile_subtitle">Deyarli tayyor!</string>
-    <string name="complete_profile_description">Ro\'yxatdan o\'tishni yakunlash uchun telefon raqamingizni kiriting</string>
+    <string name="complete_profile_description">Ro\'yxatdan o\'tishni yakunlash uchun ism va telefon raqamingizni kiriting</string>
+    <string name="complete_profile_add_photo">Rasm qo\'shish</string>
+    <string name="complete_profile_change_photo">Rasmni o\'zgartirish</string>
 
     <string name="section_general">Umumiy</string>
     <string name="section_my_content">Mening kontentim</string>
