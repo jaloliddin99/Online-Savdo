@@ -956,6 +956,13 @@ fun NavigationGraph(
                     navigateToVerification = {
                         navController.navigate(Screen.Verification(it).route)
                     },
+                    navigateToMainScreen = {
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(navController.graph.id) {
+                                inclusive = true
+                            }
+                        }
+                    },
                     forgotPassword = {
                         navController.navigate(Screen.ForgotPassword(true).route)
                     },

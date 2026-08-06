@@ -53,10 +53,10 @@ interface ApiInterface {
         @Body registrationBody: RegistrationBody
     ): ModelSuccess
 
-    @POST("auth/authenticate")
+    @POST("auth/login")
     suspend fun login(
         @Body loginBody: LoginBody
-    ): ModelSuccess
+    ): VerificationRes
 
     @GET("auth/verify")
     suspend fun verify(

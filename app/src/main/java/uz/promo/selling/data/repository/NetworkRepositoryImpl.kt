@@ -41,7 +41,7 @@ class NetworkRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun login(loginBody: LoginBody): ModelSuccess {
+    override suspend fun login(loginBody: LoginBody): VerificationRes {
         return apiInterface.login(
             loginBody
         )

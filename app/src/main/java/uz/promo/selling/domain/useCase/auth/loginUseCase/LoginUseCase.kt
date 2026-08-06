@@ -3,7 +3,7 @@ package uz.promo.selling.domain.useCase.auth.loginUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import uz.promo.selling.data.remote.models.LoginBody
-import uz.promo.selling.data.remote.models.ModelSuccess
+import uz.promo.selling.data.remote.models.VerificationRes
 import uz.promo.selling.domain.repository.NetworkRepository
 import uz.promo.selling.domain.state.Resource
 import java.io.IOException
@@ -14,11 +14,11 @@ class LoginUseCase @Inject constructor(
 ) {
     operator fun invoke(
         loginBody: LoginBody
-    ): Flow<Resource<ModelSuccess>> = flow {
+    ): Flow<Resource<VerificationRes>> = flow {
         try {
             emit(Resource.Loading())
             val data = repository.login(loginBody)
-            if (data.success){
+            if (data.status || data.requiresVerification == true){
                 emit(Resource.Success(data))
             }else{
                 emit(Resource.Error(data.message))

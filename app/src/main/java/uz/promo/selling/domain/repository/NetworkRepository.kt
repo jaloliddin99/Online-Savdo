@@ -30,7 +30,7 @@ interface NetworkRepository {
 
     suspend fun login(
         loginBody: LoginBody
-    ): ModelSuccess
+    ): VerificationRes
 
     suspend fun verify(
         code: Int,

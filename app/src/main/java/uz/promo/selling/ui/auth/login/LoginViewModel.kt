@@ -29,7 +29,7 @@ class LoginViewModel @Inject constructor(
         ).onEach { result ->
             when (result) {
                 is Resource.Success -> {
-                    if (result.data?.success == true){
+                    if (result.data != null){
                         _state.value = LoginState(registerMain = result.data,
                             email = loginBody.email)
                     }else {

@@ -23,7 +23,9 @@ data class VerificationRes(
     val status: Boolean,
     val message: String,
     val token: String,
-    val refreshToken: String? = null
+    val refreshToken: String? = null,
+    // Login only: the account still needs email verification -> go to OTP screen.
+    val requiresVerification: Boolean? = null
 )
 
 data class ModelSuccess(
