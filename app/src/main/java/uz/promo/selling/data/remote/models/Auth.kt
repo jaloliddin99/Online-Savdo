@@ -13,6 +13,12 @@ data class LoginBody(
     val password: String,
 )
 
+data class ResetPasswordBody(
+    val email: String,
+    val code: Int,
+    val password: String,
+)
+
 data class VerificationRes(
     val status: Boolean,
     val message: String,

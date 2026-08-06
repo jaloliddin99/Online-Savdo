@@ -10,6 +10,7 @@ import uz.promo.selling.data.remote.models.GenericModel
 import uz.promo.selling.data.remote.models.LoginBody
 import uz.promo.selling.data.remote.models.ModelSuccess
 import uz.promo.selling.data.remote.models.RegistrationBody
+import uz.promo.selling.data.remote.models.ResetPasswordBody
 import uz.promo.selling.data.remote.models.VerificationRes
 import uz.promo.selling.data.remote.models.category.Category
 import uz.promo.selling.data.remote.models.category.ParentCategories
@@ -70,9 +71,7 @@ interface ApiInterface {
 
     @POST("auth/reset-new-password")
     suspend fun resetNewPassword(
-        @Query("email") email: String,
-        @Query("code") code: Int,
-        @Query("password") password: String
+        @Body body: ResetPasswordBody
     ): ModelSuccess
 
     @POST("auth/google")

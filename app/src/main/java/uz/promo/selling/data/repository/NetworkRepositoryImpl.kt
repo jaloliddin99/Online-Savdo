@@ -10,6 +10,7 @@ import uz.promo.selling.data.remote.models.GenericModel
 import uz.promo.selling.data.remote.models.LoginBody
 import uz.promo.selling.data.remote.models.ModelSuccess
 import uz.promo.selling.data.remote.models.RegistrationBody
+import uz.promo.selling.data.remote.models.ResetPasswordBody
 import uz.promo.selling.data.remote.models.VerificationRes
 import uz.promo.selling.data.remote.models.category.Category
 import uz.promo.selling.data.remote.models.category.ParentCategories
@@ -61,7 +62,7 @@ class NetworkRepositoryImpl @Inject constructor(
         code: Int,
         password: String
     ): ModelSuccess {
-        return apiInterface.resetNewPassword(email, code, password)
+        return apiInterface.resetNewPassword(ResetPasswordBody(email, code, password))
     }
 
 //    override fun getPublicProducts(
