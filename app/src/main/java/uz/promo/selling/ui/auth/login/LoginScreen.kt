@@ -145,15 +145,8 @@ fun SignInToLoginAccount(
             fontFamily = robotoFontFamily,
             fontWeight = FontWeight.Bold,
             fontSize = 26.sp,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-        Text(
-            text = stringResource(id = R.string.please_login),
-            fontFamily = robotoFontFamily,
-            fontWeight = FontWeight.Normal,
-            fontSize = 15.sp,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-            modifier = Modifier.padding(top = 6.dp, bottom = 28.dp)
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(bottom = 28.dp)
         )
 
         val onSubmit = {

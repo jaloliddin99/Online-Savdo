@@ -145,7 +145,10 @@ fun MainScreenView(
     restartApp: () -> Unit
 ) {
     val currentRoute = appState.currentDestination?.route
-    val showBottomBar = currentRoute in BOTTOM_BAR_ROUTES
+    // The Add tab hides the bar once the user enters a create flow (AI or manual
+    // wizard) so it doesn't cover the wizard's own bottom buttons.
+    var addFlowActive by remember { mutableStateOf(false) }
+    val showBottomBar = currentRoute in BOTTOM_BAR_ROUTES && !addFlowActive
 
     LaunchedEffect(Unit) {
         AuthEvent.unauthorizedFlow.collect {
@@ -209,7 +212,8 @@ fun MainScreenView(
                         NavigationGraph(
                             appState = appState,
                             restartApp = restartApp,
-                            onSettingsClick = { showSettingsDialog = true }
+                            onSettingsClick = { showSettingsDialog = true },
+                            onAddFlowActiveChange = { addFlowActive = it }
                         )
                     }
                     // The bar overlays the content (no reserved strip) so the area
@@ -436,7 +440,8 @@ fun BottomNavigation(
 fun NavigationGraph(
     appState: ApplicationState,
     restartApp: () -> Unit,
-    onSettingsClick: () -> Unit
+    onSettingsClick: () -> Unit,
+    onAddFlowActiveChange: (Boolean) -> Unit = {}
 ) {
     val navController = appState.navController
     val homeViewModel: HomeViewModel = hiltViewModel()
@@ -579,6 +584,7 @@ fun NavigationGraph(
                     },
                     item = item,
                     map = map,
+                    onCreatingChange = onAddFlowActiveChange,
                     goToDetailsPage = {
                         navController.popBackStack()
                     },

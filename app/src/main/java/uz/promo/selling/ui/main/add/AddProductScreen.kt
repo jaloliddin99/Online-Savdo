@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -56,10 +57,18 @@ fun AddProductRoute(
     map: MapScreenData? = null,
     addProductViewModel: AddProductScreenViewModel = hiltViewModel(),
     goToDetailsPage: () -> Unit,
-    goToMapScreen: () -> Unit
+    goToMapScreen: () -> Unit,
+    onCreatingChange: (Boolean) -> Unit = {}
 ) {
     // null = entry chooser, "AI" = AI flow (Phase 2/3), "MANUAL" = current wizard.
     var mode by rememberSaveable { mutableStateOf<String?>(null) }
+
+    // Tell the host to hide the floating tab bar while a create flow is active,
+    // and restore it when this screen leaves composition.
+    LaunchedEffect(mode) { onCreatingChange(mode != null) }
+    DisposableEffect(Unit) {
+        onDispose { onCreatingChange(false) }
+    }
 
     Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(

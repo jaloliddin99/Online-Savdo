@@ -4,6 +4,10 @@ import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -129,7 +133,7 @@ fun SignUpScreen(
 @Composable
 fun Branding(
     modifier: Modifier = Modifier,
-    @StringRes text: Int = R.string.please_login
+    @StringRes text: Int? = null
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -141,15 +145,17 @@ fun Branding(
                 .width(110.dp)
                 .height(110.dp)
         )
-        Text(
-            text = stringResource(id = text),
-            fontFamily = robotoFontFamily,
-            fontWeight = FontWeight.Medium,
-            fontSize = 16.sp,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(top = 16.dp)
-        )
+        if (text != null) {
+            Text(
+                text = stringResource(id = text),
+                fontFamily = robotoFontFamily,
+                fontWeight = FontWeight.Medium,
+                fontSize = 16.sp,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(top = 16.dp)
+            )
+        }
     }
 }
 
@@ -192,6 +198,8 @@ fun SignUpCreateAccount(
     }
     val phoneState = remember { PhoneNumberState() }
 
+    var showEmailForm by rememberSaveable { mutableStateOf(false) }
+
     Column(
         modifier = modifier.fillMaxWidth(),
     ) {
@@ -201,15 +209,11 @@ fun SignUpCreateAccount(
             fontFamily = robotoFontFamily,
             fontWeight = FontWeight.Bold,
             fontSize = 26.sp,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-        Text(
-            text = stringResource(id = R.string.please_login),
-            fontFamily = robotoFontFamily,
-            fontWeight = FontWeight.Normal,
-            fontSize = 15.sp,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-            modifier = Modifier.padding(top = 6.dp, bottom = 24.dp)
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 24.dp)
         )
 
         val onSubmit = {
@@ -233,76 +237,110 @@ fun SignUpCreateAccount(
                     || phoneState.isFocused
         )
 
-        NameField(
-            modifier = Modifier,
-            nameState = nameState,
-            imeAction = ImeAction.Next,
-            onImeAction = { firstNameFocus.requestFocus() },
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Email(
-            emailState = emailState,
-            imeAction = ImeAction.Next,
-            onImeAction = { focusRequester.requestFocus() },
-            modifier = Modifier.focusRequester(firstNameFocus)
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Password(
-            label = stringResource(id = R.string.password),
-            passwordState = passwordState,
-            imeAction = ImeAction.Next,
-            modifier = Modifier.focusRequester(focusRequester),
-            onImeAction = { confirmationPasswordFocusRequest.requestFocus() }
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Password(
-            label = stringResource(id = R.string.confirm_password),
-            passwordState = confirmPasswordState,
-            modifier = Modifier.focusRequester(confirmationPasswordFocusRequest),
-            onImeAction = { phoneNumberRequester.requestFocus() }
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-
-        PhoneNumber(
-            phoneState = phoneState,
-            modifier = Modifier.focusRequester(phoneNumberRequester),
-            onImeAction = {
-                focusManager.clearFocus()
-                keyboardController?.hide()
-            }
-        )
-
-        // Sign Up button
-        val isEnabled = emailState.isValid &&
-                passwordState.isValid &&
-                confirmPasswordState.isValid &&
-                nameState.isValid &&
-                phoneState.isValid
-
-        Button(
-            onClick = onSubmit,
-            enabled = isEnabled,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 28.dp)
-                .height(52.dp),
-            shape = RoundedCornerShape(14.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = BrandGreen,
-                contentColor = Color.White,
-                disabledContainerColor = BrandGreen.copy(alpha = 0.4f),
-                disabledContentColor = Color.White.copy(alpha = 0.7f)
-            )
+        // Collapsed state: single "Sign Up with email" button that expands the form
+        AnimatedVisibility(
+            visible = !showEmailForm,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut()
         ) {
-            Text(
-                text = stringResource(id = R.string.continuee),
-                fontFamily = robotoFontFamily,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 16.sp
-            )
+            Button(
+                onClick = { showEmailForm = true },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                shape = RoundedCornerShape(14.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = BrandGreen,
+                    contentColor = Color.White
+                )
+            ) {
+                Text(
+                    text = stringResource(id = R.string.sign_up_with_email),
+                    fontFamily = robotoFontFamily,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 16.sp
+                )
+            }
+        }
+
+        AnimatedVisibility(
+            visible = showEmailForm,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut()
+        ) {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                NameField(
+                    modifier = Modifier,
+                    nameState = nameState,
+                    imeAction = ImeAction.Next,
+                    onImeAction = { firstNameFocus.requestFocus() },
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Email(
+                    emailState = emailState,
+                    imeAction = ImeAction.Next,
+                    onImeAction = { focusRequester.requestFocus() },
+                    modifier = Modifier.focusRequester(firstNameFocus)
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Password(
+                    label = stringResource(id = R.string.password),
+                    passwordState = passwordState,
+                    imeAction = ImeAction.Next,
+                    modifier = Modifier.focusRequester(focusRequester),
+                    onImeAction = { confirmationPasswordFocusRequest.requestFocus() }
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Password(
+                    label = stringResource(id = R.string.confirm_password),
+                    passwordState = confirmPasswordState,
+                    modifier = Modifier.focusRequester(confirmationPasswordFocusRequest),
+                    onImeAction = { phoneNumberRequester.requestFocus() }
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+
+                PhoneNumber(
+                    phoneState = phoneState,
+                    modifier = Modifier.focusRequester(phoneNumberRequester),
+                    onImeAction = {
+                        focusManager.clearFocus()
+                        keyboardController?.hide()
+                    }
+                )
+
+                // Sign Up button
+                val isEnabled = emailState.isValid &&
+                        passwordState.isValid &&
+                        confirmPasswordState.isValid &&
+                        nameState.isValid &&
+                        phoneState.isValid
+
+                Button(
+                    onClick = onSubmit,
+                    enabled = isEnabled,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 28.dp)
+                        .height(52.dp),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = BrandGreen,
+                        contentColor = Color.White,
+                        disabledContainerColor = BrandGreen.copy(alpha = 0.4f),
+                        disabledContentColor = Color.White.copy(alpha = 0.7f)
+                    )
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.continuee),
+                        fontFamily = robotoFontFamily,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 16.sp
+                    )
+                }
+            }
         }
 
         OrDivider(modifier = Modifier.padding(top = 24.dp))
