@@ -33,6 +33,7 @@
     <string name="confirm_password">Confirm Password</string>
     <string name="login_account">Login Account</string>
     <string name="sign_up_with_email">Sign up with email</string>
+    <string name="couldnt_read_images">Couldn\'t read the selected images. Please pick them again.</string>
     <string name="do_you_already_have_account">Do you have an account?</string>
     <string name="for_you_loading">Loading Items…</string>
     <string name="profile">Profile</string>

@@ -1,6 +1,7 @@
 package uz.promo.selling.ui.main.add
 
 import android.app.Application
+import android.graphics.Bitmap
 import android.net.Uri
 import android.provider.MediaStore
 import androidx.compose.runtime.State
@@ -14,12 +15,17 @@ import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import id.zelory.compressor.Compressor
+import id.zelory.compressor.constraint.format
+import id.zelory.compressor.constraint.quality
+import id.zelory.compressor.constraint.resolution
+import id.zelory.compressor.constraint.size
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import uz.promo.selling.R
 import uz.promo.selling.data.remote.models.ai.PriceSuggestionDTO
 import uz.promo.selling.data.remote.models.post.PostParamDTO
 import uz.promo.selling.domain.state.Resource
@@ -28,6 +34,7 @@ import uz.promo.selling.domain.useCase.ai.AiListingDraftUseCase
 import uz.promo.selling.domain.useCase.ai.AiPriceSuggestionUseCase
 import uz.promo.selling.domain.useCase.postNewProduct.PostNewProductUseCase
 import uz.promo.selling.ui.auth.TextFieldState
+import uz.promo.selling.ui.main.add.dynamic.DynamicViewData
 import uz.promo.selling.ui.main.home.AddProductScreenState
 import uz.promo.selling.ui.map.MapScreenData
 import uz.promo.selling.utils.FileManager.getFileFromUri
@@ -75,12 +82,22 @@ class AddProductScreenViewModel @Inject constructor(
         }
     }
 
+    // Dynamic category-field values (AI pre-fills + user edits). Held in the VM
+    // so navigating away mid-flow (map / category picker) doesn't wipe them —
+    // the composables' own state dies with their composition.
+    var dynamicViewData by mutableStateOf(mapOf<String, DynamicViewData>())
+    // The category detail id dynamicViewData was built for; a different id means
+    // the fields must be rebuilt for the new category.
+    var dynamicViewDataCategoryId by mutableStateOf<Int?>(null)
+
 
     private fun clearStoredValues() {
         currentStep = 1
         setTitle(ProductTitleState())
         setDescription(ProductDescriptionState())
         setImageList(listOf())
+        dynamicViewData = emptyMap()
+        dynamicViewDataCategoryId = null
     }
 
 
@@ -128,6 +145,13 @@ class AddProductScreenViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             val fileParts: List<MultipartBody.Part> = compressImagesToParts(images)
+            if (fileParts.isEmpty()) {
+                _state.value = _state.value.copy(
+                    isLoading = false,
+                    error = application.getString(R.string.couldnt_read_images)
+                )
+                return@launch
+            }
             val postParamsRequestBody = createPostParamsRequestBody(postParams)
 
             postNewProductUseCase(
@@ -205,6 +229,17 @@ class AddProductScreenViewModel @Inject constructor(
         if (images.isEmpty()) return
         viewModelScope.launch {
             val fileParts = compressImagesToParts(images)
+            // Every picked image failed to read — bail out with a clear message
+            // instead of letting OkHttp throw "Multipart body must have at least
+            // one part."
+            if (fileParts.isEmpty()) {
+                _state.value = _state.value.copy(
+                    isAiLoading = false,
+                    error = application.getString(R.string.couldnt_read_images)
+                )
+                onComplete(false)
+                return@launch
+            }
             aiListingDraftUseCase(token, fileParts, lang).onEach { result ->
                 when (result) {
                     is Resource.Loading -> {
@@ -252,12 +287,22 @@ class AddProductScreenViewModel @Inject constructor(
         for (photoUri in images) {
             val file = contentResolver.getFileFromUri(photoUri.uri, application) ?: continue
             val ready = try {
-                Compressor.compress(application, file).takeIf { it.exists() } ?: file
+                Compressor.compress(application, file) {
+                    resolution(1600, 1600)
+                    quality(80)
+                    format(Bitmap.CompressFormat.JPEG)
+                    // Hard cap so no image ever goes up near-raw.
+                    size(700_000)
+                }.takeIf { it.exists() } ?: file
             } catch (e: Exception) {
                 // Compressor can throw if the file isn't a decodable image — send the raw copy.
                 file
             }
-            if (ready.exists()) readyFiles.add(ready)
+            if (ready.exists()) {
+                readyFiles.add(ready)
+                // The raw copy is no longer needed once a compressed version exists.
+                if (ready != file) file.delete()
+            }
         }
         return convertFilesToMultipart(readyFiles)
     }

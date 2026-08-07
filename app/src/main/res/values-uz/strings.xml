@@ -33,6 +33,7 @@
     <string name="confirm_password">Parolni tasdiqlang</string>
     <string name="login_account">Hisobga kirish</string>
     <string name="sign_up_with_email">Email orqali ro\'yxatdan o\'tish</string>
+    <string name="couldnt_read_images">Tanlangan rasmlarni o\'qib bo\'lmadi. Iltimos, ularni qayta tanlang.</string>
     <string name="do_you_already_have_account">Sizda akkaunt bormi?</string>
     <string name="for_you_loading">Yuklanmoqda…</string>
     <string name="profile">Profil</string>

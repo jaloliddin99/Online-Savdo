@@ -3,67 +3,36 @@ package uz.promo.selling.utils
 import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
-import android.os.Build
-import android.os.Environment
-import android.provider.MediaStore
+import android.util.Log
 import android.webkit.MimeTypeMap
 import java.io.File
 import java.io.FileOutputStream
-import java.io.IOException
-import java.io.InputStream
 
 object FileManager {
 
-    // Extension function to get a File from a content URI
+    private const val TAG = "FileManager"
+
+    // Extension function to get a File from a content URI. Never throws — a
+    // URI that can't be read (revoked grant, dead provider, odd metadata)
+    // returns null so callers can skip it.
     fun ContentResolver.getFileFromUri(uri: Uri, context: Context): File? {
-        var inputStream: InputStream? = null
-        var file: File? = null
-        try {
-            inputStream = this.openInputStream(uri)
-            if (inputStream != null) {
-                file = createFileFromInputStream(inputStream, uri, this, context)
+        return try {
+            openInputStream(uri)?.use { inputStream ->
+                // Some providers return no display name or MIME type, and
+                // display names can contain characters that are invalid in file
+                // names — a generated unique name avoids that whole class of
+                // failures (and collisions between same-named picked images).
+                val extension = getExtension(getType(uri)) ?: "jpg"
+                val file = File.createTempFile("upload_", ".$extension", getOutputDirectory(context))
+                FileOutputStream(file).use { outputStream ->
+                    inputStream.copyTo(outputStream)
+                }
+                file
             }
-        } catch (e: IOException) {
-            e.printStackTrace()
-        } finally {
-            inputStream?.close()
+        } catch (e: Exception) {
+            Log.e(TAG, "Could not read image from uri: $uri", e)
+            null
         }
-        return file
-    }
-
-    // Function to create a File from an InputStream
-    private fun createFileFromInputStream(inputStream: InputStream, uri: Uri, contentResolver: ContentResolver, context: Context): File? {
-        var file: File? = null
-        try {
-            val displayName: String? = getDisplayName(uri, contentResolver)
-            val extension: String? = getExtension(contentResolver.getType(uri))
-
-            if (displayName != null && extension != null) {
-                val outputDir: File = getOutputDirectory(context)
-                file = File(outputDir, "$displayName.$extension")
-
-                val outputStream = FileOutputStream(file)
-                inputStream.copyTo(outputStream)
-                outputStream.close()
-            }
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-        return file
-    }
-
-    // Function to get the display name of the file from a content URI
-    // Function to get the display name of the file from a content URI
-    private fun getDisplayName(uri: Uri, contentResolver: ContentResolver): String? {
-        var displayName: String? = null
-        val cursor = contentResolver.query(uri, null, null, null, null)
-        cursor?.use {
-            val displayNameIndex = it.getColumnIndex(MediaStore.Images.ImageColumns.DISPLAY_NAME)
-            if (displayNameIndex != -1 && it.moveToFirst()) {
-                displayName = it.getString(displayNameIndex)
-            }
-        }
-        return displayName
     }
 
     // Function to get the file extension from a MIME type
@@ -71,14 +40,10 @@ object FileManager {
         return MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)
     }
 
-    // Function to get the output directory for saving the file
-    // Function to get the output directory for saving the file
+    // Upload copies go to the app cache: the system can reclaim it, it isn't
+    // user-visible, and leftovers don't inflate the app's reported storage the
+    // way the previous external Pictures directory did.
     private fun getOutputDirectory(context: Context): File {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-                ?: context.filesDir
-        } else {
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-        }
+        return File(context.cacheDir, "uploads").apply { mkdirs() }
     }
 }

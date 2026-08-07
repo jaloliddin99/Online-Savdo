@@ -203,11 +203,19 @@ private fun AiReviewScreen(
         if (categoryId != null) viewModel.getCategoryDerails(categoryId)
     }
 
-    var dynamicViewData by remember { mutableStateOf(mapOf<String, DynamicViewData>()) }
+    // Held in the VM: this composable is disposed while the map / category
+    // screens are on top, so local state would lose the AI pre-fills and any
+    // user edits (price etc.).
+    var dynamicViewData by viewModel::dynamicViewData
 
     // Build the fields from the category schema and pre-fill from the AI params.
+    // Rebuild only for a new category — re-entering the screen must keep edits.
     LaunchedEffect(state.categoryDetail, state.aiDraft) {
         val detail = state.categoryDetail ?: return@LaunchedEffect
+        if (dynamicViewData.isNotEmpty() && viewModel.dynamicViewDataCategoryId == detail.id) {
+            return@LaunchedEffect
+        }
+        viewModel.dynamicViewDataCategoryId = detail.id
         val base = detail.parameters.associateBy(
             keySelector = { it.code },
             valueTransform = { param ->

@@ -33,6 +33,7 @@
     <string name="confirm_password">Подтвердите пароль</string>
     <string name="login_account">Вход в аккаунт</string>
     <string name="sign_up_with_email">Зарегистрироваться по email</string>
+    <string name="couldnt_read_images">Не удалось прочитать выбранные изображения. Пожалуйста, выберите их заново.</string>
     <string name="do_you_already_have_account">У вас уже есть аккаунт?</string>
     <string name="for_you_loading">Загрузка элементов…</string>
     <string name="profile">Профиль</string>

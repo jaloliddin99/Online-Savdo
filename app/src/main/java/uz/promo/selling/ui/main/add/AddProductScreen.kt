@@ -177,13 +177,14 @@ fun AddProductScreen(
         mutableStateOf(viewModel.imageList)
     }
 
-    var dynamicViewData by remember {
-        mutableStateOf(mapOf<String, DynamicViewData>())
-    }
+    // Field values live in the VM — this composable is disposed while the map /
+    // category screens are on top, so local state would lose everything.
+    var dynamicViewData by viewModel::dynamicViewData
 
     val galleryLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { it ->
             galleryImageUri = galleryImageUri + it.map { it.toImageUrl(isFromCamera = false, it) }
+            viewModel.setImageList(galleryImageUri)
         }
 
     var capturedImageUri by remember {
@@ -195,6 +196,7 @@ fun AddProductScreen(
         onResult = { _ ->
             galleryImageUri =
                 galleryImageUri + listOf(ImageUrl(true, capturedImageUri, capturedImageUri))
+            viewModel.setImageList(galleryImageUri)
         }
     )
 
@@ -202,10 +204,13 @@ fun AddProductScreen(
     val descriptionFocusRequester = remember { FocusRequester() }
     val paddingValues = WindowInsets.systemBars.asPaddingValues()
 
-    // Initialize dynamic view data from category details
+    // Initialize dynamic view data from category details. Rebuild only when
+    // empty or when the loaded category actually changed — re-entering this
+    // screen (e.g. back from the map) must keep the user's values.
     if (state.categoryDetail != null) {
         val params = state.categoryDetail.parameters
-        if (dynamicViewData.isEmpty()) {
+        if (dynamicViewData.isEmpty() || viewModel.dynamicViewDataCategoryId != state.categoryDetail.id) {
+            viewModel.dynamicViewDataCategoryId = state.categoryDetail.id
             dynamicViewData = params.associateBy(
                 keySelector = { it.code },
                 valueTransform = {
@@ -351,6 +356,7 @@ fun AddProductScreen(
                             val list = galleryImageUri.toMutableList()
                             list.remove(it)
                             galleryImageUri = list
+                            viewModel.setImageList(list)
                         },
                         categoryParams = state.categoryDetail?.parameters,
                         dynamicViewData = dynamicViewData,

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -47,7 +48,6 @@ import uz.promo.selling.ui.auth.NameField
 import uz.promo.selling.ui.auth.PhoneNumber
 import uz.promo.selling.ui.auth.PhoneNumberState
 import uz.promo.selling.ui.auth.TextFieldState
-import uz.promo.selling.ui.auth.register.Branding
 import uz.promo.selling.ui.auth.removeFirstCharacterAndAllSpaces
 import uz.promo.selling.ui.theme.robotoFontFamily
 import uz.promo.selling.utils.FreeLoading
@@ -85,14 +85,20 @@ fun CompleteProfileScreen(
         modifier = Modifier
             .fillMaxSize()
             .statusBarsPadding()
+            .imePadding()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 24.dp)
     ) {
-        Spacer(modifier = Modifier.height(48.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-        Branding(text = R.string.complete_profile_subtitle)
-
-        Spacer(modifier = Modifier.height(32.dp))
+        Text(
+            text = stringResource(R.string.complete_profile_subtitle),
+            fontFamily = robotoFontFamily,
+            fontWeight = FontWeight.Medium,
+            fontSize = 16.sp,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
 
         Text(
             text = stringResource(R.string.complete_profile_title),
