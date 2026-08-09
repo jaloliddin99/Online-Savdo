@@ -386,6 +386,7 @@
     <!-- Error fallbacks -->
     <string name="error_unexpected">Произошла непредвиденная ошибка</string>
     <string name="error_no_internet">Не удалось подключиться к серверу. Проверьте интернет-соединение.</string>
+    <string name="error_server_down">Сервер временно недоступен. Повторите попытку чуть позже.</string>
     <string name="error_ai_draft">ИИ не смог создать черновик.</string>
     <string name="error_google_auth">Не удалось войти через Google</string>
     <string name="error_google_cancelled">Вход через Google отменён</string>

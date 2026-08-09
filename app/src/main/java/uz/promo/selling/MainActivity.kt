@@ -57,6 +57,12 @@ class MainActivity : ComponentActivity(), OnRunTimePermissionListener {
 
     private val viewModel: SettingsDialogViewModel by viewModels()
 
+    companion object {
+        // Lives as long as the process: true after the first splash run, so
+        // re-created activities skip straight to content.
+        private var splashShownInProcess = false
+    }
+
     // Android 13+ requires runtime consent before ANY notification is shown.
     private val notificationPermissionLauncher = registerForActivityResult(
         androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
@@ -100,7 +106,10 @@ class MainActivity : ComponentActivity(), OnRunTimePermissionListener {
                 }
             }
         }
-        var showSplash by mutableStateOf(true)
+        // Splash animation plays once per process, not on every activity
+        // re-creation (reopening from recents/launcher, rotation, etc.).
+        var showSplash by mutableStateOf(!splashShownInProcess)
+        splashShownInProcess = true
 
         setContent {
             // In-place language switching: the whole tree reads strings from a

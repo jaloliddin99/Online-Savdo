@@ -54,18 +54,22 @@ fun tr(en: String, ru: String, uz: String): String = when (SharedPref.language) 
  * those to string resources at display time; anything else came from the
  * backend already localized via the lang param, so pass it through.
  */
-fun localizedError(context: Context, raw: String?): String = when (raw) {
-    null, "",
-    "An unexpected error occured",
-    "An unexpected error occurred",
-    "Error occurred!" -> context.getString(R.string.error_unexpected)
-    "Couldn't reach server. Check your internet connection." ->
+fun localizedError(context: Context, raw: String?): String = when {
+    raw.isNullOrEmpty() ||
+    raw == "An unexpected error occured" ||
+    raw == "An unexpected error occurred" ||
+    raw == "Error occurred!" -> context.getString(R.string.error_unexpected)
+    // retrofit2.HttpException messages are "HTTP <code> <reason>". Any 5xx
+    // means the server itself is down/restarting (e.g. 502 during a deploy),
+    // not a problem on the user's side.
+    raw.startsWith("HTTP 5") -> context.getString(R.string.error_server_down)
+    raw == "Couldn't reach server. Check your internet connection." ->
         context.getString(R.string.error_no_internet)
-    "AI couldn't generate a draft." -> context.getString(R.string.error_ai_draft)
-    "Google auth failed", "Unexpected credential type" ->
+    raw == "AI couldn't generate a draft." -> context.getString(R.string.error_ai_draft)
+    raw == "Google auth failed" || raw == "Unexpected credential type" ->
         context.getString(R.string.error_google_auth)
-    "Google sign-in cancelled" -> context.getString(R.string.error_google_cancelled)
-    "Failed to update profile" -> context.getString(R.string.error_profile_update)
+    raw == "Google sign-in cancelled" -> context.getString(R.string.error_google_cancelled)
+    raw == "Failed to update profile" -> context.getString(R.string.error_profile_update)
     else -> raw
 }
 

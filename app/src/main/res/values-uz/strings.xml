@@ -387,6 +387,7 @@
     <!-- Error fallbacks -->
     <string name="error_unexpected">Kutilmagan xatolik yuz berdi</string>
     <string name="error_no_internet">Serverga ulanib bo\'lmadi. Internet aloqasini tekshiring.</string>
+    <string name="error_server_down">Server vaqtincha ishlamayapti. Birozdan so\'ng qayta urinib ko\'ring.</string>
     <string name="error_ai_draft">AI qoralama yarata olmadi.</string>
     <string name="error_google_auth">Google orqali kirish amalga oshmadi</string>
     <string name="error_google_cancelled">Google orqali kirish bekor qilindi</string>

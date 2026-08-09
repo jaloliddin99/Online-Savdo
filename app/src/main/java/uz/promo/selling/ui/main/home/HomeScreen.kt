@@ -41,9 +41,13 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -219,11 +223,41 @@ fun HomeScreen(
     }
     val statusTop = WindowInsets.safeDrawing.asPaddingValues().calculateTopPadding()
 
+    // Pull-to-refresh: only show the indicator for user-initiated pulls, not the
+    // first-load shimmer. Cleared when the Paging refresh settles.
+    val pullState = rememberPullToRefreshState()
+    val pullRefreshing = remember { mutableStateOf(false) }
+    LaunchedEffect(products.loadState.refresh) {
+        if (products.loadState.refresh !is LoadState.Loading) pullRefreshing.value = false
+    }
+
     Box(
         modifier = modifier
             .fillMaxSize()
             .nestedScroll(headerConnection)
     ) {
+        PullToRefreshBox(
+            isRefreshing = pullRefreshing.value,
+            onRefresh = {
+                pullRefreshing.value = true
+                homeViewModel.getAllParentCategories()
+                homeViewModel.refreshNearPostsForSelectedLocation()
+                products.refresh()
+            },
+            state = pullState,
+            modifier = Modifier.fillMaxSize(),
+            indicator = {
+                // Default position is the very top of the box — hidden under the
+                // glass header. Offset it to spin just below the search row.
+                PullToRefreshDefaults.Indicator(
+                    state = pullState,
+                    isRefreshing = pullRefreshing.value,
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(top = statusTop + 116.dp)
+                )
+            }
+        ) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             state = scrollState,
@@ -395,6 +429,7 @@ fun HomeScreen(
                     Spacer(modifier = modifier.height(MaterialTheme.spacing.dimen16Dp))
                 }
             }
+        }
         }
 
         // Floating glass header — brand title row + collapsing search field.

@@ -50,9 +50,16 @@ class AuthInterceptor : Interceptor {
                         }
                     }
                 } else {
+                    val refreshCode = refreshResponse.code
                     refreshResponse.close()
+                    // A 5xx here means the server is down/restarting (e.g. 502
+                    // during a deploy), NOT that the session is invalid — keep
+                    // the tokens and let the caller surface a server error.
+                    if (refreshCode >= 500) {
+                        return response.newBuilder().code(refreshCode).build()
+                    }
                 }
-                // Refresh failed - session expired, redirect to login
+                // Refresh definitively rejected - session expired, redirect to login
                 AuthEvent.emitUnauthorized()
                 return response.newBuilder().code(401).build()
             }
