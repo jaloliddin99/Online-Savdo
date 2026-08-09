@@ -361,12 +361,7 @@ fun AddProductScreen(
                         },
                         categoryParams = state.categoryDetail?.parameters,
                         dynamicViewData = dynamicViewData,
-                        onDynamicViewDataChanged = { dynamicViewData = it },
-                        onAutoFill = { viewModel.generateDraftFromImages(galleryImageUri) },
-                        isAiLoading = state.isAiLoading,
-                        onSuggestPrice = { currency, onResult ->
-                            item?.let { viewModel.suggestPrice(it.id.toLong(), currency, onResult) }
-                        }
+                        onDynamicViewDataChanged = { dynamicViewData = it }
                     )
                 }
             }

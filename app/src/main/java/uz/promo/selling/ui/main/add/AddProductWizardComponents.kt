@@ -186,43 +186,26 @@ fun StepPhotosAndDetails(
     onCancelImage: (ImageUrl) -> Unit,
     categoryParams: List<Parameter>?,
     dynamicViewData: Map<String, DynamicViewData>,
-    onDynamicViewDataChanged: (Map<String, DynamicViewData>) -> Unit,
-    onAutoFill: () -> Unit = {},
-    isAiLoading: Boolean = false,
-    onSuggestPrice: ((currency: String, onResult: (PriceSuggestionDTO?) -> Unit) -> Unit)? = null
+    onDynamicViewDataChanged: (Map<String, DynamicViewData>) -> Unit
 ) {
+    // No AI helpers here: auto-fill and price suggestion live ONLY in the
+    // AI creation flow — the manual wizard stays fully manual.
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
-        // AI: fill title/description + details from the photos.
-        AiAutoFillButton(
-            isLoading = isAiLoading,
-            enabled = imagesList.isNotEmpty(),
-            onClick = onAutoFill,
-            modifier = Modifier.padding(vertical = 8.dp)
-        )
         TitleWrapper(titleRes = R.string.select_image_for_your_product) {
-            Box {
-                ShowSelectedImages(
-                    imagesList = imagesList,
-                    onAddButtonClicked = onAddImageClicked,
-                    cancelClicked = onCancelImage,
-                    enabled = !isAiLoading
-                )
-                if (isAiLoading) {
-                    AiAnalyzingOverlay(
-                        modifier = Modifier
-                            .matchParentSize()
-                    )
-                }
-            }
+            ShowSelectedImages(
+                imagesList = imagesList,
+                onAddButtonClicked = onAddImageClicked,
+                cancelClicked = onCancelImage
+            )
         }
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
 
         if (categoryParams != null) {
-            DynamicView(categoryParams, dynamicViewData, onSuggestPrice = onSuggestPrice) {
+            DynamicView(categoryParams, dynamicViewData) {
                 onDynamicViewDataChanged(it)
             }
         }
