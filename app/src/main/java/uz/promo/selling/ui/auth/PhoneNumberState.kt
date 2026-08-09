@@ -2,6 +2,7 @@ package uz.promo.selling.ui.auth
 
 
 import android.util.Log
+import uz.promo.selling.utils.tr
 
 class PhoneNumberState(val phone: String? = "+998") :
     TextFieldState(validator = ::isPhoneValid, errorFor = ::phoneNumberValidationError) {
@@ -12,7 +13,11 @@ class PhoneNumberState(val phone: String? = "+998") :
     }
 }
 private fun phoneNumberValidationError(phone: String): String {
-    return "Invalid phone: $phone"
+    return tr(
+        en = "Invalid phone: $phone",
+        ru = "Неверный номер телефона: $phone",
+        uz = "Telefon raqami noto'g'ri: $phone"
+    )
 }
 
 private fun isPhoneValid(phone: String): Boolean {

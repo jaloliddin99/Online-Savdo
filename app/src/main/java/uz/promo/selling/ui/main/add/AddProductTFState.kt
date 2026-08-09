@@ -2,6 +2,7 @@ package uz.promo.selling.ui.main.add
 
 import uz.promo.selling.ui.auth.TextFieldState
 import uz.promo.selling.ui.auth.textFieldStateSaver
+import uz.promo.selling.utils.tr
 
 
 class ProductTitleState(val title: String? = null) :
@@ -18,7 +19,11 @@ class ProductTitleState(val title: String? = null) :
  * Returns an error to be displayed or null if no error was found
  */
 private fun titleValidationError(title: String): String {
-    return "Title length must be greater than 3"
+    return tr(
+        en = "Title must be longer than 3 characters",
+        ru = "Название должно быть длиннее 3 символов",
+        uz = "Sarlavha 3 ta belgidan uzun bo'lishi kerak"
+    )
 }
 
 private fun isValidTitle(title: String): Boolean {
@@ -41,7 +46,11 @@ class ProductDescriptionState(val description: String? = null) :
  * Returns an error to be displayed or null if no error was found
  */
 private fun descriptionValidationError(description: String): String {
-    return "At least 10 character, you have ${description.length}"
+    return tr(
+        en = "At least 10 characters, you have ${description.length}",
+        ru = "Минимум 10 символов, у вас ${description.length}",
+        uz = "Kamida 10 ta belgi, sizda ${description.length} ta"
+    )
 }
 
 private fun isValidDescription(description: String): Boolean {
@@ -62,7 +71,11 @@ class PostAddressState(val address: String? = null) :
  * Returns an error to be displayed or null if no error was found
  */
 private fun addressValidationError(title: String): String {
-    return "Location length must be greater than 3"
+    return tr(
+        en = "Location must be longer than 3 characters",
+        ru = "Адрес должен быть длиннее 3 символов",
+        uz = "Manzil 3 ta belgidan uzun bo'lishi kerak"
+    )
 }
 
 private fun isValidLocation(title: String): Boolean {

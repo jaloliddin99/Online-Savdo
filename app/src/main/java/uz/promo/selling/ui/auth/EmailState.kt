@@ -16,6 +16,7 @@
 
 package uz.promo.selling.ui.auth
 
+import uz.promo.selling.utils.tr
 import java.util.regex.Pattern
 
 // Consider an email valid if there's some text before and after a "@"
@@ -34,7 +35,11 @@ class EmailState(val email: String? = null) :
  * Returns an error to be displayed or null if no error was found
  */
 private fun emailValidationError(email: String): String {
-    return "Invalid email: $email"
+    return tr(
+        en = "Invalid email: $email",
+        ru = "Неверный email: $email",
+        uz = "Email noto'g'ri: $email"
+    )
 }
 
 private fun isEmailValid(email: String): Boolean {

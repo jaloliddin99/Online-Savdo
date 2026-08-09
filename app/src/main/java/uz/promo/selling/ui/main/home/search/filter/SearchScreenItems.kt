@@ -441,7 +441,7 @@ fun SearchToolbar(
             IconButton(onClick = onMapToggleClicked) {
                 Icon(
                     imageVector = if (isMapMode) Icons.AutoMirrored.Filled.ViewList else Icons.Filled.Map,
-                    contentDescription = "Toggle map",
+                    contentDescription = stringResource(R.string.cd_toggle_map),
                     tint = MaterialTheme.colorScheme.onSurface
                 )
             }
@@ -451,7 +451,7 @@ fun SearchToolbar(
             IconButton(onClick = onFilterClicked) {
                 Icon(
                     imageVector = Icons.Default.FilterList,
-                    contentDescription = "Filter",
+                    contentDescription = stringResource(R.string.cd_filter),
                     tint = MaterialTheme.colorScheme.onSurface
                 )
             }

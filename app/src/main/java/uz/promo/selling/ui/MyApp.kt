@@ -124,6 +124,7 @@ import uz.promo.selling.ui.theme.robotoFontFamily
 import uz.promo.selling.utils.AuthEvent
 import uz.promo.selling.utils.FreeLoading
 import uz.promo.selling.utils.SharedPref
+import uz.promo.selling.utils.localizedError
 import kotlin.math.roundToInt
 
 private val BOTTOM_BAR_ROUTES = setOf(
@@ -887,7 +888,7 @@ fun NavigationGraph(
                 LaunchedEffect(googleState.error) {
                     if (googleState.error.isNotBlank()) {
                         android.widget.Toast.makeText(
-                            context, googleState.error, android.widget.Toast.LENGTH_LONG
+                            context, localizedError(context, googleState.error), android.widget.Toast.LENGTH_LONG
                         ).show()
                     }
                 }
@@ -942,7 +943,7 @@ fun NavigationGraph(
                 LaunchedEffect(googleState.error) {
                     if (googleState.error.isNotBlank()) {
                         android.widget.Toast.makeText(
-                            context, googleState.error, android.widget.Toast.LENGTH_LONG
+                            context, localizedError(context, googleState.error), android.widget.Toast.LENGTH_LONG
                         ).show()
                     }
                 }

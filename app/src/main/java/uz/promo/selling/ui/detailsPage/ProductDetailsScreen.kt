@@ -494,7 +494,7 @@ private fun ProductHeader(data: PostDetailsData?, onLikeClicked: (Int) -> Unit) 
         ) {
             MetaChip(
                 icon = Icons.Outlined.AccessTime,
-                text = formatTimeAgo(data?.createdDate)
+                text = formatTimeAgo(LocalContext.current, data?.createdDate)
             )
             MetaChip(
                 icon = if (data?.isLiked == true) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
@@ -1262,7 +1262,7 @@ private fun formatPrice(label: String, unit: String): String {
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-private fun formatTimeAgo(dateString: String?): String {
+private fun formatTimeAgo(context: android.content.Context, dateString: String?): String {
     if (dateString.isNullOrBlank()) return ""
     return try {
         val date = LocalDateTime.parse(dateString, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
@@ -1273,11 +1273,11 @@ private fun formatTimeAgo(dateString: String?): String {
         val months = ChronoUnit.MONTHS.between(date, now)
 
         when {
-            minutes < 1 -> "just now"
-            minutes < 60 -> "${minutes}m ago"
-            hours < 24 -> "${hours}h ago"
-            days < 30 -> "${days}d ago"
-            months < 12 -> "${months}mo ago"
+            minutes < 1 -> context.getString(R.string.time_just_now)
+            minutes < 60 -> context.getString(R.string.time_minutes_ago, minutes)
+            hours < 24 -> context.getString(R.string.time_hours_ago, hours)
+            days < 30 -> context.getString(R.string.time_days_ago, days)
+            months < 12 -> context.getString(R.string.time_months_ago, months)
             else -> date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
         }
     } catch (e: Exception) {

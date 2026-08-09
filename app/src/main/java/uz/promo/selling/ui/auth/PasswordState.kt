@@ -16,6 +16,8 @@
 
 package uz.promo.selling.ui.auth
 
+import uz.promo.selling.utils.tr
+
 class PasswordState :
     TextFieldState(validator = ::isPasswordValid, errorFor = ::passwordValidationError)
 
@@ -42,9 +44,17 @@ private fun isPasswordValid(password: String): Boolean {
 
 @Suppress("UNUSED_PARAMETER")
 private fun passwordValidationError(password: String): String {
-    return "Invalid password"
+    return tr(
+        en = "Password must be at least 6 characters",
+        ru = "Пароль должен содержать минимум 6 символов",
+        uz = "Parol kamida 6 ta belgidan iborat bo'lishi kerak"
+    )
 }
 
 private fun passwordConfirmationError(): String {
-    return "Passwords don't match"
+    return tr(
+        en = "Passwords don't match",
+        ru = "Пароли не совпадают",
+        uz = "Parollar mos kelmaydi"
+    )
 }

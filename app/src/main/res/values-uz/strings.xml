@@ -356,4 +356,40 @@
     <string name="camera_permission_required">Kamera uchun ruxsat talab qilinadi</string>
     <string name="grant_permission">Ruxsat berish</string>
 
+    <string name="search_hint_location">%1$s ichida %2$d km radiusda qidirish</string>
+    <string name="search_hint_default">Qidirish</string>
+    <string name="recent_searches">So\'nggi qidiruvlar</string>
+    <string name="clear_history">Tozalash</string>
+    <string name="update_location">Joylashuvni yangilash</string>
+
+    <!-- Relative timestamps -->
+    <string name="time_just_now">hozirgina</string>
+    <string name="time_minutes_ago">%1$d daqiqa oldin</string>
+    <string name="time_hours_ago">%1$d soat oldin</string>
+    <string name="time_days_ago">%1$d kun oldin</string>
+    <string name="time_months_ago">%1$d oy oldin</string>
+
+    <!-- Misc UI -->
+    <string name="n_selected">%1$d ta tanlandi</string>
+    <string name="distance_km">%1$d km</string>
+    <string name="map_marker_user_location">Sizning joylashuvingiz</string>
+    <string name="sms_prefill">Assalomu alaykum! Selling.uz\'dagi e\'loningiz bo\'yicha yozyapman.</string>
+
+    <!-- Content descriptions -->
+    <string name="cd_photo">Surat</string>
+    <string name="cd_like">Yoqtirish</string>
+    <string name="cd_premium">Premium</string>
+    <string name="cd_filter">Filtr</string>
+    <string name="cd_emoji">Emoji</string>
+    <string name="cd_selected">Tanlandi</string>
+    <string name="cd_toggle_map">Xaritani ko\'rsatish</string>
+
+    <!-- Error fallbacks -->
+    <string name="error_unexpected">Kutilmagan xatolik yuz berdi</string>
+    <string name="error_no_internet">Serverga ulanib bo\'lmadi. Internet aloqasini tekshiring.</string>
+    <string name="error_ai_draft">AI qoralama yarata olmadi.</string>
+    <string name="error_google_auth">Google orqali kirish amalga oshmadi</string>
+    <string name="error_google_cancelled">Google orqali kirish bekor qilindi</string>
+    <string name="error_profile_update">Profilni yangilab bo\'lmadi</string>
+
 </resources>

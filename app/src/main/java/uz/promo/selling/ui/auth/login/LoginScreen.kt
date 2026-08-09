@@ -51,6 +51,7 @@ import uz.promo.selling.ui.auth.register.DoYouHaveAccount
 import uz.promo.selling.ui.theme.OnlineMarketTheme
 import uz.promo.selling.ui.theme.robotoFontFamily
 import uz.promo.selling.utils.FreeLoading
+import uz.promo.selling.utils.localizedError
 
 private val BrandGreen = Color(0xFF1A6B3C)
 
@@ -112,7 +113,7 @@ fun SignInScreen(
         val rememberedContext = remember { { context } }
         SideEffect {
             if (state.error.isNotBlank()) {
-                Toast.makeText(rememberedContext(), state.error, Toast.LENGTH_SHORT).show()
+                Toast.makeText(rememberedContext(), localizedError(rememberedContext(), state.error), Toast.LENGTH_SHORT).show()
             }
         }
         FreeLoading(state.isLoading, paddingTop = 64.dp)

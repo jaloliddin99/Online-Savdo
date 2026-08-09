@@ -33,8 +33,40 @@ fun stripHtmlBreaks(text: String): String =
 fun openSmsApp(context: Context, phoneNumber: String) {
     val smsUri = Uri.parse("smsto:$phoneNumber")
     val smsIntent = Intent(Intent.ACTION_SENDTO, smsUri)
-    smsIntent.putExtra("sms_body", "Hello, this is a pre-filled message.")
+    smsIntent.putExtra("sms_body", context.getString(R.string.sms_prefill))
     context.startActivity(smsIntent)
+}
+
+/**
+ * In-code translation for the few places that have no Context (TextFieldState
+ * validators are plain functions bound at construction). Keyed off the same
+ * SharedPref.language the rest of the app switches on.
+ */
+fun tr(en: String, ru: String, uz: String): String = when (SharedPref.language) {
+    "ru" -> ru
+    "en" -> en
+    else -> uz
+}
+
+/**
+ * ViewModels and use cases fall back to a small set of canonical English error
+ * strings when a request fails locally (no response body to localize). Map
+ * those to string resources at display time; anything else came from the
+ * backend already localized via the lang param, so pass it through.
+ */
+fun localizedError(context: Context, raw: String?): String = when (raw) {
+    null, "",
+    "An unexpected error occured",
+    "An unexpected error occurred",
+    "Error occurred!" -> context.getString(R.string.error_unexpected)
+    "Couldn't reach server. Check your internet connection." ->
+        context.getString(R.string.error_no_internet)
+    "AI couldn't generate a draft." -> context.getString(R.string.error_ai_draft)
+    "Google auth failed", "Unexpected credential type" ->
+        context.getString(R.string.error_google_auth)
+    "Google sign-in cancelled" -> context.getString(R.string.error_google_cancelled)
+    "Failed to update profile" -> context.getString(R.string.error_profile_update)
+    else -> raw
 }
 
 fun callTo(phone: String = "", context: Context?) {

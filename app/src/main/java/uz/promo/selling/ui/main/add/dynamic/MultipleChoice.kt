@@ -105,7 +105,7 @@ fun MultipleChoiceDialog(
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Filled.Done,
-                                contentDescription = "Done icon",
+                                contentDescription = stringResource(R.string.cd_selected),
                                 modifier = Modifier.size(FilterChipDefaults.IconSize)
                             )
                         },

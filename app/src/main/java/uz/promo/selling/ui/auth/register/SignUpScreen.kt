@@ -67,6 +67,7 @@ import uz.promo.selling.ui.auth.TextFieldState
 import uz.promo.selling.ui.auth.removeFirstCharacterAndAllSpaces
 import uz.promo.selling.ui.theme.robotoFontFamily
 import uz.promo.selling.utils.FreeLoading
+import uz.promo.selling.utils.localizedError
 
 private val BrandGreen = Color(0xFF1A6B3C)
 
@@ -123,7 +124,7 @@ fun SignUpScreen(
         }
 
         if (state.error.isNotBlank()) {
-            Toast.makeText(LocalContext.current, state.error, Toast.LENGTH_SHORT).show()
+            Toast.makeText(LocalContext.current, localizedError(LocalContext.current, state.error), Toast.LENGTH_SHORT).show()
         }
 
         FreeLoading(isFeedLoading = state.isLoading, paddingTop = 64.dp)

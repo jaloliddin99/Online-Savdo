@@ -46,6 +46,7 @@ import uz.promo.selling.ui.map.MapScreenData
 import uz.promo.selling.ui.theme.spacing
 import uz.promo.selling.utils.ComposeFileProvider
 import uz.promo.selling.utils.FreeLoading
+import uz.promo.selling.utils.localizedError
 import uz.promo.selling.utils.runTimePermission.RunTimePermission
 
 
@@ -426,7 +427,7 @@ fun AddProductScreen(
     }
 
     if (state.error.isNotEmpty()) {
-        Toast.makeText(context, state.error, Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, localizedError(context, state.error), Toast.LENGTH_SHORT).show()
     }
 }
 

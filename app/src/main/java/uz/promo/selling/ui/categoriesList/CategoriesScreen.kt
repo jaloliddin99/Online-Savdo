@@ -59,6 +59,7 @@ import uz.promo.selling.ui.main.home.HomeScreenState
 import uz.promo.selling.ui.main.home.HomeViewModel
 import uz.promo.selling.ui.theme.spacing
 import uz.promo.selling.utils.FreeLoading
+import uz.promo.selling.utils.localizedError
 
 @Composable
 fun CategoriesRoute(
@@ -119,7 +120,7 @@ fun CategoriesScreen(
         }
 
         if (state.error.isNotBlank()) {
-            Toast.makeText(context, state.error, Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, localizedError(context, state.error), Toast.LENGTH_SHORT).show()
         }
 
         FreeLoading(isFeedLoading = isFeedLoading)

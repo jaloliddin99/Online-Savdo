@@ -89,7 +89,7 @@ fun MyPostsScreenRoute(
                     IconButton(onClick = { showFilterMenu = true }) {
                         Icon(
                             imageVector = Icons.Outlined.FilterList,
-                            contentDescription = "Filter",
+                            contentDescription = stringResource(R.string.cd_filter),
                             tint = MaterialTheme.colorScheme.onSurface
                         )
                     }

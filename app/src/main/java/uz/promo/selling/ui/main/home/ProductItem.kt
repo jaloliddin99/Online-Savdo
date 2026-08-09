@@ -169,7 +169,7 @@ fun ProductItemDetails(
             AsyncImage(
                 model = imageRequest,
                 contentScale = ContentScale.Crop,
-                contentDescription = "Loaded Image",
+                contentDescription = stringResource(R.string.cd_photo),
                 modifier = Modifier
                     .fillMaxSize()
                     .background(LocalCustomColors.current.imageBackgroundColor)
@@ -203,7 +203,7 @@ fun ProductItemDetails(
                         painter = painterResource(
                             id = if (isLiked) R.drawable.heart_filled else R.drawable.heart_unfilled
                         ),
-                        contentDescription = "Like",
+                        contentDescription = stringResource(R.string.cd_like),
                         tint = if (isLiked) Color(0xFFFF5252) else Color.White,
                         modifier = Modifier
                             .size(17.dp)
@@ -219,7 +219,7 @@ fun ProductItemDetails(
                         .padding(8.dp)
                         .size(24.dp),
                     painter = painterResource(id = R.drawable.heart_filled),
-                    contentDescription = "Like",
+                    contentDescription = stringResource(R.string.cd_like),
                     tint = Color.White
                 )
             }
@@ -272,7 +272,7 @@ fun ProductItemDetails(
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.ic_premium_crown_flat),
-                        contentDescription = "Premium",
+                        contentDescription = stringResource(R.string.cd_premium),
                         tint = Color.White,
                         modifier = Modifier.size(13.dp)
                     )

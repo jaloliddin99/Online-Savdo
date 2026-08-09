@@ -449,7 +449,7 @@ private fun MessageInput(
                 // Emoji toggle (left)
                 Icon(
                     imageVector = Icons.Filled.EmojiEmotions,
-                    contentDescription = "Emoji",
+                    contentDescription = stringResource(R.string.cd_emoji),
                     tint = if (showEmojiPicker) MaterialTheme.colorScheme.primary
                     else MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier

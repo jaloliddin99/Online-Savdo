@@ -143,6 +143,11 @@ class AddProductScreenViewModel @Inject constructor(
         mapData: MapScreenData,
         postParams: List<PostParamDTO>
     ) {
+        // Same instant-feedback + double-tap guard as generateDraftFromImages:
+        // compression runs before the network call, so without this the button
+        // looks unresponsive and repeated taps create duplicate posts.
+        if (_state.value.isLoading) return
+        _state.value = _state.value.copy(isLoading = true, error = "")
         viewModelScope.launch {
             val fileParts: List<MultipartBody.Part> = compressImagesToParts(images)
             if (fileParts.isEmpty()) {
@@ -227,6 +232,11 @@ class AddProductScreenViewModel @Inject constructor(
         onComplete: (Boolean) -> Unit = {}
     ) {
         if (images.isEmpty()) return
+        // Flip the loading state BEFORE the (slow) image compression so the
+        // button shows progress instantly, and ignore taps while a generation
+        // is already running — otherwise impatient re-taps start duplicate jobs.
+        if (_state.value.isAiLoading) return
+        _state.value = _state.value.copy(isAiLoading = true, error = "")
         viewModelScope.launch {
             val fileParts = compressImagesToParts(images)
             // Every picked image failed to read — bail out with a clear message

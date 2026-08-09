@@ -360,4 +360,34 @@
     <string name="camera_permission_required">Camera permission is required</string>
     <string name="grant_permission">Grant permission</string>
 
+    <!-- Relative timestamps -->
+    <string name="time_just_now">just now</string>
+    <string name="time_minutes_ago">%1$dm ago</string>
+    <string name="time_hours_ago">%1$dh ago</string>
+    <string name="time_days_ago">%1$dd ago</string>
+    <string name="time_months_ago">%1$dmo ago</string>
+
+    <!-- Misc UI -->
+    <string name="n_selected">%1$d selected</string>
+    <string name="distance_km">%1$d km</string>
+    <string name="map_marker_user_location">Your location</string>
+    <string name="sms_prefill">Hello! I\'m writing about your listing on Selling.uz.</string>
+
+    <!-- Content descriptions -->
+    <string name="cd_photo">Photo</string>
+    <string name="cd_like">Like</string>
+    <string name="cd_premium">Premium</string>
+    <string name="cd_filter">Filter</string>
+    <string name="cd_emoji">Emoji</string>
+    <string name="cd_selected">Selected</string>
+    <string name="cd_toggle_map">Toggle map</string>
+
+    <!-- Error fallbacks -->
+    <string name="error_unexpected">An unexpected error occurred</string>
+    <string name="error_no_internet">Couldn\'t reach server. Check your internet connection.</string>
+    <string name="error_ai_draft">AI couldn\'t generate a draft.</string>
+    <string name="error_google_auth">Google sign-in failed</string>
+    <string name="error_google_cancelled">Google sign-in cancelled</string>
+    <string name="error_profile_update">Failed to update profile</string>
+
 </resources>

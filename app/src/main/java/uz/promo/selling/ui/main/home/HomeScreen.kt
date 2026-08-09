@@ -92,6 +92,7 @@ import uz.promo.selling.utils.LocaleManager.FLAG_HAS_DATA
 import uz.promo.selling.utils.SharedPref
 import uz.promo.selling.data.remote.models.nearPost.NearPostsData
 import uz.promo.selling.utils.hasPermissionForLocation
+import uz.promo.selling.utils.localizedError
 import uz.promo.selling.utils.runTimePermission.RunTimePermission
 
 
@@ -172,7 +173,7 @@ fun HomeScreen(
 
     LaunchedEffect(state.error) {
         if (state.error.isNotBlank()) {
-            Toast.makeText(context, state.error, Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, localizedError(context, state.error), Toast.LENGTH_SHORT).show()
         }
     }
 

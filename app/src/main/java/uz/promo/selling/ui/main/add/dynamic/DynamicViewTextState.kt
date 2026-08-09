@@ -31,11 +31,15 @@ private fun translator(lang: String, validation: Validation): String {
     if (validation.max != null && validation.min != null) {
         return when (lang) {
             "ru" -> "Введите номер от ${validation.min} до ${validation.max}"
-            "en" -> "Enter the number from ${validation.min} to ${validation.min}"
+            "en" -> "Enter a number from ${validation.min} to ${validation.max}"
             else -> "${validation.min} dan ${validation.max} gacha kiriting"
         }
     }
-    return "Wrong input"
+    return when (lang) {
+        "ru" -> "Неверный ввод"
+        "en" -> "Wrong input"
+        else -> "Noto'g'ri qiymat"
+    }
 }
 
 private fun isValidText(input: String, validation: Validation): Boolean {

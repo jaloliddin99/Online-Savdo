@@ -36,6 +36,7 @@ import uz.promo.selling.ui.main.home.ForgotPasswordState
 import uz.promo.selling.ui.theme.robotoFontFamily
 import uz.promo.selling.ui.theme.spacing
 import uz.promo.selling.utils.FreeLoading
+import uz.promo.selling.utils.localizedError
 
 @Composable
 fun ForgotPasswordRoute(
@@ -153,7 +154,7 @@ fun ForgotPasswordScreen(
         goToResetPage.invoke(emailState.text)
     }
     if (state.error.isNotEmpty()) {
-        Toast.makeText(rememberedContext(), state.error, Toast.LENGTH_SHORT).show()
+        Toast.makeText(rememberedContext(), localizedError(rememberedContext(), state.error), Toast.LENGTH_SHORT).show()
     }
     FreeLoading(state.isLoading, paddingTop = 64.dp)
 }

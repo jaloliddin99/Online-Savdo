@@ -13,6 +13,7 @@ import com.google.android.gms.maps.model.LatLng
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.GoogleMapOptions
 import com.google.maps.android.compose.GoogleMap
@@ -75,8 +76,8 @@ fun MapShowLocationScreen(
         ){
             Marker(
                 state = MarkerState(position = destinationLatLng),
-                title = "Location",
-                snippet = "User location"
+                title = stringResource(R.string.location),
+                snippet = stringResource(R.string.map_marker_user_location)
             )
         }
 

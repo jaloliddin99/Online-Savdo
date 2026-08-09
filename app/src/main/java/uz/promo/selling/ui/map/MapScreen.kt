@@ -53,6 +53,7 @@ import uz.promo.selling.ui.theme.spacing
 import uz.promo.selling.utils.FreeLoading
 import uz.promo.selling.utils.SharedPref
 import uz.promo.selling.utils.hasPermissionForLocation
+import uz.promo.selling.utils.localizedError
 import uz.promo.selling.utils.runTimePermission.RunTimePermission
 import java.io.Serializable
 
@@ -262,7 +263,7 @@ fun MapsScreen(
             isFeedLoading = state.isLoading, paddingTop = 56.dp
         )
         if (state.error.isNotBlank()) {
-            Toast.makeText(LocalContext.current, state.error, Toast.LENGTH_SHORT).show()
+            Toast.makeText(LocalContext.current, localizedError(LocalContext.current, state.error), Toast.LENGTH_SHORT).show()
         }
     }
 }

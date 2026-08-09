@@ -5,11 +5,14 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -28,11 +31,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import uz.promo.selling.R
 import uz.promo.selling.data.remote.models.category.CategoryItem
+import uz.promo.selling.utils.localizedError
 import uz.promo.selling.data.remote.models.post.PostValueDTO
 import uz.promo.selling.data.remote.models.post.toPostDto
 import uz.promo.selling.ui.main.add.dynamic.DynamicView
@@ -94,6 +99,7 @@ fun AiCreateFlow(
         else -> Column(
             modifier = modifier
                 .fillMaxSize()
+                .navigationBarsPadding()
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState())
         ) {
@@ -141,7 +147,10 @@ fun AiCreateFlow(
 
             if (state.error.isNotEmpty()) {
                 Spacer(Modifier.height(8.dp))
-                Text(state.error, color = MaterialTheme.colorScheme.error)
+                Text(
+                    localizedError(LocalContext.current, state.error),
+                    color = MaterialTheme.colorScheme.error
+                )
             }
 
             Spacer(Modifier.height(12.dp))
@@ -190,12 +199,12 @@ private fun AiReviewScreen(
     val categoryId = item?.id ?: draft?.categoryId?.toInt()
     val categoryLabel = item?.title ?: draft?.categoryLabel ?: "—"
 
-    // Leave the flow once the post is created.
-    LaunchedEffect(state.showSuccessDialog) {
-        if (state.showSuccessDialog) {
+    // Same success dialog as the manual flow; leave once the user dismisses it.
+    if (state.showSuccessDialog) {
+        NotifyDialog(onDismiss = {
             viewModel.updateShowSuccessDialog(false)
             onPublished()
-        }
+        })
     }
 
     // Load the chosen category's detail so its fields render.
@@ -251,6 +260,8 @@ private fun AiReviewScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
+            .navigationBarsPadding()
+            .imePadding()
             .padding(16.dp)
             .verticalScroll(rememberScrollState())
     ) {
@@ -261,17 +272,16 @@ private fun AiReviewScreen(
         )
         Spacer(Modifier.height(16.dp))
 
-        // Category (AI-selected, changeable)
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column {
-                Text(stringResource(R.string.category), fontWeight = FontWeight.SemiBold)
-                Text(categoryLabel)
-            }
-            TextButton(onClick = onChangeCategory) { Text(stringResource(R.string.change)) }
+        // Category (AI-selected, changeable). The change button sits below the
+        // label — beside it, long uz/ru category names squeezed the button text
+        // into multiple lines.
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.category), fontWeight = FontWeight.SemiBold)
+            Text(categoryLabel)
+            TextButton(
+                onClick = onChangeCategory,
+                contentPadding = PaddingValues(0.dp)
+            ) { Text(stringResource(R.string.change)) }
         }
         Spacer(Modifier.height(12.dp))
 
@@ -337,7 +347,10 @@ private fun AiReviewScreen(
 
         if (state.error.isNotEmpty()) {
             Spacer(Modifier.height(8.dp))
-            Text(state.error, color = MaterialTheme.colorScheme.error)
+            Text(
+                localizedError(LocalContext.current, state.error),
+                color = MaterialTheme.colorScheme.error
+            )
         }
 
         Spacer(Modifier.height(12.dp))

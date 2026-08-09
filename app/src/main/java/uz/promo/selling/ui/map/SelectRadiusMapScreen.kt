@@ -62,6 +62,7 @@ import uz.promo.selling.ui.main.home.search.filter.SearchToolbar
 import uz.promo.selling.ui.theme.robotoFontFamily
 import uz.promo.selling.ui.theme.spacing
 import uz.promo.selling.utils.FreeLoading
+import uz.promo.selling.utils.localizedError
 import uz.promo.selling.utils.SharedPref
 import uz.promo.selling.utils.hasPermissionForLocation
 import kotlin.math.ln
@@ -223,7 +224,7 @@ fun SelectRadiusMapScreen(
                 )
                 Spacer(modifier = Modifier.width(MaterialTheme.spacing.dimen4Dp))
                 Text(
-                    text = "${radiusKm.toInt()} km",
+                    text = stringResource(R.string.distance_km, radiusKm.toInt()),
                     fontWeight = FontWeight.Medium,
                     fontFamily = robotoFontFamily,
                     fontSize = 12.sp
@@ -295,7 +296,11 @@ fun SelectRadiusMapScreen(
         }
         FreeLoading(isFeedLoading = state.isLoading, paddingTop = 56.dp)
         if (state.error.isNotBlank()) {
-            Toast.makeText(LocalContext.current, state.error, Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                LocalContext.current,
+                localizedError(LocalContext.current, state.error),
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 }

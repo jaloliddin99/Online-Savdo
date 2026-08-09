@@ -354,4 +354,41 @@
     <string name="camera_permission_required">Требуется разрешение на использование камеры</string>
     <string name="grant_permission">Предоставить разрешение</string>
 
+    <string name="search_hint_location">Поиск в %1$s в радиусе %2$d км</string>
+    <string name="search_hint_default">Поиск</string>
+    <string name="recent_searches">Недавние запросы</string>
+    <string name="clear_history">Очистить</string>
+    <string name="update_location">Обновить местоположение</string>
+    <string name="price">Цена</string>
+
+    <!-- Relative timestamps -->
+    <string name="time_just_now">только что</string>
+    <string name="time_minutes_ago">%1$d мин назад</string>
+    <string name="time_hours_ago">%1$d ч назад</string>
+    <string name="time_days_ago">%1$d дн назад</string>
+    <string name="time_months_ago">%1$d мес назад</string>
+
+    <!-- Misc UI -->
+    <string name="n_selected">Выбрано: %1$d</string>
+    <string name="distance_km">%1$d км</string>
+    <string name="map_marker_user_location">Ваше местоположение</string>
+    <string name="sms_prefill">Здравствуйте! Пишу по поводу вашего объявления на Selling.uz.</string>
+
+    <!-- Content descriptions -->
+    <string name="cd_photo">Фото</string>
+    <string name="cd_like">Нравится</string>
+    <string name="cd_premium">Премиум</string>
+    <string name="cd_filter">Фильтр</string>
+    <string name="cd_emoji">Эмодзи</string>
+    <string name="cd_selected">Выбрано</string>
+    <string name="cd_toggle_map">Показать карту</string>
+
+    <!-- Error fallbacks -->
+    <string name="error_unexpected">Произошла непредвиденная ошибка</string>
+    <string name="error_no_internet">Не удалось подключиться к серверу. Проверьте интернет-соединение.</string>
+    <string name="error_ai_draft">ИИ не смог создать черновик.</string>
+    <string name="error_google_auth">Не удалось войти через Google</string>
+    <string name="error_google_cancelled">Вход через Google отменён</string>
+    <string name="error_profile_update">Не удалось обновить профиль</string>
+
 </resources>

@@ -46,6 +46,7 @@ import uz.promo.selling.ui.theme.robotoFontFamily
 import uz.promo.selling.ui.theme.spacing
 import uz.promo.selling.utils.FreeLoading
 import uz.promo.selling.utils.SharedPref
+import uz.promo.selling.utils.localizedError
 
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -184,7 +185,7 @@ fun VerificationScreen(
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "Back"
+                contentDescription = stringResource(R.string.back)
             )
         }
     }
@@ -208,7 +209,7 @@ fun VerificationScreen(
     val rememberedContext = remember { { context } }
     SideEffect {
         if (state.error.isNotBlank()) {
-            Toast.makeText(rememberedContext(), state.error, Toast.LENGTH_SHORT).show()
+            Toast.makeText(rememberedContext(), localizedError(rememberedContext(), state.error), Toast.LENGTH_SHORT).show()
         }
     }
 }

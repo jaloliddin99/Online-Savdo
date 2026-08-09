@@ -121,7 +121,7 @@ fun CategoryPickerDialog(
                             .padding(horizontal = 12.dp, vertical = 4.dp)
                     ) {
                         Text(
-                            text = "$count selected",
+                            text = stringResource(R.string.n_selected, count),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onPrimary,
                             fontWeight = FontWeight.SemiBold
