@@ -109,6 +109,7 @@ fun UpdatePasswordScreen(
             }
         )
 
+        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
 
         Password(
             label = stringResource(id = R.string.password),
@@ -119,7 +120,7 @@ fun UpdatePasswordScreen(
                 confirmationPasswordFocusRequest.requestFocus()
             }
         )
-        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
+        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen12Dp))
         Password(
             label = stringResource(id = R.string.confirm_password),
             passwordState = confirmPasswordState,

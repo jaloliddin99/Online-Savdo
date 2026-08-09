@@ -455,8 +455,15 @@ fun SearchToolbar(
                     tint = MaterialTheme.colorScheme.onSurface
                 )
             }
-        } else if (onMapToggleClicked == null) {
-            Spacer(modifier.width(16.dp))
+        }
+
+        // Without any trailing icon the field would run into the screen edge.
+        // (Was `Spacer(modifier.width(...))` — chaining the Row's fillMaxWidth
+        // modifier, so the gap never actually applied.)
+        val hasTrailingIcon = isFilterIconVisible &&
+                (onMapToggleClicked != null || onFilterClicked != null)
+        if (!hasTrailingIcon) {
+            Spacer(Modifier.width(16.dp))
         }
 
     }
