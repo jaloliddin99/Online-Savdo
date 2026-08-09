@@ -70,6 +70,15 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="news" />
+        <!-- Monochrome status-bar icon + brand tint for notification-type FCM
+             messages displayed by the SDK itself (colored logos render as a
+             white block there). -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_stat_notification" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/notification_accent" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCM1QAkSklw2PQ6XnPZwq3-pIr21a5_mzg" />

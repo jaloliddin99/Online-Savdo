@@ -7,4 +7,6 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <!-- Small-icon tint for notifications (brand green, matches setColor()). -->
+    <color name="notification_accent">#FF1A6B3C</color>
 </resources>

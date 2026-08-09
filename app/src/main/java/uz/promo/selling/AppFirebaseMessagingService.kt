@@ -107,7 +107,7 @@ class AppFirebaseMessagingService : FirebaseMessagingService() {
         )
 
         val notification = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(R.drawable.sotiq_icon)
+            .setSmallIcon(R.drawable.ic_stat_notification)
             // Status-bar icons are rendered as monochrome silhouettes; the
             // recognizable colored logo goes in the large icon instead.
             .setLargeIcon(
