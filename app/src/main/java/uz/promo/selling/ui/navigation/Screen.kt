@@ -49,6 +49,13 @@ sealed class Screen(val route: String) {
         }
     }
 
+    // Public seller profile (avatar + name + live ads grid).
+    data class Seller(val userId: Int) : Screen("seller/$userId") {
+        companion object {
+            const val ROUTE = "seller/{userId}"
+        }
+    }
+
     // Routes with arguments
     data class ProductDetails(val productId: Int) : Screen("productDetails/$productId") {
         companion object {

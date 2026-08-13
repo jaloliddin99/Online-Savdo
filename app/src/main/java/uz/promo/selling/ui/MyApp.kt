@@ -107,6 +107,7 @@ import uz.promo.selling.ui.main.home.search.SearchRoute
 import uz.promo.selling.ui.map.MapScreenData
 import uz.promo.selling.ui.map.MapShowLocationScreen
 import uz.promo.selling.ui.map.MapsScreen
+import uz.promo.selling.ui.seller.SellerRoute
 import uz.promo.selling.ui.map.SelectRadiusMapScreen
 import uz.promo.selling.ui.navigation.Screen
 import uz.promo.selling.ui.notification.NotificationsRoute
@@ -553,6 +554,9 @@ fun NavigationGraph(
                     },
                     navigateToChat = {
                         navController.navigate(Screen.ChatDetail(it).route)
+                    },
+                    onSellerClicked = {
+                        navController.navigate(Screen.Seller(it).route)
                     }
                 )
             }
@@ -1121,7 +1125,29 @@ fun NavigationGraph(
                     ?: return@composable
                 ChatDetailRoute(
                     conversationId = conversationId,
-                    navigateBack = navController::popBackStack
+                    navigateBack = navController::popBackStack,
+                    onOpenPost = {
+                        navController.navigate(Screen.ProductDetails(it).route)
+                    },
+                    onOpenSeller = {
+                        navController.navigate(Screen.Seller(it).route)
+                    }
+                )
+            }
+
+            composable(
+                route = Screen.Seller.ROUTE,
+                arguments = listOf(
+                    navArgument("userId") {
+                        type = NavType.IntType
+                    }
+                )
+            ) {
+                SellerRoute(
+                    onItemClicked = {
+                        navController.navigate(Screen.ProductDetails(it).route)
+                    },
+                    onBackClick = navController::popBackStack
                 )
             }
 

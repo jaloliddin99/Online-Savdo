@@ -28,11 +28,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Reply
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Block
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.DoneAll
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.AlertDialog
@@ -66,15 +70,21 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
 import kotlinx.coroutines.delay
+import uz.promo.selling.BuildConfig
 import uz.promo.selling.R
 import uz.promo.selling.data.remote.models.chat.ChatMessage
+import uz.promo.selling.data.remote.models.chat.Conversation
 import uz.promo.selling.ui.TopAppBar
 import uz.promo.selling.utils.chatTimeLabel
+import uz.promo.selling.utils.formatNumberWithSpaces
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.PaddingValues
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.HazeTint
@@ -88,13 +98,21 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.filled.EmojiEmotions
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextOverflow
 
 private const val POLL_MS = 4000L
 private const val POLL_MS_SOCKET_FALLBACK = 30000L
@@ -103,6 +121,8 @@ private const val POLL_MS_SOCKET_FALLBACK = 30000L
 fun ChatDetailRoute(
     conversationId: Long,
     navigateBack: () -> Unit,
+    onOpenPost: (Int) -> Unit = {},
+    onOpenSeller: (Int) -> Unit = {},
     viewModel: ChatDetailViewModel = hiltViewModel()
 ) {
     // While this thread is open, suppress its push notifications.
@@ -142,6 +162,10 @@ fun ChatDetailRoute(
             title = title,
             navigationIcon = Icons.AutoMirrored.Filled.ArrowBack,
             onNavigationClick = navigateBack,
+            // Tapping the other user's name opens their public profile.
+            onTitleClick = viewModel.state.conversation?.otherUserId?.let { id ->
+                { onOpenSeller(id) }
+            },
             colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                 containerColor = Color.Transparent
             ),
@@ -190,6 +214,13 @@ fun ChatDetailRoute(
                 }
             }
         )
+        val conversation = viewModel.state.conversation
+        if (conversation?.postId != null) {
+            PostStrip(
+                conversation = conversation,
+                onClick = { onOpenPost(conversation.postId.toInt()) }
+            )
+        }
         ChatDetailScreen(
             modifier = Modifier.fillMaxSize(),
             viewModel = viewModel,
@@ -233,6 +264,62 @@ fun ChatDetailRoute(
     }
 }
 
+/** Tappable bar under the app bar showing the post this thread is about. */
+@Composable
+private fun PostStrip(conversation: Conversation, onClick: () -> Unit) {
+    Column {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onClick)
+                .padding(horizontal = 16.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            val thumb = conversation.postImage
+            if (!thumb.isNullOrBlank()) {
+                AsyncImage(
+                    model = "${BuildConfig.BASE_URL}post/image/$thumb?size=thumb",
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(44.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+            }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = conversation.postTitle ?: "",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                conversation.postPrice?.let { price ->
+                    Text(
+                        text = "${formatNumberWithSpaces(price)} ${conversation.postPriceUnit ?: ""}".trim(),
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary,
+                        maxLines = 1
+                    )
+                }
+            }
+            Icon(
+                imageVector = Icons.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+            )
+        }
+        HorizontalDivider(
+            thickness = 0.5.dp,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)
+        )
+    }
+}
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ChatDetailScreen(
@@ -244,6 +331,16 @@ private fun ChatDetailScreen(
     val state = viewModel.state
     val listState = rememberLazyListState()
     var text by remember { mutableStateOf("") }
+    var deleteMessageId by remember { mutableStateOf<Long?>(null) }
+
+    // Server-rejected edit/delete (e.g. window expired) → localized toast.
+    val context = LocalContext.current
+    LaunchedEffect(state.error) {
+        state.error?.let {
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            viewModel.clearError()
+        }
+    }
 
     // Keep the latest message in view.
     LaunchedEffect(state.messages.size) {
@@ -294,7 +391,18 @@ private fun ChatDetailScreen(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 items(items = state.messages, key = { it.id }) { message ->
-                    MessageBubble(message)
+                    MessageBubble(
+                        message = message,
+                        onReply = {
+                            if (state.editing != null) text = ""
+                            viewModel.startReply(message)
+                        },
+                        onEdit = {
+                            viewModel.startEdit(message)
+                            text = message.content
+                        },
+                        onDelete = { deleteMessageId = message.id }
+                    )
                 }
             }
         }
@@ -314,6 +422,16 @@ private fun ChatDetailScreen(
                     onTextChange = { text = it },
                     sending = state.sending,
                     hazeState = chatHazeState,
+                    replyingTo = state.replyingTo,
+                    replyToName = state.replyingTo?.let {
+                        if (it.mine) stringResource(R.string.chat_you)
+                        else state.conversation?.otherUserName.orEmpty()
+                    }.orEmpty(),
+                    editing = state.editing,
+                    onCancelReplyEdit = {
+                        if (state.editing != null) text = ""
+                        viewModel.cancelReplyEdit()
+                    },
                     onSend = {
                         val value = text.trim()
                         if (value.isNotEmpty()) {
@@ -325,53 +443,169 @@ private fun ChatDetailScreen(
             }
         }
     }
+
+    deleteMessageId?.let { id ->
+        AlertDialog(
+            onDismissRequest = { deleteMessageId = null },
+            title = { Text(stringResource(R.string.chat_delete_message_confirm)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.deleteMessage(conversationId, id)
+                    deleteMessageId = null
+                }) { Text(stringResource(R.string.chat_delete_message)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { deleteMessageId = null }) {
+                    Text(stringResource(R.string.chat_cancel))
+                }
+            }
+        )
+    }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun MessageBubble(message: ChatMessage) {
+private fun MessageBubble(
+    message: ChatMessage,
+    onReply: () -> Unit,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
+) {
     val mine = message.mine
+    var menuOpen by remember { mutableStateOf(false) }
+    val clipboard = LocalClipboardManager.current
+    val contentColor = if (mine) MaterialTheme.colorScheme.onPrimary
+    else MaterialTheme.colorScheme.onSurface
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = if (mine) Arrangement.End else Arrangement.Start
     ) {
-        Column(
-            modifier = Modifier
-                .widthIn(max = 290.dp)
-                .background(
-                    color = if (mine) MaterialTheme.colorScheme.primary
-                    else MaterialTheme.colorScheme.surfaceVariant,
-                    shape = RoundedCornerShape(
-                        topStart = 16.dp,
-                        topEnd = 16.dp,
-                        bottomStart = if (mine) 16.dp else 4.dp,
-                        bottomEnd = if (mine) 4.dp else 16.dp
-                    )
-                )
-                .padding(horizontal = 12.dp, vertical = 8.dp)
-        ) {
-            Text(
-                text = message.content,
-                color = if (mine) MaterialTheme.colorScheme.onPrimary
-                else MaterialTheme.colorScheme.onSurface,
-                fontSize = 15.sp
+        Box {
+            val bubbleShape = RoundedCornerShape(
+                topStart = 16.dp,
+                topEnd = 16.dp,
+                bottomStart = if (mine) 16.dp else 4.dp,
+                bottomEnd = if (mine) 4.dp else 16.dp
             )
-            Row(
-                modifier = Modifier.align(Alignment.End),
-                verticalAlignment = Alignment.CenterVertically
+            Column(
+                modifier = Modifier
+                    .widthIn(max = 290.dp)
+                    .clip(bubbleShape)
+                    .background(
+                        color = if (mine) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.surfaceVariant
+                    )
+                    .combinedClickable(
+                        onClick = {},
+                        onLongClick = { if (!message.deleted) menuOpen = true }
+                    )
+                    .padding(horizontal = 12.dp, vertical = 8.dp)
             ) {
-                Text(
-                    text = chatTimeLabel(message.createdDate),
-                    fontSize = 10.sp,
-                    color = if (mine) MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
-                    else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                if (message.replyToId != null && !message.deleted) {
+                    Column(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(contentColor.copy(alpha = 0.10f))
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = message.replyToSenderName.orEmpty(),
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = contentColor.copy(alpha = 0.9f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            text = message.replyToContent
+                                ?: stringResource(R.string.chat_message_deleted),
+                            fontSize = 12.sp,
+                            fontStyle = if (message.replyToContent == null) FontStyle.Italic
+                            else FontStyle.Normal,
+                            color = contentColor.copy(alpha = 0.7f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                    Spacer(modifier = Modifier.size(4.dp))
+                }
+                if (message.deleted) {
+                    Text(
+                        text = stringResource(R.string.chat_message_deleted),
+                        color = contentColor.copy(alpha = 0.6f),
+                        fontSize = 15.sp,
+                        fontStyle = FontStyle.Italic
+                    )
+                } else {
+                    Text(
+                        text = message.content,
+                        color = contentColor,
+                        fontSize = 15.sp
+                    )
+                }
+                Row(
+                    modifier = Modifier.align(Alignment.End),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = chatTimeLabel(message.createdDate),
+                        fontSize = 10.sp,
+                        color = if (mine) MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
+                        else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                    )
+                    if (message.editedAt != null && !message.deleted) {
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Text(
+                            text = stringResource(R.string.chat_edited),
+                            fontSize = 10.sp,
+                            color = if (mine) MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
+                            else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                        )
+                    }
+                    if (mine && !message.deleted) {
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Icon(
+                            imageVector = if (message.read) Icons.Filled.DoneAll else Icons.Filled.Done,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.85f),
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
+                }
+            }
+            DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.chat_reply)) },
+                    leadingIcon = { Icon(Icons.AutoMirrored.Filled.Reply, null) },
+                    onClick = {
+                        menuOpen = false
+                        onReply()
+                    }
                 )
-                if (mine) {
-                    Spacer(modifier = Modifier.width(3.dp))
-                    Icon(
-                        imageVector = if (message.read) Icons.Filled.DoneAll else Icons.Filled.Done,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.85f),
-                        modifier = Modifier.size(14.dp)
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.chat_copy)) },
+                    leadingIcon = { Icon(Icons.Filled.ContentCopy, null) },
+                    onClick = {
+                        menuOpen = false
+                        clipboard.setText(AnnotatedString(message.content))
+                    }
+                )
+                if (message.editable) {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.chat_edit)) },
+                        leadingIcon = { Icon(Icons.Filled.Edit, null) },
+                        onClick = {
+                            menuOpen = false
+                            onEdit()
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.chat_delete_message)) },
+                        leadingIcon = { Icon(Icons.Filled.Delete, null) },
+                        onClick = {
+                            menuOpen = false
+                            onDelete()
+                        }
                     )
                 }
             }
@@ -410,6 +644,10 @@ private fun MessageInput(
     onTextChange: (String) -> Unit,
     sending: Boolean,
     hazeState: HazeState,
+    replyingTo: ChatMessage?,
+    replyToName: String,
+    editing: ChatMessage?,
+    onCancelReplyEdit: () -> Unit,
     onSend: () -> Unit
 ) {
     var showEmojiPicker by remember { mutableStateOf(false) }
@@ -429,6 +667,59 @@ private fun MessageInput(
             .padding(horizontal = 8.dp, vertical = 8.dp)
     ) {
         val surfaceColor = MaterialTheme.colorScheme.surface
+
+        // Reply / edit banner sitting on top of the input pill.
+        val bannerMessage = editing ?: replyingTo
+        if (bannerMessage != null) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 6.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .hazeEffect(state = hazeState) {
+                        backgroundColor = surfaceColor
+                        blurRadius = 24.dp
+                        noiseFactor = 0f
+                        tints = listOf(HazeTint(surfaceColor.copy(alpha = 0.60f)))
+                        fallbackTint = HazeTint(surfaceColor.copy(alpha = 0.95f))
+                    }
+                    .border(
+                        1.dp,
+                        MaterialTheme.colorScheme.outlineVariant,
+                        RoundedCornerShape(16.dp)
+                    )
+                    .padding(start = 12.dp, end = 4.dp, top = 6.dp, bottom = 6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = if (editing != null) stringResource(R.string.chat_editing)
+                        else replyToName,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = bannerMessage.content,
+                        fontSize = 13.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                IconButton(onClick = onCancelReplyEdit) {
+                    Icon(
+                        imageVector = Icons.Filled.Close,
+                        contentDescription = stringResource(R.string.chat_cancel),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+            }
+        }
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()

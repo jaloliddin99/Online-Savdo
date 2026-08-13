@@ -23,6 +23,7 @@ import uz.promo.selling.data.remote.models.chat.SendMessageBody
 import uz.promo.selling.data.remote.models.chat.StartConversationBody
 import uz.promo.selling.data.remote.models.chat.UnreadCount
 import uz.promo.selling.data.remote.models.getNotifications.NotificationData
+import uz.promo.selling.data.remote.models.getProfile.SellerInfo
 import uz.promo.selling.data.remote.models.getProfile.UpdatePasswordModel
 import uz.promo.selling.data.remote.models.getProfile.UpdateProfileModel
 import uz.promo.selling.data.remote.models.getProfile.User
@@ -107,6 +108,15 @@ interface ApiInterface {
         @Query("radius") radius: Int? = null,
         // Optional: lets the backend mark which posts the caller already liked.
         @Header("Authorization") token: String? = null
+    ): GenericModel<Data>
+
+    // Public seller profile: only live posts of the given user.
+    @GET("post/user-posts/{userId}")
+    suspend fun getUserPosts(
+        @Path("userId") userId: Int,
+        @Query("page") page: Int,
+        @Query("size") size: Int,
+        @Query("lang") lang: String = SharedPref.language,
     ): GenericModel<Data>
 
 
@@ -419,6 +429,13 @@ interface ApiInterface {
         @Header("Authorization") token: String = SharedPref.deviceToken,
     ): GenericModel<Any>
 
+    // Public seller header (name/avatar/premium) — no auth required.
+    @GET("user/public/{userId}")
+    suspend fun getPublicUser(
+        @Path("userId") userId: Int,
+        @Query("lang") lang: String = SharedPref.language,
+    ): GenericModel<SellerInfo>
+
     // ---------------- Chat ----------------
 
     @POST("chat/conversations")
@@ -459,6 +476,23 @@ interface ApiInterface {
         @Query("lang") lang: String = SharedPref.language,
         @Header("Authorization") token: String = SharedPref.deviceToken,
     ): GenericModel<ChatMessage>
+
+    @POST("chat/conversations/{id}/messages/{messageId}/edit")
+    suspend fun editChatMessage(
+        @Path("id") id: Long,
+        @Path("messageId") messageId: Long,
+        @Body body: SendMessageBody,
+        @Query("lang") lang: String = SharedPref.language,
+        @Header("Authorization") token: String = SharedPref.deviceToken,
+    ): GenericModel<ChatMessage>
+
+    @POST("chat/conversations/{id}/messages/{messageId}/delete")
+    suspend fun deleteChatMessage(
+        @Path("id") id: Long,
+        @Path("messageId") messageId: Long,
+        @Query("lang") lang: String = SharedPref.language,
+        @Header("Authorization") token: String = SharedPref.deviceToken,
+    ): GenericModel<Any>
 
     @GET("chat/unread-count")
     suspend fun getChatUnreadCount(

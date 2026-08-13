@@ -120,6 +120,15 @@
     <string name="chat_cancel">Отмена</string>
     <string name="chat_confirm_delete">Удалить эту беседу?</string>
     <string name="chat_reported">Жалоба отправлена</string>
+    <string name="chat_reply">Ответить</string>
+    <string name="chat_copy">Копировать</string>
+    <string name="chat_edit">Изменить</string>
+    <string name="chat_delete_message">Удалить</string>
+    <string name="chat_delete_message_confirm">Удалить это сообщение?</string>
+    <string name="chat_message_deleted">Сообщение удалено</string>
+    <string name="chat_edited">изменено</string>
+    <string name="chat_editing">Изменение сообщения</string>
+    <string name="chat_you">Вы</string>
     <string name="description">Описание</string>
     <string name="send_msg">Отправить сообщение</string>
     <string name="are_you_really_sure">Вы уверены, что хотите удалить этот пост? Это действие нельзя отменить.</string>
@@ -391,5 +400,10 @@
     <string name="error_google_auth">Не удалось войти через Google</string>
     <string name="error_google_cancelled">Вход через Google отменён</string>
     <string name="error_profile_update">Не удалось обновить профиль</string>
+
+    <!-- Public seller profile -->
+    <string name="seller_profile_title">Продавец</string>
+    <string name="seller_listings">Объявления</string>
+    <string name="seller_no_posts">Пока нет объявлений</string>
 
 </resources>

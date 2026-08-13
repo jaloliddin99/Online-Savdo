@@ -1,5 +1,6 @@
 package uz.promo.selling.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -29,13 +30,20 @@ fun TopAppBar(
     onNavigationClick: () -> Unit = {},
     onActionClick: () -> Unit = {},
     actionContent: @Composable (() -> Unit)? = null,
+    // Optional: makes the title tappable (e.g. chat title -> seller profile).
+    onTitleClick: (() -> Unit)? = null,
 ) {
     CenterAlignedTopAppBar(
         title = {
             Text(
                 text = title,
                 fontWeight = FontWeight.SemiBold,
-                fontSize = 18.sp
+                fontSize = 18.sp,
+                modifier = if (onTitleClick != null) {
+                    Modifier.clickable { onTitleClick() }
+                } else {
+                    Modifier
+                }
             )
         },
         navigationIcon = {

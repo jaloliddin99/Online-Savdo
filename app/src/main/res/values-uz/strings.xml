@@ -120,6 +120,15 @@
     <string name="chat_cancel">Bekor qilish</string>
     <string name="chat_confirm_delete">Suhbat o\'chirilsinmi?</string>
     <string name="chat_reported">Shikoyat yuborildi</string>
+    <string name="chat_reply">Javob berish</string>
+    <string name="chat_copy">Nusxalash</string>
+    <string name="chat_edit">Tahrirlash</string>
+    <string name="chat_delete_message">O\'chirish</string>
+    <string name="chat_delete_message_confirm">Bu xabar o\'chirilsinmi?</string>
+    <string name="chat_message_deleted">Xabar o\'chirilgan</string>
+    <string name="chat_edited">tahrirlangan</string>
+    <string name="chat_editing">Xabarni tahrirlash</string>
+    <string name="chat_you">Siz</string>
     <string name="description">Tavsif</string>
     <string name="send_msg">Xabar yuborish</string>
     <string name="are_you_really_sure">Siz rostdan ham ushbu e\'lonni o\'chirmoqchimisiz? Bu amalni bekor qilish mumkin emas.</string>
@@ -392,5 +401,10 @@
     <string name="error_google_auth">Google orqali kirish amalga oshmadi</string>
     <string name="error_google_cancelled">Google orqali kirish bekor qilindi</string>
     <string name="error_profile_update">Profilni yangilab bo\'lmadi</string>
+
+    <!-- Public seller profile -->
+    <string name="seller_profile_title">Sotuvchi</string>
+    <string name="seller_listings">E\'lonlar</string>
+    <string name="seller_no_posts">Hozircha e\'lonlar yo\'q</string>
 
 </resources>

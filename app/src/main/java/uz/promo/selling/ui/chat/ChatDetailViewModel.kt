@@ -63,7 +63,8 @@ class ChatDetailViewModel @Inject constructor(
             override fun onMessage(webSocket: WebSocket, text: String) {
                 try {
                     val event = JSONObject(text)
-                    if (event.optString("type") == "message" &&
+                    val type = event.optString("type")
+                    if ((type == "message" || type == "message_edited" || type == "message_deleted") &&
                         event.optLong("conversationId") == socketConversationId
                     ) {
                         refreshMessages(socketConversationId)
@@ -117,17 +118,62 @@ class ChatDetailViewModel @Inject constructor(
     fun send(conversationId: Long, content: String) {
         val text = content.trim()
         if (text.isEmpty() || state.sending) return
+        val editing = state.editing
         state = state.copy(sending = true)
         viewModelScope.launch {
             try {
-                val res = api.sendChatMessage(conversationId, SendMessageBody(text))
-                if (res.success) {
-                    state = state.copy(messages = state.messages + res.data)
+                if (editing != null) {
+                    val res = api.editChatMessage(conversationId, editing.id, SendMessageBody(text))
+                    // The window may have expired between fetch and tap — show the
+                    // server's localized message; either way the edit UI is done.
+                    state = state.copy(
+                        editing = null,
+                        error = if (res.success) null else res.message
+                    )
+                    if (res.success) refreshMessages(conversationId)
+                } else {
+                    val res = api.sendChatMessage(
+                        conversationId,
+                        SendMessageBody(text, state.replyingTo?.id)
+                    )
+                    if (res.success) {
+                        state = state.copy(messages = state.messages + res.data, replyingTo = null)
+                    } else {
+                        state = state.copy(error = res.message)
+                    }
                 }
             } catch (_: Exception) {
             }
             state = state.copy(sending = false)
         }
+    }
+
+    /** Starting a reply cancels an in-progress edit and vice versa. */
+    fun startReply(message: ChatMessage) {
+        state = state.copy(replyingTo = message, editing = null)
+    }
+
+    fun startEdit(message: ChatMessage) {
+        state = state.copy(editing = message, replyingTo = null)
+    }
+
+    fun cancelReplyEdit() {
+        state = state.copy(replyingTo = null, editing = null)
+    }
+
+    fun deleteMessage(conversationId: Long, messageId: Long) {
+        viewModelScope.launch {
+            try {
+                val res = api.deleteChatMessage(conversationId, messageId)
+                if (!res.success) state = state.copy(error = res.message)
+            } catch (_: Exception) {
+            }
+            refreshMessages(conversationId)
+        }
+    }
+
+    fun clearError() {
+        state = state.copy(error = null)
     }
 
     fun report(conversationId: Long, reason: String, message: String?, onDone: () -> Unit) {
@@ -174,6 +220,9 @@ class ChatDetailViewModel @Inject constructor(
         val conversation: Conversation? = null,
         val messages: List<ChatMessage> = emptyList(),
         val loaded: Boolean = false,
-        val sending: Boolean = false
+        val sending: Boolean = false,
+        val replyingTo: ChatMessage? = null,
+        val editing: ChatMessage? = null,
+        val error: String? = null
     )
 }

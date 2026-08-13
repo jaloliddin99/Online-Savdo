@@ -116,6 +116,7 @@ fun ProductDetailsRoute(
     goToMapsPage: (lat: Double, lon: Double) -> Unit,
     onLoginRequired: () -> Unit = {},
     navigateToChat: (Long) -> Unit = {},
+    onSellerClicked: (Int) -> Unit = {},
     imageSharedModifier: Modifier = Modifier
 ) {
     val detailsViewModel = hiltViewModel<PresentViewModel>()
@@ -173,7 +174,8 @@ fun ProductDetailsRoute(
                     )
                 }
             }
-        }
+        },
+        onSellerClicked = onSellerClicked
     )
 }
 
@@ -190,6 +192,7 @@ fun ProductDetailsScreen(
     onBackPressed: () -> Unit,
     goToMapsPage: (lat: Double, lon: Double) -> Unit,
     onMessageClicked: () -> Unit = {},
+    onSellerClicked: (Int) -> Unit = {},
     imageSharedModifier: Modifier = Modifier
 ) {
 
@@ -279,7 +282,7 @@ fun ProductDetailsScreen(
 
                 // Seller
                 item(key = "seller") {
-                    SellerSection(data, context, onMessageClicked)
+                    SellerSection(data, context, onMessageClicked, onSellerClicked)
                 }
 
                 // Similar items
@@ -810,7 +813,8 @@ private fun LocationSection(
 private fun SellerSection(
     data: PostDetailsData?,
     context: android.content.Context,
-    onMessageClicked: () -> Unit = {}
+    onMessageClicked: () -> Unit = {},
+    onSellerClicked: (Int) -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -825,9 +829,11 @@ private fun SellerSection(
         SectionHeader(title = stringResource(id = R.string.contact_details))
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Seller card
+        // Seller card — tappable, opens the seller's public profile.
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { data?.user?.id?.let(onSellerClicked) },
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Profile image

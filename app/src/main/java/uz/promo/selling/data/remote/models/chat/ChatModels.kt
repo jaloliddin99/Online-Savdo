@@ -9,6 +9,8 @@ data class Conversation(
     val postId: Long? = null,
     val postTitle: String? = null,
     val postImage: String? = null,
+    val postPrice: String? = null,
+    val postPriceUnit: String? = null,
     val otherUserId: Int? = null,
     val otherUserName: String? = null,
     val otherUserProfileUrl: String? = null,
@@ -28,7 +30,15 @@ data class ChatMessage(
     val createdDate: String? = null,
     val readAt: String? = null,
     val mine: Boolean = false,
-    val read: Boolean = false
+    val read: Boolean = false,
+    val editedAt: String? = null,
+    val deleted: Boolean = false,
+    /** Server-computed: mine && not deleted && within the edit/delete window. */
+    val editable: Boolean = false,
+    val replyToId: Long? = null,
+    /** Quote snapshot; null with [replyToId] set means the quoted message was deleted. */
+    val replyToContent: String? = null,
+    val replyToSenderName: String? = null
 )
 
 /** Spring Data page wrappers (only the fields the UI needs). */
@@ -53,7 +63,8 @@ data class StartConversationBody(
 
 @Keep
 data class SendMessageBody(
-    val content: String
+    val content: String,
+    val replyToId: Long? = null
 )
 
 @Keep
