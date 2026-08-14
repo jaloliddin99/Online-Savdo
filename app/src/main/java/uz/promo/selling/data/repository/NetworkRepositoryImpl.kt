@@ -121,6 +121,34 @@ class NetworkRepositoryImpl @Inject constructor(
         )
     }
 
+    override suspend fun updateProduct(
+        token: String,
+        postId: Long,
+        title: String,
+        description: String,
+        categoryId: Long,
+        lat: Double,
+        lon: Double,
+        addressName: String,
+        addressDescription: String,
+        files: List<MultipartBody.Part>,
+        postParams: RequestBody
+    ): ModelSuccess {
+        return apiInterface.updateProduct(
+            token,
+            postId,
+            title,
+            description,
+            categoryId,
+            lat,
+            lon,
+            addressName,
+            addressDescription,
+            files,
+            postParams
+        )
+    }
+
     override suspend fun aiListingDraft(
         token: String,
         files: List<MultipartBody.Part>,

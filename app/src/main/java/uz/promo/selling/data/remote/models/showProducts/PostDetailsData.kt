@@ -15,5 +15,9 @@ data class PostDetailsData(
     val title: String,
     val user: User,
     val status: Int = 1,
-    val viewCount: Int = 0
+    val viewCount: Int = 0,
+    // Non-null only while a recent price reduction should be shown struck through.
+    // The server applies the visibility window, so there's no date logic here.
+    val previousPrice: Double? = null,
+    val previousPriceCurrency: String? = null
 )

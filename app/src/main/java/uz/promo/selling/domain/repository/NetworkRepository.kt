@@ -76,6 +76,20 @@ interface NetworkRepository {
         postParams: RequestBody
     ): ModelSuccess
 
+    suspend fun updateProduct(
+        token: String,
+        postId: Long,
+        title: String,
+        description: String,
+        categoryId: Long,
+        lat: Double,
+        lon: Double,
+        addressName: String,
+        addressDescription: String,
+        files: List<MultipartBody.Part>,
+        postParams: RequestBody
+    ): ModelSuccess
+
     suspend fun aiListingDraft(
         token: String,
         files: List<MultipartBody.Part>,

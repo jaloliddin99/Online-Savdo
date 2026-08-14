@@ -134,6 +134,7 @@
     <string name="are_you_really_sure">Siz rostdan ham ushbu e\'lonni o\'chirmoqchimisiz? Bu amalni bekor qilish mumkin emas.</string>
     <string name="success">Muvaffaqiyat</string>
     <string name="your_post_has_been_successfully_created">Sizning e\'loningiz ko\'rib chiqish uchun muvaffaqiyatli topshirildi. 1 kun ichida tekshiriladi va joylashtiriladi.</string>
+    <string name="your_post_has_been_successfully_updated">O\'zgarishlar saqlandi.</string>
     <string name="log_out">Haqiqatan ham profilingizdan chiqmoqchi ekanligingizga ishonchingiz komilmi?</string>
     <string name="invalid_password">Noto\'g\'ri parol</string>
     <string name="near_you">Sizga yaqin e\'lonlar</string>

@@ -60,6 +60,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -79,6 +80,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -124,11 +126,16 @@ fun ProductDetailsRoute(
     val routeContext = LocalContext.current
     val similarProducts = detailsViewModel.similarProducts.collectAsLazyPagingItems()
 
-    LaunchedEffect(productId) {
-        detailsViewModel.getProductDetail(
-            id = productId,
-            language = SharedPref.language,
-        )
+    // Reload whenever the screen comes back to the foreground, so returning from
+    // the edit wizard shows the saved changes instead of the stale copy.
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    LaunchedEffect(productId, lifecycleOwner) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.RESUMED) {
+            detailsViewModel.getProductDetail(
+                id = productId,
+                language = SharedPref.language,
+            )
+        }
     }
 
     val state = detailsViewModel.state.value
@@ -478,16 +485,36 @@ private fun ProductHeader(data: PostDetailsData?, onLikeClicked: (Int) -> Unit) 
             overflow = TextOverflow.Ellipsis
         )
 
-        // Price
+        // Price, with the pre-reduction figure struck through beside it when the
+        // seller has recently lowered it.
         PriceWrapper(data?.category?.post_param) { label, unit ->
-            Text(
-                text = formatPrice(label, unit),
-                fontFamily = robotoFontFamily,
-                fontWeight = FontWeight.Bold,
-                fontSize = 26.sp,
-                color = MaterialTheme.colorScheme.primary,
+            Row(
+                verticalAlignment = Alignment.Bottom,
                 modifier = Modifier.padding(top = 6.dp)
-            )
+            ) {
+                Text(
+                    text = formatPrice(label, unit),
+                    fontFamily = robotoFontFamily,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 26.sp,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                data?.previousPrice?.let { old ->
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = formatPrice(
+                            old.toPlainPriceLabel(),
+                            data.previousPriceCurrency ?: unit
+                        ),
+                        fontFamily = robotoFontFamily,
+                        fontWeight = FontWeight.Normal,
+                        fontSize = 17.sp,
+                        textDecoration = TextDecoration.LineThrough,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(bottom = 3.dp)
+                    )
+                }
+            }
         }
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -1263,6 +1290,13 @@ fun DescriptionItems(
 }
 
 // ── Utilities ───────────────────────────────────────────────────
+
+/**
+ * Renders a denormalized price as the plain digit string [formatPrice] expects
+ * (it parses with toLongOrNull, so "500000.0" would fall through unformatted).
+ */
+private fun Double.toPlainPriceLabel(): String =
+    if (this % 1.0 == 0.0) toLong().toString() else toString()
 
 private fun formatPrice(label: String, unit: String): String {
     val number = label.toLongOrNull() ?: return "$label $unit"

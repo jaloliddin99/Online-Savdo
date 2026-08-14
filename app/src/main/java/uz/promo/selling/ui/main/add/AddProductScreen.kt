@@ -59,10 +59,24 @@ fun AddProductRoute(
     addProductViewModel: AddProductScreenViewModel = hiltViewModel(),
     goToDetailsPage: () -> Unit,
     goToMapScreen: () -> Unit,
-    onCreatingChange: (Boolean) -> Unit = {}
+    onCreatingChange: (Boolean) -> Unit = {},
+    /** Non-null puts the wizard in edit mode for an existing post. */
+    editInit: EditPostInit? = null
 ) {
     // null = entry chooser, "AI" = AI flow (Phase 2/3), "MANUAL" = current wizard.
-    var mode by rememberSaveable { mutableStateOf<String?>(null) }
+    // Editing skips the chooser — there is nothing to choose, the post already exists.
+    var mode by rememberSaveable { mutableStateOf<String?>(if (editInit != null) "MANUAL" else null) }
+
+    // Seed the wizard from the post being edited. seedFromEdit is a one-shot, so
+    // coming back from the map or category picker keeps the user's edits.
+    LaunchedEffect(editInit) {
+        editInit?.let { addProductViewModel.seedFromEdit(it) }
+    }
+
+    // Nav results win when present (the user picked a new category/location),
+    // otherwise fall back to the post's current values.
+    val effectiveItem = item ?: editInit?.category
+    val effectiveMap = map ?: editInit?.map
 
     // Tell the host to hide the floating tab bar while a create flow is active,
     // and restore it when this screen leaves composition.
@@ -87,8 +101,8 @@ fun AddProductRoute(
 
             "AI" -> AiCreateFlow(
                 viewModel = addProductViewModel,
-                item = item,
-                map = map,
+                item = effectiveItem,
+                map = effectiveMap,
                 onLocationClick = goToMapScreen,
                 onChangeCategory = navigateToCategories,
                 onBack = { mode = null },
@@ -99,26 +113,39 @@ fun AddProductRoute(
             else -> AddProductScreen(
                 modifier = modifier.weight(1f),
                 navigateToCategories,
-                item,
-                map,
+                effectiveItem,
+                effectiveMap,
                 submitProduct = { titleProduct,
                                   descriptionProduct,
                                   categoryId,
                                   images,
                                   mapData,
                                   postParams ->
-                    addProductViewModel.postNewProduct(
-                        titleProduct = titleProduct,
-                        descriptionProduct = descriptionProduct,
-                        categoryId = categoryId,
-                        images = images,
-                        mapData = mapData,
-                        postParams = postParams
-                    )
+                    if (editInit != null) {
+                        addProductViewModel.updateProduct(
+                            postId = editInit.postId,
+                            titleProduct = titleProduct,
+                            descriptionProduct = descriptionProduct,
+                            categoryId = categoryId,
+                            images = images,
+                            mapData = mapData,
+                            postParams = postParams
+                        )
+                    } else {
+                        addProductViewModel.postNewProduct(
+                            titleProduct = titleProduct,
+                            descriptionProduct = descriptionProduct,
+                            categoryId = categoryId,
+                            images = images,
+                            mapData = mapData,
+                            postParams = postParams
+                        )
+                    }
                 },
                 addProductViewModel,
                 goToDetailsPage,
-                goToMapScreen
+                goToMapScreen,
+                editInit = editInit
             )
         }
     }
@@ -141,7 +168,8 @@ fun AddProductScreen(
     ) -> Unit,
     viewModel: AddProductScreenViewModel,
     goToDetailsPage: () -> Unit,
-    goToMapScreen: () -> Unit
+    goToMapScreen: () -> Unit,
+    editInit: EditPostInit? = null
 ) {
 
     val context = LocalContext.current
@@ -152,12 +180,19 @@ fun AddProductScreen(
     val state = viewModel.state.value
     val isLoading = state.isLoading
     if (state.showSuccessDialog) {
-        NotifyDialog(onDismiss = {
-            viewModel.updateShowSuccessDialog(false)
-            state.postNewProduct?.let {
-                goToDetailsPage.invoke()
+        NotifyDialog(
+            onDismiss = {
+                viewModel.updateShowSuccessDialog(false)
+                state.postNewProduct?.let {
+                    goToDetailsPage.invoke()
+                }
+            },
+            messageRes = if (editInit != null) {
+                R.string.your_post_has_been_successfully_updated
+            } else {
+                R.string.your_post_has_been_successfully_created
             }
-        })
+        )
     }
 
     if (item != null) {
@@ -257,7 +292,10 @@ fun AddProductScreen(
     // Per-step validation
     val isStep1Valid = item != null && item.id != -1 && map != null
     val isStep2Valid = productTitleState.isValid && productDescriptionState.isValid
-    val isStep3Valid = galleryImageUri.isNotEmpty()
+    // When editing, the post already has photos and the server keeps them if none
+    // are uploaded — so adding new ones is optional rather than required.
+    val keepsExistingImages = (editInit?.existingImageCount ?: 0) > 0
+    val isStep3Valid = (galleryImageUri.isNotEmpty() || keepsExistingImages)
             && galleryImageUri.size < 10
             && dynamicDataCorrect(dynamicViewData)
     val isSubmitEnabled = isStep1Valid && isStep2Valid && isStep3Valid

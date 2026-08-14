@@ -33,6 +33,7 @@ import uz.promo.selling.domain.useCase.CategoryMainUseCase
 import uz.promo.selling.domain.useCase.ai.AiListingDraftUseCase
 import uz.promo.selling.domain.useCase.ai.AiPriceSuggestionUseCase
 import uz.promo.selling.domain.useCase.postNewProduct.PostNewProductUseCase
+import uz.promo.selling.domain.useCase.postNewProduct.UpdateProductUseCase
 import uz.promo.selling.ui.auth.TextFieldState
 import uz.promo.selling.ui.main.add.dynamic.DynamicViewData
 import uz.promo.selling.ui.main.home.AddProductScreenState
@@ -46,6 +47,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AddProductScreenViewModel @Inject constructor(
     private val postNewProductUseCase: PostNewProductUseCase,
+    private val updateProductUseCase: UpdateProductUseCase,
     private val application: Application,
     private val categoryMainUseCase: CategoryMainUseCase,
     private val aiListingDraftUseCase: AiListingDraftUseCase,
@@ -175,6 +177,81 @@ class AddProductScreenViewModel @Inject constructor(
                 when (result) {
                     is Resource.Success -> {
                         clearStoredValues()
+                        _state.value = _state.value.copy(
+                            isLoading = false,
+                            postNewProduct = result.data,
+                            showSuccessDialog = true
+                        )
+                    }
+
+                    is Resource.Error -> {
+                        _state.value = _state.value.copy(
+                            isLoading = false,
+                            error = result.message ?: "An unexpected error occurred"
+                        )
+                    }
+
+                    is Resource.Loading -> {
+                        _state.value = _state.value.copy(isLoading = true, error = "")
+                    }
+                }
+            }.launchIn(viewModelScope)
+        }
+    }
+
+    // True once an edit seed has been applied, so returning from the map or category
+    // screen doesn't overwrite the user's in-progress changes with the original post.
+    var editSeeded by mutableStateOf(false)
+        private set
+
+    /** Loads an existing post's values into the wizard. Applied once per edit session. */
+    fun seedFromEdit(init: EditPostInit) {
+        if (editSeeded) return
+        editSeeded = true
+        titleValue.text = init.title
+        descriptionVM.text = init.description
+        dynamicViewData = init.params
+        dynamicViewDataCategoryId = init.category.id
+    }
+
+    /**
+     * Saves changes to an existing post. Unlike [postNewProduct], an empty [images]
+     * list is allowed — the server keeps the post's current photos when no files
+     * are uploaded.
+     */
+    fun updateProduct(
+        postId: Int,
+        token: String = SharedPref.deviceToken,
+        titleProduct: String,
+        descriptionProduct: String,
+        categoryId: Int,
+        images: List<ImageUrl>,
+        mapData: MapScreenData,
+        postParams: List<PostParamDTO>
+    ) {
+        if (_state.value.isLoading) return
+        _state.value = _state.value.copy(isLoading = true, error = "")
+        viewModelScope.launch {
+            val fileParts: List<MultipartBody.Part> = compressImagesToParts(images)
+            val postParamsRequestBody = createPostParamsRequestBody(postParams)
+
+            updateProductUseCase(
+                token,
+                postId.toLong(),
+                titleProduct,
+                descriptionProduct,
+                categoryId.toLong(),
+                mapData.lat ?: 0.0,
+                mapData.lon ?: 0.0,
+                mapData.addressName,
+                mapData.addressDescription,
+                fileParts,
+                postParamsRequestBody
+            ).onEach { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        clearStoredValues()
+                        editSeeded = false
                         _state.value = _state.value.copy(
                             isLoading = false,
                             postNewProduct = result.data,

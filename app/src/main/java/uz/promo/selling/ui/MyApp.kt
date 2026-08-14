@@ -100,7 +100,9 @@ import uz.promo.selling.ui.detailsPage.ProductDetailsRoute
 import uz.promo.selling.ui.dialogs.settings.SettingsDialog
 import uz.promo.selling.ui.dialogs.settings.UserEditableSettings
 import uz.promo.selling.ui.filterCategory.FilterCategoryRoute
+import uz.promo.selling.ui.detailsPage.PresentViewModel
 import uz.promo.selling.ui.main.add.AddProductRoute
+import uz.promo.selling.ui.main.add.toEditInit
 import uz.promo.selling.ui.main.home.HomeRoute
 import uz.promo.selling.ui.main.home.HomeViewModel
 import uz.promo.selling.ui.main.home.search.SearchRoute
@@ -543,7 +545,9 @@ fun NavigationGraph(
                     onSimilarItemClicked = {
                         navController.navigate(Screen.ProductDetails(it).route)
                     },
-                    onEditClicked = {},
+                    onEditClicked = { postId ->
+                        navController.navigate(Screen.EditProduct(postId).route)
+                    },
                     navigateBack = navController::popBackStack,
                     goToMapsPage = { lat, long ->
                         navController.navigate(
@@ -601,6 +605,51 @@ fun NavigationGraph(
                         navController.navigate(Screen.Map.route)
                     }
                 )
+            }
+
+            // Edit an existing post: load it, then hand the create wizard a seed.
+            composable(
+                route = Screen.EditProduct.ROUTE,
+                arguments = listOf(
+                    navArgument("postId") {
+                        type = NavType.IntType
+                        defaultValue = 0
+                    }
+                )
+            ) { entry ->
+                val postId = entry.arguments?.getInt("postId") ?: 0
+                val detailsViewModel = hiltViewModel<PresentViewModel>()
+                LaunchedEffect(postId) {
+                    detailsViewModel.getProductDetail(postId, SharedPref.language)
+                }
+                val editState = detailsViewModel.state.value
+                val post = editState.registerMain
+                // Don't strand the user on a spinner if the post can't be loaded.
+                LaunchedEffect(editState.error) {
+                    if (editState.error.isNotBlank()) navController.popBackStack()
+                }
+                // Category/location results come back through this entry, exactly as
+                // they do for the create flow.
+                val item = entry.savedStateHandle.get<CategoryItem>("category_item")
+                val map = entry.savedStateHandle.get<MapScreenData>("map_item")
+                if (post == null) {
+                    FreeLoading(isFeedLoading = true)
+                } else {
+                    val editInit = remember(post.id) { post.toEditInit() }
+                    AddProductRoute(
+                        navigateToCategories = {
+                            navController.navigate(Screen.Categories.route)
+                        },
+                        item = item,
+                        map = map,
+                        onCreatingChange = onAddFlowActiveChange,
+                        goToDetailsPage = { navController.popBackStack() },
+                        goToMapScreen = {
+                            navController.navigate(Screen.Map.route)
+                        },
+                        editInit = editInit
+                    )
+                }
             }
 
             composable(route = Screen.Map.route) {

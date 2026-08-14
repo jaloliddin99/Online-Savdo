@@ -140,6 +140,7 @@
     <string name="are_you_really_sure">Are you sure that you want to delete this post? it cannot be undone.</string>
     <string name="success">Success</string>
     <string name="your_post_has_been_successfully_created">Your post has been successfully submitted for review. it will be checked and posted within 1 day.</string>
+    <string name="your_post_has_been_successfully_updated">Your changes have been saved.</string>
     <string name="log_out">Are you really sure that you want to log out from your profile</string>
     <string name="invalid_password">Invalid password</string>
     <string name="near_you">Posts near you</string>

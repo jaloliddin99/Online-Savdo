@@ -20,6 +20,8 @@ import uz.promo.selling.ui.theme.robotoFontFamily
 @Composable
 fun NotifyDialog(
     onDismiss: () -> Unit,
+    /** Edits are published immediately, so they don't get the "submitted for review" copy. */
+    messageRes: Int = R.string.your_post_has_been_successfully_created,
 ) {
     val configuration = LocalConfiguration.current
 
@@ -45,7 +47,7 @@ fun NotifyDialog(
         },
         text = {
             Text(
-                text = stringResource(id = R.string.your_post_has_been_successfully_created),
+                text = stringResource(id = messageRes),
                 fontSize = 16.sp,
                 fontFamily = robotoFontFamily,
                 fontWeight = FontWeight.Normal

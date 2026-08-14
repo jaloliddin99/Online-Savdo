@@ -56,6 +56,13 @@ sealed class Screen(val route: String) {
         }
     }
 
+    // Edits an existing post, reusing the create wizard.
+    data class EditProduct(val postId: Int) : Screen("editProduct/$postId") {
+        companion object {
+            const val ROUTE = "editProduct/{postId}"
+        }
+    }
+
     // Routes with arguments
     data class ProductDetails(val productId: Int) : Screen("productDetails/$productId") {
         companion object {

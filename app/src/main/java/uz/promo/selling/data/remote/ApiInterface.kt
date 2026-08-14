@@ -175,6 +175,27 @@ interface ApiInterface {
         @Part("post_params") postParams: RequestBody
     ): ModelSuccess
 
+    /**
+     * Edits an existing post. Mirrors [newProduct], minus userId (the server takes
+     * the owner from the token) and plus the post id. [files] may be empty — the
+     * server keeps the post's current images when no new ones are sent.
+     */
+    @Multipart
+    @PUT("post/{postId}")
+    suspend fun updateProduct(
+        @Header("Authorization") token: String,
+        @Path("postId") postId: Long,
+        @Query("title") title: String,
+        @Query("description") description: String,
+        @Query("category_id") categoryId: Long,
+        @Query("lat") lat: Double,
+        @Query("lon") lon: Double,
+        @Query("addressName") addressName: String,
+        @Query("addressDescription") addressDescription: String,
+        @Part files: List<MultipartBody.Part>,
+        @Part("post_params") postParams: RequestBody
+    ): ModelSuccess
+
     // AI: analyze the photos and return a draft (title/description/category) plus
     // ready-to-submit post params for the create-post form.
     @Multipart
