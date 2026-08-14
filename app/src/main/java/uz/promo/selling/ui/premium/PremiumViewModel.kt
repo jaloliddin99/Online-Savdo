@@ -102,15 +102,25 @@ class PremiumViewModel @Inject constructor(
         promoPercent = 0
     }
 
-    /** Creates a premium order; onResult gets the checkout URL or (null + server error message). */
-    fun createOrder(termMonths: Int, provider: String, onResult: (String?, String?) -> Unit) {
+    /**
+     * Creates a premium order. onResult gets (checkout URL, server error message,
+     * free). A 100% promo yields free = true with no URL — the membership is
+     * already granted, so polling confirms it immediately.
+     */
+    fun createOrder(
+        termMonths: Int,
+        provider: String,
+        onResult: (String?, String?, Boolean) -> Unit
+    ) {
         isOrdering = true
         viewModelScope.launch {
             var errorMsg: String? = null
+            var free = false
             val url = try {
                 val res = api.createPremiumOrder(PremiumOrderBody(termMonths, provider, promoCode))
                 if (res.success) {
                     SharedPref.pendingPremiumOrderId = res.data.orderId
+                    free = res.data.free
                     res.data.paymentUrl
                 } else {
                     errorMsg = res.message
@@ -120,8 +130,8 @@ class PremiumViewModel @Inject constructor(
                 null
             }
             isOrdering = false
-            onResult(url, errorMsg)
-            if (url != null) pollPendingOrder()
+            onResult(url, errorMsg, free)
+            if (url != null || free) pollPendingOrder()
         }
     }
 

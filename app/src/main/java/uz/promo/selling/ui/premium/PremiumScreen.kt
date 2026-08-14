@@ -120,15 +120,17 @@ fun PremiumRoute(
 
     fun pay(provider: String) {
         val term = selected ?: return
-        viewModel.createOrder(term, provider) { url, errorMsg ->
-            if (url != null) {
-                try {
+        viewModel.createOrder(term, provider) { url, errorMsg, free ->
+            when {
+                // 100% promo: already granted, so skip the checkout browser and let
+                // the view model's polling surface the usual confirmation.
+                free -> Unit
+                url != null -> try {
                     context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
                 } catch (_: Exception) {
                     Toast.makeText(context, orderError, Toast.LENGTH_SHORT).show()
                 }
-            } else {
-                Toast.makeText(context, errorMsg ?: orderError, Toast.LENGTH_SHORT).show()
+                else -> Toast.makeText(context, errorMsg ?: orderError, Toast.LENGTH_SHORT).show()
             }
         }
     }

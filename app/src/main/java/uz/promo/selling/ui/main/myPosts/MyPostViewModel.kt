@@ -143,11 +143,21 @@ class MyPostViewModel @Inject constructor(
         promoPercent = 0
     }
 
-    /** Creates a payment order; onResult gets the checkout URL or (null + server error message). */
-    fun createBoostOrder(postId: Long, hours: Int, provider: String, onResult: (String?, String?) -> Unit) {
+    /**
+     * Creates a payment order. onResult gets (checkout URL, server error message,
+     * free). A 100% promo yields free = true with no URL — the order is already
+     * paid server-side, so polling reports it confirmed straight away.
+     */
+    fun createBoostOrder(
+        postId: Long,
+        hours: Int,
+        provider: String,
+        onResult: (String?, String?, Boolean) -> Unit
+    ) {
         viewModelScope.launch {
             _state.value = MyProfileScreen(isLoading = true)
             var errorMsg: String? = null
+            var free = false
             val url = try {
                 val res = apiInterface.createBoostOrder(
                     token = SharedPref.deviceToken,
@@ -155,6 +165,7 @@ class MyPostViewModel @Inject constructor(
                 )
                 if (res.success) {
                     SharedPref.pendingBoostOrderId = res.data.orderId
+                    free = res.data.free
                     res.data.paymentUrl
                 } else {
                     errorMsg = res.message
@@ -164,8 +175,8 @@ class MyPostViewModel @Inject constructor(
                 null
             }
             _state.value = MyProfileScreen()
-            onResult(url, errorMsg)
-            if (url != null) pollPendingOrder()
+            onResult(url, errorMsg, free)
+            if (url != null || free) pollPendingOrder()
         }
     }
 

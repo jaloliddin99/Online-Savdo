@@ -16,9 +16,12 @@ data class BoostOrderBody(
 
 data class BoostOrderRes(
     val orderId: Long,
-    val paymentUrl: String,
-    val amount: Long,
-    val hours: Int,
+    /** Null when [free] — a zero-amount order never reaches Payme/Click. */
+    val paymentUrl: String? = null,
+    /** True when a 100% promo covered the whole price; the order is already paid. */
+    val free: Boolean = false,
+    val amount: Long = 0,
+    val hours: Int = 0,
     val originalAmount: Long? = null,
     val discountPercent: Int? = null
 )

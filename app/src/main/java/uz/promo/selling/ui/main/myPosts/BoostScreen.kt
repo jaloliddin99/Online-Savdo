@@ -115,15 +115,17 @@ fun BoostRoute(
 
     fun pay(provider: String) {
         val hours = selectedHours ?: return
-        viewModel.createBoostOrder(postId, hours, provider) { url, errorMsg ->
-            if (url != null) {
-                try {
+        viewModel.createBoostOrder(postId, hours, provider) { url, errorMsg, free ->
+            when {
+                // 100% promo: nothing to pay, so no browser trip. The view model
+                // polls the (already paid) order and the usual confirmation shows.
+                free -> Unit
+                url != null -> try {
                     context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
                 } catch (_: Exception) {
                     Toast.makeText(context, paymentFailed, Toast.LENGTH_SHORT).show()
                 }
-            } else {
-                Toast.makeText(context, errorMsg ?: paymentFailed, Toast.LENGTH_SHORT).show()
+                else -> Toast.makeText(context, errorMsg ?: paymentFailed, Toast.LENGTH_SHORT).show()
             }
         }
     }
