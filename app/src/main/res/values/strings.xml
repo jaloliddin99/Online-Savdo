@@ -149,6 +149,7 @@
     <string name="gps_turn_on_desc">For this feature to work, you must turn on the phone\'s location system to be used</string>
     <string name="turn_on">Turn on</string>
     <string name="m">m away</string>
+    <string name="km_away">km away</string>
     <string name="give_your_location">Allow us to use your location to make your post visible to customers who are closer to you.</string>
     <string name="notice">Notice</string>
     <string name="txt_new">New</string>

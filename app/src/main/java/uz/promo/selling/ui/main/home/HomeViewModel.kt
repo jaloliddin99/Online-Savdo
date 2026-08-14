@@ -11,7 +11,6 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -226,7 +225,12 @@ class HomeViewModel @Inject constructor(
 
     private val _stateNear = mutableStateOf(HomeScreenState2())
     val stateNear: State<HomeScreenState2> = _stateNear
-    private var nearJob: Job? = null
+    // Ordering guard. Responses aren't ordered, so an older reply must not overwrite
+    // a newer one — but cancelling the previous request instead would starve the GPS
+    // path, where collectLatest fires a fresh fetch per location update and could
+    // kill each one before it ever emitted a result (leaving the shimmer running).
+    // Ignoring stale replies achieves the same thing without ever cancelling.
+    private var nearRequestId = 0
 
     private fun getNearPosts(
         language: String = SharedPref.language,
@@ -235,15 +239,16 @@ class HomeViewModel @Inject constructor(
         radius: Int = SharedPref.radius,
         key: String? = null
     ) {
-        // Responses aren't ordered, so an older in-flight request must not overwrite a newer one.
-        nearJob?.cancel()
+        val requestId = ++nearRequestId
         inFlightNearKey = key
-        nearJob = nearPostsUseCase(
+        nearPostsUseCase(
             lat,
             lon,
             language,
             radius,
         ).onEach { result ->
+            // A newer request has started — drop this reply on the floor.
+            if (requestId != nearRequestId) return@onEach
             when (result) {
                 is Resource.Success -> {
                     // Only remember the key once the data actually arrived, otherwise a
@@ -256,8 +261,8 @@ class HomeViewModel @Inject constructor(
                 is Resource.Error -> {
                     if (key != null && key == lastNearKey) lastNearKey = null
                     inFlightNearKey = null
-                    // Keep whatever list is already on screen; nulling it out would leave
-                    // the shimmer up forever.
+                    // Keep whatever list is already on screen and drop the loading flag,
+                    // so the row falls back to the empty state instead of shimmering.
                     _stateNear.value = _stateNear.value.copy(
                         isLoading = false,
                         error = result.message.toString()

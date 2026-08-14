@@ -13,6 +13,7 @@
     <string name="yes">Ha</string>
     <string name="no">Yo\'q</string>
     <string name="m">m uzoqda</string>
+    <string name="km_away">km uzoqda</string>
     <string name="dark_mode_preference">Tungi rejim tanlash</string>
     <string name="system_default">Tizimning standarti</string>
     <string name="light">Yorqin</string>

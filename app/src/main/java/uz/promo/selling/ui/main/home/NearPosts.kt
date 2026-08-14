@@ -11,10 +11,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -72,7 +78,9 @@ fun NearPosts(
 
 @Composable
 fun NearPostsEmpty(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    /** Opens the location/radius map. Null hides the action. */
+    onUpdateLocation: (() -> Unit)? = null
 ) {
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -84,18 +92,49 @@ fun NearPostsEmpty(
                 end = MaterialTheme.spacing.dimen8Dp
             )
     ) {
-        Text(
-            text = stringResource(id = R.string.no_posts_for_location),
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(MaterialTheme.spacing.dimen12Dp),
-            textAlign = TextAlign.Center,
-            fontFamily = robotoFontFamily,
-            fontWeight = FontWeight.Normal,
-            fontSize = 13.sp,
-            lineHeight = 18.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = stringResource(id = R.string.no_posts_for_location),
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                fontFamily = robotoFontFamily,
+                fontWeight = FontWeight.Normal,
+                fontSize = 13.sp,
+                lineHeight = 18.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            if (onUpdateLocation != null) {
+                Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
+                // Deliberately compact: this sits on the main feed, so it must read
+                // as a hint rather than a full-width call to action.
+                FilledTonalButton(
+                    onClick = onUpdateLocation,
+                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 0.dp),
+                    modifier = Modifier
+                        .height(32.dp)
+                        .wrapContentWidth()
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.LocationOn,
+                        contentDescription = null,
+                        modifier = Modifier.height(15.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = stringResource(id = R.string.update_location),
+                        fontFamily = robotoFontFamily,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 12.sp,
+                        maxLines = 1
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -158,7 +197,7 @@ fun NearPostItem(
                     maxLines = 1
                 )
                 Text(
-                    text = "${item.distance} ${stringResource(id = R.string.m)}",
+                    text = distanceLabel(item.distance),
                     textAlign = TextAlign.Center,
                     fontSize = 10.sp,
                     maxLines = 1,
@@ -169,3 +208,17 @@ fun NearPostItem(
         }
     }
 }
+
+/**
+ * Distance label for the "near you" strip. The API reports metres, which only read
+ * sensibly at walking range — since the strip honours the user's search radius (up
+ * to 500 km) anything past a kilometre is shown in km instead of "263065 m away".
+ */
+@Composable
+private fun distanceLabel(meters: Int): String =
+    if (meters < 1000) {
+        "$meters ${stringResource(id = R.string.m)}"
+    } else {
+        val km = (meters / 100) / 10.0
+        "$km ${stringResource(id = R.string.km_away)}"
+    }

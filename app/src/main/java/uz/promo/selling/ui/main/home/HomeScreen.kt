@@ -340,7 +340,7 @@ fun HomeScreen(
                 when {
                     // User picked a location on the map → show its "near you"
                     // (refreshed on resume; no GPS/permission needed).
-                    hasPicked -> NearPostsContent(stateNear.getNearPost, navigateToProduct)
+                    hasPicked -> NearPostsContent(stateNear.getNearPost, stateNear.isLoading, navigateToProduct, onMapClick)
 
                     hasNotPermission || gpsNotEnabled -> GPSEnableView(
                         onPermissionClicked = {
@@ -373,7 +373,7 @@ fun HomeScreen(
                             homeViewModel.locationObserve()
                             homeViewModel.startLocationUpdates()
                         }
-                        NearPostsContent(stateNear.getNearPost, navigateToProduct)
+                        NearPostsContent(stateNear.getNearPost, stateNear.isLoading, navigateToProduct, onMapClick)
                     }
                 }
             }
@@ -543,18 +543,22 @@ fun HomeScreen(
 @Composable
 private fun NearPostsContent(
     nearPosts: List<NearPostsData>?,
+    isLoading: Boolean,
     navigateToProduct: (Int) -> Unit,
+    onUpdateLocation: () -> Unit,
 ) {
     when {
-        // Still loading (no response yet) — keep the shimmer.
-        nearPosts == null -> ShimmerNearPostsRow()
-        // Loaded, but the backend returned an empty list — explain instead of
-        // rendering nothing.
-        nearPosts.isEmpty() -> NearPostsEmpty()
-        else -> NearPosts(
+        !nearPosts.isNullOrEmpty() -> NearPosts(
             state = nearPosts,
             navigateToCategory = navigateToProduct
         )
+        // Shimmer ONLY while a request is actually in flight. Keying it off
+        // "nearPosts == null" instead meant a failed or cancelled fetch left the
+        // shimmer running forever, since the list simply never arrived.
+        isLoading -> ShimmerNearPostsRow()
+        // Responded with nothing, or failed and isn't retrying until the next
+        // resume — say so, and offer the one action that can fix it.
+        else -> NearPostsEmpty(onUpdateLocation = onUpdateLocation)
     }
 }
 
