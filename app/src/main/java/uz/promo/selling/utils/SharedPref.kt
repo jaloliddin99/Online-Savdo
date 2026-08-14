@@ -41,4 +41,9 @@ object SharedPref: KotprefModel() {
     // SearchScreen, so it isn't shown again even while they have no interests set.
     var interestsCardDismissed by booleanPref(false)
 
+    // True once the first-run bubble pointing at the location/radius icon has been
+    // shown, so it appears only on the very first launch after install. Most users
+    // don't realise search and "near you" are radius-based.
+    var radiusHintShown by booleanPref(false)
+
 }

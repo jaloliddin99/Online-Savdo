@@ -63,21 +63,64 @@ class PremiumViewModel @Inject constructor(
         }
     }
 
-    /** Creates a premium order and returns the checkout URL, or null on failure. */
-    fun createOrder(termMonths: Int, provider: String, onUrl: (String?) -> Unit) {
+    // Applied promo code (validated against the backend) and its percent.
+    var promoCode by mutableStateOf<String?>(null)
+        private set
+    var promoPercent by mutableStateOf(0)
+        private set
+    var promoChecking by mutableStateOf(false)
+        private set
+
+    /** Validates a promo code; onError gets the server message (or null on network failure). */
+    fun applyPromo(code: String, termMonths: Int?, onError: (String?) -> Unit) {
+        if (code.isBlank() || promoChecking) return
+        viewModelScope.launch {
+            promoChecking = true
+            try {
+                val res = api.validatePromo(
+                    uz.promo.selling.data.remote.models.payments.PromoValidateBody(
+                        code = code, type = "premium", termMonths = termMonths
+                    )
+                )
+                if (res.success) {
+                    promoCode = res.data.code
+                    promoPercent = res.data.percent
+                } else {
+                    clearPromo()
+                    onError(res.message)
+                }
+            } catch (_: Exception) {
+                clearPromo()
+                onError(null)
+            }
+            promoChecking = false
+        }
+    }
+
+    fun clearPromo() {
+        promoCode = null
+        promoPercent = 0
+    }
+
+    /** Creates a premium order; onResult gets the checkout URL or (null + server error message). */
+    fun createOrder(termMonths: Int, provider: String, onResult: (String?, String?) -> Unit) {
         isOrdering = true
         viewModelScope.launch {
+            var errorMsg: String? = null
             val url = try {
-                val res = api.createPremiumOrder(PremiumOrderBody(termMonths, provider))
+                val res = api.createPremiumOrder(PremiumOrderBody(termMonths, provider, promoCode))
                 if (res.success) {
                     SharedPref.pendingPremiumOrderId = res.data.orderId
                     res.data.paymentUrl
-                } else null
+                } else {
+                    errorMsg = res.message
+                    null
+                }
             } catch (_: Exception) {
                 null
             }
             isOrdering = false
-            onUrl(url)
+            onResult(url, errorMsg)
             if (url != null) pollPendingOrder()
         }
     }

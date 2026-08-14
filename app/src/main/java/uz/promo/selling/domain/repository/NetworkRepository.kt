@@ -157,7 +157,8 @@ interface NetworkRepository {
     suspend fun getNearPosts(
         lat: Double,
         lon: Double,
-        lang: String
+        lang: String,
+        radius: Int? = null
     ): GenericModel<List<NearPostsData>>
 
     suspend fun getMyPostsPager(

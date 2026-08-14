@@ -29,12 +29,14 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
@@ -152,6 +154,16 @@ fun SearchScreen(
     val locationAndRadiusMsg = stringResource(R.string.location_updated)
     val locationOnlyMsg = stringResource(R.string.location_only_updated)
     val radiusOnlyMsg = stringResource(R.string.radius_only_updated)
+    val interestsSaveFailedMsg = stringResource(R.string.interests_save_failed)
+
+    // A failed interests save used to be completely silent — the sheet closed and
+    // nothing changed, which reads as "applying did nothing".
+    LaunchedEffect(interestsViewModel.saveFailed) {
+        if (interestsViewModel.saveFailed) {
+            snackbarMessage = interestsSaveFailedMsg
+            interestsViewModel.clearSaveFailed()
+        }
+    }
 
     LaunchedEffect(snackbarMessage) {
         if (snackbarMessage != null) {
@@ -452,7 +464,10 @@ fun SearchScreen(
                             onDismiss = { interestsViewModel.dismissCard() },
                         )
                     } else if (interestsViewModel.hasInterests) {
-                        RecommendedForYouButton(onClick = { runRecommendations() })
+                        RecommendedForYouButton(
+                            onClick = { runRecommendations() },
+                            onEditClick = { openInterestPicker() }
+                        )
                     }
                 }
 
@@ -830,9 +845,12 @@ private fun InterestCard(
     }
 }
 
-/** One-tap entry to interest-based results, shown once the user has interests set. */
+/**
+ * One-tap entry to interest-based results, shown once the user has interests set.
+ * The trailing edit icon is the only way back into the picker after the first save.
+ */
 @Composable
-private fun RecommendedForYouButton(onClick: () -> Unit) {
+private fun RecommendedForYouButton(onClick: () -> Unit, onEditClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -840,15 +858,23 @@ private fun RecommendedForYouButton(onClick: () -> Unit) {
             .clip(RoundedCornerShape(12.dp))
             .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.08f))
             .clickable { onClick() }
-            .padding(horizontal = 14.dp, vertical = 12.dp),
+            .padding(start = 14.dp, end = 4.dp, top = 12.dp, bottom = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = "✨ " + stringResource(R.string.interest_recommended),
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.weight(1f)
         )
+        IconButton(onClick = onEditClick) {
+            Icon(
+                imageVector = Icons.Filled.Edit,
+                contentDescription = stringResource(R.string.interests_edit),
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
     }
 }
 

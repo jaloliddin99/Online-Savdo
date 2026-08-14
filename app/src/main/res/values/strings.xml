@@ -77,6 +77,7 @@
     <string name="recent_searches">Recent searches</string>
     <string name="clear_history">Clear</string>
     <string name="update_location">Update location</string>
+    <string name="radius_hint_text">Search works by radius — tap here to set your location and distance.</string>
     <string name="all_posts">All posts</string>
     <string name="firstName">Name</string>
     <string name="lastName">Last name</string>
@@ -280,6 +281,9 @@
     <string name="premium_activated_desc">All Premium benefits are now active on your account</string>
     <string name="dialog_great">Great!</string>
     <string name="payment_waiting">Waiting for payment confirmation…</string>
+    <string name="promo_code_hint">Promo code</string>
+    <string name="promo_apply">Apply</string>
+    <string name="promo_discount">discount</string>
     <string name="premium_unavailable">Premium plans are not available right now — please check back later</string>
     <string name="boost_or_pay">Or pay for a boost instead</string>
     <string name="premium_extend_note">The new term is added after your current subscription ends — nothing is lost</string>
@@ -354,6 +358,8 @@
     <string name="interest_card_choose">Choose interests</string>
     <string name="interest_card_dismiss">Dismiss</string>
     <string name="interest_recommended">Recommended for you</string>
+    <string name="interests_edit">Edit interests</string>
+    <string name="interests_save_failed">Couldn\'t save your interests. Please try again.</string>
     <string name="ai_create_with_ai_title">Create with AI</string>
     <string name="ai_create_with_ai_subtitle">Add photos — we write the title, description, pick the category and fill the details for you.</string>
     <string name="ai_create_manually_title">Create manually</string>

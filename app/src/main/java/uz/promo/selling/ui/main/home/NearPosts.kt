@@ -53,8 +53,9 @@ fun NearPosts(
                 rememberScrollState()
             )
     ) {
-        // Near posts is a quick "around you" strip, not a full feed — cap it at 15.
-        val items = state.take(15)
+        // Near posts is a quick "around you" strip, not a full feed — cap it at 20,
+        // matching the server-side limit, however wide the radius is.
+        val items = state.take(20)
         items.forEachIndexed { index, item ->
             Spacer(modifier = modifier.width(MaterialTheme.spacing.dimen8Dp))
             NearPostItem(

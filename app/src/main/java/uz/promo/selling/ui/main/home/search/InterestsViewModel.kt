@@ -29,6 +29,14 @@ class InterestsViewModel @Inject constructor(
     var isSaving by mutableStateOf(false)
         private set
 
+    /** Set when a save failed, so the screen can tell the user instead of silently doing nothing. */
+    var saveFailed by mutableStateOf(false)
+        private set
+
+    fun clearSaveFailed() {
+        saveFailed = false
+    }
+
     private var dismissed by mutableStateOf(SharedPref.interestsCardDismissed)
 
     private val isLoggedIn: Boolean get() = SharedPref.userId >= 0
@@ -52,7 +60,10 @@ class InterestsViewModel @Inject constructor(
         }
         viewModelScope.launch {
             try {
-                interests = apiInterface.getInterests().data
+                // The server sends data: null on some error shapes; Gson happily puts that
+                // into the non-null field, so guard before it reaches composition.
+                @Suppress("USELESS_ELVIS")
+                interests = apiInterface.getInterests().data ?: emptyList()
             } catch (_: Exception) {
                 // Treat any failure as "no interests" — the card simply won't show.
             } finally {
@@ -62,20 +73,29 @@ class InterestsViewModel @Inject constructor(
     }
 
     fun saveInterests(categoryIds: List<Long>, onSaved: (List<Long>) -> Unit = {}) {
-        if (!isLoggedIn) return
+        if (!isLoggedIn) {
+            saveFailed = true
+            return
+        }
         isSaving = true
+        saveFailed = false
         viewModelScope.launch {
+            var saved: List<Long>? = null
             try {
-                val saved = apiInterface.updateInterests(
+                @Suppress("USELESS_ELVIS")
+                saved = apiInterface.updateInterests(
                     body = mapOf("categoryIds" to categoryIds)
-                ).data
+                ).data ?: emptyList()
                 interests = saved
-                onSaved(saved)
             } catch (_: Exception) {
                 // Keep the previous state; the user can retry from the card.
+                saveFailed = true
             } finally {
                 isSaving = false
             }
+            // Outside the try: an exception thrown by the UI callback must not be
+            // reported as a failed save.
+            saved?.let(onSaved)
         }
     }
 

@@ -115,7 +115,7 @@ fun BoostRoute(
 
     fun pay(provider: String) {
         val hours = selectedHours ?: return
-        viewModel.createBoostOrder(postId, hours, provider) { url ->
+        viewModel.createBoostOrder(postId, hours, provider) { url, errorMsg ->
             if (url != null) {
                 try {
                     context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
@@ -123,7 +123,7 @@ fun BoostRoute(
                     Toast.makeText(context, paymentFailed, Toast.LENGTH_SHORT).show()
                 }
             } else {
-                Toast.makeText(context, paymentFailed, Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, errorMsg ?: paymentFailed, Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -282,6 +282,7 @@ fun BoostRoute(
                     tariffs.forEach { tariff ->
                         DurationTile(
                             tariff = tariff,
+                            promoPercent = viewModel.promoPercent,
                             selected = selectedHours == tariff.hours,
                             onClick = { selectedHours = tariff.hours }
                         )
@@ -292,6 +293,21 @@ fun BoostRoute(
                 SectionLabel(
                     text = stringResource(R.string.boost_choose_payment),
                     icon = Icons.Rounded.CreditCard
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Promo code — validated against the currently selected duration.
+                uz.promo.selling.ui.PromoCodeRow(
+                    appliedCode = viewModel.promoCode,
+                    appliedPercent = viewModel.promoPercent,
+                    checking = viewModel.promoChecking,
+                    accent = MaterialTheme.colorScheme.primary,
+                    onApply = { code ->
+                        viewModel.applyPromo(code, selectedHours) { msg ->
+                            Toast.makeText(context, msg ?: paymentFailed, Toast.LENGTH_SHORT).show()
+                        }
+                    },
+                    onClear = { viewModel.clearPromo() }
                 )
                 Spacer(modifier = Modifier.height(12.dp))
 
@@ -368,6 +384,7 @@ private fun SectionLabel(text: String, icon: androidx.compose.ui.graphics.vector
 @Composable
 private fun DurationTile(
     tariff: BoostTariff,
+    promoPercent: Int,
     selected: Boolean,
     onClick: () -> Unit,
 ) {
@@ -394,12 +411,20 @@ private fun DurationTile(
             else MaterialTheme.colorScheme.onSurface
         )
         Spacer(modifier = Modifier.height(2.dp))
-        Text(
-            text = "${formatNumberWithSpaces(tariff.price.toString())} ${stringResource(R.string.uzs)}",
-            fontFamily = robotoFontFamily,
-            fontSize = 13.sp,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-        )
+        if (promoPercent > 0) {
+            uz.promo.selling.ui.PromoPriceText(
+                original = tariff.price,
+                percent = promoPercent,
+                accent = MaterialTheme.colorScheme.primary
+            )
+        } else {
+            Text(
+                text = "${formatNumberWithSpaces(tariff.price.toString())} ${stringResource(R.string.uzs)}",
+                fontFamily = robotoFontFamily,
+                fontSize = 13.sp,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+            )
+        }
     }
 }
 

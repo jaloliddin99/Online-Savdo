@@ -39,7 +39,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -66,7 +68,10 @@ fun CategoryPickerDialog(
     onApply: (List<CategoryItem>) -> Unit
 ) {
     val dialogSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val selectedIds = remember { mutableStateOf(initialSelectedIds.toMutableSet()) }
+    val scope = rememberCoroutineScope()
+    // Keyed so a selection seeded from data that arrives after the sheet opens is
+    // still pre-ticked instead of silently applying an empty set.
+    val selectedIds = remember(initialSelectedIds) { mutableStateOf(initialSelectedIds.toMutableSet()) }
 
     fun toggleCategory(item: CategoryItem) {
         val ids = selectedIds.value.toMutableSet()
@@ -164,7 +169,17 @@ fun CategoryPickerDialog(
 
             // Apply button
             Button(
-                onClick = { onApply(collectSelectedItems(categories ?: emptyList())) },
+                onClick = {
+                    val items = collectSelectedItems(categories ?: emptyList())
+                    // Animate out first, but hand the result over in invokeOnCompletion so
+                    // the caller's flag is cleared even if the hide is cancelled — the sheet
+                    // can never be left stuck on screen.
+                    scope.launch { runCatching { dialogSheetState.hide() } }
+                        .invokeOnCompletion { onApply(items) }
+                },
+                // With no category tree loaded there is nothing to select, and applying an
+                // empty set would wipe the user's existing interests.
+                enabled = !isLoading && categories != null,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp, vertical = 12.dp)

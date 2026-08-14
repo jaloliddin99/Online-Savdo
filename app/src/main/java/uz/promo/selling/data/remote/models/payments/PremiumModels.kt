@@ -14,6 +14,7 @@ data class PremiumPlansData(
 data class PremiumOrderBody(
     val termMonths: Int,
     val provider: String,
+    val promoCode: String? = null,
 )
 
 // --- Analytics & who's-interested ---

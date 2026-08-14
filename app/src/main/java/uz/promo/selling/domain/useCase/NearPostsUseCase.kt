@@ -17,7 +17,8 @@ class NearPostsUseCase @Inject constructor(
     operator fun invoke(
         lat: Double,
         lon: Double,
-        lang: String
+        lang: String,
+        radius: Int? = null
     ): Flow<Resource<GenericModel<List<NearPostsData>>>> = flow {
         try {
             emit(Resource.Loading())
@@ -26,7 +27,8 @@ class NearPostsUseCase @Inject constructor(
                     repository.getNearPosts(
                         lat,
                         lon,
-                        lang
+                        lang,
+                        radius
                     )
                 )
             )

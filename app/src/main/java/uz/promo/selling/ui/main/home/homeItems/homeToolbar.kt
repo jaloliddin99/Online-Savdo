@@ -10,13 +10,21 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RichTooltip
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TooltipAnchorPosition
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,7 +41,12 @@ import uz.promo.selling.utils.SharedPref
 /**
  * Home search field — a liquid-glass pill when [hazeState] is provided (the feed
  * scrolling underneath blurs through it), a regular filled field otherwise.
+ *
+ * When [showRadiusHint] is true a one-time bubble points at the location icon,
+ * explaining that search is radius-based. [onRadiusHintDismissed] fires on every
+ * path that closes it, so the caller can persist "already shown".
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeSearchBar(
     onSearchClick: () -> Unit,
@@ -41,6 +54,8 @@ fun HomeSearchBar(
     modifier: Modifier = Modifier,
     searchBarModifier: Modifier = Modifier,
     hazeState: HazeState? = null,
+    showRadiusHint: Boolean = false,
+    onRadiusHintDismissed: () -> Unit = {},
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -109,12 +124,47 @@ fun HomeSearchBar(
                     )
                 },
                 trailingIcon = {
-                    IconButton(onClick = onMapClick) {
-                        Icon(
-                            imageVector = Icons.Filled.LocationOn,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
+                    val tooltipState = rememberTooltipState(isPersistent = true)
+                    LaunchedEffect(showRadiusHint) {
+                        if (showRadiusHint) tooltipState.show()
+                    }
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+                            TooltipAnchorPosition.Below
+                        ),
+                        tooltip = {
+                            RichTooltip(
+                                caretShape = TooltipDefaults.caretShape(),
+                                action = {
+                                    TextButton(onClick = {
+                                        tooltipState.dismiss()
+                                        onRadiusHintDismissed()
+                                    }) {
+                                        Text(stringResource(R.string.ok))
+                                    }
+                                }
+                            ) {
+                                Text(stringResource(R.string.radius_hint_text))
+                            }
+                        },
+                        state = tooltipState,
+                        // Supplying onDismissRequest replaces the library's own dismiss,
+                        // so hide the tooltip explicitly here.
+                        onDismissRequest = {
+                            tooltipState.dismiss()
+                            onRadiusHintDismissed()
+                        },
+                        // Only the first-run trigger opens it; no long-press tooltip.
+                        enableUserInput = false,
+                        hasAction = true,
+                    ) {
+                        IconButton(onClick = onMapClick) {
+                            Icon(
+                                imageVector = Icons.Filled.LocationOn,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
                     }
                 },
                 shape = fieldShape,

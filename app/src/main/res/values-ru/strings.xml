@@ -275,6 +275,9 @@
     <string name="premium_activated_desc">Все преимущества Premium теперь активны в вашем аккаунте</string>
     <string name="dialog_great">Отлично!</string>
     <string name="payment_waiting">Ожидание подтверждения платежа…</string>
+    <string name="promo_code_hint">Промокод</string>
+    <string name="promo_apply">Применить</string>
+    <string name="promo_discount">скидка</string>
     <string name="premium_unavailable">Premium-планы сейчас недоступны — загляните позже</string>
     <string name="boost_or_pay">Или оплатить продвижение</string>
     <string name="premium_extend_note">Новый срок добавится после окончания текущей подписки — ничего не сгорает</string>
@@ -348,6 +351,8 @@
     <string name="interest_card_choose">Выбрать интересы</string>
     <string name="interest_card_dismiss">Закрыть</string>
     <string name="interest_recommended">Рекомендуем вам</string>
+    <string name="interests_edit">Изменить интересы</string>
+    <string name="interests_save_failed">Не удалось сохранить интересы. Попробуйте ещё раз.</string>
     <string name="ai_create_with_ai_title">Создать с ИИ</string>
     <string name="ai_create_with_ai_subtitle">Добавьте фото — мы напишем заголовок, описание, подберём категорию и заполним детали за вас.</string>
     <string name="ai_create_manually_title">Создать вручную</string>
@@ -368,6 +373,7 @@
     <string name="recent_searches">Недавние запросы</string>
     <string name="clear_history">Очистить</string>
     <string name="update_location">Обновить местоположение</string>
+    <string name="radius_hint_text">Поиск работает по радиусу — нажмите здесь, чтобы задать местоположение и расстояние.</string>
     <string name="price">Цена</string>
 
     <!-- Relative timestamps -->

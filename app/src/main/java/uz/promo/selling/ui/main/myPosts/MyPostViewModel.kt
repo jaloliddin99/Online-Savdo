@@ -104,24 +104,67 @@ class MyPostViewModel @Inject constructor(
         }
     }
 
-    /** Creates a payment order; onResult gets the checkout URL or null. */
-    fun createBoostOrder(postId: Long, hours: Int, provider: String, onResult: (String?) -> Unit) {
+    // Applied promo code (validated against the backend) and its percent.
+    var promoCode by androidx.compose.runtime.mutableStateOf<String?>(null)
+        private set
+    var promoPercent by androidx.compose.runtime.mutableStateOf(0)
+        private set
+    var promoChecking by androidx.compose.runtime.mutableStateOf(false)
+        private set
+
+    /** Validates a promo code; onError gets the server message (or null on network failure). */
+    fun applyPromo(code: String, hours: Int?, onError: (String?) -> Unit) {
+        if (code.isBlank() || promoChecking) return
+        viewModelScope.launch {
+            promoChecking = true
+            try {
+                val res = apiInterface.validatePromo(
+                    uz.promo.selling.data.remote.models.payments.PromoValidateBody(
+                        code = code, type = "boost", hours = hours
+                    )
+                )
+                if (res.success) {
+                    promoCode = res.data.code
+                    promoPercent = res.data.percent
+                } else {
+                    clearPromo()
+                    onError(res.message)
+                }
+            } catch (_: Exception) {
+                clearPromo()
+                onError(null)
+            }
+            promoChecking = false
+        }
+    }
+
+    fun clearPromo() {
+        promoCode = null
+        promoPercent = 0
+    }
+
+    /** Creates a payment order; onResult gets the checkout URL or (null + server error message). */
+    fun createBoostOrder(postId: Long, hours: Int, provider: String, onResult: (String?, String?) -> Unit) {
         viewModelScope.launch {
             _state.value = MyProfileScreen(isLoading = true)
+            var errorMsg: String? = null
             val url = try {
                 val res = apiInterface.createBoostOrder(
                     token = SharedPref.deviceToken,
-                    body = uz.promo.selling.data.remote.models.payments.BoostOrderBody(postId, hours, provider)
+                    body = uz.promo.selling.data.remote.models.payments.BoostOrderBody(postId, hours, provider, promoCode)
                 )
                 if (res.success) {
                     SharedPref.pendingBoostOrderId = res.data.orderId
                     res.data.paymentUrl
-                } else null
+                } else {
+                    errorMsg = res.message
+                    null
+                }
             } catch (e: Exception) {
                 null
             }
             _state.value = MyProfileScreen()
-            onResult(url)
+            onResult(url, errorMsg)
             if (url != null) pollPendingOrder()
         }
     }

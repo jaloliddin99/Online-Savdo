@@ -120,7 +120,7 @@ fun PremiumRoute(
 
     fun pay(provider: String) {
         val term = selected ?: return
-        viewModel.createOrder(term, provider) { url ->
+        viewModel.createOrder(term, provider) { url, errorMsg ->
             if (url != null) {
                 try {
                     context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
@@ -128,7 +128,7 @@ fun PremiumRoute(
                     Toast.makeText(context, orderError, Toast.LENGTH_SHORT).show()
                 }
             } else {
-                Toast.makeText(context, orderError, Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, errorMsg ?: orderError, Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -295,12 +295,28 @@ fun PremiumRoute(
                     PlanCard(
                         plan = plan,
                         baseMonthlyPrice = baseMonthly,
+                        promoPercent = viewModel.promoPercent,
                         selected = selected == plan.termMonths,
                         onClick = { selected = plan.termMonths }
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                 }
 
+                Spacer(modifier = Modifier.height(14.dp))
+
+                // Promo code — validated against the currently selected term.
+                uz.promo.selling.ui.PromoCodeRow(
+                    appliedCode = viewModel.promoCode,
+                    appliedPercent = viewModel.promoPercent,
+                    checking = viewModel.promoChecking,
+                    accent = PremiumGold,
+                    onApply = { code ->
+                        viewModel.applyPromo(code, selected) { msg ->
+                            Toast.makeText(context, msg ?: orderError, Toast.LENGTH_SHORT).show()
+                        }
+                    },
+                    onClear = { viewModel.clearPromo() }
+                )
                 Spacer(modifier = Modifier.height(14.dp))
 
                 // Payme — logo
@@ -452,6 +468,7 @@ private fun FeatureRow(icon: ImageVector, text: String) {
 private fun PlanCard(
     plan: PremiumPlan,
     baseMonthlyPrice: Long?,
+    promoPercent: Int,
     selected: Boolean,
     onClick: () -> Unit,
 ) {
@@ -545,13 +562,24 @@ private fun PlanCard(
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)
                 )
             }
-            Text(
-                text = "${formatNumberWithSpaces(plan.price.toString())} ${stringResource(R.string.uzs)}",
-                fontFamily = robotoFontFamily,
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.primary
-            )
+            if (promoPercent > 0) {
+                uz.promo.selling.ui.PromoPriceText(
+                    original = plan.price,
+                    percent = promoPercent,
+                    accent = MaterialTheme.colorScheme.primary,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    horizontalAlignment = Alignment.End
+                )
+            } else {
+                Text(
+                    text = "${formatNumberWithSpaces(plan.price.toString())} ${stringResource(R.string.uzs)}",
+                    fontFamily = robotoFontFamily,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
         }
         if (isBestValue) {
             Text(

@@ -129,9 +129,10 @@ interface ApiInterface {
 
     @GET("post/near")
     suspend fun getNearPosts(
-        @Query("lat") page: Double,
-        @Query("lon") size: Double,
-        @Query("lang") lang: String
+        @Query("lat") lat: Double,
+        @Query("lon") lon: Double,
+        @Query("lang") lang: String,
+        @Query("radius") radius: Int? = null
     ): GenericModel<List<NearPostsData>>
 
     @GET("post/myPosts")
@@ -281,6 +282,13 @@ interface ApiInterface {
         @Body body: uz.promo.selling.data.remote.models.payments.BoostOrderBody,
         @Query("lang") lang: String = SharedPref.language
     ): GenericModel<uz.promo.selling.data.remote.models.payments.BoostOrderRes>
+
+    @POST("payments/promo/validate")
+    suspend fun validatePromo(
+        @Body body: uz.promo.selling.data.remote.models.payments.PromoValidateBody,
+        @Header("Authorization") token: String = SharedPref.deviceToken,
+        @Query("lang") lang: String = SharedPref.language
+    ): GenericModel<uz.promo.selling.data.remote.models.payments.PromoValidateRes>
 
     @GET("payments/orders/{orderId}")
     suspend fun getPaymentOrderStatus(

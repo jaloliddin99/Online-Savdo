@@ -50,6 +50,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -80,6 +81,7 @@ import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.HazeTint
 import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import uz.promo.selling.R
@@ -231,6 +233,25 @@ fun HomeScreen(
         if (products.loadState.refresh !is LoadState.Loading) pullRefreshing.value = false
     }
 
+    // First-run coach mark on the location icon — most users don't realise search
+    // and "near you" are radius-based. Kotpref isn't snapshot state, so read it once
+    // into a local flag.
+    val showRadiusHint = remember { mutableStateOf(!SharedPref.radiusHintShown) }
+    val consumeRadiusHint: () -> Unit = {
+        if (showRadiusHint.value) {
+            showRadiusHint.value = false
+            SharedPref.radiusHintShown = true
+        }
+    }
+    // The bubble is a separate window, so it isn't clipped or faded with the header —
+    // close it once the header starts collapsing, or it floats over the feed.
+    // snapshotFlow keeps the headerOffset read inside the coroutine; reading it in the
+    // composable body would recompose HomeScreen on every scroll frame.
+    LaunchedEffect(Unit) {
+        snapshotFlow { headerOffset.floatValue != 0f }.first { it }
+        consumeRadiusHint()
+    }
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -241,7 +262,7 @@ fun HomeScreen(
             onRefresh = {
                 pullRefreshing.value = true
                 homeViewModel.getAllParentCategories()
-                homeViewModel.refreshNearPostsForSelectedLocation()
+                homeViewModel.refreshNearPostsForSelectedLocation(force = true)
                 products.refresh()
             },
             state = pullState,
@@ -498,9 +519,11 @@ fun HomeScreen(
             ) {
                 HomeSearchBar(
                     onSearchClick = onSearchClick,
-                    onMapClick = onMapClick,
+                    onMapClick = { consumeRadiusHint(); onMapClick() },
                     searchBarModifier = searchBarModifier,
                     hazeState = homeHazeState,
+                    showRadiusHint = showRadiusHint.value,
+                    onRadiusHintDismissed = consumeRadiusHint,
                 )
             }
         }

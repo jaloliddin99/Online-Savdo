@@ -150,15 +150,21 @@ class SearchResultViewModel @Inject constructor(
     }
 
     fun loadAllCategories() {
-        if (allCategories != null) return
+        // Three call sites can trigger this on the same frame; without the in-flight
+        // check they each fire their own request.
+        if (allCategories != null || isCategoriesLoading) return
         isCategoriesLoading = true
         viewModelScope.launch {
             try {
                 allCategories = apiInterface.getAllCategories(
                     SharedPref.language
                 )
-            } catch (_: Exception) { }
-            isCategoriesLoading = false
+            } catch (_: Exception) {
+                // Leaves allCategories null; the picker keeps Apply disabled rather
+                // than letting an empty selection through.
+            } finally {
+                isCategoriesLoading = false
+            }
         }
     }
 

@@ -11,6 +11,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -182,28 +183,37 @@ class HomeViewModel @Inject constructor(
     fun locationObserve() = viewModelScope.launch {
         locationTrackerRepository.getCurrentLocation().collectLatest {
             stopLocationUpdates()
-            getNearPosts(lat = it.latitude, lon = it.longitude)
+            getNearPosts(lat = it.latitude, lon = it.longitude, radius = SharedPref.radius)
         }
     }
 
-    // Coordinates the last "near you" fetch used, so repeated resumes don't refetch.
+    // Coordinates AND radius of the last successful "near you" fetch, so repeated
+    // resumes don't refetch but a radius change does. Cleared on failure so the
+    // next resume retries instead of showing a stale list forever.
     private var lastNearKey: String? = null
 
+    // The key of the request currently in flight, so overlapping resume/pull-to-refresh
+    // calls don't fire the same request twice.
+    private var inFlightNearKey: String? = null
+
     /**
-     * Loads "near you" for the location the user picked on the map. No-op until a
-     * location has been picked (the device-location flow handles that case) and
-     * skips refetching when the picked location hasn't changed. Safe to call on
-     * every Home resume.
+     * Loads "near you" for the location and radius the user picked on the map. No-op
+     * until a location has been picked (the device-location flow handles that case)
+     * and skips refetching when neither the picked location nor the radius changed.
+     * Safe to call on every Home resume.
+     *
+     * @param force bypasses the dedupe check, for explicit user-initiated refreshes.
      */
-    fun refreshNearPostsForSelectedLocation() {
+    fun refreshNearPostsForSelectedLocation(force: Boolean = false) {
         if (!SharedPref.hasPickedLocation) return
         val lat = SharedPref.latitude.toDoubleOrNull() ?: return
         val lon = SharedPref.longitude.toDoubleOrNull() ?: return
-        val key = "$lat,$lon"
-        if (key == lastNearKey) return
-        lastNearKey = key
+        val radius = SharedPref.radius
+        val key = "$lat,$lon,$radius"
+        if (!force && key == lastNearKey) return
+        if (key == inFlightNearKey) return
         stopLocationUpdates()
-        getNearPosts(lat = lat, lon = lon)
+        getNearPosts(lat = lat, lon = lon, radius = radius, key = key)
     }
 
     fun startLocationUpdates() {
@@ -216,23 +226,42 @@ class HomeViewModel @Inject constructor(
 
     private val _stateNear = mutableStateOf(HomeScreenState2())
     val stateNear: State<HomeScreenState2> = _stateNear
+    private var nearJob: Job? = null
+
     private fun getNearPosts(
         language: String = SharedPref.language,
         lat: Double,
-        lon: Double
+        lon: Double,
+        radius: Int = SharedPref.radius,
+        key: String? = null
     ) {
-        nearPostsUseCase(
+        // Responses aren't ordered, so an older in-flight request must not overwrite a newer one.
+        nearJob?.cancel()
+        inFlightNearKey = key
+        nearJob = nearPostsUseCase(
             lat,
             lon,
             language,
+            radius,
         ).onEach { result ->
             when (result) {
                 is Resource.Success -> {
+                    // Only remember the key once the data actually arrived, otherwise a
+                    // failed fetch would dedupe every later retry.
+                    if (key != null) lastNearKey = key
+                    inFlightNearKey = null
                     _stateNear.value = HomeScreenState2(getNearPost = result.data?.data)
                 }
 
                 is Resource.Error -> {
-                    _stateNear.value = HomeScreenState2(error = result.message.toString())
+                    if (key != null && key == lastNearKey) lastNearKey = null
+                    inFlightNearKey = null
+                    // Keep whatever list is already on screen; nulling it out would leave
+                    // the shimmer up forever.
+                    _stateNear.value = _stateNear.value.copy(
+                        isLoading = false,
+                        error = result.message.toString()
+                    )
                 }
 
                 is Resource.Loading -> {

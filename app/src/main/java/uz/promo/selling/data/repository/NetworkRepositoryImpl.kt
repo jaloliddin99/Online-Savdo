@@ -224,10 +224,11 @@ class NetworkRepositoryImpl @Inject constructor(
     override suspend fun getNearPosts(
         lat: Double,
         lon: Double,
-        lang: String
+        lang: String,
+        radius: Int?
     ): GenericModel<List<NearPostsData>> {
         return apiInterface.getNearPosts(
-            lat, lon, lang
+            lat = lat, lon = lon, lang = lang, radius = radius
         )
     }
 

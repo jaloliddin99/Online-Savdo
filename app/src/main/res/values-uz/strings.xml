@@ -276,6 +276,9 @@
     <string name="premium_activated_desc">Barcha Premium imkoniyatlari hisobingizda faollashtirildi</string>
     <string name="dialog_great">Ajoyib!</string>
     <string name="payment_waiting">To\'lov tasdiqlanishi kutilmoqda…</string>
+    <string name="promo_code_hint">Promo-kod</string>
+    <string name="promo_apply">Qo\'llash</string>
+    <string name="promo_discount">chegirma</string>
     <string name="premium_unavailable">Premium rejalar hozircha mavjud emas — keyinroq qaytib ko\'ring</string>
     <string name="boost_or_pay">Yoki boost uchun to\'lash</string>
     <string name="premium_extend_note">Yangi muddat joriy obunangiz tugagandan keyin qo\'shiladi — hech narsa yo\'qolmaydi</string>
@@ -350,6 +353,8 @@
     <string name="interest_card_choose">Qiziqishlarni tanlash</string>
     <string name="interest_card_dismiss">Yopish</string>
     <string name="interest_recommended">Siz uchun tavsiyalar</string>
+    <string name="interests_edit">Qiziqishlarni tahrirlash</string>
+    <string name="interests_save_failed">Qiziqishlarni saqlab bo\'lmadi. Qaytadan urinib ko\'ring.</string>
     <string name="ai_create_with_ai_title">Sun\'iy intellekt bilan yaratish</string>
     <string name="ai_create_with_ai_subtitle">Surat qo\'shing — sarlavha, tavsifni yozamiz, toifani tanlaymiz va tafsilotlarni siz uchun to\'ldiramiz.</string>
     <string name="ai_create_manually_title">Qo\'lda yaratish</string>
@@ -370,6 +375,7 @@
     <string name="recent_searches">So\'nggi qidiruvlar</string>
     <string name="clear_history">Tozalash</string>
     <string name="update_location">Joylashuvni yangilash</string>
+    <string name="radius_hint_text">Qidiruv radius bo\'yicha ishlaydi — joylashuv va masofani belgilash uchun shu yerni bosing.</string>
 
     <!-- Relative timestamps -->
     <string name="time_just_now">hozirgina</string>
