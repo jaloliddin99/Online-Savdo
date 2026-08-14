@@ -1,6 +1,5 @@
 package uz.promo.selling.domain.useCase.presentUseCase
 
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import uz.promo.selling.data.remote.models.GenericModel
@@ -21,8 +20,6 @@ class PresentProductUseCase @Inject constructor(
     ): Flow<Resource<GenericModel<PostDetailsData>>> = flow {
         try {
             emit(Resource.Loading())
-            delay(500)
-
             val data = repository.showProductModel(id, language)
             if (data.success){
                 emit(Resource.Success(data))

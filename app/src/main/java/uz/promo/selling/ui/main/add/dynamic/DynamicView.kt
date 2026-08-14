@@ -115,12 +115,22 @@ fun DynamicView(
 
             DynamicView.TYPE_PRICE.type,
             DynamicView.TYPE_SALARY.type -> {
+                // Seed from the existing value like the number branch does — without
+                // txt the field rendered empty when editing a post, and the sync
+                // block below then wrote that emptiness back over the real price.
                 val textFieldState by remember {
-                    mutableStateOf(DynamicViewState(regex = param.validation))
+                    mutableStateOf(DynamicViewState(txt = prefilledText, regex = param.validation))
                 }
                 var units by remember {
                     mutableStateOf(
-                        uz.promo.selling.data.remote.models.leak.Unit(
+                        // Keep the unit the listing was saved with (so'm vs y.e.),
+                        // falling back to the category's first unit for new posts.
+                        prefilled?.unit?.let { saved ->
+                            uz.promo.selling.data.remote.models.leak.Unit(
+                                code = saved.code,
+                                label = saved.label
+                            )
+                        } ?: uz.promo.selling.data.remote.models.leak.Unit(
                             code = param.units[0].code,
                             label = param.units[0].label
                         )
@@ -152,6 +162,19 @@ fun DynamicView(
                     unit = units,
                     onUnitSelected = { selectedUnit ->
                         units = selectedUnit
+                        // The sync block above only writes when the TEXT changes, so
+                        // a currency-only change (so'm → y.e.) never reached the
+                        // submitted params. Push it through here.
+                        sendData(
+                            localParams,
+                            param,
+                            label_uz = textFieldState.text,
+                            label_ru = textFieldState.text,
+                            unit = PostUnitDTO(selectedUnit.code, selectedUnit.label),
+                            isValid = textFieldState.isValid
+                        ) {
+                            paramListener.invoke(it)
+                        }
                     },
                     onSuggestPrice = onSuggestPrice
                 )

@@ -15,6 +15,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import uz.promo.selling.R
+import uz.promo.selling.data.local.SearchHistoryDao
 import uz.promo.selling.domain.state.Resource
 import uz.promo.selling.domain.useCase.GetProfileUseCase
 import uz.promo.selling.ui.main.add.ImageUrl
@@ -29,8 +30,20 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val getProfileUseCase: GetProfileUseCase,
+    private val searchHistoryDao: SearchHistoryDao,
     private val application: Application
 ) : AndroidViewModel(application)  {
+
+    /**
+     * Wipes device-local data belonging to the signing-out user. `SharedPref.clear()`
+     * only covers preferences — the Room search history is separate and would
+     * otherwise show the previous account's searches to whoever logs in next.
+     */
+    fun clearLocalUserData() {
+        viewModelScope.launch {
+            runCatching { searchHistoryDao.clearAll() }
+        }
+    }
 
 
 

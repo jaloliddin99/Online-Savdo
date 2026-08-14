@@ -209,7 +209,10 @@ fun AddProductScreen(
         mutableStateOf(viewModel.descriptionVM)
     }
 
-    var galleryImageUri by remember {
+    // Keyed on editSeeded: the edit seed runs in a LaunchedEffect, i.e. after this
+    // composable's first composition, so an unkeyed remember captured an empty list
+    // and the post's existing photos never appeared.
+    var galleryImageUri by remember(viewModel.editSeeded) {
         mutableStateOf(viewModel.imageList)
     }
 

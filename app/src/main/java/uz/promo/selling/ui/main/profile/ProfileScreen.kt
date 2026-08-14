@@ -149,6 +149,7 @@ fun ProfileRoute(
             toUpdatePassword = toUpdatePassword,
             toForgotPassword = toForgotPassword,
             goToRegistration = goToRegistration,
+            onLogOut = { viewModel.clearLocalUserData() },
             uploadImage = {
                 viewModel.updateProfileImage(it)
             },
@@ -170,6 +171,8 @@ fun ProfileScreen(
     toUpdatePassword: () -> Unit,
     toForgotPassword: (Boolean) -> Unit,
     goToRegistration: () -> Unit,
+    /** Clears device-local data for the signing-out account. */
+    onLogOut: () -> Unit = {},
     uploadImage: (ImageUrl) -> Unit,
     restartApp: () -> Unit,
     toNotifications: () -> Unit = {},
@@ -336,6 +339,9 @@ fun ProfileScreen(
             ProfileSection(title = stringResource(id = R.string.section_log_out)) {
                 LogOut(
                     logOut = {
+                        // Preferences AND device-local history — otherwise the next
+                        // account inherits this one's recent searches.
+                        onLogOut()
                         SharedPref.clear()
                         goToRegistration.invoke()
                     },

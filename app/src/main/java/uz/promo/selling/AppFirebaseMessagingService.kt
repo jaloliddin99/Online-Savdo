@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 import uz.promo.selling.data.remote.ApiInterface
 import uz.promo.selling.utils.ChatPresence
 import uz.promo.selling.utils.SharedPref
+import androidx.core.net.toUri
 
 class AppFirebaseMessagingService : FirebaseMessagingService() {
 
@@ -92,7 +93,7 @@ class AppFirebaseMessagingService : FirebaseMessagingService() {
         notificationId: Int
     ) {
         val intent = if (deepLink != null) {
-            Intent(Intent.ACTION_VIEW, Uri.parse(deepLink)).apply {
+            Intent(Intent.ACTION_VIEW, deepLink.toUri()).apply {
                 setPackage(packageName)
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             }

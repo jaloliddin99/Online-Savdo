@@ -79,9 +79,9 @@ class AddProductScreenViewModel @Inject constructor(
     private var _imageList = mutableStateListOf<ImageUrl>()
     val imageList: List<ImageUrl> get() = _imageList
     fun setImageList(newItem: List<ImageUrl>) {
-        viewModelScope.launch {
-            _imageList = newItem.toMutableStateList()
-        }
+        // Synchronous: the edit seed sets this before the photo step reads it, and
+        // deferring to the next frame made the seeded photos arrive too late.
+        _imageList = newItem.toMutableStateList()
     }
 
     // Dynamic category-field values (AI pre-fills + user edits). Held in the VM
