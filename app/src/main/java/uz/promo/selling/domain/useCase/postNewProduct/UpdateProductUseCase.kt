@@ -29,6 +29,7 @@ class UpdateProductUseCase @Inject constructor(
         addressName: String,
         addressDescription: String,
         files: List<MultipartBody.Part>,
+        keepImageIds: List<Long>,
         postParams: RequestBody
     ): Flow<Resource<ModelSuccess>> = flow {
         try {
@@ -46,6 +47,7 @@ class UpdateProductUseCase @Inject constructor(
                         addressName,
                         addressDescription,
                         files,
+                        keepImageIds,
                         postParams
                     ),
                 )

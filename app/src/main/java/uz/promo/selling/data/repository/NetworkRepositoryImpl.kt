@@ -132,6 +132,7 @@ class NetworkRepositoryImpl @Inject constructor(
         addressName: String,
         addressDescription: String,
         files: List<MultipartBody.Part>,
+        keepImageIds: List<Long>,
         postParams: RequestBody
     ): ModelSuccess {
         return apiInterface.updateProduct(
@@ -144,6 +145,7 @@ class NetworkRepositoryImpl @Inject constructor(
             lon,
             addressName,
             addressDescription,
+            keepImageIds,
             files,
             postParams
         )

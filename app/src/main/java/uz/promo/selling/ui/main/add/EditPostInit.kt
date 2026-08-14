@@ -1,5 +1,7 @@
 package uz.promo.selling.ui.main.add
 
+import android.net.Uri
+import uz.promo.selling.BuildConfig
 import uz.promo.selling.data.remote.models.category.CategoryItem
 import uz.promo.selling.data.remote.models.post.PostValueDTO
 import uz.promo.selling.data.remote.models.showProducts.PostDetailsData
@@ -10,8 +12,9 @@ import uz.promo.selling.ui.map.MapScreenData
  * Everything the create wizard needs to reopen an existing post for editing.
  * Mirrors the web app's `EditInit`, which reuses its create wizard the same way.
  *
- * [existingImageCount] is only used to decide whether new photos are required:
- * the update endpoint keeps the post's current images when no files are sent.
+ * [existingImages] are the post's current photos as remote URLs. They go into the
+ * same picker list as newly chosen ones, so removing one there drops it from
+ * keepImageIds on save and the server deletes it.
  */
 data class EditPostInit(
     val postId: Int,
@@ -20,7 +23,8 @@ data class EditPostInit(
     val title: String,
     val description: String,
     val params: Map<String, DynamicViewData>,
-    val existingImageCount: Int
+    /** The post's current photos, shown in the picker and kept unless removed. */
+    val existingImages: List<ImageUrl>
 )
 
 /**
@@ -60,5 +64,8 @@ fun PostDetailsData.toEditInit(): EditPostInit = EditPostInit(
             }
         )
     },
-    existingImageCount = images.size
+    existingImages = images.map { image ->
+        val url = Uri.parse("${BuildConfig.BASE_URL}post/image/${image.imagePath}")
+        ImageUrl(isFromCamera = false, uri = url, fakeUri = url, existingId = image.id)
+    }
 )

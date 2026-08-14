@@ -6,6 +6,11 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Button
@@ -75,6 +80,9 @@ fun ForgotPasswordScreen(
         modifier = modifier
             .fillMaxWidth()
             .statusBarsPadding()
+            // Host Scaffold applies horizontal insets only — clear the gesture bar
+            // and keep the field/button above the keyboard.
+            .windowInsetsPadding(WindowInsets.navigationBars.union(WindowInsets.ime))
             .padding(horizontal = MaterialTheme.spacing.dimen16Dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

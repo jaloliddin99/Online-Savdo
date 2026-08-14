@@ -292,10 +292,10 @@ fun AddProductScreen(
     // Per-step validation
     val isStep1Valid = item != null && item.id != -1 && map != null
     val isStep2Valid = productTitleState.isValid && productDescriptionState.isValid
-    // When editing, the post already has photos and the server keeps them if none
-    // are uploaded — so adding new ones is optional rather than required.
-    val keepsExistingImages = (editInit?.existingImageCount ?: 0) > 0
-    val isStep3Valid = (galleryImageUri.isNotEmpty() || keepsExistingImages)
+    // In edit mode the post's existing photos are seeded into this same list, so
+    // the normal "at least one photo" rule covers both cases — and removing every
+    // photo correctly blocks submit.
+    val isStep3Valid = galleryImageUri.isNotEmpty()
             && galleryImageUri.size < 10
             && dynamicDataCorrect(dynamicViewData)
     val isSubmitEnabled = isStep1Valid && isStep2Valid && isStep3Valid

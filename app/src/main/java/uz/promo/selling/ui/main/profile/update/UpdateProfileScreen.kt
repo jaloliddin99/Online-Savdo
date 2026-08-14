@@ -5,6 +5,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -97,6 +102,9 @@ fun UpdateProfileScreen(
     Column(
         modifier = modifier
             .fillMaxWidth()
+            // Host Scaffold applies horizontal insets only — clear the gesture bar
+            // and keep the fields/Save button above the keyboard.
+            .windowInsetsPadding(WindowInsets.navigationBars.union(WindowInsets.ime))
             .padding(horizontal = MaterialTheme.spacing.dimen16Dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

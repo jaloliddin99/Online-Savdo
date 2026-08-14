@@ -212,6 +212,9 @@ class AddProductScreenViewModel @Inject constructor(
         descriptionVM.text = init.description
         dynamicViewData = init.params
         dynamicViewDataCategoryId = init.category.id
+        // The post's current photos go into the same list as newly picked ones, so
+        // the picker shows them and the user can remove any of them.
+        setImageList(init.existingImages)
     }
 
     /**
@@ -232,7 +235,11 @@ class AddProductScreenViewModel @Inject constructor(
         if (_state.value.isLoading) return
         _state.value = _state.value.copy(isLoading = true, error = "")
         viewModelScope.launch {
-            val fileParts: List<MultipartBody.Part> = compressImagesToParts(images)
+            // Photos already on the server are kept by id, never re-uploaded — only
+            // newly picked local ones are compressed and sent.
+            val (existing, freshlyPicked) = images.partition { it.existingId != null }
+            val keepImageIds = existing.mapNotNull { it.existingId?.toLong() }
+            val fileParts: List<MultipartBody.Part> = compressImagesToParts(freshlyPicked)
             val postParamsRequestBody = createPostParamsRequestBody(postParams)
 
             updateProductUseCase(
@@ -246,6 +253,7 @@ class AddProductScreenViewModel @Inject constructor(
                 mapData.addressName,
                 mapData.addressDescription,
                 fileParts,
+                keepImageIds,
                 postParamsRequestBody
             ).onEach { result ->
                 when (result) {

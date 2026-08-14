@@ -87,6 +87,7 @@ interface NetworkRepository {
         addressName: String,
         addressDescription: String,
         files: List<MultipartBody.Part>,
+        keepImageIds: List<Long>,
         postParams: RequestBody
     ): ModelSuccess
 

@@ -192,6 +192,7 @@ interface ApiInterface {
         @Query("lon") lon: Double,
         @Query("addressName") addressName: String,
         @Query("addressDescription") addressDescription: String,
+        @Query("keepImageIds") keepImageIds: List<Long>,
         @Part files: List<MultipartBody.Part>,
         @Part("post_params") postParams: RequestBody
     ): ModelSuccess

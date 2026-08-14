@@ -26,7 +26,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -141,6 +146,9 @@ fun PremiumRoute(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
+            // enableEdgeToEdge() means this screen owns its insets: keep the pay
+            // buttons clear of the gesture bar and the promo field above the keyboard.
+            .windowInsetsPadding(WindowInsets.navigationBars.union(WindowInsets.ime))
     ) {
         Box(
             modifier = Modifier

@@ -189,7 +189,13 @@ fun TextBold16(
 data class ImageUrl(
     val isFromCamera: Boolean,
     val uri: Uri,
-    val fakeUri: Uri
+    val fakeUri: Uri,
+    /**
+     * Server id when this is a photo the post already has (edit mode). Such images
+     * are remote URLs — Coil renders them the same way — and are never re-uploaded;
+     * they're retained by sending their id back as keepImageIds.
+     */
+    val existingId: Int? = null
 )
 
 fun Uri.toImageUrl(isFromCamera: Boolean, fakeUri: Uri): ImageUrl {
