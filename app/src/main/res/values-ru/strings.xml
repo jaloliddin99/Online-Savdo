@@ -352,6 +352,7 @@
     <string name="interest_card_dismiss">Закрыть</string>
     <string name="interest_recommended">Рекомендуем вам</string>
     <string name="interests_edit">Изменить интересы</string>
+    <string name="interests_limit_warning">Выберите не более %1$d категорий — выбрано %2$d.</string>
     <string name="interests_save_failed">Не удалось сохранить интересы. Попробуйте ещё раз.</string>
     <string name="ai_create_with_ai_title">Создать с ИИ</string>
     <string name="ai_create_with_ai_subtitle">Добавьте фото — мы напишем заголовок, описание, подберём категорию и заполним детали за вас.</string>

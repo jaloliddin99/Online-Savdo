@@ -29,7 +29,7 @@ fun DeletePostAlert(
         properties = DialogProperties(usePlatformDefaultWidth = false),
         modifier = Modifier.widthIn(max = configuration.screenWidthDp.dp - 80.dp),
         confirmButton = {
-            Text(text = stringResource(id = com.google.android.material.R.string.abc_menu_delete_shortcut_label),
+            Text(text = stringResource(id = R.string.delete_post),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier

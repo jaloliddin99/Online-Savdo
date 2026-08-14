@@ -354,6 +354,7 @@
     <string name="interest_card_dismiss">Yopish</string>
     <string name="interest_recommended">Siz uchun tavsiyalar</string>
     <string name="interests_edit">Qiziqishlarni tahrirlash</string>
+    <string name="interests_limit_warning">Ko\'pi bilan %1$d ta kategoriya tanlang — %2$d ta tanlandi.</string>
     <string name="interests_save_failed">Qiziqishlarni saqlab bo\'lmadi. Qaytadan urinib ko\'ring.</string>
     <string name="ai_create_with_ai_title">Sun\'iy intellekt bilan yaratish</string>
     <string name="ai_create_with_ai_subtitle">Surat qo\'shing — sarlavha, tavsifni yozamiz, toifani tanlaymiz va tafsilotlarni siz uchun to\'ldiramiz.</string>

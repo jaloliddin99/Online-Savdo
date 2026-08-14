@@ -234,7 +234,10 @@ interface ApiInterface {
     @PUT("user/interests")
     suspend fun updateInterests(
         @Header("Authorization") token: String = SharedPref.deviceToken,
-        @Body body: Map<String, List<Long>>,
+        // @JvmSuppressWildcards is required: Kotlin's covariant List<out E> compiles the
+        // value type to `? extends List<Long>`, and Retrofit rejects wildcards in @Body
+        // at method-parse time — before the request is ever sent.
+        @Body body: Map<String, @JvmSuppressWildcards List<Long>>,
         @Query("lang") lang: String = SharedPref.language
     ): GenericModel<List<Long>>
 

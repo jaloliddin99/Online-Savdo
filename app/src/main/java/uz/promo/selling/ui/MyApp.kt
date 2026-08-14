@@ -455,8 +455,12 @@ fun NavigationGraph(
         ) {
 
             composable(route = Screen.Home.route) { entry ->
+                // Scoped to the nav graph so Home's state survives a trip to Search and
+                // back. Falls back to this screen's own entry while the back stack is
+                // being torn down, when the graph entry is briefly unavailable.
                 val graphEntry = remember(entry) {
-                    navController.getBackStackEntry(navController.graph.id)
+                    runCatching { navController.getBackStackEntry(navController.graph.id) }
+                        .getOrDefault(entry)
                 }
                 val homeViewModel = hiltViewModel<HomeViewModel>(graphEntry)
                 val searchBarModifier = Modifier.sharedBounds(

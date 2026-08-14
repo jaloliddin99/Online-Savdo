@@ -132,8 +132,11 @@ fun ProductDetailsRoute(
     }
 
     val state = detailsViewModel.state.value
-    if (state.delete != null) {
-        navigateBack.invoke()
+    // Must be a side effect: `state.delete` stays non-null after a successful delete,
+    // so navigating straight from composition popped the back stack on every
+    // recomposition until it was empty.
+    LaunchedEffect(state.delete) {
+        if (state.delete != null) navigateBack.invoke()
     }
 
     ProductDetailsScreen(

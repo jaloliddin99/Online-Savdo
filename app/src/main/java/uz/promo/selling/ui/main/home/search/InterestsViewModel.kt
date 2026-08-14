@@ -1,5 +1,6 @@
 package uz.promo.selling.ui.main.home.search
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -7,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 import uz.promo.selling.data.remote.ApiInterface
 import uz.promo.selling.utils.SharedPref
 import javax.inject.Inject
@@ -64,8 +66,9 @@ class InterestsViewModel @Inject constructor(
                 // into the non-null field, so guard before it reaches composition.
                 @Suppress("USELESS_ELVIS")
                 interests = apiInterface.getInterests().data ?: emptyList()
-            } catch (_: Exception) {
+            } catch (e: Exception) {
                 // Treat any failure as "no interests" — the card simply won't show.
+                Log.e("InterestsViewModel", "loadInterests failed", e)
             } finally {
                 loaded = true
             }
@@ -87,8 +90,16 @@ class InterestsViewModel @Inject constructor(
                     body = mapOf("categoryIds" to categoryIds)
                 ).data ?: emptyList()
                 interests = saved
-            } catch (_: Exception) {
+            } catch (e: Exception) {
                 // Keep the previous state; the user can retry from the card.
+                // Logged because the snackbar only carries a generic message.
+                Log.e("InterestsViewModel", "saveInterests failed for ids=$categoryIds", e)
+                if (e is HttpException) {
+                    Log.e(
+                        "InterestsViewModel",
+                        "HTTP ${e.code()} body=${runCatching { e.response()?.errorBody()?.string() }.getOrNull()}"
+                    )
+                }
                 saveFailed = true
             } finally {
                 isSaving = false
@@ -102,5 +113,14 @@ class InterestsViewModel @Inject constructor(
     fun dismissCard() {
         dismissed = true
         SharedPref.interestsCardDismissed = true
+    }
+
+    companion object {
+        /**
+         * Most interest categories we let the user save. Must stay in step with
+         * MAX_INTERESTS in the backend's UserInterestService, which silently drops
+         * anything beyond it.
+         */
+        const val MAX_INTERESTS = 100
     }
 }

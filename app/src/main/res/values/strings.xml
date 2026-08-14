@@ -359,6 +359,7 @@
     <string name="interest_card_dismiss">Dismiss</string>
     <string name="interest_recommended">Recommended for you</string>
     <string name="interests_edit">Edit interests</string>
+    <string name="interests_limit_warning">Select at most %1$d categories — %2$d selected.</string>
     <string name="interests_save_failed">Couldn\'t save your interests. Please try again.</string>
     <string name="ai_create_with_ai_title">Create with AI</string>
     <string name="ai_create_with_ai_subtitle">Add photos — we write the title, description, pick the category and fill the details for you.</string>

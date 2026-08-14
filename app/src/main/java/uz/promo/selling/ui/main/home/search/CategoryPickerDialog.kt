@@ -65,7 +65,9 @@ fun CategoryPickerDialog(
     isLoading: Boolean,
     initialSelectedIds: Set<Int>,
     onDismiss: () -> Unit,
-    onApply: (List<CategoryItem>) -> Unit
+    onApply: (List<CategoryItem>) -> Unit,
+    /** Blocks Apply past this many selections instead of letting them be dropped later. */
+    maxSelection: Int? = null
 ) {
     val dialogSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
@@ -167,6 +169,22 @@ fun CategoryPickerDialog(
                 }
             }
 
+            // Ticking one parent expands to every leaf under it, so the limit is easy
+            // to cross by accident — say so rather than silently dropping the excess.
+            val overLimit = maxSelection != null && selectedIds.value.size > maxSelection
+            if (overLimit) {
+                Text(
+                    text = stringResource(
+                        R.string.interests_limit_warning,
+                        maxSelection!!,
+                        selectedIds.value.size
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(horizontal = 20.dp)
+                )
+            }
+
             // Apply button
             Button(
                 onClick = {
@@ -179,7 +197,7 @@ fun CategoryPickerDialog(
                 },
                 // With no category tree loaded there is nothing to select, and applying an
                 // empty set would wipe the user's existing interests.
-                enabled = !isLoading && categories != null,
+                enabled = !isLoading && categories != null && !overLimit,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp, vertical = 12.dp)

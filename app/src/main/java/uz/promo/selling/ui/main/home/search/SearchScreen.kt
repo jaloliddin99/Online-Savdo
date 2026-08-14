@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
@@ -32,6 +33,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.Error
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -151,6 +153,7 @@ fun SearchScreen(
 
     var snackbarMessage by remember { mutableStateOf<String?>(null) }
     var snackbarVisible by remember { mutableStateOf(false) }
+    var snackbarIsError by remember { mutableStateOf(false) }
     val locationAndRadiusMsg = stringResource(R.string.location_updated)
     val locationOnlyMsg = stringResource(R.string.location_only_updated)
     val radiusOnlyMsg = stringResource(R.string.radius_only_updated)
@@ -160,6 +163,7 @@ fun SearchScreen(
     // nothing changed, which reads as "applying did nothing".
     LaunchedEffect(interestsViewModel.saveFailed) {
         if (interestsViewModel.saveFailed) {
+            snackbarIsError = true
             snackbarMessage = interestsSaveFailedMsg
             interestsViewModel.clearSaveFailed()
         }
@@ -303,7 +307,10 @@ fun SearchScreen(
                     radiusChanged -> radiusOnlyMsg
                     else -> null
                 }
-                message?.let { msg -> snackbarMessage = msg }
+                message?.let { msg ->
+                    snackbarIsError = false
+                    snackbarMessage = msg
+                }
             }
         }
     }
@@ -635,6 +642,8 @@ fun SearchScreen(
             visible = snackbarVisible,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
+                // Without this the bar sits under the system navigation bar.
+                .navigationBarsPadding()
                 .padding(horizontal = 24.dp, vertical = 16.dp),
             enter = slideInVertically(
                 initialOffsetY = { it },
@@ -653,14 +662,15 @@ fun SearchScreen(
                     .fillMaxWidth()
                     .shadow(8.dp, RoundedCornerShape(14.dp))
                     .background(
-                        color = Color(0xFF1A6B3C),
+                        // Failures must not be dressed up as a green success bar.
+                        color = if (snackbarIsError) MaterialTheme.colorScheme.error else Color(0xFF1A6B3C),
                         shape = RoundedCornerShape(14.dp)
                     )
                     .padding(horizontal = 16.dp, vertical = 14.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    imageVector = Icons.Rounded.CheckCircle,
+                    imageVector = if (snackbarIsError) Icons.Rounded.Error else Icons.Rounded.CheckCircle,
                     contentDescription = null,
                     tint = Color.White,
                     modifier = Modifier.size(22.dp)
@@ -737,6 +747,7 @@ fun SearchScreen(
                 categories = searchResultViewModel.allCategories,
                 isLoading = searchResultViewModel.isCategoriesLoading,
                 initialSelectedIds = interestsViewModel.interests.map { it.toInt() }.toSet(),
+                maxSelection = InterestsViewModel.MAX_INTERESTS,
                 onDismiss = { showInterestPicker = false },
                 onApply = { selectedItems ->
                     showInterestPicker = false
