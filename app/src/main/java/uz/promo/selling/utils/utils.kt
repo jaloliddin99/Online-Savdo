@@ -17,11 +17,14 @@ import java.util.Locale
 fun formatNumberWithSpaces(numberStr: String?): String {
     if (numberStr == null)
         return ""
+    // Non-numeric prices (e.g. "договорная" on old imported posts) render as-is
+    // instead of crashing — same fallback iOS uses.
+    val number = numberStr.replace(" ", "").toDoubleOrNull() ?: return numberStr
     val symbols = DecimalFormatSymbols(Locale.US).apply {
         groupingSeparator = ' '
     }
     val formatter = DecimalFormat("#,###", symbols)
-    return formatter.format(numberStr.toLong())
+    return formatter.format(number)
 }
 /**
  * OLX-imported descriptions contain literal `<br />` tags. Turn them into real
