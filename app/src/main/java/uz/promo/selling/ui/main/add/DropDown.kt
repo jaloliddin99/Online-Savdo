@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import uz.promo.selling.ui.theme.spacing
+import uz.promo.selling.utils.localizedUnitLabel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,7 +39,7 @@ fun UnitDropdownSelector(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = selected.label,
+                text = localizedUnitLabel(selected.code, selected.label),
                 modifier = Modifier.weight(1f)
                     .padding(horizontal = 16.dp, vertical = 8.dp)
             )
@@ -61,7 +62,7 @@ fun UnitDropdownSelector(
                             .padding(horizontal = MaterialTheme.spacing.dimen16Dp),
                         text = {
                             Text(
-                                text = listEntry.label,
+                                text = localizedUnitLabel(listEntry.code, listEntry.label),
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .align(Alignment.Start)

@@ -99,7 +99,7 @@ fun MultipleChoiceDialog(
                     FilterChip(
                         onClick = {  },
                         label = {
-                            Text(if (SharedPref.language == "ru") it.label_uz else it.label_ru)
+                            Text(translator(it.label_uz, it.label_ru, it.label_en))
                         },
                         selected = true,
                         leadingIcon = {
@@ -170,7 +170,7 @@ fun MultipleChoiceQuestion(
             val selected = selectedAnswers.contains(it)
             CheckboxRow(
                 modifier = Modifier.padding(vertical = 8.dp),
-                text = if (SharedPref.language == "ru") it.label_uz else it.label_ru,
+                text = translator(it.label_uz, it.label_ru, it.label_en),
                 selected = selected,
                 onOptionSelected = { onOptionSelected(!selected, it) }
             )

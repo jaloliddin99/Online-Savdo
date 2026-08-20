@@ -59,7 +59,7 @@ fun QuestionWrapper(
     ) {
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
         Text(
-            text = "${translator(parameter.label_uz, parameter.label_ru)}${if (parameter.validation.is_required) "*" else ""}",
+            text = "${translator(parameter.label_uz, parameter.label_ru, parameter.label_en)}${if (parameter.validation.is_required) "*" else ""}",
             fontSize = MaterialTheme.spacing.dimen16Sp,
             fontFamily = robotoFontFamily,
             fontWeight = FontWeight.Normal
@@ -82,7 +82,7 @@ fun ContentWrapper(
     ) {
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dimen8Dp))
         Text(
-            text = "${translator(parameter.label_uz, parameter.label_ru)}${if (parameter.validation.is_required) "*" else ""}",
+            text = "${translator(parameter.label_uz, parameter.label_ru, parameter.label_en)}${if (parameter.validation.is_required) "*" else ""}",
             fontSize = MaterialTheme.spacing.dimen16Sp,
             fontFamily = robotoFontFamily,
             fontWeight = FontWeight.Normal
@@ -117,9 +117,10 @@ fun TitleWrapper(
 }
 
 
-val translator: (uz: String, ru: String?) -> String = { uz, ru ->
-    if (SharedPref.language == "ru"){
-        ru?:""
-    }else
-        uz
+// English falls back to Russian then Uzbek: the label_en backfill on the server
+// is incremental, so a newly added parameter may have no English label yet.
+fun translator(uz: String, ru: String?, en: String? = null): String = when (SharedPref.language) {
+    "ru" -> ru ?: ""
+    "en" -> en?.takeIf { it.isNotBlank() } ?: ru?.takeIf { it.isNotBlank() } ?: uz
+    else -> uz
 }

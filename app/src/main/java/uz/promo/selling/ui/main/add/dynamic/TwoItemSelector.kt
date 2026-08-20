@@ -57,7 +57,7 @@ fun HorizontalRadioGroup(
                         }
                     )
                     Text(
-                        text = translator(param.values[0].label_uz, param.values[0].label_ru),
+                        text = translator(param.values[0].label_uz, param.values[0].label_ru, param.values[0].label_en),
                         modifier = Modifier.padding(start = 8.dp),
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
@@ -86,7 +86,7 @@ fun HorizontalRadioGroup(
                         }
                     )
                     Text(
-                        text = translator(param.values[1].label_uz, param.values[1].label_ru),
+                        text = translator(param.values[1].label_uz, param.values[1].label_ru, param.values[1].label_en),
                         modifier = Modifier.padding(start = 8.dp),
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis

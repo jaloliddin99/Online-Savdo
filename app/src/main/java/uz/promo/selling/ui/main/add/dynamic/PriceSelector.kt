@@ -51,6 +51,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import uz.promo.selling.utils.formatNumberWithSpaces
+import uz.promo.selling.utils.localizedUnitLabel
 
 @Composable
 fun PriceSelector(
@@ -146,7 +147,7 @@ fun PriceSelector(
                 },
                 label = {
                     Text(
-                        text = unit.label,
+                        text = localizedUnitLabel(unit.code, unit.label),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                 },
@@ -180,7 +181,7 @@ fun PriceSelector(
         if (showSheet && suggestion != null) {
             PriceSuggestionBottomSheet(
                 suggestion = suggestion!!,
-                currencyLabel = unit.label,
+                currencyLabel = localizedUnitLabel(unit.code, unit.label),
                 onUse = {
                     suggestion?.recommended?.let { textState.text = it.toLong().toString() }
                     showSheet = false

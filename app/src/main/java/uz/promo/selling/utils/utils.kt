@@ -52,6 +52,18 @@ fun tr(en: String, ru: String, uz: String): String = when (SharedPref.language) 
 }
 
 /**
+ * Category units carry a single Russian label from the imported data ("сум",
+ * "у.е."); localize the known currency codes for display. Measurement units
+ * (km, Gb, m²) pass through unchanged. Display only — the raw label is still
+ * what gets submitted with the post.
+ */
+fun localizedUnitLabel(code: String?, label: String): String = when (code) {
+    "UZS" -> tr(en = "UZS", ru = "сум", uz = "so'm")
+    "UYE" -> tr(en = "y.e.", ru = "у.е.", uz = "y.e.")
+    else -> label
+}
+
+/**
  * ViewModels and use cases fall back to a small set of canonical English error
  * strings when a request fails locally (no response body to localize). Map
  * those to string resources at display time; anything else came from the

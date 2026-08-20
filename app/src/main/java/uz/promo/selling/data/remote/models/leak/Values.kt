@@ -5,5 +5,6 @@ data class Values(
     val key: String,
     val label_uz: String,
     val label_ru: String,
+    val label_en: String? = null,
     val disabled: Boolean
 )

@@ -5,6 +5,7 @@ data class Parameter(
     val id: Int,
     val label_uz: String,
     val label_ru: String,
+    val label_en: String? = null,
     val range: Boolean,
     val type: String,
     val units: List<Unit>,

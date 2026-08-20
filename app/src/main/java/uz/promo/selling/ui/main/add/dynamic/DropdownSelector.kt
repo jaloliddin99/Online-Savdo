@@ -59,7 +59,7 @@ fun DropDownSample(
             ) {
                 Text(
                     text = if (selected != null) {
-                        translator(selected!!.label_uz, selected!!.label_ru)
+                        translator(selected!!.label_uz, selected!!.label_ru, selected!!.label_en)
                     } else
                         stringResource(id = R.string.select_options),
                     modifier = Modifier
@@ -86,7 +86,7 @@ fun DropDownSample(
                                 .padding(horizontal = MaterialTheme.spacing.dimen16Dp),
                             text = {
                                 Text(
-                                    text = translator(listEntry.label_uz, listEntry.label_ru),
+                                    text = translator(listEntry.label_uz, listEntry.label_ru, listEntry.label_en),
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .align(Alignment.Start)
